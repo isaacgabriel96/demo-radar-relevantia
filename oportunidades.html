@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oportunidades — Radar Relevantia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #C9A43A;
+  --gold-light: #E8C96A;
+  --gold-pale: #FBF5E6;
+  --black: #0E0E0E;
+  --black-2: #1A1A1A;
+  --white: #FFFFFF;
+  --gray-100: #F4F3F0;
+  --gray-200: #EBEBEB;
+  --gray-300: #DDDDDD;
+  --gray-400: #9A9A9A;
+  --gray-500: #717171;
+  --gray-600: #4A4A4A;
+  --text: #1A1A1A;
+  --green: #22C55E;
+  --green-bg: rgba(34,197,94,0.08);
+  --green-border: rgba(34,197,94,0.2);
+  --red: #EF4444;
+  --blue: #3B82F6;
+  --orange: #F59E0B;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: 'DM Sans', sans-serif; background: var(--gray-100); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+a { text-decoration: none; color: inherit; }
+
+/* ─── TOPBAR ─── */
+.topbar {
+  height: 68px;
+  background: rgba(255,255,255,0.82);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0,0,0,0.07);
+  display: flex;
+  align-items: center;
+  padding: 0 48px;
+  gap: 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.topbar-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.topbar-nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: 32px;
+}
+.topbar-nav a {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gray-500);
+  padding: 6px 14px;
+  border-radius: 100px;
+  transition: color 0.2s, background 0.2s;
+}
+.topbar-nav a:hover { color: var(--text); background: rgba(0,0,0,0.05); }
+.topbar-nav a.active { color: var(--text); background: rgba(201,164,58,0.1); font-weight: 600; }
+.topbar-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.search-wrap { position: relative; }
+.search-wrap svg {
+  position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+  width: 15px; height: 15px; color: var(--gray-400); pointer-events: none;
+}
+.search-topbar {
+  width: 200px; height: 36px;
+  border: 1px solid var(--gray-200); border-radius: 100px;
+  background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(8px);
+  padding: 0 16px 0 36px;
+  font-size: 13px; font-family: inherit; color: var(--text);
+  outline: none;
+  transition: border 0.2s, background 0.2s, width 0.3s;
+}
+.search-topbar:focus { border-color: var(--gold); background: var(--white); width: 260px; }
+.search-topbar::placeholder { color: var(--gray-400); }
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 18px; border-radius: 100px;
+  font-size: 13px; font-weight: 500; font-family: inherit;
+  cursor: pointer; border: none; transition: all 0.2s; white-space: nowrap;
+}
+.btn-gold { background: var(--gold); color: var(--black); font-weight: 600; }
+.btn-gold:hover { background: var(--gold-light); }
+.btn-ghost { background: transparent; border: 1px solid rgba(0,0,0,0.12); color: var(--gray-500); }
+.btn-ghost:hover { background: rgba(0,0,0,0.04); color: var(--text); }
+
+/* Hamburger */
+.hamburger {
+  display: none; width: 36px; height: 36px; border: none; background: none;
+  cursor: pointer; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
+  padding: 6px;
+}
+.hamburger span {
+  display: block; width: 20px; height: 2px; background: var(--text); border-radius: 2px;
+  transition: all 0.3s;
+}
+
+/* Mobile nav overlay */
+.mobile-nav-overlay {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+  z-index: 150; opacity: 0; transition: opacity 0.3s;
+}
+.mobile-nav-overlay.open { opacity: 1; }
+.mobile-nav {
+  position: fixed; top: 0; right: 0; bottom: 0; width: 280px;
+  background: var(--white); z-index: 200;
+  transform: translateX(100%); transition: transform 0.3s ease;
+  padding: 24px; display: flex; flex-direction: column; gap: 8px;
+}
+.mobile-nav.open { transform: translateX(0); }
+.mobile-nav-close {
+  align-self: flex-end; background: none; border: none; cursor: pointer;
+  font-size: 24px; color: var(--gray-500); margin-bottom: 16px; line-height: 1;
+}
+.mobile-nav a {
+  display: block; padding: 12px 16px; font-size: 15px; font-weight: 500;
+  color: var(--text); border-radius: 10px; transition: background 0.15s;
+}
+.mobile-nav a:hover { background: var(--gray-100); }
+.mobile-nav a.active { background: rgba(201,164,58,0.1); color: var(--gold); font-weight: 600; }
+.mobile-nav-btns { margin-top: auto; display: flex; flex-direction: column; gap: 8px; }
+.mobile-nav-btns .btn { justify-content: center; padding: 12px; font-size: 14px; }
+
+/* ─── HERO ─── */
+.hero {
+  background: var(--black);
+  padding: 64px 48px;
+  text-align: center;
+}
+.hero-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 42px;
+  font-weight: 600;
+  color: var(--white);
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+  max-width: 700px;
+  margin: 0 auto 16px;
+}
+.hero-title em { font-style: italic; font-weight: 400; color: var(--gold); }
+.hero-sub {
+  font-size: 16px;
+  color: rgba(255,255,255,0.5);
+  max-width: 540px;
+  margin: 0 auto 40px;
+  line-height: 1.6;
+}
+
+/* Hero filter bar */
+.hero-filters {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 820px;
+  margin: 0 auto;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  padding: 10px 14px;
+}
+.hero-search-wrap { position: relative; flex: 1; min-width: 0; }
+.hero-search-wrap svg {
+  position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+  width: 16px; height: 16px; color: var(--gray-400); pointer-events: none;
+}
+.hero-search {
+  width: 100%; height: 42px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 100px;
+  padding: 0 16px 0 42px;
+  font-size: 14px; font-family: inherit; color: var(--white);
+  outline: none;
+  transition: border 0.2s, background 0.2s;
+}
+.hero-search:focus { border-color: var(--gold); background: rgba(255,255,255,0.12); }
+.hero-search::placeholder { color: rgba(255,255,255,0.35); }
+.hero-select {
+  height: 42px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 100px;
+  padding: 0 32px 0 14px;
+  font-size: 13px; font-family: inherit; color: var(--white);
+  outline: none; cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='rgba(255,255,255,0.4)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 10px 6px;
+  white-space: nowrap;
+  transition: border 0.2s;
+}
+.hero-select:focus { border-color: var(--gold); }
+.hero-select option { background: var(--black); color: var(--white); }
+.hero-filters .btn-gold { height: 42px; padding: 0 24px; font-size: 14px; border-radius: 100px; flex-shrink: 0; }
+
+/* ─── RESULTS SECTION ─── */
+.results-section {
+  max-width: 1260px;
+  margin: 0 auto;
+  padding: 36px 48px 80px;
+}
+.results-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.results-count {
+  font-size: 14px; color: var(--gray-500); font-weight: 500;
+}
+.results-count strong { color: var(--text); font-weight: 600; }
+.sort-select {
+  height: 36px;
+  border: 1px solid var(--gray-200);
+  border-radius: 100px;
+  padding: 0 32px 0 14px;
+  font-size: 13px; font-family: inherit; color: var(--gray-600);
+  outline: none; cursor: pointer;
+  background: var(--white);
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%239A9A9A' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 10px 6px;
+  transition: border 0.2s;
+}
+.sort-select:focus { border-color: var(--gold); }
+
+/* ─── CARDS GRID ─── */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+/* ─── OPPORTUNITY CARD ─── */
+.opp-card {
+  display: flex; flex-direction: column;
+  background: var(--white);
+  border-radius: 16px;
+  border: 1px solid rgba(0,0,0,0.06);
+  overflow: hidden;
+  transition: box-shadow 0.25s, transform 0.25s;
+  cursor: pointer;
+}
+.opp-card:hover {
+  box-shadow: 0 12px 40px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.04);
+  transform: translateY(-2px);
+}
+.card-image {
+  position: relative;
+  height: 200px;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+.card-image svg { width: 48px; height: 48px; color: rgba(255,255,255,0.18); }
+.card-badge {
+  position: absolute; top: 12px; left: 12px;
+  padding: 4px 10px;
+  border-radius: 100px;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--white);
+}
+.badge-esporte { background: rgba(34,197,94,0.85); }
+.badge-musica { background: rgba(147,51,234,0.85); }
+.badge-tecnologia { background: rgba(59,130,246,0.85); }
+.badge-cultura { background: rgba(245,158,11,0.85); }
+.badge-midia { background: rgba(6,182,212,0.85); }
+.card-body {
+  padding: 20px;
+  display: flex; flex-direction: column;
+  flex: 1;
+}
+.card-org {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 8px;
+}
+.card-org-avatar {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 700; color: var(--black);
+  flex-shrink: 0;
+}
+.card-org-name { font-size: 12px; color: var(--gray-400); font-weight: 500; }
+.card-title {
+  font-size: 16px; font-weight: 600; color: var(--text);
+  line-height: 1.35; margin-bottom: 8px;
+}
+.card-desc {
+  font-size: 13px; color: var(--gray-500); line-height: 1.55;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden; margin-bottom: 14px;
+}
+.card-meta {
+  display: flex; align-items: center; gap: 14px;
+  font-size: 12px; color: var(--gray-400);
+  margin-bottom: 16px;
+}
+.card-meta-item { display: flex; align-items: center; gap: 4px; }
+.card-meta-item svg { width: 13px; height: 13px; flex-shrink: 0; }
+.card-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--gray-200);
+}
+.card-price {
+  font-size: 14px; font-weight: 700; color: var(--gold);
+}
+.card-price small { font-size: 11px; font-weight: 500; color: var(--gray-400); }
+.card-link {
+  font-size: 13px; font-weight: 600; color: var(--gold);
+  display: flex; align-items: center; gap: 4px;
+  transition: gap 0.2s;
+}
+.opp-card:hover .card-link { gap: 8px; }
+
+/* ─── EMPTY STATE ─── */
+.empty-state {
+  text-align: center; padding: 80px 20px;
+  grid-column: 1 / -1;
+}
+.empty-state svg { width: 56px; height: 56px; color: var(--gray-300); margin-bottom: 16px; }
+.empty-state h3 {
+  font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 600;
+  color: var(--text); margin-bottom: 8px;
+}
+.empty-state p { font-size: 14px; color: var(--gray-400); }
+
+/* ─── FOOTER ─── */
+.site-footer {
+  background: var(--black);
+  padding: 40px 48px;
+}
+.footer-inner {
+  max-width: 1260px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 20px;
+}
+.footer-brand {
+  font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700;
+}
+.footer-brand .t-white { color: var(--white); }
+.footer-brand .t-gold { color: var(--gold); font-style: italic; font-weight: 400; }
+.footer-copy { font-size: 12px; color: rgba(255,255,255,0.3); margin-top: 6px; }
+.footer-links { display: flex; gap: 24px; }
+.footer-links a {
+  font-size: 13px; color: rgba(255,255,255,0.4);
+  transition: color 0.2s;
+}
+.footer-links a:hover { color: var(--gold); }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 1024px) {
+  .cards-grid { grid-template-columns: repeat(2, 1fr); }
+  .topbar { padding: 0 24px; }
+  .hero { padding: 48px 24px; }
+  .results-section { padding: 28px 24px 60px; }
+  .site-footer { padding: 32px 24px; }
+}
+
+@media (max-width: 768px) {
+  .topbar-nav { display: none; }
+  .search-wrap { display: none; }
+  .topbar-right .btn-gold { display: none; }
+  .hamburger { display: flex; }
+  .mobile-nav-overlay { display: block; pointer-events: none; }
+  .mobile-nav-overlay.open { pointer-events: auto; }
+
+  .hero { padding: 40px 20px; }
+  .hero-title { font-size: 28px; }
+  .hero-sub { font-size: 14px; margin-bottom: 28px; }
+  .hero-filters { flex-direction: column; gap: 8px; padding: 12px; }
+  .hero-search-wrap { width: 100%; }
+  .hero-select { width: 100%; }
+  .hero-filters .btn-gold { width: 100%; justify-content: center; }
+
+  .cards-grid { grid-template-columns: 1fr; gap: 16px; }
+  .results-section { padding: 20px 16px 48px; }
+  .results-bar { flex-direction: column; align-items: flex-start; }
+
+  .site-footer { padding: 28px 20px; }
+  .footer-inner { flex-direction: column; align-items: flex-start; }
+  .footer-links { flex-direction: column; gap: 12px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ TOPBAR ══ -->
+<header class="topbar">
+  <a href="index.html" class="topbar-logo">
+    <span style="color:var(--text)">Radar</span> <span style="color:var(--gold);font-style:italic">Relevantia</span>
+  </a>
+
+  <nav class="topbar-nav">
+    <a href="index.html">Inicio</a>
+    <a href="oportunidades.html" class="active">Oportunidades</a>
+    <a href="cadastro-marca.html">Para Marcas</a>
+    <a href="cadastro-detentor.html">Para Detentores</a>
+  </nav>
+
+  <div class="topbar-right">
+    <div class="search-wrap">
+      <svg viewBox="0 0 20 20" fill="none"><circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" stroke-width="1.5"/><path d="M13 13l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <input type="text" class="search-topbar" placeholder="Buscar oportunidades...">
+    </div>
+    <a href="login.html" class="btn btn-ghost">Entrar</a>
+    <a href="cadastro-marca.html" class="btn btn-gold">Cadastre-se</a>
+    <button class="hamburger" id="hamburgerBtn" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<!-- Mobile nav -->
+<div class="mobile-nav-overlay" id="mobileOverlay">
+  <nav class="mobile-nav" id="mobileNav">
+    <button class="mobile-nav-close" id="mobileClose">&times;</button>
+    <a href="index.html">Inicio</a>
+    <a href="oportunidades.html" class="active">Oportunidades</a>
+    <a href="cadastro-marca.html">Para Marcas</a>
+    <a href="cadastro-detentor.html">Para Detentores</a>
+    <div class="mobile-nav-btns">
+      <a href="login.html" class="btn btn-ghost">Entrar</a>
+      <a href="cadastro-marca.html" class="btn btn-gold">Cadastre-se</a>
+    </div>
+  </nav>
+</div>
+
+<!-- ══ HERO ══ -->
+<section class="hero">
+  <h1 class="hero-title">Encontre a oportunidade <em>perfeita</em> para sua marca</h1>
+  <p class="hero-sub">Explore centenas de oportunidades de patrocinio em esportes, musica, cultura e mais.</p>
+
+  <div class="hero-filters">
+    <div class="hero-search-wrap">
+      <svg viewBox="0 0 20 20" fill="none"><circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" stroke-width="1.5"/><path d="M13 13l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <input type="text" class="hero-search" id="searchInput" placeholder="Buscar por nome, categoria ou cidade...">
+    </div>
+    <select class="hero-select" id="categoryFilter">
+      <option value="">Todos</option>
+      <option value="Esporte">Esporte</option>
+      <option value="Musica">Musica</option>
+      <option value="Tecnologia">Tecnologia</option>
+      <option value="Cultura">Cultura</option>
+      <option value="Midia Digital">Midia Digital</option>
+    </select>
+    <select class="hero-select" id="regionFilter">
+      <option value="">Todas</option>
+      <option value="Sao Paulo">Sao Paulo</option>
+      <option value="Rio de Janeiro">Rio de Janeiro</option>
+      <option value="Minas Gerais">Minas Gerais</option>
+      <option value="Bahia">Bahia</option>
+      <option value="Parana">Parana</option>
+      <option value="Online">Online</option>
+    </select>
+    <button class="btn btn-gold" onclick="renderCards()">Buscar</button>
+  </div>
+</section>
+
+<!-- ══ RESULTS ══ -->
+<section class="results-section">
+  <div class="results-bar">
+    <div class="results-count" id="resultsCount">Mostrando <strong>10</strong> oportunidades</div>
+    <select class="sort-select" id="sortSelect">
+      <option value="relevante">Mais relevantes</option>
+      <option value="recente">Mais recentes</option>
+      <option value="menor">Menor investimento</option>
+      <option value="maior">Maior investimento</option>
+    </select>
+  </div>
+
+  <div class="cards-grid" id="cardsGrid">
+    <!-- Cards rendered by JS -->
+  </div>
+</section>
+
+<!-- ══ FOOTER ══ -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div>
+      <div class="footer-brand">
+        <span class="t-white">Radar</span> <span class="t-gold">Relevantia</span>
+      </div>
+      <div class="footer-copy">&copy; 2026 Todos os direitos reservados.</div>
+    </div>
+    <div class="footer-links">
+      <a href="#">Termos de uso</a>
+      <a href="#">Politica de privacidade</a>
+      <a href="#">Contato</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ─── MOCK DATA ─── */
+const OPPORTUNITIES = [
+  { id: 1, title: 'Maratona Internacional de Sao Paulo', org: 'SP Marathon Club', orgInitials: 'SM', category: 'Esporte', city: 'Sao Paulo', region: 'Sao Paulo', date: 'Jan 2027', price: 50000, desc: 'Patrocinio oficial da maior maratona da America Latina, com visibilidade para 35 mil atletas e cobertura nacional de midia.' },
+  { id: 2, title: 'Festival de Verao Salvador', org: 'Verao Producoes', orgInitials: 'VP', category: 'Musica', city: 'Salvador', region: 'Bahia', date: 'Fev 2027', price: 80000, desc: 'Associe sua marca ao maior festival de verao do Brasil. 3 dias de shows com publico de 120 mil pessoas.' },
+  { id: 3, title: 'Expo Tech Brasil', org: 'TechConf BR', orgInitials: 'TB', category: 'Tecnologia', city: 'Sao Paulo', region: 'Sao Paulo', date: 'Mar 2027', price: 35000, desc: 'Feira de tecnologia e inovacao com mais de 50 mil visitantes e 200 expositores. Ideal para marcas de tech.' },
+  { id: 4, title: 'Campeonato de Surf Floripa', org: 'Surf SC', orgInitials: 'SS', category: 'Esporte', city: 'Florianopolis', region: 'Parana', date: 'Dez 2026', price: 25000, desc: 'Campeonato de surf com etapa nacional. Publico jovem e engajado com lifestyle e sustentabilidade.' },
+  { id: 5, title: 'Podcast Tech Daily', org: 'Media Lab', orgInitials: 'ML', category: 'Midia Digital', city: 'Online', region: 'Online', date: 'Continuo', price: 15000, desc: 'Podcast diario sobre tecnologia com 500 mil ouvintes mensais. Ativacao via branded content e mencoes.' },
+  { id: 6, title: 'Arena Music Curitiba', org: 'Arena Live', orgInitials: 'AL', category: 'Musica', city: 'Curitiba', region: 'Parana', date: 'Abr 2027', price: 60000, desc: 'Casa de shows com programacao semanal. Naming rights e presenca de marca em 200+ eventos anuais.' },
+  { id: 7, title: 'Mostra Cultural Recife', org: 'Cultura PE', orgInitials: 'CP', category: 'Cultura', city: 'Recife', region: 'Bahia', date: 'Mai 2027', price: 40000, desc: 'Festival cultural com exposicoes, teatro e gastronomia. Publico qualificado de classes A e B.' },
+  { id: 8, title: 'Liga Brasileira de eSports', org: 'ESL Brasil', orgInitials: 'EB', category: 'Tecnologia', city: 'Online', region: 'Online', date: 'Continuo', price: 70000, desc: 'Liga profissional de eSports com audiencia de 2 milhoes de views mensais em streaming.' },
+  { id: 9, title: 'Corrida de Rua BH', org: 'Run MG', orgInitials: 'RM', category: 'Esporte', city: 'Belo Horizonte', region: 'Minas Gerais', date: 'Jun 2027', price: 20000, desc: 'Corrida de rua com 8 mil participantes. Excelente para ativacoes de saude e bem-estar.' },
+  { id: 10, title: 'Feira Gastronomica SP', org: 'Gourmet BR', orgInitials: 'GB', category: 'Cultura', city: 'Sao Paulo', region: 'Sao Paulo', date: 'Jul 2027', price: 30000, desc: 'Feira gastronomica com chefs renomados. 40 mil visitantes em 5 dias de evento.' }
+];
+
+/* ─── CATEGORY CONFIG ─── */
+const CAT_CONFIG = {
+  'Esporte':      { gradient: 'linear-gradient(135deg, #1a472a, #2d6a3f)', badge: 'badge-esporte',    icon: esporteIcon },
+  'Musica':       { gradient: 'linear-gradient(135deg, #3b1054, #6b21a8)', badge: 'badge-musica',     icon: musicaIcon },
+  'Tecnologia':   { gradient: 'linear-gradient(135deg, #0c2461, #1e40af)', badge: 'badge-tecnologia', icon: tecnologiaIcon },
+  'Cultura':      { gradient: 'linear-gradient(135deg, #7c2d12, #c2410c)', badge: 'badge-cultura',    icon: culturaIcon },
+  'Midia Digital': { gradient: 'linear-gradient(135deg, #0e4a6e, #0284c7)', badge: 'badge-midia',     icon: midiaIcon }
+};
+
+/* ─── SVG ICONS ─── */
+function esporteIcon() {
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 000 20M12 2a14.5 14.5 0 010 20M2 12h20"/></svg>';
+}
+function musicaIcon() {
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>';
+}
+function tecnologiaIcon() {
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>';
+}
+function culturaIcon() {
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>';
+}
+function midiaIcon() {
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+}
+
+/* ─── LOCATION & CALENDAR SVG ─── */
+const locSvg = '<svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>';
+const calSvg = '<svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/></svg>';
+const arrowSvg = '<svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>';
+
+/* ─── RENDER ─── */
+function renderCards() {
+  const searchVal = document.getElementById('searchInput').value.toLowerCase().trim();
+  const catVal = document.getElementById('categoryFilter').value;
+  const regVal = document.getElementById('regionFilter').value;
+  const sortVal = document.getElementById('sortSelect').value;
+
+  let filtered = OPPORTUNITIES.filter(o => {
+    const matchSearch = !searchVal ||
+      o.title.toLowerCase().includes(searchVal) ||
+      o.category.toLowerCase().includes(searchVal) ||
+      o.city.toLowerCase().includes(searchVal) ||
+      o.org.toLowerCase().includes(searchVal) ||
+      o.desc.toLowerCase().includes(searchVal);
+    const matchCat = !catVal || o.category === catVal;
+    const matchReg = !regVal || o.region === regVal;
+    return matchSearch && matchCat && matchReg;
+  });
+
+  // Sort
+  if (sortVal === 'menor') filtered.sort((a, b) => a.price - b.price);
+  else if (sortVal === 'maior') filtered.sort((a, b) => b.price - a.price);
+  else if (sortVal === 'recente') filtered.sort((a, b) => b.id - a.id);
+
+  // Update count
+  document.getElementById('resultsCount').innerHTML =
+    'Mostrando <strong>' + filtered.length + '</strong> oportunidade' + (filtered.length !== 1 ? 's' : '');
+
+  const grid = document.getElementById('cardsGrid');
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '<div class="empty-state">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35" stroke-linecap="round"/></svg>' +
+      '<h3>Nenhuma oportunidade encontrada</h3>' +
+      '<p>Tente ajustar os filtros ou buscar por outros termos.</p></div>';
+    return;
+  }
+
+  grid.innerHTML = filtered.map(o => {
+    const cfg = CAT_CONFIG[o.category] || CAT_CONFIG['Cultura'];
+    return '<a class="opp-card" href="oportunidade-detalhe.html?id=' + o.id + '">' +
+      '<div class="card-image" style="background:' + cfg.gradient + '">' +
+        cfg.icon() +
+        '<span class="card-badge ' + cfg.badge + '">' + o.category + '</span>' +
+      '</div>' +
+      '<div class="card-body">' +
+        '<div class="card-org">' +
+          '<span class="card-org-avatar">' + o.orgInitials + '</span>' +
+          '<span class="card-org-name">' + o.org + '</span>' +
+        '</div>' +
+        '<div class="card-title">' + o.title + '</div>' +
+        '<div class="card-desc">' + o.desc + '</div>' +
+        '<div class="card-meta">' +
+          '<span class="card-meta-item">' + locSvg + o.city + '</span>' +
+          '<span class="card-meta-item">' + calSvg + o.date + '</span>' +
+        '</div>' +
+        '<div class="card-footer">' +
+          '<span class="card-price"><small>A partir de </small>R$ ' + o.price.toLocaleString('pt-BR') + '</span>' +
+          '<span class="card-link">Ver detalhes ' + arrowSvg + '</span>' +
+        '</div>' +
+      '</div>' +
+    '</a>';
+  }).join('');
+}
+
+/* ─── EVENTS ─── */
+document.getElementById('searchInput').addEventListener('input', renderCards);
+document.getElementById('categoryFilter').addEventListener('change', renderCards);
+document.getElementById('regionFilter').addEventListener('change', renderCards);
+document.getElementById('sortSelect').addEventListener('change', renderCards);
+
+/* ─── MOBILE NAV ─── */
+const hamburgerBtn = document.getElementById('hamburgerBtn');
+const mobileOverlay = document.getElementById('mobileOverlay');
+const mobileNav = document.getElementById('mobileNav');
+const mobileClose = document.getElementById('mobileClose');
+
+function openMobileNav() {
+  mobileOverlay.classList.add('open');
+  mobileNav.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeMobileNav() {
+  mobileOverlay.classList.remove('open');
+  mobileNav.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+hamburgerBtn.addEventListener('click', openMobileNav);
+mobileClose.addEventListener('click', closeMobileNav);
+mobileOverlay.addEventListener('click', function(e) {
+  if (e.target === mobileOverlay) closeMobileNav();
+});
+
+/* ─── INIT ─── */
+renderCards();
+</script>
+</body>
+</html>

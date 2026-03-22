@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login — Radar Relevantia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --gold: #C9A43A;
+  --gold-light: #E8C96A;
+  --gold-pale: #FBF5E6;
+  --black: #0E0E0E;
+  --black-2: #1A1A1A;
+  --white: #FFFFFF;
+  --gray-1: #F7F7F7;
+  --gray-2: #EBEBEB;
+  --gray-3: #DDDDDD;
+  --gray-5: #717171;
+  --red: #EF4444;
+}
+
+html, body {
+  min-height: 100vh;
+  font-family: 'DM Sans', sans-serif;
+  background: var(--black);
+  color: var(--white);
+}
+
+/* ── Fundo com grid gold ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(201,164,58,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(201,164,58,0.04) 1px, transparent 1px);
+  background-size: 56px 56px;
+  pointer-events: none; z-index: 0;
+}
+
+/* ── Loading ── */
+#loadingScreen {
+  position: fixed; inset: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--black); flex-direction: column; gap: 20px;
+}
+.loading-spinner {
+  width: 32px; height: 32px;
+  border: 2.5px solid rgba(201,164,58,0.2);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+.loading-text {
+  font-size: 13px;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 0.06em;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Layout split ── */
+#loginPage {
+  display: none;
+  min-height: 100vh;
+  position: relative; z-index: 1;
+}
+
+.login-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 100vh;
+}
+
+/* ── Lado esquerdo — decorativo ── */
+.login-left {
+  background: var(--black-2);
+  border-right: 1px solid rgba(255,255,255,0.06);
+  display: flex; flex-direction: column;
+  justify-content: space-between;
+  padding: 48px 56px;
+  position: relative; overflow: hidden;
+}
+
+/* Orb decorativo */
+.login-left::before {
+  content: '';
+  position: absolute;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(201,164,58,0.1) 0%, transparent 65%);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+/* Grid sutil no painel esquerdo */
+.login-left::after {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(201,164,58,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(201,164,58,0.03) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+}
+
+.left-top { position: relative; z-index: 1; }
+.left-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; margin-bottom: 20px; }
+.left-logo img { height: 43px; width: auto; }
+
+.left-headline {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(32px, 3.5vw, 52px);
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  color: var(--white);
+  margin-bottom: 20px;
+}
+.left-headline em {
+  font-style: italic;
+  color: var(--gold);
+}
+
+.left-sub {
+  font-size: 15px;
+  color: rgba(255,255,255,0.4);
+  line-height: 1.7;
+  max-width: 380px;
+}
+
+.left-bottom { position: relative; z-index: 1; }
+.left-quote {
+  border-left: 2px solid rgba(201,164,58,0.4);
+  padding-left: 20px;
+}
+.left-quote-text {
+  font-size: 14px;
+  color: rgba(255,255,255,0.35);
+  line-height: 1.7;
+  font-style: italic;
+  margin-bottom: 10px;
+}
+.left-quote-author {
+  font-size: 12px;
+  color: var(--gold);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ── Lado direito — formulário ── */
+.login-right {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 56px;
+}
+
+.login-form-wrap {
+  width: 100%;
+  max-width: 400px;
+}
+
+/* Badge de volta */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.3);
+  text-decoration: none;
+  margin-bottom: 12px;
+  transition: color 0.2s;
+}
+.back-link:hover { color: var(--gold); }
+.back-link svg { flex-shrink: 0; }
+
+.form-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(26px, 3vw, 34px);
+  font-weight: 600;
+  color: var(--white);
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+.form-title em { font-style: italic; color: var(--gold); }
+.form-subtitle {
+  font-size: 14px;
+  color: rgba(255,255,255,0.35);
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+
+/* ── Card de vidro do form ── */
+.glass-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 16px;
+  padding: 28px;
+}
+
+.form-group { margin-bottom: 20px; }
+.form-group:last-of-type { margin-bottom: 0; }
+
+.form-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 13px 16px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  font-size: 15px;
+  font-family: 'DM Sans', sans-serif;
+  color: var(--white);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.form-input:focus {
+  border-color: rgba(201,164,58,0.5);
+  box-shadow: 0 0 0 3px rgba(201,164,58,0.1);
+}
+.form-input::placeholder { color: rgba(255,255,255,0.2); }
+.form-input.error { border-color: rgba(239,68,68,0.6); }
+
+.password-wrap { position: relative; }
+.password-wrap .form-input { padding-right: 46px; }
+.btn-toggle-pw {
+  position: absolute; right: 14px; top: 50%;
+  transform: translateY(-50%);
+  background: none; border: none; cursor: pointer;
+  font-size: 16px;
+  color: rgba(255,255,255,0.25);
+  transition: color 0.2s; padding: 4px;
+}
+.btn-toggle-pw:hover { color: rgba(255,255,255,0.6); }
+
+.form-error {
+  font-size: 12px;
+  color: #FCA5A5;
+  margin-top: 6px;
+  display: none;
+}
+
+.forgot-link {
+  text-align: right;
+  margin-top: 8px;
+}
+.forgot-link a {
+  font-size: 12px;
+  color: rgba(255,255,255,0.25);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.forgot-link a:hover { color: var(--gold); }
+
+/* ── Botão principal ── */
+.btn-primary {
+  width: 100%;
+  padding: 15px;
+  background: var(--gold);
+  color: var(--black);
+  border: none;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 24px;
+}
+.btn-primary:hover {
+  background: var(--gold-light);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(201,164,58,0.25);
+}
+.btn-primary:active { transform: translateY(0); box-shadow: none; }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+.btn-spinner {
+  width: 18px; height: 18px;
+  border: 2px solid rgba(14,14,14,0.25);
+  border-top-color: var(--black);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: none;
+}
+
+/* ── Rodapé do form ── */
+.form-footer {
+  text-align: center;
+  margin-top: 20px;
+}
+.form-footer p {
+  font-size: 12px;
+  color: rgba(255,255,255,0.2);
+  line-height: 1.6;
+}
+.form-footer a {
+  color: var(--gold);
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+.form-footer a:hover { opacity: 0.75; }
+
+/* ── Divider ── */
+.divider {
+  display: flex; align-items: center; gap: 12px;
+  margin: 20px 0;
+}
+.divider-line {
+  flex: 1; height: 1px;
+  background: rgba(255,255,255,0.08);
+}
+.divider-text {
+  font-size: 11px;
+  color: rgba(255,255,255,0.2);
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+/* ── Toast ── */
+.toast {
+  position: fixed; bottom: 28px; left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: rgba(30,30,30,0.96);
+  border: 1px solid rgba(255,255,255,0.1);
+  backdrop-filter: blur(12px);
+  border-radius: 12px;
+  padding: 12px 20px;
+  font-size: 13.5px; font-weight: 500;
+  color: var(--white); white-space: nowrap; z-index: 999;
+  opacity: 0; transition: all 0.3s; pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.success { border-color: rgba(34,197,94,0.4); color: #4ade80; }
+.toast.error { border-color: rgba(239,68,68,0.4); color: #fca5a5; }
+
+/* ── Responsive ── */
+@media (max-width: 860px) {
+  .login-layout { grid-template-columns: 1fr; }
+  .login-left { display: none; }
+  .login-right { padding: 40px 24px; align-items: flex-start; padding-top: 48px; }
+  .login-form-wrap { max-width: 100%; }
+  /* Logo compacta no mobile */
+  .mobile-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    text-decoration: none;
+  }
+  .mobile-logo img { height: 38px; }
+}
+@media (min-width: 861px) {
+  .mobile-logo { display: none; }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.fade-in { animation: fadeUp 0.4s ease both; }
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<!-- ── Loading ── -->
+<div id="loadingScreen">
+  <img src="1.png" alt="Relevantia" style="height:48px;width:auto;opacity:0.6">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Carregando...</div>
+</div>
+
+<!-- ── Página de Login ── -->
+<div id="loginPage">
+  <div class="login-layout">
+
+    <!-- ════════════════════════════
+         LADO ESQUERDO — Decorativo
+    ════════════════════════════ -->
+    <div class="login-left">
+      <div class="left-top">
+        <a href="index.html" class="left-logo">
+          <img src="1.png" alt="Radar Relevantia">
+        </a>
+        <h2 class="left-headline">
+          O marketplace de<br>
+          <em>patrocínios</em><br>
+          estratégicos.
+        </h2>
+        <p class="left-sub">
+          Conectando marcas a ativos de alto impacto — com curadoria, dados e propósito.
+        </p>
+      </div>
+
+      <div class="left-bottom">
+        <div class="left-quote">
+          <p class="left-quote-text">
+            "O Radar mudou a forma como eu encontro parceiros de patrocínio. Tudo em um só lugar, com curadoria de verdade."
+          </p>
+          <span class="left-quote-author">Usuário do Radar Relevantia</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════
+         LADO DIREITO — Formulário
+    ════════════════════════════ -->
+    <div class="login-right">
+      <div class="login-form-wrap fade-in">
+
+        <!-- Logo mobile -->
+        <a href="index.html" class="mobile-logo">
+          <img src="1.png" alt="Radar Relevantia">
+        </a>
+
+        <!-- Voltar -->
+        <a href="index.html" class="back-link">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M10 3L5 8L10 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Voltar ao início
+        </a>
+
+        <h1 class="form-title">Bem-vindo de<br>volta ao <em>Radar</em></h1>
+        <p class="form-subtitle">Entre com seu email e senha para acessar sua conta.</p>
+
+        <!-- Formulário -->
+        <div class="glass-card">
+          <div class="form-group">
+            <label class="form-label" for="inputEmail">Email</label>
+            <input
+              type="email"
+              class="form-input"
+              id="inputEmail"
+              placeholder="seu@email.com"
+              autocomplete="email"
+              onkeydown="if(event.key==='Enter') doLogin()"
+            >
+            <div class="form-error" id="errEmail">Digite um email válido.</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="inputPassword">Senha</label>
+            <div class="password-wrap">
+              <input
+                type="password"
+                class="form-input"
+                id="inputPassword"
+                placeholder="Sua senha"
+                autocomplete="current-password"
+                onkeydown="if(event.key==='Enter') doLogin()"
+              >
+              <button class="btn-toggle-pw" type="button" onclick="togglePw('inputPassword', this)">👁</button>
+            </div>
+            <div class="form-error" id="errLogin">Email ou senha incorretos.</div>
+            <div class="forgot-link">
+              <a href="mailto:hello@relevantia.com.br">Esqueceu a senha?</a>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-primary" id="btnLogin" onclick="doLogin()">
+          <span class="btn-spinner" id="spinnerLogin"></span>
+          <span id="btnLoginText">Entrar →</span>
+        </button>
+
+        <div class="divider">
+          <div class="divider-line"></div>
+          <span class="divider-text">Ainda não tem conta?</span>
+          <div class="divider-line"></div>
+        </div>
+
+        <div class="form-footer">
+          <p>
+            <a href="index.html" onclick="window.history.back();return false;">Cadastre-se no Radar Relevantia</a>
+          </p>
+          <p style="margin-top: 16px;">
+            Dúvidas? Fale com <a href="mailto:hello@relevantia.com.br">hello@relevantia.com.br</a>
+          </p>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://bzckerazidgrkbpgqqee.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_23vtXVo1wT1gFhNaOw8fpA_M2AwRbgR';
+
+/* ── Utilitários ── */
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  setTimeout(() => { t.className = 'toast'; }, 3500);
+}
+
+function togglePw(inputId, btn) {
+  const el = document.getElementById(inputId);
+  const isText = el.type === 'text';
+  el.type = isText ? 'password' : 'text';
+  btn.textContent = isText ? '👁' : '🙈';
+}
+
+/* ── Redireciona baseado no tipo do usuário (user_metadata.tipo) ── */
+function redirecionar(data) {
+  const meta = data.user?.user_metadata || {};
+  const tipo = meta.tipo;
+
+  if (tipo === 'detentor') {
+    localStorage.setItem('sb_detentor_session', JSON.stringify(data));
+    window.location.href = meta.senha_provisoria === true
+      ? 'acesso-detentor.html'
+      : 'dashboard-detentor.html';
+  } else if (tipo === 'marca') {
+    localStorage.setItem('sb_marca_session', JSON.stringify(data));
+    window.location.href = 'dashboard-marca.html';
+  } else {
+    // Tipo não definido no cadastro — exibe erro orientativo
+    showToast('Conta sem tipo definido. Contate hello@relevantia.com.br', 'error');
+  }
+}
+
+/* ── Login ── */
+async function doLogin() {
+  const email    = document.getElementById('inputEmail').value.trim();
+  const password = document.getElementById('inputPassword').value;
+
+  document.getElementById('errEmail').style.display = 'none';
+  document.getElementById('errLogin').style.display = 'none';
+  document.getElementById('inputEmail').classList.remove('error');
+  document.getElementById('inputPassword').classList.remove('error');
+
+  if (!email || !email.includes('@')) {
+    document.getElementById('errEmail').style.display = 'block';
+    document.getElementById('inputEmail').classList.add('error');
+    document.getElementById('inputEmail').focus();
+    return;
+  }
+  if (!password) {
+    document.getElementById('errLogin').style.display = 'block';
+    document.getElementById('inputPassword').classList.add('error');
+    document.getElementById('inputPassword').focus();
+    return;
+  }
+
+  const btn     = document.getElementById('btnLogin');
+  const spinner = document.getElementById('spinnerLogin');
+  const label   = document.getElementById('btnLoginText');
+  btn.disabled  = true;
+  spinner.style.display = 'block';
+  label.textContent = 'Entrando...';
+
+  try {
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      document.getElementById('errLogin').style.display = 'block';
+      document.getElementById('inputPassword').classList.add('error');
+      return;
+    }
+
+    redirecionar(data);
+
+  } catch (e) {
+    showToast('Erro de conexão. Tente novamente.', 'error');
+  } finally {
+    btn.disabled = false;
+    spinner.style.display = 'none';
+    label.textContent = 'Entrar →';
+  }
+}
+
+/* ── Init: checa sessão salva ── */
+function init() {
+  // Checa sessão de detentor ativa
+  const sessionDetentor = localStorage.getItem('sb_detentor_session');
+  if (sessionDetentor) {
+    try {
+      const s = JSON.parse(sessionDetentor);
+      const now = Math.floor(Date.now() / 1000);
+      if (s.expires_at && now < s.expires_at) {
+        const meta = s.user?.user_metadata || {};
+        window.location.href = meta.senha_provisoria === true
+          ? 'acesso-detentor.html'
+          : 'dashboard-detentor.html';
+        return;
+      }
+    } catch {}
+    localStorage.removeItem('sb_detentor_session');
+  }
+
+  // Checa sessão de marca ativa
+  const sessionMarca = localStorage.getItem('sb_marca_session');
+  if (sessionMarca) {
+    try {
+      const s = JSON.parse(sessionMarca);
+      const now = Math.floor(Date.now() / 1000);
+      if (s.expires_at && now < s.expires_at) {
+        window.location.href = 'dashboard-marca.html';
+        return;
+      }
+    } catch {}
+    localStorage.removeItem('sb_marca_session');
+  }
+
+  // Sem sessão válida — mostra tela de login
+  document.getElementById('loadingScreen').style.display = 'none';
+  document.getElementById('loginPage').style.display = 'block';
+}
+
+init();
+</script>
+</body>
+</html>

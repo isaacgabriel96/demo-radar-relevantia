@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal da Marca — Radar Relevantia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --gold: #C9A43A;
+  --gold-light: #E8C96A;
+  --gold-pale: #FBF5E6;
+  --black: #0E0E0E;
+  --black-2: #1A1A1A;
+  --white: #FFFFFF;
+  --gray-100: #F7F7F7;
+  --gray-200: #EBEBEB;
+  --gray-300: #DDDDDD;
+  --gray-400: #9A9A9A;
+  --gray-500: #717171;
+  --gray-600: #4A4A4A;
+  --text: #1A1A1A;
+  --green: #22C55E;
+  --green-bg: rgba(34,197,94,0.08);
+  --green-border: rgba(34,197,94,0.2);
+  --red: #EF4444;
+  --red-bg: rgba(239,68,68,0.08);
+  --red-border: rgba(239,68,68,0.2);
+  --blue: #3B82F6;
+  --blue-bg: rgba(59,130,246,0.08);
+  --blue-border: rgba(59,130,246,0.2);
+  --orange: #F59E0B;
+  --orange-bg: rgba(245,158,11,0.08);
+  --orange-border: rgba(245,158,11,0.2);
+  --sidebar-w: 260px;
+}
+
+html { scroll-behavior: smooth; }
+body { font-family: 'DM Sans', sans-serif; background: var(--gray-100); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+
+/* ─── LOADING ─── */
+#loadingScreen {
+  position: fixed; inset: 0; z-index: 9999;
+  display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 16px;
+  background: var(--black);
+}
+.ld-spinner { width: 28px; height: 28px; border: 2.5px solid rgba(201,164,58,0.2); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.ld-text { font-size: 12px; color: rgba(255,255,255,0.3); letter-spacing: 0.06em; }
+
+/* ─── SIDEBAR ─── */
+.sidebar {
+  position: fixed; top: 0; left: 0; bottom: 0; width: var(--sidebar-w); z-index: 110;
+  background: var(--black); display: flex; flex-direction: column;
+  border-right: 1px solid rgba(255,255,255,0.06);
+  transition: transform 0.3s ease;
+}
+.sidebar-logo {
+  padding: 20px 24px; border-bottom: 1px solid rgba(255,255,255,0.06);
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+}
+.sidebar-logo-title {
+  font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; line-height: 1.3; text-align: center;
+}
+.sidebar-logo-title .t-white { color: var(--white); }
+.sidebar-logo-title .t-gold { color: var(--gold); font-style: italic; font-weight: 400; }
+.sidebar-portal-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(201,164,58,0.12); border: 1px solid rgba(201,164,58,0.25);
+  border-radius: 100px; padding: 3px 10px;
+  font-size: 9px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold);
+  margin-top: 6px;
+}
+.portal-badge-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--gold); animation: pulse 2s ease infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.5;transform:scale(0.8);} }
+
+.sidebar-nav {
+  flex: 1; padding: 16px 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 2px;
+  scrollbar-width: none;
+}
+.sidebar-nav::-webkit-scrollbar { display: none; }
+
+.nav-section-label {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+  color: rgba(255,255,255,0.2); padding: 16px 12px 6px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px;
+  cursor: pointer; transition: all 0.15s; text-decoration: none;
+  color: rgba(255,255,255,0.4); font-size: 13.5px; font-weight: 500; position: relative;
+}
+.nav-item:hover { color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.04); }
+.nav-item.active { color: var(--white); background: rgba(201,164,58,0.12); font-weight: 600; }
+.nav-item.active::before {
+  content: ''; position: absolute; left: 0; top: 8px; bottom: 8px; width: 3px;
+  border-radius: 0 3px 3px 0; background: var(--gold);
+}
+.nav-item svg { width: 18px; height: 18px; flex-shrink: 0; opacity: 0.5; }
+.nav-item.active svg { opacity: 1; color: var(--gold); }
+.nav-badge {
+  margin-left: auto; background: rgba(201,164,58,0.2); color: var(--gold);
+  font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 100px;
+}
+
+.sidebar-footer { padding: 16px; border-top: 1px solid rgba(255,255,255,0.06); }
+.sidebar-user {
+  display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 10px;
+  cursor: pointer; transition: background 0.15s;
+}
+.sidebar-user:hover { background: rgba(255,255,255,0.04); }
+.sidebar-user-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: var(--black); flex-shrink: 0;
+}
+.sidebar-user-info { flex: 1; min-width: 0; }
+.sidebar-user-name { font-size: 13px; font-weight: 600; color: var(--white); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sidebar-user-email { font-size: 11px; color: rgba(255,255,255,0.25); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.btn-logout-sb { background: none; border: none; cursor: pointer; color: rgba(255,255,255,0.2); transition: color 0.15s; padding: 4px; flex-shrink: 0; }
+.btn-logout-sb:hover { color: var(--red); }
+.btn-logout-sb svg { width: 16px; height: 16px; }
+
+/* ─── TOPBAR ─── */
+.topbar {
+  position: fixed; top: 0; left: var(--sidebar-w); right: 0; height: 64px; z-index: 100;
+  background: rgba(255,255,255,0.82); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0,0,0,0.07);
+  display: flex; align-items: center; padding: 0 32px; gap: 16px;
+}
+.topbar-breadcrumb { font-size: 13px; color: var(--gray-400); display: flex; align-items: center; gap: 6px; }
+.topbar-breadcrumb strong { color: var(--text); font-weight: 600; }
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.topbar-avatar {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: var(--black); cursor: pointer; flex-shrink: 0;
+}
+.hamburger {
+  display: none; background: none; border: none; cursor: pointer; padding: 4px;
+  color: var(--gray-500);
+}
+.hamburger svg { width: 22px; height: 22px; }
+
+/* ─── MAIN ─── */
+.main { margin-left: var(--sidebar-w); padding-top: 64px; min-height: 100vh; }
+.main-inner { padding: 32px; max-width: 1100px; }
+
+/* ─── PAGE HEADER ─── */
+.page-header { margin-bottom: 28px; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.page-header-left { flex: 1; }
+.page-eyebrow {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); margin-bottom: 6px;
+}
+.eyebrow-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--gold); animation: pulse 2s ease infinite; }
+.page-title { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 600; color: var(--black); letter-spacing: -0.025em; line-height: 1.15; }
+.page-title em { font-style: italic; font-weight: 400; color: var(--gold); }
+.page-subtitle { font-size: 14px; color: var(--gray-500); margin-top: 6px; line-height: 1.5; }
+
+/* ─── SECTIONS ─── */
+.section { display: none; }
+.section.active { display: block; animation: fadeUp 0.3s ease; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ─── KPI CARDS ─── */
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+.kpi-card {
+  background: var(--white); border: 1px solid rgba(0,0,0,0.06); border-radius: 16px;
+  padding: 22px; display: flex; flex-direction: column; gap: 10px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.kpi-card:hover { border-color: rgba(201,164,58,0.25); box-shadow: 0 4px 20px rgba(0,0,0,0.04); }
+.kpi-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+.kpi-icon svg { width: 18px; height: 18px; }
+.kpi-icon.gold { background: rgba(201,164,58,0.1); color: var(--gold); }
+.kpi-icon.green { background: var(--green-bg); color: var(--green); }
+.kpi-icon.blue { background: var(--blue-bg); color: var(--blue); }
+.kpi-icon.orange { background: var(--orange-bg); color: var(--orange); }
+.kpi-value { font-size: 32px; font-weight: 700; color: var(--text); line-height: 1; }
+.kpi-label { font-size: 12px; color: var(--gray-400); font-weight: 500; }
+.kpi-change { font-size: 11px; color: var(--green); font-weight: 600; }
+
+/* ─── CARDS ─── */
+.card {
+  background: var(--white); border: 1px solid rgba(0,0,0,0.06); border-radius: 16px;
+  padding: 24px; margin-bottom: 20px;
+}
+.card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+.card-title { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 600; color: var(--text); }
+.card-title em { font-style: italic; color: var(--gold); }
+
+/* ─── TWO COLUMN LAYOUT ─── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+/* ─── BUTTONS ─── */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px; padding: 10px 20px; border-radius: 10px;
+  font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer; border: none;
+  transition: all 0.2s; white-space: nowrap; text-decoration: none;
+}
+.btn-gold { background: var(--gold); color: var(--black); }
+.btn-gold:hover { background: var(--gold-light); transform: translateY(-1px); }
+.btn-black { background: var(--black); color: var(--white); }
+.btn-black:hover { background: var(--gold); color: var(--black); }
+.btn-ghost { background: transparent; border: 1px solid rgba(0,0,0,0.1); color: var(--gray-500); }
+.btn-ghost:hover { border-color: rgba(0,0,0,0.2); color: var(--text); }
+.btn-sm { padding: 7px 14px; font-size: 12px; border-radius: 8px; }
+.btn-danger { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+.btn-danger:hover { background: rgba(239,68,68,0.15); }
+
+/* ─── TABLES ─── */
+.table-wrap { overflow-x: auto; margin: 0 -24px; padding: 0 24px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th {
+  text-align: left; font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--gray-400); padding: 10px 14px;
+  border-bottom: 1px solid var(--gray-200); white-space: nowrap;
+}
+tbody td { padding: 14px; border-bottom: 1px solid rgba(0,0,0,0.04); vertical-align: middle; }
+tbody tr { transition: background 0.15s; }
+tbody tr:hover { background: rgba(201,164,58,0.02); }
+tbody tr:last-child td { border-bottom: none; }
+
+/* ─── BADGES ─── */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px;
+  border-radius: 100px; font-size: 11px; font-weight: 600; white-space: nowrap;
+}
+.badge-green { background: var(--green-bg); color: #166534; border: 1px solid var(--green-border); }
+.badge-orange { background: var(--orange-bg); color: #92400E; border: 1px solid var(--orange-border); }
+.badge-gray { background: rgba(0,0,0,0.04); color: var(--gray-500); border: 1px solid rgba(0,0,0,0.08); }
+.badge-blue { background: var(--blue-bg); color: #1E40AF; border: 1px solid var(--blue-border); }
+.badge-gold { background: rgba(201,164,58,0.1); color: #8B6914; border: 1px solid rgba(201,164,58,0.2); }
+.badge-red { background: var(--red-bg); color: #991B1B; border: 1px solid var(--red-border); }
+
+/* ─── EMPTY STATE ─── */
+.empty-state {
+  text-align: center; padding: 48px 24px;
+}
+.empty-state-icon { font-size: 40px; margin-bottom: 16px; opacity: 0.3; }
+.empty-state-title { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+.empty-state-text { font-size: 14px; color: var(--gray-400); margin-bottom: 20px; line-height: 1.5; }
+
+/* ─── FORMS ─── */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group.full { grid-column: 1 / -1; }
+.form-label { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gray-500); }
+.form-input, .form-select, .form-textarea {
+  padding: 12px 14px; border: 1px solid var(--gray-200); border-radius: 10px;
+  font-size: 14px; font-family: inherit; color: var(--text); background: var(--white);
+  outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,164,58,0.1); }
+.form-input::placeholder, .form-textarea::placeholder { color: var(--gray-400); }
+.form-input:disabled, .form-select:disabled, .form-textarea:disabled { background: var(--gray-100); color: var(--gray-400); cursor: not-allowed; }
+.form-textarea { resize: vertical; min-height: 80px; }
+.form-select {
+  appearance: none; cursor: pointer; padding-right: 36px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center;
+}
+.form-actions { display: flex; align-items: center; gap: 12px; margin-top: 24px; }
+
+/* ─── ACTIVITY TIMELINE ─── */
+.timeline { display: flex; flex-direction: column; }
+.tl-item { display: flex; gap: 14px; padding: 14px 0; position: relative; }
+.tl-item:not(:last-child)::after { content: ''; position: absolute; left: 15px; top: 42px; bottom: 0; width: 1px; background: var(--gray-200); }
+.tl-dot {
+  width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center;
+  justify-content: center; flex-shrink: 0; font-size: 14px;
+}
+.tl-dot.gold { background: rgba(201,164,58,0.12); }
+.tl-dot.green { background: var(--green-bg); }
+.tl-dot.blue { background: var(--blue-bg); }
+.tl-body { flex: 1; }
+.tl-text { font-size: 13px; color: var(--text); line-height: 1.5; }
+.tl-text strong { font-weight: 600; }
+.tl-time { font-size: 11px; color: var(--gray-400); margin-top: 2px; }
+
+/* ─── OPPORTUNITY CARDS ─── */
+.filter-bar {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;
+}
+.filter-bar .form-input { flex: 1; min-width: 200px; }
+.filter-bar .form-select { min-width: 160px; }
+
+.opp-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.opp-card {
+  background: var(--white); border: 1px solid rgba(0,0,0,0.06); border-radius: 16px;
+  padding: 24px; display: flex; flex-direction: column; gap: 14px;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+.opp-card:hover { border-color: rgba(201,164,58,0.25); box-shadow: 0 8px 30px rgba(0,0,0,0.06); transform: translateY(-2px); }
+.opp-card-badge { align-self: flex-start; }
+.opp-card-title { font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 600; color: var(--text); line-height: 1.3; }
+.opp-card-desc { font-size: 13px; color: var(--gray-500); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.opp-card-meta { display: flex; flex-direction: column; gap: 6px; }
+.opp-card-meta-row { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--gray-400); }
+.opp-card-meta-row svg { width: 14px; height: 14px; flex-shrink: 0; }
+.opp-card-price { font-size: 14px; font-weight: 700; color: var(--gold); }
+.opp-card-footer { margin-top: auto; padding-top: 4px; }
+
+/* ─── SUMMARY CARD ─── */
+.summary-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 20px;
+}
+.summary-item {
+  background: var(--gray-100); border-radius: 12px; padding: 18px; text-align: center;
+}
+.summary-item-value { font-size: 24px; font-weight: 700; color: var(--text); }
+.summary-item-label { font-size: 11px; color: var(--gray-400); font-weight: 500; margin-top: 4px; }
+
+/* ─── TOAST ─── */
+.toast-container { position: fixed; top: 80px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+.toast {
+  padding: 14px 20px; border-radius: 12px; font-size: 13px; font-weight: 500;
+  display: flex; align-items: center; gap: 8px; animation: slideIn 0.3s ease;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+.toast-success { background: #065F46; color: white; }
+.toast-error { background: #991B1B; color: white; }
+@keyframes slideIn { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+
+/* ─── MOBILE ─── */
+.bottom-nav {
+  display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 120;
+  background: var(--white); border-top: 1px solid var(--gray-200);
+  padding: 8px 0 max(8px, env(safe-area-inset-bottom));
+  justify-content: space-around;
+}
+.bottom-nav-item {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  background: none; border: none; cursor: pointer; padding: 6px 12px;
+  font-size: 10px; font-weight: 500; color: var(--gray-400); font-family: inherit;
+  transition: color 0.15s;
+}
+.bottom-nav-item svg { width: 20px; height: 20px; }
+.bottom-nav-item.active { color: var(--gold); font-weight: 700; }
+
+.sidebar-overlay {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+  z-index: 109; backdrop-filter: blur(4px);
+}
+
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-overlay.open { display: block; }
+  .topbar { left: 0; padding: 0 16px; }
+  .hamburger { display: flex; }
+  .main { margin-left: 0; padding-bottom: 80px; }
+  .main-inner { padding: 20px 16px; }
+  .kpi-grid { grid-template-columns: 1fr 1fr; }
+  .form-grid { grid-template-columns: 1fr; }
+  .two-col { grid-template-columns: 1fr; }
+  .opp-grid { grid-template-columns: 1fr; }
+  .summary-grid { grid-template-columns: 1fr 1fr; }
+  .bottom-nav { display: flex; }
+  .page-title { font-size: 22px; }
+  .page-header { flex-direction: column; }
+  .filter-bar { flex-direction: column; }
+  .filter-bar .form-input, .filter-bar .form-select { width: 100%; min-width: unset; }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .kpi-grid { grid-template-columns: 1fr 1fr; }
+  .opp-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- Loading -->
+<div id="loadingScreen">
+  <div class="ld-spinner"></div>
+  <div class="ld-text">Carregando...</div>
+</div>
+
+<!-- Sidebar overlay mobile -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-title">
+      <span class="t-white">Radar</span> <span class="t-gold">Relevantia</span>
+    </div>
+    <div class="sidebar-portal-badge">
+      <span class="portal-badge-dot"></span> Portal Marca
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Principal</div>
+    <a class="nav-item active" data-section="dashboard" onclick="showSection('dashboard')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </a>
+    <a class="nav-item" data-section="oportunidades" onclick="showSection('oportunidades')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      Explorar Oportunidades
+    </a>
+
+    <div class="nav-section-label">Gestão</div>
+    <a class="nav-item" data-section="propostas" onclick="showSection('propostas')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      Minhas Propostas
+      <span class="nav-badge">4</span>
+    </a>
+
+    <div class="nav-section-label">Conta</div>
+    <a class="nav-item" data-section="configuracoes" onclick="showSection('configuracoes')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      Configurações
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-user" onclick="showSection('configuracoes')">
+      <div class="sidebar-user-avatar" id="sidebarAvatar">NB</div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name" id="sidebarName">Nike Brasil</div>
+        <div class="sidebar-user-email" id="sidebarEmail">contato@nikebrasil.com</div>
+      </div>
+      <button class="btn-logout-sb" onclick="event.stopPropagation(); doLogout();" title="Sair">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/></svg>
+      </button>
+    </div>
+  </div>
+</aside>
+
+<!-- Topbar -->
+<header class="topbar">
+  <button class="hamburger" onclick="openSidebar()">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/></svg>
+  </button>
+  <div class="topbar-breadcrumb">
+    Portal Marca <span style="color:var(--gray-300)">›</span> <strong id="topbarSection">Dashboard</strong>
+  </div>
+  <div class="topbar-right">
+    <div class="topbar-avatar" id="topbarAvatar">NB</div>
+  </div>
+</header>
+
+<!-- Main content -->
+<div class="main" id="mainContent">
+  <div class="main-inner">
+
+    <!-- ═══════ SEÇÃO: DASHBOARD ═══════ -->
+    <div class="section active" id="sec-dashboard">
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="page-eyebrow"><span class="eyebrow-dot"></span> Dashboard</div>
+          <h1 class="page-title">Bem-vindo, <em id="welcomeName">marca</em></h1>
+          <p class="page-subtitle">Resumo da atividade da sua marca na plataforma</p>
+        </div>
+      </div>
+
+      <!-- KPIs -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-icon gold">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg>
+          </div>
+          <div class="kpi-value">7</div>
+          <div class="kpi-label">Oportunidades salvas</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon blue">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"/></svg>
+          </div>
+          <div class="kpi-value">4</div>
+          <div class="kpi-label">Propostas enviadas</div>
+          <div class="kpi-change">↑ 2 esta semana</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon green">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div class="kpi-value">1</div>
+          <div class="kpi-label">Propostas aceitas</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon orange">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div class="kpi-value" style="font-size:26px">R$ 45k</div>
+          <div class="kpi-label">Investimento ativo</div>
+        </div>
+      </div>
+
+      <!-- Two column layout -->
+      <div class="two-col">
+        <!-- Left: Atividade recente -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Atividade <em>recente</em></div>
+          </div>
+          <div class="timeline">
+            <div class="tl-item">
+              <div class="tl-dot gold">✨</div>
+              <div class="tl-body">
+                <div class="tl-text">Proposta para <strong>Maratona Internacional SP</strong> enviada</div>
+                <div class="tl-time">Há 3 horas</div>
+              </div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot green">✓</div>
+              <div class="tl-body">
+                <div class="tl-text">Proposta para <strong>Festival de Verão Salvador</strong> foi aceita</div>
+                <div class="tl-time">Ontem às 16:20</div>
+              </div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot blue">🔍</div>
+              <div class="tl-body">
+                <div class="tl-text">Oportunidade <strong>Expo Tech Brasil</strong> salva nos favoritos</div>
+                <div class="tl-time">19 mar 2026</div>
+              </div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot gold">📄</div>
+              <div class="tl-body">
+                <div class="tl-text">Proposta para <strong>Arena Music Curitiba</strong> enviada</div>
+                <div class="tl-time">18 mar 2026</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Propostas pendentes -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Propostas <em>pendentes</em></div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Oportunidade</th>
+                  <th>Status</th>
+                  <th>Data</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="font-weight:600">Maratona Internacional SP</td>
+                  <td><span class="badge badge-orange">Pendente</span></td>
+                  <td style="color:var(--gray-400)">15/03/2026</td>
+                </tr>
+                <tr>
+                  <td style="font-weight:600">Expo Tech Brasil</td>
+                  <td><span class="badge badge-blue">Em análise</span></td>
+                  <td style="color:var(--gray-400)">10/03/2026</td>
+                </tr>
+                <tr>
+                  <td style="font-weight:600">Arena Music Curitiba</td>
+                  <td><span class="badge badge-red">Recusada</span></td>
+                  <td style="color:var(--gray-400)">05/03/2026</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════ SEÇÃO: EXPLORAR OPORTUNIDADES ═══════ -->
+    <div class="section" id="sec-oportunidades">
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="page-eyebrow"><span class="eyebrow-dot"></span> Oportunidades</div>
+          <h1 class="page-title">Explorar <em>Oportunidades</em></h1>
+          <p class="page-subtitle">Encontre oportunidades de patrocínio e naming rights ideais para sua marca</p>
+        </div>
+      </div>
+
+      <!-- Filter bar -->
+      <div class="filter-bar">
+        <input class="form-input" type="text" placeholder="Buscar oportunidades..." id="searchOpp" oninput="filterOpportunities()">
+        <select class="form-select" id="filterSegmento" onchange="filterOpportunities()">
+          <option value="">Todos os segmentos</option>
+          <option value="Esporte">Esporte</option>
+          <option value="Música">Música</option>
+          <option value="Tecnologia">Tecnologia</option>
+          <option value="Mídia Digital">Mídia Digital</option>
+        </select>
+        <select class="form-select" id="filterRegiao" onchange="filterOpportunities()">
+          <option value="">Todas as regiões</option>
+          <option value="São Paulo">São Paulo</option>
+          <option value="Salvador">Salvador</option>
+          <option value="Florianópolis">Florianópolis</option>
+          <option value="Curitiba">Curitiba</option>
+          <option value="Online">Online</option>
+        </select>
+      </div>
+
+      <!-- Opportunity grid -->
+      <div class="opp-grid" id="oppGrid">
+        <!-- Cards are rendered by JS -->
+      </div>
+    </div>
+
+    <!-- ═══════ SEÇÃO: MINHAS PROPOSTAS ═══════ -->
+    <div class="section" id="sec-propostas">
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="page-eyebrow"><span class="eyebrow-dot"></span> Propostas</div>
+          <h1 class="page-title">Minhas <em>Propostas</em></h1>
+          <p class="page-subtitle">Acompanhe o status de todas as suas propostas enviadas</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Oportunidade</th>
+                <th>Valor proposto</th>
+                <th>Status</th>
+                <th>Enviada em</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="font-weight:600">Maratona Internacional SP</td>
+                <td style="font-weight:600">R$ 55.000</td>
+                <td><span class="badge badge-orange">Pendente</span></td>
+                <td style="color:var(--gray-400)">15/03/2026</td>
+                <td><button class="btn btn-ghost btn-sm" onclick="showToast('Detalhes da proposta em breve', 'success')">Ver</button></td>
+              </tr>
+              <tr>
+                <td style="font-weight:600">Festival de Verão Salvador</td>
+                <td style="font-weight:600">R$ 90.000</td>
+                <td><span class="badge badge-green">Aceita</span></td>
+                <td style="color:var(--gray-400)">12/03/2026</td>
+                <td><button class="btn btn-ghost btn-sm" onclick="showToast('Detalhes da proposta em breve', 'success')">Ver</button></td>
+              </tr>
+              <tr>
+                <td style="font-weight:600">Expo Tech Brasil</td>
+                <td style="font-weight:600">R$ 40.000</td>
+                <td><span class="badge badge-blue">Em análise</span></td>
+                <td style="color:var(--gray-400)">10/03/2026</td>
+                <td><button class="btn btn-ghost btn-sm" onclick="showToast('Detalhes da proposta em breve', 'success')">Ver</button></td>
+              </tr>
+              <tr>
+                <td style="font-weight:600">Arena Music Curitiba</td>
+                <td style="font-weight:600">R$ 65.000</td>
+                <td><span class="badge badge-red">Recusada</span></td>
+                <td style="color:var(--gray-400)">05/03/2026</td>
+                <td><button class="btn btn-ghost btn-sm" onclick="showToast('Detalhes da proposta em breve', 'success')">Ver</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Summary card -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Resumo das <em>propostas</em></div>
+        </div>
+        <div class="summary-grid">
+          <div class="summary-item">
+            <div class="summary-item-value">4</div>
+            <div class="summary-item-label">Total propostas</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-item-value" style="color:var(--green)">1</div>
+            <div class="summary-item-label">Aceitas</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-item-value" style="color:var(--orange)">1</div>
+            <div class="summary-item-label">Pendentes</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-item-value" style="color:var(--gold)">25%</div>
+            <div class="summary-item-label">Taxa de conversão</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════ SEÇÃO: CONFIGURAÇÕES ═══════ -->
+    <div class="section" id="sec-configuracoes">
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="page-eyebrow"><span class="eyebrow-dot"></span> Configurações</div>
+          <h1 class="page-title"><em>Configurações</em> da marca</h1>
+          <p class="page-subtitle">Gerencie as informações da sua marca e conta</p>
+        </div>
+      </div>
+
+      <!-- Perfil da marca -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Perfil da <em>marca</em></div>
+          <button class="btn btn-ghost btn-sm" id="btnEditMarca" onclick="toggleEditMarca()">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
+            Editar
+          </button>
+        </div>
+        <div style="padding:24px">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Nome da marca</label>
+              <input class="form-input marca-field" type="text" value="Nike Brasil" disabled>
+            </div>
+            <div class="form-group">
+              <label class="form-label">CNPJ</label>
+              <input class="form-input marca-field" type="text" value="12.345.678/0001-00" disabled>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Segmento</label>
+              <select class="form-select marca-field" disabled>
+                <option>Tecnologia</option>
+                <option>Moda</option>
+                <option>Alimentos</option>
+                <option selected>Esportes</option>
+                <option>Saúde</option>
+                <option>Automotivo</option>
+                <option>Financeiro</option>
+                <option>Educação</option>
+                <option>Entretenimento</option>
+                <option>Outro</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Website</label>
+              <input class="form-input marca-field" type="url" value="https://nike.com.br" disabled>
+            </div>
+            <div class="form-group full">
+              <label class="form-label">Descrição da marca</label>
+              <textarea class="form-textarea marca-field" disabled>Marca líder mundial em artigos esportivos, moda atlética e inovação em performance.</textarea>
+            </div>
+          </div>
+          <div class="form-actions" id="marcaActions" style="display:none">
+            <button class="btn btn-gold" onclick="saveMarca()">Salvar alterações</button>
+            <button class="btn btn-ghost" onclick="toggleEditMarca()">Cancelar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Responsável pela conta -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Responsável pela <em>conta</em></div>
+          <button class="btn btn-ghost btn-sm" id="btnEditResp" onclick="toggleEditResp()">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
+            Editar
+          </button>
+        </div>
+        <div style="padding:24px">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Nome</label>
+              <input class="form-input resp-field" type="text" value="Carlos Mendes" disabled>
+            </div>
+            <div class="form-group">
+              <label class="form-label">E-mail</label>
+              <input class="form-input resp-field" type="email" value="contato@nikebrasil.com" disabled style="background:var(--gray-100);color:var(--gray-400);cursor:not-allowed" title="O e-mail não pode ser alterado">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Telefone</label>
+              <input class="form-input resp-field" type="text" value="(11) 3456-7890" disabled>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Cargo</label>
+              <input class="form-input resp-field" type="text" value="Diretor de Marketing" disabled>
+            </div>
+          </div>
+          <div class="form-actions" id="respActions" style="display:none">
+            <button class="btn btn-gold" onclick="saveResp()">Salvar alterações</button>
+            <button class="btn btn-ghost" onclick="toggleEditResp()">Cancelar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Segurança -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Segurança</div>
+        </div>
+        <div style="padding:24px; display:flex; flex-direction:column; gap:16px">
+          <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 0; border-bottom:1px solid var(--gray-200)">
+            <div>
+              <div style="font-size:14px; font-weight:600; color:var(--text)">Alterar senha</div>
+              <div style="font-size:13px; color:var(--gray-400); margin-top:2px">Redefina sua senha de acesso à plataforma</div>
+            </div>
+            <button class="btn btn-ghost btn-sm" onclick="showToast('Recurso disponível em breve', 'success')">Alterar</button>
+          </div>
+          <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 0">
+            <div>
+              <div style="font-size:14px; font-weight:600; color:var(--red)">Sair da conta</div>
+              <div style="font-size:13px; color:var(--gray-400); margin-top:2px">Encerrar sua sessão neste dispositivo</div>
+            </div>
+            <button class="btn btn-danger btn-sm" onclick="doLogout()">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/></svg>
+              Sair
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Bottom nav mobile -->
+<nav class="bottom-nav">
+  <button class="bottom-nav-item active" id="bn-dashboard" onclick="showSection('dashboard')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    <span>Dashboard</span>
+  </button>
+  <button class="bottom-nav-item" id="bn-oportunidades" onclick="showSection('oportunidades')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+    <span>Explorar</span>
+  </button>
+  <button class="bottom-nav-item" id="bn-propostas" onclick="showSection('propostas')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    <span>Propostas</span>
+  </button>
+  <button class="bottom-nav-item" id="bn-configuracoes" onclick="showSection('configuracoes')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+    <span>Config</span>
+  </button>
+</nav>
+
+<!-- Toast container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+/* ═══════════════════════════════════════
+   RADAR RELEVANTIA — Dashboard Marca MVP
+   Sem Supabase (dados mockados)
+   ═══════════════════════════════════════ */
+
+// ─── MOCK DATA ───
+const MOCK_USER = {
+  nome: 'Nike Brasil',
+  email: 'contato@nikebrasil.com',
+  responsavel: 'Carlos Mendes',
+  cnpj: '12.345.678/0001-00',
+  segmento: 'Esportes',
+  telefone: '(11) 3456-7890',
+  site: 'https://nike.com.br',
+  descricao: 'Marca líder mundial em artigos esportivos, moda atlética e inovação em performance.',
+  cargo: 'Diretor de Marketing'
+};
+
+const MOCK_OPPORTUNITIES = [
+  {
+    id: 1,
+    title: 'Maratona Internacional de SP',
+    category: 'Esporte',
+    badgeClass: 'badge-blue',
+    city: 'São Paulo',
+    date: 'Jan 2027',
+    price: 'R$ 50.000',
+    desc: 'Patrocínio oficial da maior maratona da América Latina. Visibilidade para mais de 35.000 corredores e 500.000 espectadores.'
+  },
+  {
+    id: 2,
+    title: 'Festival de Verão Salvador',
+    category: 'Música',
+    badgeClass: 'badge-gold',
+    city: 'Salvador',
+    date: 'Fev 2027',
+    price: 'R$ 80.000',
+    desc: 'Festival de música com alcance nacional, palcos temáticos e ativações de marca imersivas no litoral baiano.'
+  },
+  {
+    id: 3,
+    title: 'Expo Tech Brasil',
+    category: 'Tecnologia',
+    badgeClass: 'badge-blue',
+    city: 'São Paulo',
+    date: 'Mar 2027',
+    price: 'R$ 35.000',
+    desc: 'Feira de inovação e tecnologia com mais de 200 expositores e 80.000 visitantes qualificados do setor.'
+  },
+  {
+    id: 4,
+    title: 'Campeonato de Surf Floripa',
+    category: 'Esporte',
+    badgeClass: 'badge-blue',
+    city: 'Florianópolis',
+    date: 'Dez 2026',
+    price: 'R$ 25.000',
+    desc: 'Campeonato de surf com cobertura ao vivo, naming rights de etapas e ativações na praia.'
+  },
+  {
+    id: 5,
+    title: 'Podcast Tech Daily',
+    category: 'Mídia Digital',
+    badgeClass: 'badge-gray',
+    city: 'Online',
+    date: 'Contínuo',
+    price: 'R$ 15.000',
+    desc: 'Podcast líder em tecnologia com 200.000 ouvintes mensais. Formatos: pre-roll, mid-roll e branded content.'
+  },
+  {
+    id: 6,
+    title: 'Arena Music Curitiba',
+    category: 'Música',
+    badgeClass: 'badge-gold',
+    city: 'Curitiba',
+    date: 'Abr 2027',
+    price: 'R$ 60.000',
+    desc: 'Naming rights de arena multiuso com capacidade para 15.000 pessoas. Shows e eventos durante todo o ano.'
+  }
+];
+
+// ─── SECTION NAMES ───
+const SECTION_TITLES = {
+  dashboard: 'Dashboard',
+  oportunidades: 'Explorar Oportunidades',
+  propostas: 'Minhas Propostas',
+  configuracoes: 'Configurações'
+};
+
+// ─── INIT ───
+function init() {
+  // Tentar pegar dados da sessão se existir
+  const stored = localStorage.getItem('sb_marca_session');
+  if (stored) {
+    try {
+      const session = JSON.parse(stored);
+      const meta = session.user?.user_metadata || {};
+      const nome = meta.nome || session.user?.email?.split('@')[0] || MOCK_USER.nome;
+      const email = session.user?.email || MOCK_USER.email;
+      setUserInfo(nome, email);
+    } catch {
+      setUserInfo(MOCK_USER.nome, MOCK_USER.email);
+    }
+  } else {
+    // Sem sessão — usa dados mockados (MVP sem autenticação obrigatória por enquanto)
+    setUserInfo(MOCK_USER.nome, MOCK_USER.email);
+  }
+
+  // Render opportunities
+  renderOpportunities(MOCK_OPPORTUNITIES);
+
+  // Check hash for deep linking
+  const hash = window.location.hash.replace('#', '');
+  if (hash && SECTION_TITLES[hash]) {
+    showSection(hash);
+  }
+
+  // Hide loading
+  setTimeout(() => {
+    document.getElementById('loadingScreen').style.display = 'none';
+  }, 600);
+}
+
+function setUserInfo(nome, email) {
+  const initials = nome.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+  const firstName = nome.split(' ')[0];
+
+  document.getElementById('welcomeName').textContent = firstName;
+  document.getElementById('sidebarName').textContent = nome;
+  document.getElementById('sidebarEmail').textContent = email;
+  document.getElementById('sidebarAvatar').textContent = initials;
+  document.getElementById('topbarAvatar').textContent = initials;
+}
+
+// ─── NAVIGATION ───
+function showSection(sectionId) {
+  // Hide all sections
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+
+  // Show target
+  const target = document.getElementById('sec-' + sectionId);
+  if (target) target.classList.add('active');
+
+  // Update sidebar active
+  document.querySelectorAll('.nav-item').forEach(n => {
+    n.classList.toggle('active', n.dataset.section === sectionId);
+  });
+
+  // Update bottom nav active
+  document.querySelectorAll('.bottom-nav-item').forEach(b => b.classList.remove('active'));
+  const bnItem = document.getElementById('bn-' + sectionId);
+  if (bnItem) bnItem.classList.add('active');
+
+  // Update topbar breadcrumb
+  document.getElementById('topbarSection').textContent = SECTION_TITLES[sectionId] || sectionId;
+
+  // Update hash
+  window.location.hash = sectionId === 'dashboard' ? '' : sectionId;
+
+  // Close sidebar on mobile
+  closeSidebar();
+
+  // Scroll to top
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ─── SIDEBAR MOBILE ───
+function openSidebar() {
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('sidebarOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ─── RENDER OPPORTUNITIES ───
+function renderOpportunities(opps) {
+  const grid = document.getElementById('oppGrid');
+  grid.innerHTML = opps.map(opp => `
+    <div class="opp-card" data-category="${opp.category}" data-city="${opp.city}">
+      <div class="opp-card-badge">
+        <span class="badge ${opp.badgeClass}">${opp.category}</span>
+      </div>
+      <div class="opp-card-title">${opp.title}</div>
+      <div class="opp-card-desc">${opp.desc}</div>
+      <div class="opp-card-meta">
+        <div class="opp-card-meta-row">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/></svg>
+          ${opp.city}
+        </div>
+        <div class="opp-card-meta-row">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/></svg>
+          ${opp.date}
+        </div>
+      </div>
+      <div class="opp-card-price">A partir de ${opp.price}</div>
+      <div class="opp-card-footer">
+        <button class="btn btn-ghost btn-sm" onclick="showToast('Detalhes da oportunidade em breve', 'success')">Ver detalhes</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ─── FILTER OPPORTUNITIES ───
+function filterOpportunities() {
+  const search = document.getElementById('searchOpp').value.toLowerCase();
+  const segmento = document.getElementById('filterSegmento').value;
+  const regiao = document.getElementById('filterRegiao').value;
+
+  const filtered = MOCK_OPPORTUNITIES.filter(opp => {
+    const matchSearch = !search || opp.title.toLowerCase().includes(search) || opp.desc.toLowerCase().includes(search);
+    const matchSegmento = !segmento || opp.category === segmento;
+    const matchRegiao = !regiao || opp.city === regiao;
+    return matchSearch && matchSegmento && matchRegiao;
+  });
+
+  renderOpportunities(filtered);
+}
+
+// ─── EDIT MARCA ───
+let editingMarca = false;
+function toggleEditMarca() {
+  editingMarca = !editingMarca;
+  const fields = document.querySelectorAll('.marca-field');
+  const actions = document.getElementById('marcaActions');
+  const btn = document.getElementById('btnEditMarca');
+
+  fields.forEach(f => {
+    f.disabled = !editingMarca;
+  });
+  actions.style.display = editingMarca ? 'flex' : 'none';
+  btn.style.display = editingMarca ? 'none' : '';
+}
+
+function saveMarca() {
+  toggleEditMarca();
+  showToast('Perfil da marca salvo com sucesso!', 'success');
+}
+
+// ─── EDIT RESPONSÁVEL ───
+let editingResp = false;
+function toggleEditResp() {
+  editingResp = !editingResp;
+  const fields = document.querySelectorAll('.resp-field');
+  const actions = document.getElementById('respActions');
+  const btn = document.getElementById('btnEditResp');
+
+  fields.forEach(f => {
+    // Email field stays disabled always
+    if (f.type === 'email') return;
+    f.disabled = !editingResp;
+  });
+  actions.style.display = editingResp ? 'flex' : 'none';
+  btn.style.display = editingResp ? 'none' : '';
+}
+
+function saveResp() {
+  // Atualiza dados no front
+  const nomeInput = document.querySelector('.resp-field[type="text"]');
+  if (nomeInput) {
+    const newName = nomeInput.value;
+    const email = document.querySelector('.resp-field[type="email"]').value;
+    setUserInfo(newName, email);
+  }
+  toggleEditResp();
+  showToast('Dados do responsável salvos com sucesso!', 'success');
+}
+
+// ─── LOGOUT ───
+function doLogout() {
+  localStorage.removeItem('sb_marca_session');
+  localStorage.removeItem('sb_detentor_session');
+  window.location.href = 'index.html';
+}
+
+// ─── TOAST ───
+function showToast(message, type = 'success') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = 'toast toast-' + type;
+  toast.innerHTML = (type === 'success' ? '✓' : '✕') + ' ' + message;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(40px)';
+    toast.style.transition = 'all 0.3s ease';
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
+
+// ─── START ───
+init();
+</script>
+</body>
+</html>

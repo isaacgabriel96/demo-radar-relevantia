@@ -1,0 +1,1975 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Radar Relevantia</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --gold: #C9A43A; --gold-light: #E8C96A; --gold-pale: #FBF5E6;
+  --black: #0E0E0E; --black-2: #1A1A1A; --white: #FFFFFF;
+  --gray-1: #F7F7F7; --gray-2: #EBEBEB; --gray-3: #DDDDDD;
+  --gray-5: #717171; --text: #1A1A1A;
+  --green: #10B981; --red: #EF4444; --blue: #3B82F6;
+  --sidebar-w: 240px;
+}
+html { scroll-behavior: smooth; }
+body { font-family: 'DM Sans', sans-serif; background: var(--gray-1); color: var(--text); min-height: 100vh; }
+
+/* =========================================================
+   LOGIN SCREEN
+   ========================================================= */
+#loginScreen {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 100vh; background: var(--black);
+  position: relative; overflow: hidden;
+}
+#loginScreen::before {
+  content: ''; position: absolute; inset: 0;
+  background-image: linear-gradient(rgba(201,164,58,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(201,164,58,0.07) 1px, transparent 1px);
+  background-size: 48px 48px; pointer-events: none;
+}
+#loginScreen::after {
+  content: ''; position: absolute; width: 700px; height: 700px;
+  background: radial-gradient(circle, rgba(201,164,58,0.1) 0%, transparent 65%);
+  bottom: -200px; right: -200px; pointer-events: none;
+}
+.login-box {
+  position: relative; z-index: 1;
+  width: 100%; max-width: 420px; padding: 48px 40px;
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px; backdrop-filter: blur(10px);
+}
+.login-logo { display: flex; align-items: center; gap: 12px; margin-bottom: 36px; }
+.login-logo img { height: 40px; }
+.login-logo-text { display: flex; flex-direction: column; }
+.login-logo-name { font-size: 15px; font-weight: 600; color: var(--white); }
+.login-logo-sub { font-size: 9px; font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); }
+.login-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  border: 1px solid rgba(201,164,58,0.3); background: rgba(201,164,58,0.08);
+  padding: 4px 12px; border-radius: 100px;
+  font-size: 10px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold);
+  margin-bottom: 20px;
+}
+.login-tag-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--gold); animation: pulse 2s ease infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.5;transform:scale(0.8);} }
+.login-title { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 600; color: var(--white); margin-bottom: 6px; }
+.login-sub { font-size: 13px; color: rgba(255,255,255,0.4); margin-bottom: 32px; }
+.login-group { margin-bottom: 16px; }
+.login-group label { display: block; font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.5); margin-bottom: 7px; letter-spacing: 0.06em; text-transform: uppercase; }
+.login-group input {
+  width: 100%; padding: 12px 16px;
+  background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 14px;
+  color: var(--white); outline: none; transition: border-color 0.15s, box-shadow 0.15s;
+}
+.login-group input::placeholder { color: rgba(255,255,255,0.2); }
+.login-group input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,164,58,0.15); }
+.login-error {
+  display: none; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.25);
+  border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #FCA5A5; margin-bottom: 16px;
+}
+.login-error.show { display: block; }
+.btn-login {
+  width: 100%; padding: 14px; background: var(--gold);
+  border: none; border-radius: 10px; font-family: 'DM Sans', sans-serif;
+  font-size: 14px; font-weight: 600; color: var(--black); cursor: pointer;
+  transition: background 0.2s, transform 0.1s; margin-top: 8px;
+}
+.btn-login:hover { background: var(--gold-light); }
+.btn-login:active { transform: scale(0.98); }
+.btn-login:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* =========================================================
+   DASHBOARD LAYOUT
+   ========================================================= */
+#dashboard { display: none; }
+#dashboard.show { display: flex; flex-direction: column; min-height: 100vh; }
+
+/* Top Nav */
+.top-nav {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--black); border-bottom: 1px solid rgba(255,255,255,0.06);
+  display: flex; align-items: center; padding: 0 32px; height: 72px; gap: 16px;
+}
+.nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.nav-logo img { height: auto; width: 140px; max-height: none; display: block; }
+.nav-logo-text { display: flex; flex-direction: column; }
+.nav-logo-name { font-size: 13px; font-weight: 600; color: var(--white); }
+.nav-logo-sub { font-size: 8px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); }
+.nav-sep { width: 1px; height: 24px; background: rgba(255,255,255,0.1); }
+.nav-admin-tag {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(201,164,58,0.1); border: 1px solid rgba(201,164,58,0.25);
+  padding: 4px 12px; border-radius: 100px;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold);
+}
+.nav-spacer { flex: 1; }
+.nav-user { display: flex; align-items: center; gap: 10px; }
+.nav-user-info { text-align: right; }
+.nav-user-name { font-size: 13px; font-weight: 500; color: var(--white); }
+.nav-user-role { font-size: 10px; color: rgba(255,255,255,0.35); letter-spacing: 0.08em; text-transform: uppercase; }
+.nav-avatar {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--gold); display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; color: var(--black); flex-shrink: 0;
+}
+.btn-logout {
+  padding: 7px 14px; background: transparent;
+  border: 1px solid rgba(255,255,255,0.15); border-radius: 8px;
+  font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500;
+  color: rgba(255,255,255,0.5); cursor: pointer; transition: all 0.15s;
+}
+.btn-logout:hover { border-color: rgba(255,255,255,0.3); color: var(--white); }
+
+/* Main Body */
+.dashboard-body { display: flex; flex: 1; }
+
+/* Sidebar */
+.sidebar {
+  width: var(--sidebar-w); flex-shrink: 0;
+  background: var(--white); border-right: 1px solid var(--gray-2);
+  padding: 24px 0; position: sticky; top: 72px; height: calc(100vh - 72px);
+  overflow-y: auto;
+}
+.sidebar-section { margin-bottom: 4px; }
+.sidebar-label {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--gray-5); padding: 8px 20px 4px; margin-top: 8px;
+}
+.sidebar-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 20px; cursor: pointer; border-radius: 0;
+  font-size: 13px; font-weight: 500; color: var(--gray-5);
+  transition: background 0.15s, color 0.15s; border-left: 2.5px solid transparent;
+  text-decoration: none; user-select: none;
+}
+.sidebar-item:hover { background: var(--gray-1); color: var(--text); }
+.sidebar-item.active { background: var(--gold-pale); color: var(--black-2); border-left-color: var(--gold); font-weight: 600; }
+.sidebar-item-icon { font-size: 15px; width: 20px; text-align: center; flex-shrink: 0; }
+.sidebar-badge {
+  margin-left: auto; background: var(--gold); color: var(--black);
+  font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 100px; min-width: 20px; text-align: center;
+}
+.sidebar-badge.red { background: var(--red); color: var(--white); }
+
+/* Content */
+.content { flex: 1; padding: 28px 32px; overflow-x: hidden; }
+
+/* Page Header */
+.page-header { margin-bottom: 28px; }
+.page-title { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 600; color: var(--black); margin-bottom: 4px; }
+.page-sub { font-size: 13px; color: var(--gray-5); }
+
+/* =========================================================
+   STATS CARDS
+   ========================================================= */
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+.stat-card {
+  background: var(--white); border: 1px solid var(--gray-2); border-radius: 14px;
+  padding: 20px 22px;
+}
+.stat-label { font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gray-5); margin-bottom: 8px; }
+.stat-value { font-size: 32px; font-weight: 700; color: var(--black); line-height: 1; margin-bottom: 4px; }
+.stat-desc { font-size: 12px; color: var(--gray-5); }
+.stat-card.gold { border-color: rgba(201,164,58,0.3); background: var(--gold-pale); }
+.stat-card.gold .stat-value { color: #7A6020; }
+
+/* =========================================================
+   TABLE
+   ========================================================= */
+.table-card {
+  background: var(--white); border: 1px solid var(--gray-2); border-radius: 14px;
+  overflow: hidden; margin-bottom: 24px;
+}
+.table-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 22px; border-bottom: 1px solid var(--gray-2);
+}
+.table-title { font-size: 14px; font-weight: 600; color: var(--black); }
+.table-count { font-size: 12px; color: var(--gray-5); }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+thead th {
+  text-align: left; font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--gray-5); padding: 11px 16px;
+  background: var(--gray-1); border-bottom: 1px solid var(--gray-2); white-space: nowrap;
+}
+tbody tr { border-bottom: 1px solid var(--gray-2); transition: background 0.1s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(--gray-1); }
+tbody td { padding: 13px 16px; font-size: 13px; color: var(--text); vertical-align: middle; }
+.td-mono { font-family: monospace; font-size: 12px; letter-spacing: 0.05em; }
+.td-muted { color: var(--gray-5); }
+.td-name { font-weight: 500; }
+
+/* Badges */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: 100px; font-size: 11px; font-weight: 600;
+}
+.badge-green { background: rgba(16,185,129,0.1); color: #065F46; }
+.badge-red   { background: rgba(239,68,68,0.1);  color: #991B1B; }
+.badge-gold  { background: rgba(201,164,58,0.12); color: #7A6020; }
+.badge-gray  { background: var(--gray-2); color: var(--gray-5); }
+.badge-blue  { background: rgba(59,130,246,0.1);  color: #1E40AF; }
+
+/* Buttons */
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; }
+.btn-sm { padding: 5px 10px; font-size: 11px; }
+.btn-primary { background: var(--gold); color: var(--black); }
+.btn-primary:hover { background: var(--gold-light); }
+.btn-outline { background: transparent; border: 1.5px solid var(--gray-3); color: var(--text); }
+.btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+.btn-approve { background: rgba(16,185,129,0.1); color: #065F46; border: 1px solid rgba(16,185,129,0.25); }
+.btn-approve:hover { background: rgba(16,185,129,0.2); }
+.btn-reject { background: rgba(239,68,68,0.08); color: #991B1B; border: 1px solid rgba(239,68,68,0.2); }
+.btn-reject:hover { background: rgba(239,68,68,0.15); }
+.btn-reenviar { background: rgba(201,164,58,0.08); color: #92720C; border: 1px solid rgba(201,164,58,0.25); }
+.btn-reenviar:hover { background: rgba(201,164,58,0.18); }
+.btn-copy { background: var(--gray-2); color: var(--gray-5); border: 1px solid var(--gray-3); }
+.btn-copy:hover { background: var(--gray-3); color: var(--text); }
+.btn-copy.copied { background: rgba(16,185,129,0.1); color: #065F46; border-color: rgba(16,185,129,0.25); }
+.action-group { display: flex; gap: 6px; }
+
+/* Filter bar */
+.filter-bar { display: flex; align-items: center; gap: 10px; padding: 14px 22px; border-bottom: 1px solid var(--gray-2); }
+.filter-label { font-size: 12px; color: var(--gray-5); font-weight: 500; }
+.filter-btn { padding: 5px 14px; border-radius: 100px; border: 1.5px solid var(--gray-3); background: transparent; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; color: var(--gray-5); cursor: pointer; transition: all 0.15s; }
+.filter-btn:hover { border-color: var(--gold); color: var(--gold); }
+.filter-btn.active { background: var(--gold-pale); border-color: var(--gold); color: var(--black-2); font-weight: 600; }
+
+/* Empty state */
+.empty-state { text-align: center; padding: 48px 24px; }
+.empty-icon { font-size: 32px; margin-bottom: 12px; }
+.empty-title { font-size: 15px; font-weight: 600; color: var(--black); margin-bottom: 4px; }
+.empty-sub { font-size: 13px; color: var(--gray-5); }
+
+/* =========================================================
+   MODAL
+   ========================================================= */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+  align-items: center; justify-content: center; padding: 20px;
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: var(--white); border-radius: 16px; width: 100%; max-width: 480px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15); animation: modalIn 0.25s ease;
+}
+@keyframes modalIn { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+.modal-head { display: flex; align-items: center; justify-content: space-between; padding: 22px 24px; border-bottom: 1px solid var(--gray-2); }
+.modal-title { font-size: 16px; font-weight: 600; color: var(--black); }
+.modal-close { background: none; border: none; font-size: 18px; cursor: pointer; color: var(--gray-5); padding: 4px; line-height: 1; border-radius: 6px; }
+.modal-close:hover { background: var(--gray-2); color: var(--text); }
+.modal-body { padding: 24px; }
+.modal-foot { display: flex; justify-content: flex-end; gap: 10px; padding: 16px 24px; border-top: 1px solid var(--gray-2); }
+.modal-group { margin-bottom: 18px; }
+.modal-group label { display: block; font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gray-5); margin-bottom: 7px; }
+.modal-group input {
+  width: 100%; padding: 10px 14px;
+  border: 1.5px solid var(--gray-3); border-radius: 8px;
+  font-family: 'DM Sans', sans-serif; font-size: 14px;
+  color: var(--text); background: var(--white); outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.modal-group input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,164,58,0.12); }
+.modal-group input::placeholder { color: #C0C0C0; }
+.modal-error { display: none; font-size: 12px; color: var(--red); margin-top: 5px; }
+.modal-error.show { display: block; }
+.modal-generated {
+  background: var(--gold-pale); border: 1px solid rgba(201,164,58,0.3);
+  border-radius: 8px; padding: 12px 16px; margin-top: 4px;
+}
+.modal-generated-label { font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #7A6020; margin-bottom: 4px; }
+.modal-generated-code { font-family: monospace; font-size: 18px; font-weight: 700; color: #7A6020; letter-spacing: 0.08em; }
+
+/* Toggle switch */
+.toggle-wrap { display: flex; align-items: center; gap: 8px; }
+.toggle { position: relative; width: 36px; height: 20px; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute; inset: 0; background: var(--gray-3);
+  border-radius: 100px; cursor: pointer; transition: background 0.2s;
+}
+.toggle-slider::before {
+  content: ''; position: absolute; left: 2px; top: 2px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--white); transition: transform 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+.toggle input:checked + .toggle-slider { background: var(--green); }
+.toggle input:checked + .toggle-slider::before { transform: translateX(16px); }
+
+/* Notification toast */
+.toast {
+  position: fixed; bottom: 24px; right: 24px; z-index: 300;
+  background: var(--black-2); color: var(--white);
+  padding: 12px 18px; border-radius: 10px;
+  font-size: 13px; font-weight: 500;
+  display: flex; align-items: center; gap: 8px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  transform: translateY(80px); opacity: 0;
+  transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.success::before { content: '✓'; color: var(--green); font-weight: 700; }
+.toast.error::before { content: '✕'; color: var(--red); font-weight: 700; }
+
+/* Sections */
+.section { display: none; }
+.section.active { display: block; }
+
+/* Loading spinner */
+.spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(0,0,0,0.1); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Profile Modal */
+.modal-profile { max-width: 560px; }
+.modal-profile-header {
+  display: flex; align-items: center; gap: 16px;
+  padding: 24px 24px 20px; border-bottom: 1px solid var(--gray-2);
+}
+.modal-profile-avatar {
+  width: 52px; height: 52px; border-radius: 50%;
+  background: var(--gold-pale); border: 2px solid rgba(201,164,58,0.3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; font-weight: 700; color: #7A6020; flex-shrink: 0;
+}
+.modal-profile-info { flex: 1; }
+.modal-profile-name { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 600; color: var(--black); margin-bottom: 4px; }
+.modal-profile-meta { font-size: 13px; color: var(--gray-5); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.modal-section-title {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--gray-5); margin: 0 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--gray-2);
+}
+.modal-fields-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+.modal-field { display: flex; flex-direction: column; gap: 3px; }
+.modal-field.full { grid-column: 1 / -1; }
+.modal-field-label { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gray-5); }
+.modal-field-value { font-size: 13px; color: var(--text); font-weight: 500; word-break: break-word; }
+.modal-field-value.mono { font-family: monospace; font-size: 12px; letter-spacing: 0.04em; }
+.modal-field-value.empty { color: var(--gray-5); font-style: italic; font-weight: 400; }
+.modal-profile-actions { display: flex; gap: 8px; justify-content: flex-end; padding: 16px 24px; border-top: 1px solid var(--gray-2); }
+.btn-view-link { color: var(--gold); font-size: 12px; font-weight: 500; text-decoration: none; }
+.btn-view-link:hover { text-decoration: underline; }
+
+/* ===== PÁGINAS DO SITE ===== */
+.pages-flow { margin-bottom: 32px; }
+.pages-flow-title {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--gray-5); margin-bottom: 12px; padding-bottom: 8px;
+  border-bottom: 1px solid var(--gray-2);
+}
+.pages-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.page-card {
+  background: var(--white); border: 1px solid var(--gray-2); border-radius: 12px;
+  padding: 16px; display: flex; flex-direction: column; gap: 10px;
+}
+.page-card.missing { background: var(--gray-1); border-style: dashed; }
+.page-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.page-card-name { font-size: 13px; font-weight: 600; color: var(--black); }
+.page-card.missing .page-card-name { color: var(--gray-5); }
+.page-card-file { font-size: 11px; font-family: monospace; color: var(--gray-5); margin-top: 2px; }
+.page-status-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 3px; }
+.page-status-dot.exists { background: var(--green); }
+.page-status-dot.missing { background: var(--gray-3); }
+.page-card-desc { font-size: 12px; color: var(--gray-5); line-height: 1.5; }
+.page-card-actions { display: flex; gap: 8px; }
+.page-card-actions .btn { flex: 1; justify-content: center; font-size: 11px; padding: 6px 10px; }
+.page-card-actions .btn[disabled],
+.page-card-actions span.btn { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .stats-grid { grid-template-columns: repeat(2,1fr); }
+  .sidebar { display: none; }
+  .content { padding: 20px 16px; }
+  .modal-fields-grid { grid-template-columns: 1fr; }
+}
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.section.active { animation: fadeUp 0.3s ease; }
+</style>
+</head>
+<body>
+
+<!-- =========================================================
+     LOGIN SCREEN
+     ========================================================= -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">
+      <img src="../logo-dark.svg" alt="Relevantia" style="height:48px;width:auto;">
+
+    </div>
+    <div class="login-tag">
+      <span class="login-tag-dot"></span>
+      Super Admin
+    </div>
+    <h1 class="login-title">Painel Administrativo</h1>
+    <p class="login-sub">Acesso restrito. Use suas credenciais de administrador.</p>
+    <div id="loginError" class="login-error">Email ou senha incorretos. Tente novamente.</div>
+    <div class="login-group">
+      <label>Email</label>
+      <input type="email" id="loginEmail" placeholder="admin@relevantia.com" autocomplete="email">
+    </div>
+    <div class="login-group">
+      <label>Senha</label>
+      <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="btn-login" id="btnLogin" onclick="doLogin()">Entrar no painel</button>
+  </div>
+</div>
+
+<!-- =========================================================
+     DASHBOARD
+     ========================================================= -->
+<div id="dashboard">
+
+  <!-- Top Nav -->
+  <nav class="top-nav">
+    <a href="#" class="nav-logo">
+      <img src="../logo-dark.svg" alt="Relevantia">
+    </a>
+    <div class="nav-sep"></div>
+    <div class="nav-admin-tag">⚡ Super Admin</div>
+    <div class="nav-spacer"></div>
+    <div class="nav-user">
+      <div class="nav-user-info">
+        <div class="nav-user-name" id="navUserName">Admin</div>
+        <div class="nav-user-role">Super Admin</div>
+      </div>
+      <div class="nav-avatar" id="navAvatar">A</div>
+      <button class="btn-logout" onclick="doLogout()">Sair</button>
+    </div>
+  </nav>
+
+  <!-- Body -->
+  <div class="dashboard-body">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">Visão Geral</div>
+        <div class="sidebar-item active" onclick="showSection('overview', this)">
+          <span class="sidebar-item-icon">📊</span>
+          Dashboard
+        </div>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">Member-Get-Member</div>
+        <div class="sidebar-item" onclick="showSection('embaixadores', this)">
+          <span class="sidebar-item-icon">🤝</span>
+          Embaixadores
+          <span class="sidebar-badge" id="badgeEmbaixadores">—</span>
+        </div>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">Cadastros Pendentes</div>
+        <div class="sidebar-item" onclick="showSection('marcas', this)">
+          <span class="sidebar-item-icon">🏷️</span>
+          Marcas
+          <span class="sidebar-badge red" id="badgeMarcas">—</span>
+        </div>
+        <div class="sidebar-item" onclick="showSection('detentores', this)">
+          <span class="sidebar-item-icon">🏟️</span>
+          Detentores
+          <span class="sidebar-badge red" id="badgeDetentores">—</span>
+        </div>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">Site</div>
+        <div class="sidebar-item" onclick="showSection('paginas', this)">
+          <span class="sidebar-item-icon">🗺️</span>
+          Páginas do Site
+        </div>
+      </div>
+    </aside>
+
+    <!-- Content -->
+    <main class="content">
+
+      <!-- OVERVIEW -->
+      <div id="section-overview" class="section active">
+        <div class="page-header">
+          <h1 class="page-title">Visão Geral</h1>
+          <p class="page-sub">Resumo da plataforma Radar Relevantia</p>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card gold">
+            <div class="stat-label">Embaixadores Ativos</div>
+            <div class="stat-value" id="statEmbaixadores">—</div>
+            <div class="stat-desc">com código ativo</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Marcas Pendentes</div>
+            <div class="stat-value" id="statMarcasPend">—</div>
+            <div class="stat-desc">aguardando aprovação</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Detentores Pendentes</div>
+            <div class="stat-value" id="statDetentoresPend">—</div>
+            <div class="stat-desc">aguardando aprovação</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Total Aprovados</div>
+            <div class="stat-value" id="statAprovados">—</div>
+            <div class="stat-desc">marcas + detentores</div>
+          </div>
+        </div>
+        <div class="table-card">
+          <div class="table-header">
+            <span class="table-title">Últimas atividades</span>
+          </div>
+          <div id="recentActivity">
+            <div class="empty-state">
+              <div class="empty-icon">📋</div>
+              <div class="empty-title">Carregando...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EMBAIXADORES -->
+      <div id="section-embaixadores" class="section">
+        <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <h1 class="page-title">Embaixadores</h1>
+            <p class="page-sub">Gerencie os embaixadores e seus códigos de indicação</p>
+          </div>
+          <button class="btn btn-primary" onclick="openModalEmbaixador()">+ Novo Embaixador</button>
+        </div>
+        <div class="table-card">
+          <div class="table-header">
+            <span class="table-title">Todos os Embaixadores</span>
+            <span class="table-count" id="countEmbaixadores">carregando...</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Email</th>
+                  <th>Código de Acesso</th>
+                  <th>Indicações</th>
+                  <th>Status</th>
+                  <th>Desde</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="tbodyEmbaixadores">
+                <tr><td colspan="7"><div class="empty-state"><div class="spinner"></div></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- MARCAS -->
+      <div id="section-marcas" class="section">
+        <div class="page-header">
+          <h1 class="page-title">Cadastros de Marcas</h1>
+          <p class="page-sub">Aprove ou rejeite as marcas que se cadastraram na plataforma</p>
+        </div>
+        <div class="table-card">
+          <div class="filter-bar">
+            <span class="filter-label">Filtrar:</span>
+            <button class="filter-btn active" onclick="filterMarcas('pendente', this)">Pendentes</button>
+            <button class="filter-btn" onclick="filterMarcas('aprovado', this)">Aprovados</button>
+            <button class="filter-btn" onclick="filterMarcas('rejeitado', this)">Rejeitados</button>
+            <button class="filter-btn" onclick="filterMarcas('todos', this)">Todos</button>
+          </div>
+          <div class="table-header" style="border-top:none;">
+            <span class="table-title">Lista de Marcas</span>
+            <span class="table-count" id="countMarcas">carregando...</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Empresa</th>
+                  <th>Segmento</th>
+                  <th>Email</th>
+                  <th>Indicação</th>
+                  <th>Data</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="tbodyMarcas">
+                <tr><td colspan="8"><div class="empty-state"><div class="spinner"></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- DETENTORES -->
+      <div id="section-detentores" class="section">
+        <div class="page-header">
+          <h1 class="page-title">Cadastros de Detentores</h1>
+          <p class="page-sub">Aprove ou rejeite os detentores que se cadastraram na plataforma</p>
+        </div>
+        <div class="table-card">
+          <div class="filter-bar">
+            <span class="filter-label">Filtrar:</span>
+            <button class="filter-btn active" onclick="filterDetentores('pendente', this)">Pendentes</button>
+            <button class="filter-btn" onclick="filterDetentores('aprovado', this)">Aprovados</button>
+            <button class="filter-btn" onclick="filterDetentores('rejeitado', this)">Rejeitados</button>
+            <button class="filter-btn" onclick="filterDetentores('todos', this)">Todos</button>
+          </div>
+          <div class="table-header" style="border-top:none;">
+            <span class="table-title">Lista de Detentores</span>
+            <span class="table-count" id="countDetentores">carregando...</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Empresa</th>
+                  <th>Segmento</th>
+                  <th>Email</th>
+                  <th>Cidade/Estado</th>
+                  <th>Código Convite</th>
+                  <th>Data</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="tbodyDetentores">
+                <tr><td colspan="9"><div class="empty-state"><div class="spinner"></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- PÁGINAS DO SITE -->
+      <div id="section-paginas" class="section">
+        <div class="page-header">
+          <h1 class="page-title">Páginas do Site</h1>
+          <p class="page-sub">Mapa completo do projeto — baseado no worktree MVP 1.0. Ponto verde = página existe, cinza = ainda não criada.</p>
+        </div>
+
+        <!-- ENTRADA PÚBLICA -->
+        <div class="pages-flow">
+          <div class="pages-flow-title">Entrada Pública</div>
+          <div class="pages-grid">
+            <div class="page-card">
+              <div class="page-card-top">
+                <div>
+                  <div class="page-card-name">Landing Page</div>
+                  <div class="page-card-file">index.html</div>
+                </div>
+                <div class="page-status-dot exists" title="Página existe"></div>
+              </div>
+              <div class="page-card-desc">Página principal do marketplace — pública, sem autenticação.</div>
+              <div class="page-card-actions">
+                <a href="index.html" target="_blank" class="btn btn-outline btn-sm">↗ Local</a>
+                <span class="btn btn-primary btn-sm" disabled>🌐 Online</span>
+              </div>
+            </div>
+            <div class="page-card">
+              <div class="page-card-top">
+                <div>
+                  <div class="page-card-name">Login Geral</div>
+                  <div class="page-card-file">login.html</div>
+                </div>
+                <div class="page-status-dot exists" title="Página existe"></div>
+              </div>
+              <div class="page-card-desc">Entrada unificada — redireciona para fluxo Marca ou Detentor.</div>
+              <div class="page-card-actions">
+                <a href="login.html" target="_blank" class="btn btn-outline btn-sm">↗ Local</a>
+                <span class="btn btn-primary btn-sm" disabled>🌐 Online</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FLUXO MARCAS -->
+        <div class="pages-flow">
+          <div class="pages-flow-title">Fluxo Marcas</div>
+          <div class="pages-grid">
+            <div class="page-card">
+              <div class="page-card-top">
+                <div>
+                  <div class="page-card-name">Cadastro Marca</div>
+                  <div class="page-card-file">cadastro-marca.html</div>
+                </div>
+                <div class="page-status-dot exists" title="Página existe"></div>
+              </div>
+              <div class="page-card-desc">Formulário de cadastro multi-step para novas marcas.</div>
+              <div class="page-card-actions">
+                <a href="cadastro-marca.html" target="_blank" class="btn btn-outline btn-sm">↗ Local</a>
+                <span class="btn btn-primary btn-sm" disabled>🌐 Online</span>
+              </div>
+            </div>
+            <div class="page-card">
+              <div class="page-card-top">
+                <div>
+                  <div class="page-card-name">Acesso Marca</div>
+                  <div class="page-card-file">acesso-marca.html</div>
+                </div>
+                <div class="page-status-dot exists" title="Página existe"></div>
+              </div>
+              <div class="page-card-desc">Login da marca — senha + tutorial de primeiro acesso.</div>
+              <div class="page-card-actions">
+                <a href="acesso-marca.html" target="_blank" class="btn btn-outline btn-sm">↗ Local</a>
+                <span class="btn btn-primary btn-sm" disabled>🌐 Online</span>
+              </div>
+            </div>
+            <div class="page-card">
+              <div class="page-card-top">
+                <div>
+                  <div class="page-card-name">Dashboard Marca</div>
+                  <div class="page-card-file">dashboard-marca.html</div>
+                </div>
+                <div class="page-status-dot exists" title="Página existe"></div>
+              </div>
+              <div class="page-card-desc">App principal das marcas — hub de navegação pós-login.</div>
+              <div class="page-card-actions">
+                <a href="dashboard-marca.html" target="_blank" class="btn btn-outline btn-sm">↗ Local</a>
+                <span class="btn btn-primary btn-sm" disabled>🌐 Online</span>
+              </div>
+            </div>
+            <div class="page-card">
+              <div class="page-card-top">
+                <div>
+                  <div class="page-card-name">Oportunidade Detalhe</div>
+                  <div class="page-card-file">oportunidade-detalhe.html</div>
+                </div>
+                <div class="page-status-dot exists" title="Página existe"></div>
+              </div>
+              <div class="page-card-desc">Visualização detalhada de uma oportunidade de patrocínio.</div>
+              <div class="page-card-actions">
+                <a href="oportunidade-detalhe.html" target="_blank" class="btn btn-outline btn-sm">↗ Local</a>
+                <span class="btn btn-primary btn-sm" disabled>🌐 Online</span>
+              </div>
+            </div>
+            <div class="page-card missing">
+              <div class="page-card-top">
+                <div>
+                  <div class="page-card-name">Explorar Oportunidades</div>
+                  <div class="page-card-file">oportunidades.html</div>
+                </div>
+                <div class="page-status-dot missing" title="Ainda não criada"></div>
+              </div>
+              <div class="page-card-desc">Listagem e busca de oportunidades disponíveis para marcas.</div>
+              <div class="page-card-actions">
+                <span class="btn btn-outline btn-sm">↗ Local</span>
+                <span class="btn btn-primary btn-sm">🌐 Online</span>
+              </div>
+            </div>
+            <div class="page-card missing">
+              <div class="page-card-top">
+                <div>
+                  <div class="page-card-name">Perfil da Marca</div>
+                  <div class="page-card-file">perfil-marca.html</div>
+                </div>
+                <div class="page-status-dot missing" title="Ainda não criada"></div>
+              </div>
+              <div class="page-card-desc">Página de perfil público e privado da marca.</div>
+              <div class="page-card-actions">
+                <span class="btn btn-outline btn-sm">↗ Local</span>
+                <span class="btn btn-primary btn-sm">🌐 Online</span>
+              </div>
+            </div>
+            <div class="page-card missing">
+              <div class="page-card-top">
+                <div>
+                  <div class="page-card-name">Propostas Enviadas</div>
+                  <div class="page-card-file">propostas-marca.html</div>
+                </div>
+                <div class="page-status-dot missing" title="Ainda não criada"></div>
+              </div>
+              <div class="page-card-desc">Histórico e status das propostas enviadas pela marca.</div>
+              <div class="page-card-actions">
+                <span class="btn btn-outline btn-sm">↗ Local</span>
+                <span class="btn btn-primary btn-sm">🌐 Online</span>
+              </div>
+            </div>
+            <div class="page-card missing">
+              <div class="page-card-top">
+                <div>
+                  <div class="page-card-name">Configurações (Marca)</div>
+                  <div class="page-card-file">configuracoes.html</div>
+                </div>
+                <div class="page-status-dot missing" title="Ainda não criada"></div>
+              </div>
+              <div class="page-card-desc">Configurações de conta e preferências da marca.</div>
+              <div class="page-card-actions">
+                <span class="btn btn-outline btn-sm">↗ Local</span>
+                <span class="btn btn-primary btn-sm">🌐 Online</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FLUXO DETENTOR -->
+        <div class="pages-flow">
+          <div class="pages-flow-title">Fluxo Detentor de Direitos</div>
+          <div class="pages-grid">
+            <div class="page-card">
+              <div class="page-card-top">
+                <div>
+                  <div class="page-card-name">Cadastro Detentor</div>
+                  <div class="page-card-file">cadastro-detentor.html</div>
+                </div>
+                <div class="page-status-dot exists" title="Página existe"></div>
+              </div>
+              <div class="page-card-desc">Formulário de cadastro multi-step para novos detentores.</div>
+              <div class="page-card-actions">
+                <a href="cadastro-detentor.html" target="_blank" class="btn btn-outline btn-sm">↗ Local</a>
+                <span class="btn btn-primary btn-sm" disabled>🌐 Online</span>
+              </div>
+            </div>
+            <div class="page-card">
+              <div class="page-card-top">
+                <div>
+                  <div class="page-card-name">Acesso Detentor</div>
+                  <div class="page-card-file">acesso-detentor.html</div>
+                </div>
+                <div class="page-status-dot exists" title="Página existe"></div>
+              </div>
+              <div class="page-card-desc">Login do detentor — senha + tutorial de primeiro acesso.</div>
+              <div class="page-card-actions">
+                <a href="acesso-detentor.html" target="_blank" class="btn btn-outline btn-sm">↗ Local</a>
+                <span class="btn btn-primary btn-sm" disabled>🌐 Online</span>
+              </div>
+            </div>
+            <div class="page-card">
+              <div class="page-card-top">
+                <div>
+                  <div class="page-card-name">Dashboard Detentor</div>
+                  <div class="page-card-file">dashboard-detentor.html</div>
+                </div>
+                <div class="page-status-dot exists" title="Página existe"></div>
+              </div>
+              <div class="page-card-desc">App principal dos detentores — portal de gestão de ativos.</div>
+              <div class="page-card-actions">
+                <a href="dashboard-detentor.html" target="_blank" class="btn btn-outline btn-sm">↗ Local</a>
+                <span class="btn btn-primary btn-sm" disabled>🌐 Online</span>
+              </div>
+            </div>
+            <div class="page-card">
+              <div class="page-card-top">
+                <div>
+                  <div class="page-card-name">Criar Oportunidade v1</div>
+                  <div class="page-card-file">criar-oportunidade.html</div>
+                </div>
+                <div class="page-status-dot exists" title="Página existe"></div>
+              </div>
+              <div class="page-card-desc">Formulário de publicação de ativo de patrocínio (v1).</div>
+              <div class="page-card-actions">
+                <a href="criar-oportunidade.html" target="_blank" class="btn btn-outline btn-sm">↗ Local</a>
+                <span class="btn btn-primary btn-sm" disabled>🌐 Online</span>
+              </div>
+            </div>
+            <div class="page-card">
+              <div class="page-card-top">
+                <div>
+                  <div class="page-card-name">Criar Oportunidade v2</div>
+                  <div class="page-card-file">criar-oportunidade-v2.html</div>
+                </div>
+                <div class="page-status-dot exists" title="Página existe"></div>
+              </div>
+              <div class="page-card-desc">Versão 2 do formulário de criação de oportunidade.</div>
+              <div class="page-card-actions">
+                <a href="criar-oportunidade-v2.html" target="_blank" class="btn btn-outline btn-sm">↗ Local</a>
+                <span class="btn btn-primary btn-sm" disabled>🌐 Online</span>
+              </div>
+            </div>
+            <div class="page-card missing">
+              <div class="page-card-top">
+                <div>
+                  <div class="page-card-name">Perfil do Detentor</div>
+                  <div class="page-card-file">perfil-detentor.html</div>
+                </div>
+                <div class="page-status-dot missing" title="Ainda não criada"></div>
+              </div>
+              <div class="page-card-desc">Perfil e portfólio público do detentor de direitos.</div>
+              <div class="page-card-actions">
+                <span class="btn btn-outline btn-sm">↗ Local</span>
+                <span class="btn btn-primary btn-sm">🌐 Online</span>
+              </div>
+            </div>
+            <div class="page-card missing">
+              <div class="page-card-top">
+                <div>
+                  <div class="page-card-name">Propostas Recebidas</div>
+                  <div class="page-card-file">minhas-propostas.html</div>
+                </div>
+                <div class="page-status-dot missing" title="Ainda não criada"></div>
+              </div>
+              <div class="page-card-desc">Listagem de propostas recebidas de marcas interessadas.</div>
+              <div class="page-card-actions">
+                <span class="btn btn-outline btn-sm">↗ Local</span>
+                <span class="btn btn-primary btn-sm">🌐 Online</span>
+              </div>
+            </div>
+            <div class="page-card missing">
+              <div class="page-card-top">
+                <div>
+                  <div class="page-card-name">Configurações (Detentor)</div>
+                  <div class="page-card-file">configuracoes.html</div>
+                </div>
+                <div class="page-status-dot missing" title="Ainda não criada"></div>
+              </div>
+              <div class="page-card-desc">Configurações de conta e preferências do detentor.</div>
+              <div class="page-card-actions">
+                <span class="btn btn-outline btn-sm">↗ Local</span>
+                <span class="btn btn-primary btn-sm">🌐 Online</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ZONA DE MATCH -->
+        <div class="pages-flow">
+          <div class="pages-flow-title">Zona de Match — MVP 1.0</div>
+          <div class="pages-grid">
+            <div class="page-card missing">
+              <div class="page-card-top">
+                <div>
+                  <div class="page-card-name">Proposta / Negociação</div>
+                  <div class="page-card-file">proposta-detalhe.html</div>
+                </div>
+                <div class="page-status-dot missing" title="Ainda não criada"></div>
+              </div>
+              <div class="page-card-desc">Tela de negociação compartilhada entre marca e detentor.</div>
+              <div class="page-card-actions">
+                <span class="btn btn-outline btn-sm">↗ Local</span>
+                <span class="btn btn-primary btn-sm">🌐 Online</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PÓS-DEAL -->
+        <div class="pages-flow">
+          <div class="pages-flow-title">Pós-Deal — Fase 2</div>
+          <div class="pages-grid">
+            <div class="page-card missing">
+              <div class="page-card-top">
+                <div>
+                  <div class="page-card-name">Consolidação do Deal</div>
+                  <div class="page-card-file">consolidacao-deal.html</div>
+                </div>
+                <div class="page-status-dot missing" title="Ainda não criada"></div>
+              </div>
+              <div class="page-card-desc">Formalização e consolidação do acordo fechado.</div>
+              <div class="page-card-actions">
+                <span class="btn btn-outline btn-sm">↗ Local</span>
+                <span class="btn btn-primary btn-sm">🌐 Online</span>
+              </div>
+            </div>
+            <div class="page-card missing">
+              <div class="page-card-top">
+                <div>
+                  <div class="page-card-name">Jurídico</div>
+                  <div class="page-card-file">juridico.html</div>
+                </div>
+                <div class="page-status-dot missing" title="Ainda não criada"></div>
+              </div>
+              <div class="page-card-desc">Documentação legal e contratos do deal.</div>
+              <div class="page-card-actions">
+                <span class="btn btn-outline btn-sm">↗ Local</span>
+                <span class="btn btn-primary btn-sm">🌐 Online</span>
+              </div>
+            </div>
+            <div class="page-card missing">
+              <div class="page-card-top">
+                <div>
+                  <div class="page-card-name">Financeiro</div>
+                  <div class="page-card-file">financeiro.html</div>
+                </div>
+                <div class="page-status-dot missing" title="Ainda não criada"></div>
+              </div>
+              <div class="page-card-desc">Gestão de pagamentos e repasses do deal.</div>
+              <div class="page-card-actions">
+                <span class="btn btn-outline btn-sm">↗ Local</span>
+                <span class="btn btn-primary btn-sm">🌐 Online</span>
+              </div>
+            </div>
+            <div class="page-card missing">
+              <div class="page-card-top">
+                <div>
+                  <div class="page-card-name">Operações</div>
+                  <div class="page-card-file">operations.html</div>
+                </div>
+                <div class="page-status-dot missing" title="Ainda não criada"></div>
+              </div>
+              <div class="page-card-desc">Ativações, entregas e controle operacional do patrocínio.</div>
+              <div class="page-card-actions">
+                <span class="btn btn-outline btn-sm">↗ Local</span>
+                <span class="btn btn-primary btn-sm">🌐 Online</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PÁGINAS LEGAIS -->
+        <div class="pages-flow">
+          <div class="pages-flow-title">Páginas Legais</div>
+          <div class="pages-grid">
+            <div class="page-card missing">
+              <div class="page-card-top">
+                <div>
+                  <div class="page-card-name">Termos de Uso</div>
+                  <div class="page-card-file">termos.html</div>
+                </div>
+                <div class="page-status-dot missing" title="Ainda não criada"></div>
+              </div>
+              <div class="page-card-desc">Termos e condições de uso da plataforma.</div>
+              <div class="page-card-actions">
+                <span class="btn btn-outline btn-sm">↗ Local</span>
+                <span class="btn btn-primary btn-sm">🌐 Online</span>
+              </div>
+            </div>
+            <div class="page-card missing">
+              <div class="page-card-top">
+                <div>
+                  <div class="page-card-name">Política de Privacidade</div>
+                  <div class="page-card-file">privacidade.html</div>
+                </div>
+                <div class="page-status-dot missing" title="Ainda não criada"></div>
+              </div>
+              <div class="page-card-desc">Política de privacidade e tratamento de dados (LGPD).</div>
+              <div class="page-card-actions">
+                <span class="btn btn-outline btn-sm">↗ Local</span>
+                <span class="btn btn-primary btn-sm">🌐 Online</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DESIGN SYSTEM -->
+        <div class="pages-flow">
+          <div class="pages-flow-title">Design System</div>
+          <div class="pages-grid">
+            <div class="page-card">
+              <div class="page-card-top">
+                <div>
+                  <div class="page-card-name">Design System — Base</div>
+                  <div class="page-card-file">design-system.html</div>
+                </div>
+                <div class="page-status-dot exists" title="Página existe"></div>
+              </div>
+              <div class="page-card-desc">Cores, tipografia e componentes base da plataforma.</div>
+              <div class="page-card-actions">
+                <a href="design-system.html" target="_blank" class="btn btn-outline btn-sm">↗ Local</a>
+                <span class="btn btn-primary btn-sm" disabled>🌐 Online</span>
+              </div>
+            </div>
+            <div class="page-card">
+              <div class="page-card-top">
+                <div>
+                  <div class="page-card-name">Design System — Dashboard</div>
+                  <div class="page-card-file">design-system-dashboard.html</div>
+                </div>
+                <div class="page-status-dot exists" title="Página existe"></div>
+              </div>
+              <div class="page-card-desc">Chat, navegação, estados e componentes de dashboard.</div>
+              <div class="page-card-actions">
+                <a href="design-system-dashboard.html" target="_blank" class="btn btn-outline btn-sm">↗ Local</a>
+                <span class="btn btn-primary btn-sm" disabled>🌐 Online</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ADMIN -->
+        <div class="pages-flow">
+          <div class="pages-flow-title">Admin</div>
+          <div class="pages-grid">
+            <div class="page-card">
+              <div class="page-card-top">
+                <div>
+                  <div class="page-card-name">Painel Super Admin</div>
+                  <div class="page-card-file">admin.html</div>
+                </div>
+                <div class="page-status-dot exists" title="Página existe — você está aqui"></div>
+              </div>
+              <div class="page-card-desc">Esta página — gestão de embaixadores, aprovações e visão geral.</div>
+              <div class="page-card-actions">
+                <a href="admin.html" target="_blank" class="btn btn-outline btn-sm">↗ Local</a>
+                <span class="btn btn-primary btn-sm" disabled>🌐 Online</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /section-paginas -->
+
+    </main>
+  </div>
+</div><!-- /dashboard -->
+
+<!-- =========================================================
+     MODAL: NOVO EMBAIXADOR
+     ========================================================= -->
+<div id="modalEmbaixador" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-head">
+      <span class="modal-title">Novo Embaixador</span>
+      <button class="modal-close" onclick="closeModalEmbaixador()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-group">
+        <label>Nome completo <span style="color:var(--gold)">*</span></label>
+        <input type="text" id="embNome" placeholder="Ex: Lucas Oliveira">
+        <div class="modal-error" id="embNomeErr">Campo obrigatório</div>
+      </div>
+      <div class="modal-group">
+        <label>Email <span style="color:var(--gold)">*</span></label>
+        <input type="email" id="embEmail" placeholder="lucas@exemplo.com">
+        <div class="modal-error" id="embEmailErr">Email inválido</div>
+      </div>
+      <div class="modal-group">
+        <label>Telefone <span style="color:var(--gray-5);font-weight:400;">(opcional)</span></label>
+        <input type="tel" id="embTel" placeholder="(11) 99999-9999">
+      </div>
+      <div class="modal-group">
+        <label>Código gerado automaticamente</label>
+        <div class="modal-generated">
+          <div class="modal-generated-label">Código de Indicação</div>
+          <div class="modal-generated-code" id="previewCodigo">EMB-XXXX-0000</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModalEmbaixador()">Cancelar</button>
+      <button class="btn btn-primary" id="btnSalvarEmb" onclick="salvarEmbaixador()">Criar Embaixador</button>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================
+     MODAL: PERFIL (Marca ou Detentor)
+     ========================================================= -->
+<div id="modalPerfil" class="modal-overlay">
+  <div class="modal modal-profile">
+    <div class="modal-profile-header">
+      <div class="modal-profile-avatar" id="perfilAvatar">?</div>
+      <div class="modal-profile-info">
+        <div class="modal-profile-name" id="perfilNome">—</div>
+        <div class="modal-profile-meta">
+          <span id="perfilTipoBadge"></span>
+          <span id="perfilStatusBadge"></span>
+          <span id="perfilData" style="color:var(--gray-5);font-size:12px;"></span>
+        </div>
+      </div>
+      <button class="modal-close" onclick="closeModalPerfil()" style="align-self:flex-start;margin-left:8px;">✕</button>
+    </div>
+    <div class="modal-body" id="perfilBody" style="max-height:60vh;overflow-y:auto;">
+      <!-- preenchido dinamicamente -->
+    </div>
+    <div class="modal-profile-actions" id="perfilActions">
+      <!-- botões de aprovação preenchidos dinamicamente -->
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- =========================================================
+     JAVASCRIPT
+     ========================================================= -->
+<script>
+const SUPABASE_URL = 'https://bzckerazidgrkbpgqqee.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ6Y2tlcmF6aWRncmticGdxcWVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2MjczODksImV4cCI6MjA4ODIwMzM4OX0.HIVnwcGvKiYNGfVFEnP0Ik9kfOeXPB4c4BFqDpqFCS4';
+const SUPABASE_SERVICE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ6Y2tlcmF6aWRncmticGdxcWVlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MjYyNzM4OSwiZXhwIjoyMDg4MjAzMzg5fQ.wdZP2RfC4AZVbwf9SESCpIr3SKrZTEt84cfgB35epSA';
+
+let currentSession = null;
+let marcasFilter = 'pendente';
+let detentoresFilter = 'pendente';
+let allEmbaixadores = [];
+
+// ── Session helpers ──────────────────────────────────────────
+async function getSession() {
+  const stored = localStorage.getItem('sb_admin_session');
+  if (!stored) return null;
+  try {
+    return JSON.parse(stored);
+  } catch { return null; }
+}
+
+async function sbFetch(path, opts = {}) {
+  const session = await getSession();
+  const token = session?.access_token || SUPABASE_KEY;
+  const res = await fetch(`${SUPABASE_URL}${path}`, {
+    ...opts,
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+      ...(opts.headers || {})
+    }
+  });
+  return res;
+}
+
+// ── Auth ─────────────────────────────────────────────────────
+async function doLogin() {
+  const email    = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const btn      = document.getElementById('btnLogin');
+  const errEl    = document.getElementById('loginError');
+  errEl.classList.remove('show');
+
+  if (!email || !password) { errEl.textContent = 'Preencha email e senha.'; errEl.classList.add('show'); return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Entrando...';
+
+  try {
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+
+    if (!res.ok || data.error) {
+      errEl.textContent = data.error_description || data.msg || 'Credenciais inválidas.';
+      errEl.classList.add('show');
+      btn.disabled = false; btn.textContent = 'Entrar no painel';
+      return;
+    }
+
+    localStorage.setItem('sb_admin_session', JSON.stringify(data));
+    currentSession = data;
+    showDashboard(data);
+  } catch (err) {
+    errEl.textContent = 'Erro de conexão. Tente novamente.';
+    errEl.classList.add('show');
+    btn.disabled = false; btn.textContent = 'Entrar no painel';
+  }
+}
+
+async function doLogout() {
+  localStorage.removeItem('sb_admin_session');
+  currentSession = null;
+  document.getElementById('dashboard').classList.remove('show');
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('loginEmail').value = '';
+  document.getElementById('loginPassword').value = '';
+}
+
+function showDashboard(session) {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('dashboard').classList.add('show');
+
+  const email = session.user?.email || '';
+  const name  = email.split('@')[0] || 'Admin';
+  const initials = name.slice(0,2).toUpperCase();
+  document.getElementById('navUserName').textContent = name;
+  document.getElementById('navAvatar').textContent   = initials;
+
+  loadAllData();
+}
+
+// Enter key on login
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('loginPassword').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doLogin();
+  });
+  document.getElementById('loginEmail').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('loginPassword').focus();
+  });
+
+  // Auto-login if session cached
+  const stored = localStorage.getItem('sb_admin_session');
+  if (stored) {
+    try {
+      const session = JSON.parse(stored);
+      // Check expiry
+      const exp = session.expires_at || (session.expires_in ? Date.now()/1000 + session.expires_in : 0);
+      if (exp && Date.now()/1000 < exp) {
+        currentSession = session;
+        showDashboard(session);
+        return;
+      }
+    } catch {}
+    localStorage.removeItem('sb_admin_session');
+  }
+});
+
+// ── Navigation ───────────────────────────────────────────────
+function showSection(name, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  document.getElementById('section-' + name).classList.add('active');
+  if (el) el.classList.add('active');
+
+  // Lazy load
+  if (name === 'embaixadores') loadEmbaixadores();
+  if (name === 'marcas')       loadMarcas();
+  if (name === 'detentores')   loadDetentores();
+}
+
+// ── Load all data ─────────────────────────────────────────────
+async function loadAllData() {
+  await Promise.all([
+    loadStats(),
+    loadEmbaixadores(),
+    loadMarcas(),
+    loadDetentores(),
+    loadRecentActivity()
+  ]);
+}
+
+// ── Stats ─────────────────────────────────────────────────────
+async function loadStats() {
+  try {
+    const [rEmb, rMPend, rDPend, rMAprov, rDAprov] = await Promise.all([
+      sbFetch('/rest/v1/embaixadores?select=id&ativo=eq.true'),
+      sbFetch('/rest/v1/marcas_waitlist?select=id&status=eq.pendente'),
+      sbFetch('/rest/v1/detentores_waitlist?select=id&status=eq.pendente'),
+      sbFetch('/rest/v1/marcas_waitlist?select=id&status=eq.aprovado'),
+      sbFetch('/rest/v1/detentores_waitlist?select=id&status=eq.aprovado')
+    ]);
+
+    const [emb, mPend, dPend, mAprov, dAprov] = await Promise.all([
+      rEmb.json(), rMPend.json(), rDPend.json(), rMAprov.json(), rDAprov.json()
+    ]);
+
+    const embCount  = Array.isArray(emb)    ? emb.length    : 0;
+    const mPendCnt  = Array.isArray(mPend)  ? mPend.length  : 0;
+    const dPendCnt  = Array.isArray(dPend)  ? dPend.length  : 0;
+    const aprovCnt  = (Array.isArray(mAprov) ? mAprov.length : 0) + (Array.isArray(dAprov) ? dAprov.length : 0);
+
+    document.getElementById('statEmbaixadores').textContent   = embCount;
+    document.getElementById('statMarcasPend').textContent     = mPendCnt;
+    document.getElementById('statDetentoresPend').textContent = dPendCnt;
+    document.getElementById('statAprovados').textContent      = aprovCnt;
+
+    document.getElementById('badgeEmbaixadores').textContent = embCount;
+    document.getElementById('badgeMarcas').textContent       = mPendCnt;
+    document.getElementById('badgeDetentores').textContent   = dPendCnt;
+  } catch (err) { console.error('Stats error:', err); }
+}
+
+// ── Recent Activity ───────────────────────────────────────────
+async function loadRecentActivity() {
+  try {
+    const [rM, rD] = await Promise.all([
+      sbFetch('/rest/v1/marcas_waitlist?select=primeiro_nome,sobrenome,empresa,created_at,status&order=created_at.desc&limit=5'),
+      sbFetch('/rest/v1/detentores_waitlist?select=nome,empresa,created_at,status&order=created_at.desc&limit=5')
+    ]);
+    const [marcas, detentores] = await Promise.all([rM.json(), rD.json()]);
+
+    const events = [
+      ...(Array.isArray(marcas) ? marcas.map(m => ({ tipo: 'Marca', nome: `${m.primeiro_nome||''} ${m.sobrenome||''}`.trim() || m.empresa, empresa: m.empresa, status: m.status, ts: m.created_at })) : []),
+      ...(Array.isArray(detentores) ? detentores.map(d => ({ tipo: 'Detentor', nome: d.nome, empresa: d.empresa, status: d.status, ts: d.created_at })) : [])
+    ].sort((a, b) => new Date(b.ts) - new Date(a.ts)).slice(0, 8);
+
+    const container = document.getElementById('recentActivity');
+    if (!events.length) {
+      container.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">Sem atividades recentes</div></div>';
+      return;
+    }
+
+    container.innerHTML = `
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Tipo</th><th>Nome</th><th>Empresa</th><th>Status</th><th>Data</th></tr></thead>
+          <tbody>
+            ${events.map(e => `
+              <tr>
+                <td><span class="badge ${e.tipo==='Marca'?'badge-blue':'badge-gold'}">${e.tipo}</span></td>
+                <td class="td-name">${escHtml(e.nome||'—')}</td>
+                <td class="td-muted">${escHtml(e.empresa||'—')}</td>
+                <td>${statusBadge(e.status)}</td>
+                <td class="td-muted">${fmtDate(e.ts)}</td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  } catch (err) { console.error('Activity error:', err); }
+}
+
+// ── Embaixadores ──────────────────────────────────────────────
+async function loadEmbaixadores() {
+  const tbody = document.getElementById('tbodyEmbaixadores');
+  tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="spinner"></div></div></td></tr>';
+
+  try {
+    const res = await sbFetch('/rest/v1/embaixadores?select=*&order=created_at.desc');
+    allEmbaixadores = await res.json();
+
+    if (!Array.isArray(allEmbaixadores) || !allEmbaixadores.length) {
+      tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">🤝</div><div class="empty-title">Nenhum embaixador ainda</div><div class="empty-sub">Clique em "Novo Embaixador" para começar</div></div></td></tr>';
+      document.getElementById('countEmbaixadores').textContent = '0 embaixadores';
+      document.getElementById('badgeEmbaixadores').textContent = '0';
+      return;
+    }
+
+    document.getElementById('countEmbaixadores').textContent = `${allEmbaixadores.length} embaixador${allEmbaixadores.length !== 1 ? 'es' : ''}`;
+    document.getElementById('badgeEmbaixadores').textContent = allEmbaixadores.filter(e => e.ativo).length;
+
+    tbody.innerHTML = allEmbaixadores.map(emb => `
+      <tr id="row-emb-${emb.id}">
+        <td class="td-name">${escHtml(emb.nome)}</td>
+        <td class="td-muted">${escHtml(emb.email)}</td>
+        <td>
+          <span class="td-mono">${escHtml(emb.codigo_acesso)}</span>
+          <button class="btn btn-sm btn-copy" onclick="copyCodigo('${escHtml(emb.codigo_acesso)}', this)" title="Copiar código">⎘</button>
+        </td>
+        <td>${emb.total_indicacoes || 0}</td>
+        <td>
+          <label class="toggle" title="${emb.ativo ? 'Ativo — clique para desativar' : 'Inativo — clique para ativar'}">
+            <input type="checkbox" ${emb.ativo ? 'checked' : ''} onchange="toggleEmbaixador('${emb.id}', this.checked)">
+            <span class="toggle-slider"></span>
+          </label>
+        </td>
+        <td class="td-muted">${fmtDate(emb.created_at)}</td>
+        <td>
+          <div class="action-group">
+            <button class="btn btn-sm btn-reject" onclick="deleteEmbaixador('${emb.id}', '${escHtml(emb.nome)}')">Excluir</button>
+          </div>
+        </td>
+      </tr>`).join('');
+  } catch (err) {
+    tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="empty-title">Erro ao carregar embaixadores</div></div></td></tr>';
+    console.error(err);
+  }
+}
+
+async function toggleEmbaixador(id, ativo) {
+  try {
+    await sbFetch(`/rest/v1/embaixadores?id=eq.${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ ativo })
+    });
+    showToast(ativo ? 'Embaixador ativado' : 'Embaixador desativado', 'success');
+    loadStats();
+  } catch (err) { showToast('Erro ao atualizar status', 'error'); }
+}
+
+async function deleteEmbaixador(id, nome) {
+  if (!confirm(`Excluir embaixador "${nome}"? Esta ação não pode ser desfeita.`)) return;
+  try {
+    await sbFetch(`/rest/v1/embaixadores?id=eq.${id}`, { method: 'DELETE' });
+    showToast('Embaixador excluído', 'success');
+    loadEmbaixadores(); loadStats();
+  } catch (err) { showToast('Erro ao excluir', 'error'); }
+}
+
+// ── Modal Embaixador ──────────────────────────────────────────
+function openModalEmbaixador() {
+  document.getElementById('embNome').value = '';
+  document.getElementById('embEmail').value = '';
+  document.getElementById('embTel').value = '';
+  document.getElementById('previewCodigo').textContent = 'EMB-XXXX-0000';
+  document.getElementById('embNomeErr').classList.remove('show');
+  document.getElementById('embEmailErr').classList.remove('show');
+  document.getElementById('modalEmbaixador').classList.add('show');
+  document.getElementById('embNome').focus();
+}
+
+function closeModalEmbaixador() {
+  document.getElementById('modalEmbaixador').classList.remove('show');
+}
+
+document.getElementById('embNome').addEventListener && document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('embNome').addEventListener('input', updatePreviewCodigo);
+});
+
+function updatePreviewCodigo() {
+  const nome = document.getElementById('embNome').value.trim();
+  document.getElementById('previewCodigo').textContent = gerarCodigo(nome);
+}
+
+function gerarCodigo(nome) {
+  const partes = nome.trim().split(/\s+/);
+  const sobrenome = (partes[partes.length - 1] || partes[0] || 'NOME').toUpperCase().replace(/[^A-Z]/g, '').slice(0, 6);
+  const num = Math.floor(1000 + Math.random() * 9000);
+  return `EMB-${sobrenome || 'NOVO'}-${num}`;
+}
+
+async function salvarEmbaixador() {
+  const nome  = document.getElementById('embNome').value.trim();
+  const email = document.getElementById('embEmail').value.trim();
+  const tel   = document.getElementById('embTel').value.trim();
+  const btn   = document.getElementById('btnSalvarEmb');
+
+  let valid = true;
+  if (!nome) { document.getElementById('embNomeErr').classList.add('show'); valid = false; }
+  else        document.getElementById('embNomeErr').classList.remove('show');
+  if (!email || !email.includes('@')) { document.getElementById('embEmailErr').classList.add('show'); valid = false; }
+  else document.getElementById('embEmailErr').classList.remove('show');
+  if (!valid) return;
+
+  const codigo = gerarCodigo(nome);
+  btn.disabled = true; btn.textContent = 'Salvando...';
+
+  try {
+    const res = await sbFetch('/rest/v1/embaixadores', {
+      method: 'POST',
+      headers: { 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ nome, email, telefone: tel || null, codigo_acesso: codigo, ativo: true, total_indicacoes: 0 })
+    });
+
+    if (!res.ok) {
+      const err = await res.text();
+      if (err.includes('unique')) showToast('Email já cadastrado para outro embaixador', 'error');
+      else showToast('Erro ao criar embaixador', 'error');
+      btn.disabled = false; btn.textContent = 'Criar Embaixador';
+      return;
+    }
+
+    // Registrar código na tabela de codigos_convite para uso nos formulários
+    await sbFetch('/rest/v1/codigos_convite', {
+      method: 'POST',
+      headers: { 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ codigo, ativo: true })
+    }).catch(() => {}); // não fatal
+
+    closeModalEmbaixador();
+    showToast(`Embaixador "${nome}" criado com código ${codigo}`, 'success');
+    loadEmbaixadores(); loadStats();
+  } catch (err) {
+    showToast('Erro de conexão', 'error');
+    btn.disabled = false; btn.textContent = 'Criar Embaixador';
+  }
+}
+
+// ── Marcas ────────────────────────────────────────────────────
+async function loadMarcas() {
+  const tbody = document.getElementById('tbodyMarcas');
+  tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><div class="spinner"></div></div></td></tr>';
+
+  try {
+    let url = '/rest/v1/marcas_waitlist?select=*&order=created_at.desc';
+    if (marcasFilter !== 'todos') url += `&status=eq.${marcasFilter}`;
+
+    const res = await sbFetch(url);
+    const rows = await res.json();
+
+    if (!Array.isArray(rows) || !rows.length) {
+      tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">🏷️</div><div class="empty-title">Nenhuma marca ${marcasFilter === 'todos' ? '' : marcasFilter}</div></div></td></tr>`;
+      document.getElementById('countMarcas').textContent = '0 marcas';
+      return;
+    }
+
+    document.getElementById('countMarcas').textContent = `${rows.length} marca${rows.length !== 1 ? 's' : ''}`;
+
+    // Store data for modal access
+    window._marcasData = {};
+    rows.forEach(m => { window._marcasData[m.id] = m; });
+
+    tbody.innerHTML = rows.map(m => `
+      <tr id="row-marca-${m.id}" style="cursor:pointer;" onclick="openPerfilMarca(window._marcasData['${m.id}'])">
+        <td class="td-name">${escHtml((m.primeiro_nome || '') + ' ' + (m.sobrenome || '')).trim() || '—'}</td>
+        <td>${escHtml(m.empresa || '—')}</td>
+        <td class="td-muted">${escHtml(m.segmento || '—')}</td>
+        <td class="td-muted">${escHtml(m.email || '—')}</td>
+        <td class="td-muted">${escHtml(m.codigo_indicacao || m.indicacao || '—')}</td>
+        <td class="td-muted">${fmtDate(m.created_at)}</td>
+        <td>${statusBadge(m.status)}</td>
+        <td onclick="event.stopPropagation()">
+          <div class="action-group">
+            ${m.status !== 'aprovado'  ? `<button class="btn btn-sm btn-approve" onclick="atualizarStatus('marcas_waitlist','${m.id}','aprovado','row-marca-${m.id}')">Aprovar</button>` : ''}
+            ${m.status !== 'rejeitado' ? `<button class="btn btn-sm btn-reject"  onclick="atualizarStatus('marcas_waitlist','${m.id}','rejeitado','row-marca-${m.id}')">Rejeitar</button>` : ''}
+          </div>
+        </td>
+      </tr>`).join('');
+  } catch (err) {
+    tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><div class="empty-title">Erro ao carregar marcas</div></div></td></tr>';
+    console.error(err);
+  }
+}
+
+function filterMarcas(status, btn) {
+  marcasFilter = status;
+  document.querySelectorAll('#section-marcas .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  loadMarcas();
+}
+
+// ── Detentores ────────────────────────────────────────────────
+async function loadDetentores() {
+  const tbody = document.getElementById('tbodyDetentores');
+  tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><div class="spinner"></div></div></td></tr>';
+
+  try {
+    let url = '/rest/v1/detentores_waitlist?select=*&order=created_at.desc';
+    if (detentoresFilter !== 'todos') url += `&status=eq.${detentoresFilter}`;
+
+    const res = await sbFetch(url);
+    const rows = await res.json();
+
+    if (!Array.isArray(rows) || !rows.length) {
+      tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">🏟️</div><div class="empty-title">Nenhum detentor ${detentoresFilter === 'todos' ? '' : detentoresFilter}</div></div></td></tr>`;
+      document.getElementById('countDetentores').textContent = '0 detentores';
+      return;
+    }
+
+    document.getElementById('countDetentores').textContent = `${rows.length} detentor${rows.length !== 1 ? 'es' : ''}`;
+
+    // Store data for modal access
+    window._detentoresData = {};
+    rows.forEach(d => { window._detentoresData[d.id] = d; });
+
+    tbody.innerHTML = rows.map(d => `
+      <tr id="row-det-${d.id}" style="cursor:pointer;" onclick="openPerfilDetentor(window._detentoresData['${d.id}'])">
+        <td class="td-name">${escHtml(d.nome || '—')}</td>
+        <td>${escHtml(d.empresa || '—')}</td>
+        <td class="td-muted">${escHtml(d.segmento || '—')}</td>
+        <td class="td-muted">${escHtml(d.email || '—')}</td>
+        <td class="td-muted">${escHtml([d.cidade, d.estado].filter(Boolean).join(', ') || '—')}</td>
+        <td class="td-mono td-muted">${escHtml(d.codigo_convite || d.indicacao || '—')}</td>
+        <td class="td-muted">${fmtDate(d.created_at)}</td>
+        <td>${statusBadge(d.status)}</td>
+        <td onclick="event.stopPropagation()">
+          <div class="action-group">
+            ${d.status !== 'aprovado'  ? `<button class="btn btn-sm btn-approve" onclick="atualizarStatus('detentores_waitlist','${d.id}','aprovado','row-det-${d.id}')">Aprovar</button>` : ''}
+            ${d.status !== 'rejeitado' ? `<button class="btn btn-sm btn-reject"  onclick="atualizarStatus('detentores_waitlist','${d.id}','rejeitado','row-det-${d.id}')">Rejeitar</button>` : ''}
+            ${d.status === 'aprovado'  ? `<button class="btn btn-sm btn-reenviar" onclick="criarContaEEnviarAcesso('detentores_waitlist','${d.id}')">Reenviar acesso</button>` : ''}
+          </div>
+        </td>
+      </tr>`).join('');
+  } catch (err) {
+    tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><div class="empty-title">Erro ao carregar detentores</div></div></td></tr>';
+    console.error(err);
+  }
+}
+
+function filterDetentores(status, btn) {
+  detentoresFilter = status;
+  document.querySelectorAll('#section-detentores .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  loadDetentores();
+}
+
+// ── Status update ─────────────────────────────────────────────
+async function atualizarStatus(table, id, status, rowId) {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
+      method: 'PATCH',
+      headers: {
+        'apikey': SUPABASE_SERVICE_KEY,
+        'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ status })
+    });
+    if (!res.ok) throw new Error(await res.text());
+
+    if (table === 'marcas_waitlist')     { loadMarcas();     loadStats(); }
+    if (table === 'detentores_waitlist') { loadDetentores(); loadStats(); }
+  } catch (err) {
+    showToast('Erro ao atualizar status', 'error');
+    console.error(err);
+    return;
+  }
+
+  // Se aprovando, criar conta no Auth e enviar magic link (fora do try/catch do PATCH)
+  if (status === 'aprovado') {
+    await criarContaEEnviarAcesso(table, id);
+  } else {
+    showToast(`Status atualizado para "${status}"`, 'success');
+  }
+}
+
+function gerarSenhaProvisoria() {
+  const upper   = 'ABCDEFGHJKLMNPQRSTUVWXYZ'; // sem I e O (confusão visual)
+  const lower   = 'abcdefghjkmnpqrstuvwxyz';  // sem i, l, o (confusão visual)
+  const digits  = '23456789';                 // sem 0 e 1 (confusão visual)
+  const symbols = '@#$%&*!';
+
+  const pick = (charset) => charset[Math.floor(Math.random() * charset.length)];
+
+  // Garante ao menos 2 de cada categoria (16 chars no total)
+  const mandatories = [
+    pick(upper), pick(upper),
+    pick(lower), pick(lower),
+    pick(digits), pick(digits),
+    pick(symbols)
+  ];
+
+  // Completa até 16 caracteres com mix aleatório
+  const all = upper + lower + digits + symbols;
+  const extras = Array.from({ length: 9 }, () => pick(all));
+
+  // Embaralha tudo (Fisher-Yates)
+  const chars = [...mandatories, ...extras];
+  for (let i = chars.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [chars[i], chars[j]] = [chars[j], chars[i]];
+  }
+
+  return chars.join('');
+}
+
+async function criarContaEEnviarAcesso(table, id) {
+  try {
+    console.log('[ACESSO] chamado:', table, id);
+
+    const tipo = table === 'marcas_waitlist' ? 'marca' : 'detentor';
+    const selectFields = table === 'marcas_waitlist' ? 'email,primeiro_nome' : 'email,nome';
+    const loginUrl = tipo === 'marca'
+      ? 'https://radar-relevantia.vercel.app/acesso-marca.html'
+      : 'https://radar-relevantia.vercel.app/acesso-detentor.html';
+
+    // Buscar dados do registro
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}&select=${selectFields}`, {
+      headers: {
+        'apikey': SUPABASE_SERVICE_KEY,
+        'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`
+      }
+    });
+    const rows = await res.json();
+
+    if (!Array.isArray(rows) || !rows.length) {
+      showToast('Aprovado, mas não foi possível localizar o email', 'error');
+      return;
+    }
+
+    const registro = rows[0];
+    const email = registro.email;
+    const nome = registro.primeiro_nome || registro.nome || '';
+    const senhaProvisoria = gerarSenhaProvisoria();
+    console.log('[ACESSO] email:', email, '| tipo:', tipo);
+
+    // Criar ou atualizar usuário no Supabase Auth com senha provisória
+    // Tenta criar primeiro
+    const criarRes = await fetch(`${SUPABASE_URL}/auth/v1/admin/users`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_SERVICE_KEY,
+        'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email,
+        password: senhaProvisoria,
+        email_confirm: true,
+        user_metadata: { tipo, nome, senha_provisoria: true }
+      })
+    });
+    console.log('[ACESSO] criar user status:', criarRes.status);
+
+    // Se usuário já existe (422), busca o ID e atualiza a senha
+    if (criarRes.status === 422) {
+      console.log('[ACESSO] usuário já existe, buscando ID para atualizar senha...');
+      const listaRes = await fetch(`${SUPABASE_URL}/auth/v1/admin/users?email=${encodeURIComponent(email)}`, {
+        headers: {
+          'apikey': SUPABASE_SERVICE_KEY,
+          'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`
+        }
+      });
+      const listaData = await listaRes.json();
+      const userId = listaData?.users?.[0]?.id;
+      if (userId) {
+        await fetch(`${SUPABASE_URL}/auth/v1/admin/users/${userId}`, {
+          method: 'PUT',
+          headers: {
+            'apikey': SUPABASE_SERVICE_KEY,
+            'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            password: senhaProvisoria,
+            user_metadata: { tipo, nome, senha_provisoria: true }
+          })
+        });
+        console.log('[ACESSO] senha atualizada para usuário existente');
+      }
+    }
+
+    // Enviar email com senha provisória via Edge Function
+    const sendRes = await fetch(`${SUPABASE_URL}/functions/v1/send-magic-link`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_SERVICE_KEY,
+        'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ email, nome, senha_provisoria: senhaProvisoria, login_url: loginUrl, tipo })
+    });
+    console.log('[ACESSO] send email status:', sendRes.status);
+
+    if (!sendRes.ok) {
+      const sendData = await sendRes.json();
+      console.error('[ACESSO] erro send email:', sendData);
+      showToast('Aprovado, mas falha ao enviar o email', 'error');
+      return;
+    }
+
+    showToast(`Aprovado! Email enviado para ${email}`, 'success');
+
+  } catch (err) {
+    console.error('[ACESSO] exceção:', err);
+    showToast('Aprovado, mas erro ao enviar acesso: ' + err.message, 'error');
+  }
+}
+
+// ── Utilities ─────────────────────────────────────────────────
+function escHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function fmtDate(iso) {
+  if (!iso) return '—';
+  try {
+    return new Date(iso).toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric' });
+  } catch { return '—'; }
+}
+
+function statusBadge(status) {
+  const map = {
+    pendente:  ['badge-gold',  'Pendente'],
+    aprovado:  ['badge-green', 'Aprovado'],
+    rejeitado: ['badge-red',   'Rejeitado'],
+    novo:      ['badge-blue',  'Novo']
+  };
+  const [cls, label] = map[status] || ['badge-gray', status || '—'];
+  return `<span class="badge ${cls}">${label}</span>`;
+}
+
+function copyCodigo(codigo, btn) {
+  navigator.clipboard.writeText(codigo).then(() => {
+    btn.textContent = '✓'; btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '⎘'; btn.classList.remove('copied'); }, 1800);
+  });
+}
+
+// Toast
+let toastTimer;
+function showToast(msg, type = 'success') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `toast ${type} show`;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// Close modal on overlay click
+document.getElementById('modalEmbaixador').addEventListener('click', function(e) {
+  if (e.target === this) closeModalEmbaixador();
+});
+document.getElementById('modalPerfil').addEventListener('click', function(e) {
+  if (e.target === this) closeModalPerfil();
+});
+
+// ── Modal Perfil (Marca / Detentor) ───────────────────────────
+function closeModalPerfil() {
+  document.getElementById('modalPerfil').classList.remove('show');
+}
+
+function field(label, value, cls) {
+  const v = value ? escHtml(String(value)) : '<span class="modal-field-value empty">—</span>';
+  const valHtml = value ? `<span class="modal-field-value${cls ? ' '+cls : ''}">${v}</span>` : v;
+  return `<div class="modal-field"><span class="modal-field-label">${label}</span>${valHtml}</div>`;
+}
+
+function fieldFull(label, value, cls) {
+  const v = value ? escHtml(String(value)) : '<span class="modal-field-value empty">—</span>';
+  const valHtml = value ? `<span class="modal-field-value${cls ? ' '+cls : ''}">${v}</span>` : v;
+  return `<div class="modal-field full"><span class="modal-field-label">${label}</span>${valHtml}</div>`;
+}
+
+function openPerfilMarca(m) {
+  const nome = [m.primeiro_nome, m.sobrenome].filter(Boolean).join(' ') || m.empresa || '—';
+  const initials = nome.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+
+  document.getElementById('perfilAvatar').textContent = initials;
+  document.getElementById('perfilNome').textContent = nome;
+  document.getElementById('perfilTipoBadge').innerHTML = '<span class="badge badge-blue">Marca</span>';
+  document.getElementById('perfilStatusBadge').innerHTML = statusBadge(m.status);
+  document.getElementById('perfilData').textContent = m.created_at ? 'Cadastro em ' + fmtDate(m.created_at) : '';
+
+  document.getElementById('perfilBody').innerHTML = `
+    <p class="modal-section-title">Dados Pessoais</p>
+    <div class="modal-fields-grid">
+      ${field('Primeiro Nome', m.primeiro_nome)}
+      ${field('Sobrenome', m.sobrenome)}
+      ${fieldFull('Email', m.email)}
+      ${field('Telefone', m.telefone || m.phone || m.tel)}
+      ${field('CPF / CNPJ', m.cpf || m.cnpj || m.documento)}
+    </div>
+    <p class="modal-section-title">Dados da Marca</p>
+    <div class="modal-fields-grid">
+      ${fieldFull('Empresa / Marca', m.empresa)}
+      ${field('Segmento', m.segmento)}
+      ${field('Cargo / Função', m.cargo || m.funcao || m.role)}
+      ${field('Site', m.site || m.website || m.url)}
+    </div>
+    <p class="modal-section-title">Indicação & Interesse</p>
+    <div class="modal-fields-grid">
+      ${field('Código de Indicação', m.codigo_indicacao || m.indicacao, 'mono')}
+      ${field('Tipo de Patrocínio', m.tipo_patrocinio || m.interesse)}
+      ${fieldFull('Mensagem / Observação', m.mensagem || m.observacao || m.obs)}
+    </div>`;
+
+  const actionsEl = document.getElementById('perfilActions');
+  actionsEl.innerHTML = `
+    <button class="btn btn-outline" onclick="closeModalPerfil()">Fechar</button>
+    ${m.status !== 'aprovado'  ? `<button class="btn btn-approve" onclick="atualizarStatus('marcas_waitlist','${m.id}','aprovado','row-marca-${m.id}');closeModalPerfil();">Aprovar</button>` : ''}
+    ${m.status !== 'rejeitado' ? `<button class="btn btn-reject"  onclick="atualizarStatus('marcas_waitlist','${m.id}','rejeitado','row-marca-${m.id}');closeModalPerfil();">Rejeitar</button>` : ''}`;
+
+  document.getElementById('modalPerfil').classList.add('show');
+}
+
+function openPerfilDetentor(d) {
+  const nome = d.nome || d.empresa || '—';
+  const initials = nome.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+
+  document.getElementById('perfilAvatar').textContent = initials;
+  document.getElementById('perfilNome').textContent = nome;
+  document.getElementById('perfilTipoBadge').innerHTML = '<span class="badge badge-gold">Detentor</span>';
+  document.getElementById('perfilStatusBadge').innerHTML = statusBadge(d.status);
+  document.getElementById('perfilData').textContent = d.created_at ? 'Cadastro em ' + fmtDate(d.created_at) : '';
+
+  document.getElementById('perfilBody').innerHTML = `
+    <p class="modal-section-title">Dados Pessoais</p>
+    <div class="modal-fields-grid">
+      ${fieldFull('Nome completo', d.nome)}
+      ${fieldFull('Email', d.email)}
+      ${field('Telefone', d.telefone || d.phone || d.tel)}
+      ${field('CPF / CNPJ', d.cpf || d.cnpj || d.documento)}
+    </div>
+    <p class="modal-section-title">Dados do Ativo / Evento</p>
+    <div class="modal-fields-grid">
+      ${fieldFull('Empresa / Propriedade', d.empresa)}
+      ${field('Segmento', d.segmento)}
+      ${field('Cargo / Função', d.cargo || d.funcao || d.role)}
+      ${field('Site', d.site || d.website || d.url)}
+    </div>
+    <p class="modal-section-title">Localização & Indicação</p>
+    <div class="modal-fields-grid">
+      ${field('Cidade', d.cidade)}
+      ${field('Estado', d.estado)}
+      ${field('Código Convite', d.codigo_convite || d.indicacao, 'mono')}
+      ${fieldFull('Mensagem / Observação', d.mensagem || d.observacao || d.obs)}
+    </div>`;
+
+  const actionsEl = document.getElementById('perfilActions');
+  actionsEl.innerHTML = `
+    <button class="btn btn-outline" onclick="closeModalPerfil()">Fechar</button>
+    ${d.status !== 'aprovado'  ? `<button class="btn btn-approve" onclick="atualizarStatus('detentores_waitlist','${d.id}','aprovado','row-det-${d.id}');closeModalPerfil();">Aprovar</button>` : ''}
+    ${d.status !== 'rejeitado' ? `<button class="btn btn-reject"  onclick="atualizarStatus('detentores_waitlist','${d.id}','rejeitado','row-det-${d.id}');closeModalPerfil();">Rejeitar</button>` : ''}
+    ${d.status === 'aprovado'  ? `<button class="btn btn-reenviar" onclick="criarContaEEnviarAcesso('detentores_waitlist','${d.id}')">Reenviar acesso</button>` : ''}`;
+
+  document.getElementById('modalPerfil').classList.add('show');
+}
+
+// Preview code as user types name
+document.addEventListener('DOMContentLoaded', () => {
+  const nomeInput = document.getElementById('embNome');
+  if (nomeInput) nomeInput.addEventListener('input', updatePreviewCodigo);
+});
+</script>
+</body>
+</html>

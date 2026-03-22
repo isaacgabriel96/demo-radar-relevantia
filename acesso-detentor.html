@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Acesso — Radar Relevantia</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --gold: #C9A43A; --gold-light: #E8C96A; --gold-pale: #FBF5E6;
+  --black: #0E0E0E; --black-2: #1A1A1A; --white: #FFFFFF;
+  --gray-1: #F7F7F7; --gray-2: #EBEBEB; --gray-3: #DDDDDD;
+  --gray-5: #717171; --red: #EF4444;
+}
+html, body { min-height: 100vh; font-family: 'DM Sans', sans-serif; background: var(--black); }
+
+body::before {
+  content: ''; position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(201,164,58,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(201,164,58,0.04) 1px, transparent 1px);
+  background-size: 56px 56px; pointer-events: none; z-index: 0;
+}
+
+/* ── Loading ── */
+#loadingScreen {
+  position: fixed; inset: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--black); flex-direction: column; gap: 20px;
+}
+.loading-spinner {
+  width: 32px; height: 32px;
+  border: 2.5px solid rgba(201,164,58,0.2);
+  border-top-color: var(--gold);
+  border-radius: 50%; animation: spin 0.8s linear infinite;
+}
+.loading-text { font-size: 13px; color: rgba(255,255,255,0.35); letter-spacing: 0.06em; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Screens ── */
+#loginScreen, #onboardingScreen {
+  display: none; min-height: 100vh;
+  position: relative; z-index: 1;
+  align-items: center; justify-content: center;
+  padding: 40px 24px;
+}
+
+/* ── Login card ── */
+.login-card {
+  width: 100%; max-width: 420px;
+}
+.login-logo { text-align: center; margin-bottom: 36px; }
+.login-logo img { height: 40px; }
+.login-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(26px, 4vw, 32px);
+  font-weight: 700; color: var(--white);
+  text-align: center; margin-bottom: 8px;
+}
+.login-title em { font-style: italic; color: var(--gold); }
+.login-sub {
+  font-size: 14px; color: rgba(255,255,255,0.4);
+  text-align: center; line-height: 1.6; margin-bottom: 32px;
+}
+
+.glass-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 20px; padding: 32px;
+}
+.form-group { margin-bottom: 20px; }
+.form-label {
+  display: block; font-size: 12px; font-weight: 600;
+  color: rgba(255,255,255,0.5); letter-spacing: 0.08em;
+  text-transform: uppercase; margin-bottom: 8px;
+}
+.form-input {
+  width: 100%; padding: 13px 16px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 10px; font-size: 15px;
+  font-family: 'DM Sans', sans-serif;
+  color: var(--white); outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.form-input:focus {
+  border-color: rgba(201,164,58,0.5);
+  box-shadow: 0 0 0 3px rgba(201,164,58,0.1);
+}
+.form-input::placeholder { color: rgba(255,255,255,0.2); }
+.form-input.error { border-color: rgba(239,68,68,0.5); }
+
+.password-wrap { position: relative; }
+.password-wrap .form-input { padding-right: 46px; }
+.btn-toggle-pw {
+  position: absolute; right: 14px; top: 50%;
+  transform: translateY(-50%);
+  background: none; border: none; cursor: pointer;
+  font-size: 16px; color: rgba(255,255,255,0.3);
+  transition: color 0.2s; padding: 4px;
+}
+.btn-toggle-pw:hover { color: rgba(255,255,255,0.7); }
+
+.form-error {
+  font-size: 12px; color: #FCA5A5;
+  margin-top: 6px; display: none;
+}
+
+.btn-primary {
+  width: 100%; padding: 14px;
+  background: var(--gold); color: var(--black);
+  border: none; border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px; font-weight: 700;
+  cursor: pointer; transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-primary:hover { background: var(--gold-light); transform: translateY(-1px); }
+.btn-primary:active { transform: translateY(0); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.btn-spinner {
+  width: 18px; height: 18px;
+  border: 2px solid rgba(14,14,14,0.3);
+  border-top-color: var(--black);
+  border-radius: 50%; animation: spin 0.7s linear infinite;
+  display: none;
+}
+
+/* ── Onboarding ── */
+#onboardingScreen { flex-direction: column; align-items: stretch; justify-content: flex-start; padding: 0; }
+
+.nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 40px; height: 68px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  background: rgba(14,14,14,0.85); backdrop-filter: blur(12px);
+  position: sticky; top: 0; z-index: 10;
+}
+.nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+.nav-logo img { height: 32px; width: auto; }
+.nav-right { display: flex; align-items: center; gap: 12px; }
+.nav-email { font-size: 13px; color: rgba(255,255,255,0.35); }
+.btn-logout {
+  padding: 7px 16px; background: transparent;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px; font-family: 'DM Sans', sans-serif;
+  font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.35);
+  cursor: pointer; transition: all 0.15s;
+}
+.btn-logout:hover { border-color: rgba(255,255,255,0.3); color: var(--white); }
+
+/* ── Progress bar (substitui stepper nos tutoriais) ── */
+.progress-bar-wrap {
+  padding: 0; height: 3px;
+  background: rgba(255,255,255,0.06);
+}
+.progress-bar-fill {
+  height: 100%; background: var(--gold);
+  transition: width 0.4s ease;
+}
+
+/* Stepper (só no step de senha) */
+.stepper-wrap { display: flex; justify-content: center; padding: 28px 24px 0; }
+.stepper { display: flex; align-items: center; }
+.step-item { display: flex; align-items: center; }
+.step-circle {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700;
+  border: 2px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.3); transition: all 0.3s;
+}
+.step-circle.active { border-color: var(--gold); background: var(--gold); color: var(--black); }
+.step-circle.done { border-color: rgba(34,197,94,0.6); background: rgba(34,197,94,0.15); color: #4ade80; }
+.step-label {
+  font-size: 11px; font-weight: 500;
+  color: rgba(255,255,255,0.25); margin-left: 8px;
+  white-space: nowrap; transition: color 0.3s;
+}
+.step-item.active .step-label { color: var(--gold); font-weight: 600; }
+.step-item.done .step-label { color: rgba(74,222,128,0.7); }
+.step-line {
+  width: 40px; height: 1px;
+  background: rgba(255,255,255,0.1);
+  margin: 0 12px; flex-shrink: 0; transition: background 0.3s;
+}
+.step-line.done { background: rgba(74,222,128,0.4); }
+
+/* Step panels */
+.steps-container {
+  flex: 1; display: flex; align-items: flex-start;
+  justify-content: center; padding: 40px 24px 60px;
+}
+.step-panel { display: none; width: 100%; max-width: 480px; }
+.step-panel.active { display: block; animation: fadeUp 0.35s ease; }
+
+/* Tutorial panels — layout diferente, mais imersivo */
+.tutorial-panel { display: none; width: 100%; }
+.tutorial-panel.active { display: flex; animation: fadeUp 0.4s ease; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.panel-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  border: 1px solid rgba(201,164,58,0.3);
+  background: rgba(201,164,58,0.08);
+  padding: 5px 14px; border-radius: 100px;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 20px;
+}
+.panel-badge-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--gold); animation: pulse 2s ease infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.5;transform:scale(0.8);} }
+
+.panel-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(26px, 4vw, 34px);
+  font-weight: 700; line-height: 1.2;
+  color: var(--white); margin-bottom: 10px;
+}
+.panel-title em { font-style: italic; color: var(--gold); }
+.panel-sub {
+  font-size: 15px; color: rgba(255,255,255,0.45);
+  line-height: 1.7; margin-bottom: 32px;
+}
+
+/* Password strength */
+.pw-strength { margin-top: 10px; }
+.pw-bars { display: flex; gap: 4px; margin-bottom: 6px; }
+.pw-bar {
+  flex: 1; height: 3px; border-radius: 100px;
+  background: rgba(255,255,255,0.08); transition: background 0.3s;
+}
+.pw-bar.weak { background: #EF4444; }
+.pw-bar.medium { background: #F59E0B; }
+.pw-bar.strong { background: #22C55E; }
+.pw-strength-label { font-size: 11px; color: rgba(255,255,255,0.3); }
+
+/* ── Tutorial layout fullscreen ── */
+.tutorial-layout {
+  display: flex; min-height: calc(100vh - 71px); width: 100%;
+}
+
+/* Lado esquerdo — conteúdo */
+.tutorial-content {
+  width: 50%; max-width: 560px;
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 60px 64px;
+}
+
+/* Lado direito — imagem */
+.tutorial-visual {
+  flex: 1;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,0.02);
+  border-left: 1px solid rgba(255,255,255,0.06);
+  padding: 48px;
+  position: relative; overflow: hidden;
+}
+.tutorial-visual::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 60% 40%, rgba(201,164,58,0.06) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+/* Mockup placeholder */
+.mockup-frame {
+  width: 100%; max-width: 520px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px; overflow: hidden;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.5);
+  position: relative; z-index: 1;
+}
+.mockup-topbar {
+  height: 40px; background: rgba(255,255,255,0.05);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  display: flex; align-items: center; gap: 8px; padding: 0 16px;
+}
+.mockup-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+}
+.mockup-dot:nth-child(1) { background: rgba(239,68,68,0.4); }
+.mockup-dot:nth-child(2) { background: rgba(245,158,11,0.4); }
+.mockup-dot:nth-child(3) { background: rgba(34,197,94,0.4); }
+.mockup-url {
+  flex: 1; height: 22px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 6px; margin-left: 8px;
+}
+.mockup-body {
+  padding: 24px;
+  min-height: 320px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+
+/* Mockup UI elements */
+.mock-header-row {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 8px;
+}
+.mock-title-block { display: flex; flex-direction: column; gap: 6px; }
+.mock-bar {
+  height: 10px; border-radius: 4px;
+  background: rgba(255,255,255,0.12);
+}
+.mock-bar.gold { background: rgba(201,164,58,0.35); }
+.mock-bar.short { width: 40%; }
+.mock-bar.medium { width: 65%; }
+.mock-bar.long { width: 90%; }
+.mock-bar.xs { height: 7px; }
+
+.mock-stats {
+  display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 4px;
+}
+.mock-stat-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px; padding: 12px 10px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.mock-stat-num {
+  height: 18px; width: 50%; border-radius: 4px;
+  background: rgba(201,164,58,0.3);
+}
+.mock-stat-label { height: 7px; border-radius: 3px; background: rgba(255,255,255,0.08); }
+
+.mock-table-row {
+  display: flex; align-items: center; gap: 10px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 8px; padding: 10px 12px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.mock-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: rgba(201,164,58,0.2); flex-shrink: 0;
+}
+.mock-row-content { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+.mock-badge {
+  height: 20px; width: 70px; border-radius: 100px;
+  background: rgba(34,197,94,0.15);
+  border: 1px solid rgba(34,197,94,0.25);
+  flex-shrink: 0;
+}
+.mock-badge.orange {
+  background: rgba(245,158,11,0.15);
+  border-color: rgba(245,158,11,0.25);
+}
+
+.mock-form-row {
+  display: flex; flex-direction: column; gap: 5px;
+}
+.mock-input {
+  height: 36px; border-radius: 8px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.mock-input.focus {
+  border-color: rgba(201,164,58,0.4);
+  box-shadow: 0 0 0 3px rgba(201,164,58,0.08);
+}
+.mock-label { height: 7px; width: 35%; border-radius: 3px; background: rgba(255,255,255,0.15); margin-bottom: 4px; }
+
+.mock-sidebar {
+  display: flex; gap: 0;
+}
+.mock-side-nav {
+  width: 100px; display: flex; flex-direction: column; gap: 6px;
+  padding-right: 14px; border-right: 1px solid rgba(255,255,255,0.07);
+  margin-right: 14px;
+}
+.mock-nav-item {
+  height: 26px; border-radius: 6px; background: rgba(255,255,255,0.04);
+}
+.mock-nav-item.active {
+  background: rgba(201,164,58,0.12);
+  border: 1px solid rgba(201,164,58,0.2);
+}
+.mock-main { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+
+.mock-notification {
+  display: flex; align-items: center; gap: 10px;
+  background: rgba(201,164,58,0.08);
+  border: 1px solid rgba(201,164,58,0.2);
+  border-radius: 10px; padding: 10px 14px;
+}
+.mock-notif-icon {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: rgba(201,164,58,0.2); flex-shrink: 0;
+}
+.mock-notif-content { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+.mock-notif-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--gold); flex-shrink: 0;
+}
+
+/* Nav steps counter (tutorial) */
+.tutorial-nav-counter {
+  font-size: 12px; color: rgba(255,255,255,0.25); letter-spacing: 0.06em;
+}
+.tutorial-nav-counter span { color: var(--gold); font-weight: 600; }
+
+/* Step pills (tutorial) */
+.step-pills {
+  display: flex; gap: 6px; margin-bottom: 28px;
+}
+.step-pill {
+  height: 3px; border-radius: 100px; flex: 1;
+  background: rgba(255,255,255,0.1); transition: background 0.3s;
+}
+.step-pill.done { background: rgba(201,164,58,0.4); }
+.step-pill.active { background: var(--gold); }
+
+/* Success */
+.success-icon-wrap {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; margin: 0 auto 24px;
+  animation: scaleIn 0.4s ease;
+}
+@keyframes scaleIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+/* Bullet points tutorial */
+.panel-bullets {
+  list-style: none; margin: 0 0 20px; padding: 0;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.panel-bullets li {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 15px; color: rgba(255,255,255,0.55); line-height: 1.5;
+}
+.panel-bullets li::before {
+  content: '';
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--gold); flex-shrink: 0;
+}
+
+/* Botão voltar */
+.btn-back {
+  padding: 14px 20px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px; font-weight: 500;
+  color: rgba(255,255,255,0.4);
+  cursor: pointer; transition: all 0.2s;
+  white-space: nowrap; flex-shrink: 0;
+}
+.btn-back:hover {
+  border-color: rgba(255,255,255,0.3);
+  color: var(--white);
+}
+
+/* Toast */
+.toast {
+  position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(20px);
+  background: rgba(30,30,30,0.95); border: 1px solid rgba(255,255,255,0.1);
+  backdrop-filter: blur(12px); border-radius: 12px;
+  padding: 12px 20px; font-size: 13.5px; font-weight: 500;
+  color: var(--white); white-space: nowrap; z-index: 999;
+  opacity: 0; transition: all 0.3s; pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.success { border-color: rgba(34,197,94,0.4); color: #4ade80; }
+.toast.error { border-color: rgba(239,68,68,0.4); color: #fca5a5; }
+
+@media (max-width: 900px) {
+  .tutorial-layout { flex-direction: column-reverse; min-height: unset; }
+  .tutorial-content { width: 100%; padding: 32px 24px 40px; }
+  .tutorial-visual { min-height: 260px; border-left: none; border-bottom: 1px solid rgba(255,255,255,0.06); padding: 28px 20px; }
+  .nav { padding: 0 20px; }
+  .steps-container { padding: 28px 16px 48px; }
+  .glass-card { padding: 24px 20px; }
+}
+@media (max-width: 600px) {
+  .tutorial-content { padding: 32px 20px 28px; }
+  .mock-stats { grid-template-columns: repeat(2,1fr); }
+  .stepper-wrap { padding: 24px 16px 0; overflow-x: auto; }
+}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<!-- Loading -->
+<div id="loadingScreen">
+  <img src="logo-dark.svg" alt="Relevantia" style="height:44px;opacity:0.7">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Carregando...</div>
+</div>
+
+<!-- ── TELA DE LOGIN ── -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">
+      <img src="logo-dark.svg" alt="Radar Relevantia">
+    </div>
+    <h1 class="login-title">Bem-vindo ao<br><em>Radar Relevantia</em></h1>
+    <p class="login-sub">
+      Digite seu email e a senha provisória que você recebeu por email para acessar sua conta.
+    </p>
+
+    <div class="glass-card">
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-input" id="loginEmail"
+          placeholder="seu@email.com" autocomplete="email">
+        <div class="form-error" id="errEmail">Digite um email válido.</div>
+      </div>
+
+      <div class="form-group" style="margin-bottom:28px">
+        <label class="form-label">Senha provisória</label>
+        <div class="password-wrap">
+          <input type="password" class="form-input" id="loginPassword"
+            placeholder="Senha recebida por email" autocomplete="current-password"
+            onkeydown="if(event.key==='Enter') doLogin()">
+          <button class="btn-toggle-pw" type="button" onclick="togglePw('loginPassword', this)">👁</button>
+        </div>
+        <div class="form-error" id="errLogin">Email ou senha incorretos. Verifique seus dados.</div>
+      </div>
+
+      <button class="btn-primary" id="btnLogin" onclick="doLogin()">
+        <span class="btn-spinner" id="spinnerLogin"></span>
+        <span id="btnLoginText">Entrar →</span>
+      </button>
+    </div>
+
+    <p style="text-align:center;font-size:12px;color:rgba(255,255,255,0.2);margin-top:20px">
+      Não recebeu o email? Fale com <a href="mailto:hello@relevantia.com.br" style="color:var(--gold);text-decoration:none">hello@relevantia.com.br</a>
+    </p>
+  </div>
+</div>
+
+<!-- ── TELA DE ONBOARDING ── -->
+<div id="onboardingScreen">
+
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">
+      <img src="logo-dark.svg" alt="Relevantia">
+    </a>
+    <div class="nav-right">
+      <span class="nav-email" id="navEmail"></span>
+      <button class="btn-logout" onclick="doLogout()">Sair</button>
+    </div>
+  </nav>
+
+  <!-- Barra de progresso -->
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       STEP 1 — Criar senha (layout centrado)
+  ══════════════════════════════════════ -->
+  <div id="stepPw" style="display:none;flex:1;align-items:center;justify-content:center;padding:48px 24px 64px;">
+    <div style="width:100%;max-width:460px;">
+
+      <!-- Stepper pills -->
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:28px;">
+        <div style="height:3px;flex:1;border-radius:100px;background:var(--gold);"></div>
+        <div style="height:3px;flex:1;border-radius:100px;background:rgba(255,255,255,0.1);"></div>
+        <div style="height:3px;flex:1;border-radius:100px;background:rgba(255,255,255,0.1);"></div>
+        <div style="height:3px;flex:1;border-radius:100px;background:rgba(255,255,255,0.1);"></div>
+        <div style="height:3px;flex:1;border-radius:100px;background:rgba(255,255,255,0.1);"></div>
+        <span style="font-size:11px;color:rgba(255,255,255,0.25);letter-spacing:0.06em;white-space:nowrap;margin-left:4px;">1 de 5</span>
+      </div>
+
+      <div class="panel-badge">
+        <span class="panel-badge-dot"></span>
+        Primeiro acesso
+      </div>
+      <h1 class="panel-title">Crie sua <em>senha</em><br>permanente</h1>
+      <p class="panel-sub">
+        Defina uma senha pessoal para acessar o Radar quando quiser, sem depender da senha provisória.
+      </p>
+
+      <div class="glass-card">
+        <div class="form-group">
+          <label class="form-label">Nova senha</label>
+          <div class="password-wrap">
+            <input type="password" class="form-input" id="newPassword"
+              placeholder="Mínimo 8 caracteres" oninput="checkStrength()">
+            <button class="btn-toggle-pw" type="button" onclick="togglePw('newPassword', this)">👁</button>
+          </div>
+          <div class="pw-strength" id="pwStrength" style="display:none">
+            <div class="pw-bars">
+              <div class="pw-bar" id="bar1"></div>
+              <div class="pw-bar" id="bar2"></div>
+              <div class="pw-bar" id="bar3"></div>
+              <div class="pw-bar" id="bar4"></div>
+            </div>
+            <div class="pw-strength-label" id="pwLabel"></div>
+          </div>
+          <div class="form-error" id="errPw">A senha deve ter pelo menos 8 caracteres.</div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:28px">
+          <label class="form-label">Confirmar senha</label>
+          <div class="password-wrap">
+            <input type="password" class="form-input" id="confirmPassword" placeholder="Repita a senha">
+            <button class="btn-toggle-pw" type="button" onclick="togglePw('confirmPassword', this)">👁</button>
+          </div>
+          <div class="form-error" id="errConfirm">As senhas não coincidem.</div>
+        </div>
+
+        <button class="btn-primary" id="btnSetPassword" onclick="setPassword()">
+          <span class="btn-spinner" id="spinnerPw"></span>
+          <span id="btnPwText">Definir senha e continuar →</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       STEPS 2–5 — Tutorial fullscreen
+  ══════════════════════════════════════ -->
+
+  <!-- Tutorial 1: O que é o Radar -->
+  <div id="tut1" class="tutorial-panel">
+    <div class="tutorial-layout">
+      <div class="tutorial-content">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:28px;">
+          <div style="height:3px;flex:1;border-radius:100px;background:rgba(201,164,58,0.4);"></div>
+          <div style="height:3px;flex:1;border-radius:100px;background:var(--gold);"></div>
+          <div style="height:3px;flex:1;border-radius:100px;background:rgba(255,255,255,0.1);"></div>
+          <div style="height:3px;flex:1;border-radius:100px;background:rgba(255,255,255,0.1);"></div>
+          <div style="height:3px;flex:1;border-radius:100px;background:rgba(255,255,255,0.1);"></div>
+          <span style="font-size:11px;color:rgba(255,255,255,0.25);letter-spacing:0.06em;white-space:nowrap;margin-left:4px;">2 de 5</span>
+        </div>
+        <div class="panel-badge">
+          <span class="panel-badge-dot"></span>
+          Bem-vindo ao Radar
+        </div>
+        <h1 class="panel-title">Uma solução <em>inédita</em><br>para patrocínio.</h1>
+        <p class="panel-sub">
+          O Radar Relevantia conecta você, detentor de direitos, com marcas que buscam patrocínio e ativações de alto impacto.
+        </p>
+        <ul class="panel-bullets">
+          <li>Eventos, canais, influenciadores e projetos culturais</li>
+        </ul>
+        <p class="panel-sub" style="margin-bottom:32px;">
+          Tudo em um único lugar, de forma profissional, organizada e eficiente.
+        </p>
+        <div style="display:flex;gap:12px;align-items:center;">
+          <button class="btn-back" onclick="showSection('stepPw')">← Voltar</button>
+          <button class="btn-primary" onclick="goToTut(2)">Próximo →</button>
+        </div>
+      </div>
+
+      <div class="tutorial-visual">
+        <!-- Mockup: visão geral do dashboard -->
+        <div class="mockup-frame">
+          <div class="mockup-topbar">
+            <div class="mockup-dot"></div>
+            <div class="mockup-dot"></div>
+            <div class="mockup-dot"></div>
+            <div class="mockup-url"></div>
+          </div>
+          <div class="mockup-body">
+            <div class="mock-header-row">
+              <div class="mock-title-block">
+                <div class="mock-bar short gold" style="height:14px;width:120px;"></div>
+                <div class="mock-bar xs" style="width:180px;"></div>
+              </div>
+              <div style="display:flex;gap:8px;">
+                <div class="mock-bar" style="width:80px;height:28px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);"></div>
+                <div class="mock-bar gold" style="width:110px;height:28px;border-radius:8px;"></div>
+              </div>
+            </div>
+            <div class="mock-stats">
+              <div class="mock-stat-card"><div class="mock-stat-num"></div><div class="mock-stat-label"></div></div>
+              <div class="mock-stat-card"><div class="mock-stat-num" style="background:rgba(34,197,94,0.3);"></div><div class="mock-stat-label"></div></div>
+              <div class="mock-stat-card"><div class="mock-stat-num"></div><div class="mock-stat-label"></div></div>
+              <div class="mock-stat-card"><div class="mock-stat-num" style="background:rgba(59,130,246,0.3);"></div><div class="mock-stat-label"></div></div>
+            </div>
+            <div class="mock-table-row">
+              <div class="mock-avatar"></div>
+              <div class="mock-row-content"><div class="mock-bar short"></div><div class="mock-bar xs medium"></div></div>
+              <div class="mock-badge"></div>
+            </div>
+            <div class="mock-table-row">
+              <div class="mock-avatar" style="background:rgba(59,130,246,0.2);"></div>
+              <div class="mock-row-content"><div class="mock-bar medium"></div><div class="mock-bar xs short"></div></div>
+              <div class="mock-badge orange"></div>
+            </div>
+            <div class="mock-table-row">
+              <div class="mock-avatar" style="background:rgba(239,68,68,0.15);"></div>
+              <div class="mock-row-content"><div class="mock-bar long"></div><div class="mock-bar xs medium"></div></div>
+              <div class="mock-badge"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tutorial 2: Perfil é vitrine -->
+  <div id="tut2" class="tutorial-panel">
+    <div class="tutorial-layout">
+      <div class="tutorial-content">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:28px;">
+          <div style="height:3px;flex:1;border-radius:100px;background:rgba(201,164,58,0.4);"></div>
+          <div style="height:3px;flex:1;border-radius:100px;background:rgba(201,164,58,0.4);"></div>
+          <div style="height:3px;flex:1;border-radius:100px;background:var(--gold);"></div>
+          <div style="height:3px;flex:1;border-radius:100px;background:rgba(255,255,255,0.1);"></div>
+          <div style="height:3px;flex:1;border-radius:100px;background:rgba(255,255,255,0.1);"></div>
+          <span style="font-size:11px;color:rgba(255,255,255,0.25);letter-spacing:0.06em;white-space:nowrap;margin-left:4px;">3 de 5</span>
+        </div>
+        <div class="panel-badge">
+          <span class="panel-badge-dot"></span>
+          Seu perfil
+        </div>
+        <h1 class="panel-title">Seu perfil<br>é sua <em>vitrine</em>.</h1>
+        <p class="panel-sub">
+          As marcas descobrem você pelo seu perfil. Quanto mais completo ele estiver, maior sua visibilidade no Radar.<br><br>
+          Nome, segmento, alcance do público e histórico de parcerias são os primeiros dados que as marcas analisam antes de demonstrar interesse.
+        </p>
+        <div style="display:flex;gap:12px;align-items:center;">
+          <button class="btn-back" onclick="goToTut(1)">← Voltar</button>
+          <button class="btn-primary" onclick="goToTut(3)">Próximo →</button>
+        </div>
+      </div>
+
+      <div class="tutorial-visual">
+        <!-- Mockup: tela de perfil preenchida -->
+        <div class="mockup-frame">
+          <div class="mockup-topbar">
+            <div class="mockup-dot"></div>
+            <div class="mockup-dot"></div>
+            <div class="mockup-dot"></div>
+            <div class="mockup-url"></div>
+          </div>
+          <div class="mockup-body">
+            <!-- Avatar + nome empresa -->
+            <div style="display:flex;align-items:center;gap:14px;margin-bottom:8px;">
+              <div style="width:52px;height:52px;border-radius:12px;background:rgba(201,164,58,0.15);border:1px solid rgba(201,164,58,0.25);flex-shrink:0;"></div>
+              <div style="display:flex;flex-direction:column;gap:7px;flex:1;">
+                <div class="mock-bar gold" style="height:13px;width:60%;"></div>
+                <div class="mock-bar xs" style="width:40%;"></div>
+              </div>
+              <div class="mock-bar gold" style="width:72px;height:28px;border-radius:8px;flex-shrink:0;"></div>
+            </div>
+            <!-- Métricas rápidas -->
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:4px;">
+              <div class="mock-stat-card"><div class="mock-stat-num"></div><div class="mock-stat-label"></div></div>
+              <div class="mock-stat-card"><div class="mock-stat-num" style="background:rgba(34,197,94,0.3);"></div><div class="mock-stat-label"></div></div>
+              <div class="mock-stat-card"><div class="mock-stat-num"></div><div class="mock-stat-label"></div></div>
+            </div>
+            <!-- Campos preenchidos -->
+            <div class="mock-form-row"><div class="mock-label"></div><div class="mock-input" style="background:rgba(255,255,255,0.07);"></div></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <div class="mock-form-row"><div class="mock-label"></div><div class="mock-input"></div></div>
+              <div class="mock-form-row"><div class="mock-label"></div><div class="mock-input focus"></div></div>
+            </div>
+            <div class="mock-form-row"><div class="mock-label"></div><div class="mock-input" style="height:52px;"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tutorial 3: Oportunidades -->
+  <div id="tut3" class="tutorial-panel">
+    <div class="tutorial-layout">
+      <div class="tutorial-content">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:28px;">
+          <div style="height:3px;flex:1;border-radius:100px;background:rgba(201,164,58,0.4);"></div>
+          <div style="height:3px;flex:1;border-radius:100px;background:rgba(201,164,58,0.4);"></div>
+          <div style="height:3px;flex:1;border-radius:100px;background:rgba(201,164,58,0.4);"></div>
+          <div style="height:3px;flex:1;border-radius:100px;background:var(--gold);"></div>
+          <div style="height:3px;flex:1;border-radius:100px;background:rgba(255,255,255,0.1);"></div>
+          <span style="font-size:11px;color:rgba(255,255,255,0.25);letter-spacing:0.06em;white-space:nowrap;margin-left:4px;">4 de 5</span>
+        </div>
+        <div class="panel-badge">
+          <span class="panel-badge-dot"></span>
+          Suas oportunidades
+        </div>
+        <h1 class="panel-title">Cada oportunidade<br>é uma <em>proposta concreta</em>.</h1>
+        <p class="panel-sub">
+          Escolha entre eventos, espaços, podcasts e outros formatos. Crie cotas detalhadas: o que você oferece, para qual público, em qual região e por qual valor.<br><br>
+          Oportunidades bem descritas recebem até <strong style="color:var(--gold)">3× mais interesse</strong> das marcas.
+        </p>
+        <div style="display:flex;gap:12px;align-items:center;">
+          <button class="btn-back" onclick="goToTut(2)">← Voltar</button>
+          <button class="btn-primary" onclick="goToTut(4)">Próximo →</button>
+        </div>
+      </div>
+
+      <div class="tutorial-visual">
+        <!-- Mockup: criação de oportunidade -->
+        <div class="mockup-frame">
+          <div class="mockup-topbar">
+            <div class="mockup-dot"></div>
+            <div class="mockup-dot"></div>
+            <div class="mockup-dot"></div>
+            <div class="mockup-url"></div>
+          </div>
+          <div class="mockup-body">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+              <div class="mock-bar gold" style="height:13px;width:55%;"></div>
+              <div style="display:flex;gap:6px;">
+                <div class="mock-badge orange" style="width:60px;height:24px;"></div>
+                <div class="mock-badge" style="width:60px;height:24px;"></div>
+              </div>
+            </div>
+            <!-- tipo de oportunidade chips -->
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
+              <div style="height:26px;width:70px;border-radius:100px;background:rgba(201,164,58,0.15);border:1px solid rgba(201,164,58,0.3);"></div>
+              <div style="height:26px;width:80px;border-radius:100px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);"></div>
+              <div style="height:26px;width:65px;border-radius:100px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);"></div>
+              <div style="height:26px;width:75px;border-radius:100px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);"></div>
+            </div>
+            <div class="mock-form-row"><div class="mock-label"></div><div class="mock-input" style="background:rgba(255,255,255,0.07);"></div></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <div class="mock-form-row"><div class="mock-label"></div><div class="mock-input"></div></div>
+              <div class="mock-form-row"><div class="mock-label"></div><div class="mock-input"></div></div>
+            </div>
+            <div class="mock-form-row"><div class="mock-label"></div><div class="mock-input" style="height:48px;"></div></div>
+            <div style="display:flex;gap:8px;margin-top:4px;">
+              <div style="flex:1;height:34px;border-radius:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);"></div>
+              <div style="width:110px;height:34px;border-radius:8px;background:rgba(201,164,58,0.3);"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tutorial 4: Negociações -->
+  <div id="tut4" class="tutorial-panel">
+    <div class="tutorial-layout">
+      <div class="tutorial-content">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:28px;">
+          <div style="height:3px;flex:1;border-radius:100px;background:rgba(201,164,58,0.4);"></div>
+          <div style="height:3px;flex:1;border-radius:100px;background:rgba(201,164,58,0.4);"></div>
+          <div style="height:3px;flex:1;border-radius:100px;background:rgba(201,164,58,0.4);"></div>
+          <div style="height:3px;flex:1;border-radius:100px;background:rgba(201,164,58,0.4);"></div>
+          <div style="height:3px;flex:1;border-radius:100px;background:var(--gold);"></div>
+          <span style="font-size:11px;color:rgba(255,255,255,0.25);letter-spacing:0.06em;white-space:nowrap;margin-left:4px;">5 de 5</span>
+        </div>
+        <div class="panel-badge">
+          <span class="panel-badge-dot"></span>
+          Negociações
+        </div>
+        <h1 class="panel-title">Marcas entram em contato.<br>Você <em>decide</em> com quem avança.</h1>
+        <p class="panel-sub">
+          Quando uma marca demonstra interesse em uma das suas oportunidades, você recebe uma notificação no dashboard e pode aceitar, recusar ou iniciar uma conversa.<br><br>
+          Todo o histórico de interações fica registrado. Você tem controle total sobre cada negociação.
+        </p>
+        <div style="display:flex;gap:12px;align-items:center;">
+          <button class="btn-back" onclick="goToTut(3)">← Voltar</button>
+          <button class="btn-primary" onclick="goToTut(5)">Acessar meu dashboard →</button>
+        </div>
+      </div>
+
+      <div class="tutorial-visual">
+        <!-- Mockup: propostas recebidas / notificações -->
+        <div class="mockup-frame">
+          <div class="mockup-topbar">
+            <div class="mockup-dot"></div>
+            <div class="mockup-dot"></div>
+            <div class="mockup-dot"></div>
+            <div class="mockup-url"></div>
+          </div>
+          <div class="mockup-body">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+              <div class="mock-bar gold" style="height:13px;width:50%;"></div>
+              <div style="width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 6px rgba(201,164,58,0.6);"></div>
+            </div>
+            <!-- notificação destaque -->
+            <div class="mock-notification">
+              <div class="mock-notif-icon"></div>
+              <div class="mock-notif-content">
+                <div class="mock-bar gold xs" style="width:80%;"></div>
+                <div class="mock-bar xs" style="width:55%;"></div>
+              </div>
+              <div class="mock-notif-dot"></div>
+            </div>
+            <div class="mock-notification" style="background:rgba(255,255,255,0.03);border-color:rgba(255,255,255,0.08);margin-top:0;">
+              <div class="mock-notif-icon" style="background:rgba(59,130,246,0.2);"></div>
+              <div class="mock-notif-content">
+                <div class="mock-bar xs" style="width:75%;"></div>
+                <div class="mock-bar xs" style="width:50%;"></div>
+              </div>
+            </div>
+            <div style="height:1px;background:rgba(255,255,255,0.07);margin:4px 0;"></div>
+            <!-- lista de interações -->
+            <div class="mock-table-row">
+              <div class="mock-avatar" style="background:rgba(34,197,94,0.2);border-radius:8px;"></div>
+              <div class="mock-row-content"><div class="mock-bar medium"></div><div class="mock-bar xs short"></div></div>
+              <div style="display:flex;gap:6px;">
+                <div style="width:28px;height:28px;border-radius:7px;background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.25);"></div>
+                <div style="width:28px;height:28px;border-radius:7px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);"></div>
+              </div>
+            </div>
+            <div class="mock-table-row">
+              <div class="mock-avatar" style="border-radius:8px;"></div>
+              <div class="mock-row-content"><div class="mock-bar short"></div><div class="mock-bar xs medium"></div></div>
+              <div style="display:flex;gap:6px;">
+                <div style="width:28px;height:28px;border-radius:7px;background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.25);"></div>
+                <div style="width:28px;height:28px;border-radius:7px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       STEP 5 — Sucesso
+  ══════════════════════════════════════ -->
+  <div id="stepSuccess" style="display:none;flex:1;align-items:center;justify-content:center;padding:48px 24px 64px;">
+    <div style="width:100%;max-width:460px;text-align:center;">
+      <div class="success-icon-wrap">✓</div>
+      <div class="panel-badge" style="margin:0 auto 20px;">
+        <span class="panel-badge-dot"></span>
+        Tudo pronto
+      </div>
+      <h1 class="panel-title" style="font-size:clamp(24px,4vw,32px);">
+        Bem-vindo ao Radar,<br><em id="firstName">bem-vindo</em>!
+      </h1>
+      <p class="panel-sub" style="margin:0 auto 36px;max-width:380px;">
+        Sua conta está configurada. Agora é a hora de completar seu perfil e publicar suas primeiras oportunidades para as marcas encontrarem você.
+      </p>
+      <button class="btn-primary" onclick="goToDashboard()" style="max-width:360px;margin:0 auto;">
+        Acessar meu dashboard →
+      </button>
+    </div>
+  </div>
+
+</div><!-- /onboardingScreen -->
+
+<script>
+const SUPABASE_URL = 'https://bzckerazidgrkbpgqqee.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ6Y2tlcmF6aWRncmticGdxcWVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2MjczODksImV4cCI6MjA4ODIwMzM4OX0.HIVnwcGvKiYNGfVFEnP0Ik9kfOeXPB4c4BFqDpqFCS4';
+
+let currentSession = null;
+
+/* ── Utilities ── */
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  setTimeout(() => t.className = 'toast', 3500);
+}
+
+function togglePw(inputId, btn) {
+  const el = document.getElementById(inputId);
+  const isText = el.type === 'text';
+  el.type = isText ? 'password' : 'text';
+  btn.textContent = isText ? '👁' : '🙈';
+}
+
+function showScreen(id) {
+  ['loadingScreen','loginScreen','onboardingScreen'].forEach(s => {
+    const el = document.getElementById(s);
+    el.style.display = 'none';
+  });
+  const el = document.getElementById(id);
+  el.style.display = id === 'onboardingScreen' ? 'flex' : 'flex';
+  if (id === 'onboardingScreen') el.style.flexDirection = 'column';
+}
+
+/* ── Onboarding sections ── */
+const ALL_SECTIONS = ['stepPw','tut1','tut2','tut3','tut4','stepSuccess'];
+
+function showSection(id) {
+  ALL_SECTIONS.forEach(s => {
+    const el = document.getElementById(s);
+    el.style.display = 'none';
+    el.classList.remove('active');
+  });
+  const el = document.getElementById(id);
+  if (!el) return;
+  // stepPw e stepSuccess são divs com display flex inline
+  if (id === 'stepPw' || id === 'stepSuccess') {
+    el.style.display = 'flex';
+  } else {
+    // tutorial panels
+    el.style.display = 'block';
+    el.classList.add('active');
+  }
+
+  // Atualiza progress bar (1=20%, 2=40%, ... 5=100%)
+  const idx = ALL_SECTIONS.indexOf(id) + 1;
+  const pct = Math.round((idx / ALL_SECTIONS.length) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function goToTut(n) {
+  // n=1..4 → tut1..tut4 | n=5 → stepSuccess
+  if (n >= 1 && n <= 4) showSection('tut' + n);
+  else showSection('stepSuccess');
+}
+
+/* ── LOGIN ── */
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+
+  document.getElementById('errEmail').style.display = 'none';
+  document.getElementById('errLogin').style.display = 'none';
+  document.getElementById('loginEmail').classList.remove('error');
+  document.getElementById('loginPassword').classList.remove('error');
+
+  if (!email || !email.includes('@')) {
+    document.getElementById('errEmail').style.display = 'block';
+    document.getElementById('loginEmail').classList.add('error');
+    return;
+  }
+  if (!password) {
+    document.getElementById('errLogin').style.display = 'block';
+    document.getElementById('loginPassword').classList.add('error');
+    return;
+  }
+
+  const btn = document.getElementById('btnLogin');
+  const spinner = document.getElementById('spinnerLogin');
+  const label = document.getElementById('btnLoginText');
+  btn.disabled = true;
+  spinner.style.display = 'block';
+  label.textContent = 'Entrando...';
+
+  try {
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      document.getElementById('errLogin').style.display = 'block';
+      document.getElementById('loginPassword').classList.add('error');
+      return;
+    }
+
+    currentSession = data;
+    localStorage.setItem('sb_detentor_session', JSON.stringify(data));
+
+    const meta = data.user?.user_metadata || {};
+    const isPrimeiro = meta.senha_provisoria === true;
+    const nome = meta.nome || data.user?.email?.split('@')[0] || '';
+    document.getElementById('firstName').textContent = nome.split(' ')[0] || 'bem-vindo';
+    document.getElementById('navEmail').textContent = data.user?.email || '';
+
+    if (isPrimeiro) {
+      showScreen('onboardingScreen');
+      showSection('stepPw');
+    } else {
+      goToDashboard();
+    }
+
+  } catch (e) {
+    showToast('Erro de conexão. Tente novamente.', 'error');
+  } finally {
+    btn.disabled = false;
+    spinner.style.display = 'none';
+    label.textContent = 'Entrar →';
+  }
+}
+
+/* ── PASSWORD STRENGTH ── */
+function checkStrength() {
+  const pw = document.getElementById('newPassword').value;
+  const wrap = document.getElementById('pwStrength');
+  const bars = [1,2,3,4].map(i => document.getElementById('bar' + i));
+  const label = document.getElementById('pwLabel');
+
+  if (!pw.length) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'block';
+
+  let score = 0;
+  if (pw.length >= 8)  score++;
+  if (pw.length >= 12) score++;
+  if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++;
+  if (/[0-9]/.test(pw) || /[^A-Za-z0-9]/.test(pw)) score++;
+
+  const labels = ['','Fraca','Fraca','Média','Forte'];
+  const colors = ['','#EF4444','#EF4444','#F59E0B','#22C55E'];
+  bars.forEach((b, i) => {
+    b.className = 'pw-bar';
+    if (i < score) b.classList.add(score <= 2 ? 'weak' : score <= 3 ? 'medium' : 'strong');
+  });
+  label.textContent = labels[score] ? `Senha ${labels[score]}` : '';
+  label.style.color = colors[score] || 'rgba(255,255,255,0.3)';
+}
+
+/* ── SET PASSWORD ── */
+async function setPassword() {
+  const pw  = document.getElementById('newPassword').value.trim();
+  const pw2 = document.getElementById('confirmPassword').value.trim();
+
+  document.getElementById('errPw').style.display = 'none';
+  document.getElementById('errConfirm').style.display = 'none';
+  document.getElementById('newPassword').classList.remove('error');
+  document.getElementById('confirmPassword').classList.remove('error');
+
+  let ok = true;
+  if (pw.length < 8) {
+    document.getElementById('errPw').style.display = 'block';
+    document.getElementById('newPassword').classList.add('error');
+    ok = false;
+  }
+  if (pw !== pw2) {
+    document.getElementById('errConfirm').style.display = 'block';
+    document.getElementById('confirmPassword').classList.add('error');
+    ok = false;
+  }
+  if (!ok) return;
+
+  const btn = document.getElementById('btnSetPassword');
+  const spinner = document.getElementById('spinnerPw');
+  const label = document.getElementById('btnPwText');
+  btn.disabled = true;
+  spinner.style.display = 'block';
+  label.textContent = 'Salvando...';
+
+  try {
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+      method: 'PUT',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${currentSession.access_token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ password: pw, data: { senha_provisoria: false } })
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.message || 'Erro ao salvar senha');
+    }
+
+    if (currentSession.user?.user_metadata) {
+      currentSession.user.user_metadata.senha_provisoria = false;
+      localStorage.setItem('sb_detentor_session', JSON.stringify(currentSession));
+    }
+
+    showToast('Senha criada com sucesso!', 'success');
+    setTimeout(() => showSection('tut1'), 600);
+
+  } catch (e) {
+    showToast(e.message || 'Erro ao salvar senha', 'error');
+  } finally {
+    btn.disabled = false;
+    spinner.style.display = 'none';
+    label.textContent = 'Definir senha e continuar →';
+  }
+}
+
+/* ── DASHBOARD & LOGOUT ── */
+function goToDashboard() {
+  window.location.href = '/dashboard-detentor.html';
+}
+
+function doLogout() {
+  localStorage.removeItem('sb_detentor_session');
+  showScreen('loginScreen');
+}
+
+/* ── INIT ── */
+async function init() {
+  const stored = localStorage.getItem('sb_detentor_session');
+  if (stored) {
+    try {
+      const session = JSON.parse(stored);
+      const now = Math.floor(Date.now() / 1000);
+      if (now < (session.expires_at || session.expires_in + now)) {
+        currentSession = session;
+        const meta = session.user?.user_metadata || {};
+        const isPrimeiro = meta.senha_provisoria === true;
+        const nome = meta.nome || session.user?.email?.split('@')[0] || '';
+        document.getElementById('firstName').textContent = nome.split(' ')[0] || 'bem-vindo';
+        document.getElementById('navEmail').textContent = session.user?.email || '';
+
+        if (isPrimeiro) {
+          showScreen('onboardingScreen');
+          showSection('stepPw');
+        } else {
+          goToDashboard();
+        }
+        return;
+      }
+    } catch {}
+    localStorage.removeItem('sb_detentor_session');
+  }
+
+  showScreen('loginScreen');
+}
+
+init();
+</script>
+</body>
+</html>

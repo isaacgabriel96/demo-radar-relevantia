@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Criar Oportunidade — Radar Relevantia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --gold: #C9A43A;
+  --gold-light: #E8C96A;
+  --gold-pale: #FBF5E6;
+  --black: #0E0E0E;
+  --black-2: #1A1A1A;
+  --white: #FFFFFF;
+  --gray-100: #F7F7F7;
+  --gray-200: #EBEBEB;
+  --gray-300: #DDDDDD;
+  --gray-400: #9A9A9A;
+  --gray-500: #717171;
+  --gray-600: #4A4A4A;
+  --text: #1A1A1A;
+  --green: #22C55E;
+  --green-bg: rgba(34,197,94,0.08);
+  --green-border: rgba(34,197,94,0.2);
+  --red: #EF4444;
+  --red-bg: rgba(239,68,68,0.08);
+  --red-border: rgba(239,68,68,0.2);
+  --blue: #3B82F6;
+  --blue-bg: rgba(59,130,246,0.08);
+  --blue-border: rgba(59,130,246,0.2);
+  --orange: #F59E0B;
+  --orange-bg: rgba(245,158,11,0.08);
+  --orange-border: rgba(245,158,11,0.2);
+  --sidebar-w: 260px;
+}
+
+html { scroll-behavior: smooth; }
+body { font-family: 'DM Sans', sans-serif; background: var(--gray-100); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+a { text-decoration: none; color: inherit; }
+
+/* ─── LOADING ─── */
+#loadingScreen {
+  position: fixed; inset: 0; z-index: 9999;
+  display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 16px;
+  background: var(--black);
+}
+.ld-spinner { width: 28px; height: 28px; border: 2.5px solid rgba(201,164,58,0.2); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.ld-text { font-size: 12px; color: rgba(255,255,255,0.3); letter-spacing: 0.06em; }
+
+/* ─── SIDEBAR ─── */
+.sidebar {
+  position: fixed; top: 0; left: 0; bottom: 0; width: var(--sidebar-w); z-index: 110;
+  background: var(--black); display: flex; flex-direction: column;
+  border-right: 1px solid rgba(255,255,255,0.06);
+  transition: transform 0.3s ease;
+}
+.sidebar-logo {
+  padding: 20px 24px; border-bottom: 1px solid rgba(255,255,255,0.06);
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+}
+.sidebar-logo-title {
+  font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; line-height: 1.3; text-align: center;
+}
+.sidebar-logo-title .t-white { color: var(--white); }
+.sidebar-logo-title .t-gold { color: var(--gold); font-style: italic; font-weight: 400; }
+.sidebar-portal-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(201,164,58,0.12); border: 1px solid rgba(201,164,58,0.25);
+  border-radius: 100px; padding: 3px 10px;
+  font-size: 9px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold);
+  margin-top: 6px;
+}
+.portal-badge-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--gold); animation: pulse 2s ease infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.5;transform:scale(0.8);} }
+
+.sidebar-nav {
+  flex: 1; padding: 16px 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 2px;
+  scrollbar-width: none;
+}
+.sidebar-nav::-webkit-scrollbar { display: none; }
+
+.nav-section-label {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+  color: rgba(255,255,255,0.2); padding: 16px 12px 6px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px;
+  cursor: pointer; transition: all 0.15s; text-decoration: none;
+  color: rgba(255,255,255,0.4); font-size: 13.5px; font-weight: 500; position: relative;
+}
+.nav-item:hover { color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.04); }
+.nav-item.active { color: var(--white); background: rgba(201,164,58,0.12); font-weight: 600; }
+.nav-item.active::before {
+  content: ''; position: absolute; left: 0; top: 8px; bottom: 8px; width: 3px;
+  border-radius: 0 3px 3px 0; background: var(--gold);
+}
+.nav-item svg { width: 18px; height: 18px; flex-shrink: 0; opacity: 0.5; }
+.nav-item.active svg { opacity: 1; color: var(--gold); }
+.nav-badge {
+  margin-left: auto; background: rgba(201,164,58,0.2); color: var(--gold);
+  font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 100px;
+}
+
+.sidebar-footer { padding: 16px; border-top: 1px solid rgba(255,255,255,0.06); }
+.sidebar-user {
+  display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 10px;
+  cursor: pointer; transition: background 0.15s;
+}
+.sidebar-user:hover { background: rgba(255,255,255,0.04); }
+.sidebar-user-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: var(--black); flex-shrink: 0;
+}
+.sidebar-user-info { flex: 1; min-width: 0; }
+.sidebar-user-name { font-size: 13px; font-weight: 600; color: var(--white); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sidebar-user-email { font-size: 11px; color: rgba(255,255,255,0.25); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.btn-logout-sb { background: none; border: none; cursor: pointer; color: rgba(255,255,255,0.2); transition: color 0.15s; padding: 4px; flex-shrink: 0; }
+.btn-logout-sb:hover { color: var(--red); }
+.btn-logout-sb svg { width: 16px; height: 16px; }
+
+/* ─── TOPBAR ─── */
+.topbar {
+  position: fixed; top: 0; left: var(--sidebar-w); right: 0; height: 64px; z-index: 100;
+  background: rgba(255,255,255,0.82); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0,0,0,0.07);
+  display: flex; align-items: center; padding: 0 32px; gap: 16px;
+}
+.topbar-breadcrumb { font-size: 13px; color: var(--gray-400); display: flex; align-items: center; gap: 6px; }
+.topbar-breadcrumb strong { color: var(--text); font-weight: 600; }
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.hamburger {
+  display: none; background: none; border: none; cursor: pointer; padding: 4px;
+  color: var(--gray-500);
+}
+.hamburger svg { width: 22px; height: 22px; }
+
+/* ─── MAIN ─── */
+.main { margin-left: var(--sidebar-w); padding-top: 64px; min-height: 100vh; }
+.main-inner { padding: 32px; max-width: 900px; }
+
+/* ─── BUTTONS ─── */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px; padding: 10px 20px; border-radius: 10px;
+  font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer; border: none;
+  transition: all 0.2s; white-space: nowrap; text-decoration: none;
+}
+.btn-gold { background: var(--gold); color: var(--black); }
+.btn-gold:hover { background: var(--gold-light); transform: translateY(-1px); }
+.btn-black { background: var(--black); color: var(--white); }
+.btn-black:hover { background: var(--gold); color: var(--black); }
+.btn-ghost { background: transparent; border: 1px solid rgba(0,0,0,0.1); color: var(--gray-500); }
+.btn-ghost:hover { border-color: rgba(0,0,0,0.2); color: var(--text); }
+.btn-sm { padding: 7px 14px; font-size: 12px; border-radius: 8px; }
+.btn-lg { padding: 12px 26px; font-size: 14px; }
+
+/* ─── STEP PROGRESS ─── */
+.step-progress {
+  display: flex; align-items: center; gap: 0;
+  margin-bottom: 28px; overflow-x: auto; padding-bottom: 4px;
+}
+.step { display: flex; align-items: center; gap: 0; flex-shrink: 0; }
+.step-circle {
+  width: 30px; height: 30px; border-radius: 50%;
+  border: 2px solid var(--gray-200); display: flex; align-items: center;
+  justify-content: center; font-size: 12px; font-weight: 600;
+  color: var(--gray-400); background: var(--white); transition: all 0.2s; z-index: 1; position: relative;
+}
+.step.active .step-circle { border-color: var(--gold); background: var(--gold); color: var(--black); }
+.step.done .step-circle { border-color: var(--green); background: var(--green); color: var(--white); }
+.step-label { font-size: 11px; font-weight: 500; color: var(--gray-400); margin-left: 8px; white-space: nowrap; }
+.step.active .step-label { color: var(--text); font-weight: 600; }
+.step.done .step-label { color: var(--green); }
+.step-line { width: 36px; height: 2px; background: var(--gray-200); margin: 0 4px; flex-shrink: 0; }
+.step-line.done { background: var(--green); }
+
+/* ─── CARDS ─── */
+.card { background: var(--white); border-radius: 16px; border: 1px solid rgba(0,0,0,0.06); overflow: hidden; margin-bottom: 20px; }
+.card-header {
+  padding: 18px 24px 14px; border-bottom: 1px solid var(--gray-200);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.card-header h2 { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 600; color: var(--black); }
+.card-header p { font-size: 12.5px; color: var(--gray-400); margin-top: 2px; }
+.card-body { padding: 24px; }
+
+/* ─── FORM ─── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group.full-width { grid-column: 1 / -1; }
+label { font-size: 12.5px; font-weight: 600; color: var(--text); letter-spacing: 0.01em; }
+label .required { color: var(--gold); margin-left: 2px; }
+label .hint { font-weight: 400; color: var(--gray-400); font-size: 11px; margin-left: 4px; }
+
+input[type="text"], input[type="email"], input[type="url"],
+input[type="tel"], input[type="number"], select, textarea {
+  padding: 10px 14px; border: 1.5px solid var(--gray-200); border-radius: 10px;
+  font-size: 14px; font-family: 'DM Sans', sans-serif; color: var(--text);
+  background: var(--white); transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none; width: 100%;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,164,58,0.1);
+}
+textarea { resize: vertical; min-height: 90px; }
+select { appearance: none; cursor: pointer; }
+.select-wrapper { position: relative; }
+.select-wrapper::after { content: '\25BE'; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--gray-400); pointer-events: none; font-size: 12px; }
+
+/* ─── UPLOAD ─── */
+.upload-zone {
+  border: 2px dashed var(--gray-200); border-radius: 10px;
+  padding: 32px 20px; text-align: center; cursor: pointer;
+  transition: all 0.2s; background: var(--gray-100);
+}
+.upload-zone:hover { border-color: var(--gold); background: var(--gold-pale); }
+.upload-icon { font-size: 28px; margin-bottom: 8px; }
+.upload-zone h4 { font-size: 14px; font-weight: 600; color: var(--text); }
+.upload-zone p { font-size: 12px; color: var(--gray-400); margin-top: 4px; }
+.media-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-top: 16px; }
+.media-thumb { aspect-ratio:1; border-radius:8px; background:var(--gray-200); display:flex; align-items:center; justify-content:center; font-size:22px; position:relative; overflow:hidden; }
+.media-thumb img { width:100%; height:100%; object-fit:cover; }
+.media-remove { position:absolute; top:4px; right:4px; width:20px; height:20px; background:rgba(0,0,0,0.7); color:white; border:none; border-radius:50%; font-size:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+
+/* ─── TAGS ─── */
+.tags-input-area { border:1.5px solid var(--gray-200); border-radius:10px; padding:8px 10px; display:flex; flex-wrap:wrap; gap:6px; min-height:46px; cursor:text; transition:border-color 0.2s; }
+.tags-input-area:focus-within { border-color:var(--gold); box-shadow:0 0 0 3px rgba(201,164,58,0.1); }
+.tag { display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:20px; font-size:12.5px; font-weight:500; cursor:default; }
+.tag-gray { background:var(--gray-100); color:var(--gray-600); border:1px solid var(--gray-200); }
+.tag-remove { background:none; border:none; cursor:pointer; font-size:12px; color:inherit; opacity:0.6; padding:0; line-height:1; }
+.tag-remove:hover { opacity:1; }
+.tags-input { border:none; outline:none; font-size:13px; font-family:'DM Sans',sans-serif; flex:1; min-width:100px; background:transparent; padding:2px 0; }
+
+/* ─── SOCIAL ─── */
+.social-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.social-row { display:flex; align-items:center; gap:10px; padding:10px 14px; border:1.5px solid var(--gray-200); border-radius:10px; transition:border-color 0.2s; }
+.social-row:focus-within { border-color:var(--gold); box-shadow:0 0 0 3px rgba(201,164,58,0.1); }
+.social-icon { font-size:18px; flex-shrink:0; width:22px; text-align:center; }
+.social-row input { border:none !important; padding:0 !important; font-size:13.5px; outline:none; flex:1; background:transparent; box-shadow:none !important; }
+
+/* ─── SEGMENT ─── */
+.segment-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:8px; }
+.segment-pill { padding:8px 12px; border-radius:10px; border:1.5px solid var(--gray-200); font-size:12.5px; font-weight:500; cursor:pointer; transition:all 0.15s; text-align:center; user-select:none; color:var(--gray-600); background:var(--white); }
+.segment-pill:hover { border-color:var(--gray-400); color:var(--text); }
+.segment-pill.selected-green { border-color:#22C55E; background:rgba(34,197,94,0.08); color:#166534; }
+.segment-pill.selected-red { border-color:#EF4444; background:rgba(239,68,68,0.08); color:#991B1B; }
+
+/* ─── VISIBILITY ─── */
+.visibility-options { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+.visibility-card { border:2px solid var(--gray-200); border-radius:14px; padding:16px; cursor:pointer; transition:all 0.2s; position:relative; }
+.visibility-card:hover { border-color:var(--gray-400); }
+.visibility-card.selected { border-color:var(--gold); background:var(--gold-pale); }
+.visibility-card .vis-icon { font-size:22px; margin-bottom:8px; }
+.visibility-card h4 { font-size:13.5px; font-weight:600; color:var(--text); margin-bottom:4px; }
+.visibility-card p { font-size:11.5px; color:var(--gray-400); line-height:1.5; }
+.vis-check { position:absolute; top:10px; right:10px; width:18px; height:18px; border:2px solid var(--gray-200); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:10px; color:transparent; }
+.visibility-card.selected .vis-check { background:var(--gold); border-color:var(--gold); color:var(--black); }
+
+/* ─── COTAS ─── */
+.cotas-wrapper { display:flex; flex-direction:column; gap:16px; }
+.cota-card { border:1.5px solid var(--gray-200); border-radius:14px; overflow:hidden; }
+.cota-header { padding:12px 16px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; background:var(--gray-100); transition:background 0.2s; }
+.cota-header:hover { background:var(--gray-200); }
+.cota-header h3 { font-size:14px; font-weight:600; display:flex; align-items:center; gap:8px; }
+.cota-dot { width:10px; height:10px; border-radius:50%; }
+.cota-dot-bronze { background:#CD7F32; }
+.cota-dot-silver { background:#A8A9AD; }
+.cota-dot-gold { background:var(--gold); }
+.cota-body { padding:16px; display:none; }
+.cota-body.open { display:block; }
+
+/* ─── MISC ─── */
+.ativacoes-list { display:flex; flex-direction:column; gap:6px; margin-top:8px; }
+.ativacao-row { display:flex; align-items:center; gap:8px; }
+.ativacao-row input[type="text"], .ativacao-row input[type="url"] { flex:1; }
+.btn-remove-row { width:30px; height:30px; border:1px solid var(--gray-200); border-radius:8px; background:none; color:var(--gray-400); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; transition:all 0.15s; }
+.btn-remove-row:hover { border-color:var(--red); color:var(--red); background:var(--red-bg); }
+.btn-add-row { display:inline-flex; align-items:center; gap:5px; font-size:12.5px; color:var(--gold); background:none; border:none; cursor:pointer; font-family:'DM Sans',sans-serif; font-weight:500; padding:4px 0; margin-top:4px; transition:color 0.2s; }
+.btn-add-row:hover { color:var(--black); }
+
+.section-block { margin-bottom:24px; }
+.section-title { font-family:'Playfair Display',serif; font-size:15px; font-weight:600; color:var(--black); margin-bottom:4px; display:flex; align-items:center; gap:8px; }
+.section-desc { font-size:12.5px; color:var(--gray-400); margin-bottom:14px; }
+
+.form-actions { display:flex; align-items:center; justify-content:space-between; padding-top:20px; border-top:1px solid var(--gray-200); margin-top:24px; }
+
+.alert { padding:12px 16px; border-radius:10px; font-size:13px; display:flex; align-items:flex-start; gap:10px; margin-bottom:20px; }
+.alert-gold { background:var(--gold-pale); color:#7A5A10; border:1px solid rgba(201,164,58,0.3); }
+.alert-info { background:#EEF4FF; color:#1A4A8A; border:1px solid #C5D8FF; }
+
+.toggle-row { display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--gray-200); }
+.toggle-row:last-child { border-bottom:none; }
+.toggle-label { font-size:13.5px; font-weight:500; }
+.toggle-hint { font-size:12px; color:var(--gray-400); margin-top:2px; }
+.toggle { width:40px; height:22px; background:var(--gray-200); border-radius:11px; position:relative; cursor:pointer; transition:background 0.2s; flex-shrink:0; }
+.toggle.on { background:var(--gold); }
+.toggle::after { content:''; width:18px; height:18px; background:white; border-radius:50%; position:absolute; top:2px; left:2px; transition:transform 0.2s; box-shadow:0 1px 3px rgba(0,0,0,0.2); }
+.toggle.on::after { transform:translateX(18px); }
+
+.char-counter { text-align:right; font-size:11px; color:var(--gray-400); margin-top:4px; }
+hr.divider { border:none; border-top:1px solid var(--gray-200); margin:20px 0; }
+
+.fade-in { animation: fadeUp 0.3s ease; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(12px);} to{opacity:1;transform:translateY(0);} }
+
+/* ─── MOBILE ─── */
+.sidebar-overlay {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+  z-index: 109; backdrop-filter: blur(4px);
+}
+
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-overlay.open { display: block; }
+  .topbar { left: 0; padding: 0 16px; }
+  .hamburger { display: flex; }
+  .main { margin-left: 0; }
+  .main-inner { padding: 20px 16px; }
+  .grid-2 { grid-template-columns: 1fr; }
+  .visibility-options { grid-template-columns: 1fr; }
+  .social-grid { grid-template-columns: 1fr; }
+  .step-label { display: none; }
+  .step.active .step-label { display: inline; font-size: 10px; }
+  .btn-lg { width: 100%; justify-content: center; }
+}
+</style>
+</head>
+<body>
+
+<!-- Loading -->
+<div id="loadingScreen">
+  <div class="ld-spinner"></div>
+  <div class="ld-text">Carregando...</div>
+</div>
+
+<!-- Sidebar overlay mobile -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-title">
+      <span class="t-white">Radar</span> <span class="t-gold">Relevantia</span>
+    </div>
+    <div class="sidebar-portal-badge">
+      <span class="portal-badge-dot"></span> Portal Detentor
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Visao Geral</div>
+    <a class="nav-item" href="dashboard-detentor.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </a>
+
+    <div class="nav-section-label">Oportunidades</div>
+    <a class="nav-item active" href="dashboard-detentor.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+      Minhas Oportunidades
+      <span class="nav-badge">3</span>
+    </a>
+
+    <div class="nav-section-label">Minha Conta</div>
+    <a class="nav-item" href="dashboard-detentor.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 21V7l9-4 9 4v14"/><path d="M9 21v-6h6v6"/></svg>
+      Minha Empresa
+    </a>
+    <a class="nav-item" href="dashboard-detentor.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      Meu Perfil
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="sidebar-user-avatar" id="sidebarAvatar">IG</div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name" id="sidebarName">Isaac Gabriel</div>
+        <div class="sidebar-user-email" id="sidebarEmail">isaac@radar.com</div>
+      </div>
+      <button class="btn-logout-sb" onclick="doLogout();" title="Sair">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/></svg>
+      </button>
+    </div>
+  </div>
+</aside>
+
+<!-- Topbar -->
+<header class="topbar">
+  <button class="hamburger" onclick="openSidebar()">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/></svg>
+  </button>
+  <div class="topbar-breadcrumb">
+    Portal Detentor <span style="color:var(--gray-300)">&rsaquo;</span> Oportunidades <span style="color:var(--gray-300)">&rsaquo;</span> <strong>Nova Oportunidade</strong>
+  </div>
+  <div class="topbar-right">
+    <a href="dashboard-detentor.html" class="btn btn-ghost btn-sm">&larr; Cancelar</a>
+  </div>
+</header>
+
+<!-- Main -->
+<main class="main">
+  <div class="main-inner">
+
+    <!-- Step progress -->
+    <div class="step-progress">
+      <div class="step active" id="step-dot-1">
+        <div class="step-circle">1</div>
+        <span class="step-label">Informacoes Gerais</span>
+      </div>
+      <div class="step-line" id="step-line-1"></div>
+      <div class="step" id="step-dot-2">
+        <div class="step-circle">2</div>
+        <span class="step-label">Midia</span>
+      </div>
+      <div class="step-line" id="step-line-2"></div>
+      <div class="step" id="step-dot-3">
+        <div class="step-circle">3</div>
+        <span class="step-label">Publico & Canais</span>
+      </div>
+      <div class="step-line" id="step-line-3"></div>
+      <div class="step" id="step-dot-4">
+        <div class="step-circle">4</div>
+        <span class="step-label">Cotas & Entregas</span>
+      </div>
+      <div class="step-line" id="step-line-4"></div>
+      <div class="step" id="step-dot-5">
+        <div class="step-circle">5</div>
+        <span class="step-label">Visibilidade</span>
+      </div>
+    </div>
+
+    <!-- STEP 1 -->
+    <div id="step-panel-1" class="fade-in">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2>Informacoes Gerais</h2>
+            <p>Dados basicos da oportunidade de patrocinio</p>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="grid-2">
+            <div class="form-group full-width">
+              <label>Nome da oportunidade <span class="required">*</span></label>
+              <input type="text" placeholder="Ex: Galacticos Open - Torneio de Futebol Society" id="opp-name">
+            </div>
+            <div class="form-group">
+              <label>Categoria <span class="required">*</span></label>
+              <div class="select-wrapper">
+                <select id="opp-cat">
+                  <option value="">Selecione...</option>
+                  <option>Artista / Celebridade</option>
+                  <option>Evento Esportivo</option>
+                  <option>Evento B2B</option>
+                  <option>Evento de Entretenimento</option>
+                  <option>Festival de Musica</option>
+                  <option>Gastronomia e Lifestyle</option>
+                  <option>Rodeio</option>
+                  <option>Cinema e Streaming</option>
+                  <option>Espaco / Venue</option>
+                  <option>Midia e Publicacao</option>
+                  <option>Comunidade / Club</option>
+                  <option>Influenciador Digital</option>
+                  <option>Saude e Bem-estar</option>
+                  <option>Educacao</option>
+                  <option>Outro</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Subcategoria <span class="hint">(opcional)</span></label>
+              <input type="text" placeholder="Ex: Futebol Society, Rock, etc.">
+            </div>
+            <div class="form-group">
+              <label>Cidade <span class="required">*</span></label>
+              <input type="text" placeholder="Sao Paulo" id="opp-city">
+            </div>
+            <div class="form-group">
+              <label>Estado</label>
+              <div class="select-wrapper">
+                <select>
+                  <option value="">UF</option>
+                  <option>SP</option><option>RJ</option><option>MG</option>
+                  <option>RS</option><option>PR</option><option>SC</option>
+                  <option>BA</option><option>PE</option><option>CE</option>
+                  <option>GO</option><option>DF</option><option>Outro</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Edicao / Ano</label>
+              <input type="text" placeholder="Ex: 2025 - 5a Edicao">
+            </div>
+            <div class="form-group">
+              <label>Data ou periodo</label>
+              <input type="text" placeholder="Ex: 12 a 14 de Junho de 2025">
+            </div>
+            <div class="form-group full-width">
+              <label>Descricao geral <span class="required">*</span></label>
+              <textarea rows="5" placeholder="Descreva a oportunidade: contexto, formato, experiencia para o publico e o que torna essa parceria especial..." oninput="updateChar(this,'gen-count',800)"></textarea>
+              <div class="char-counter"><span id="gen-count">0</span>/800</div>
+            </div>
+            <div class="form-group">
+              <label>Expectativa de publico / alcance</label>
+              <input type="text" placeholder="Ex: 5.000 pessoas presenciais">
+            </div>
+            <div class="form-group">
+              <label>Investimento minimo (R$)</label>
+              <input type="number" placeholder="0,00" id="opp-price">
+            </div>
+          </div>
+          <div class="form-actions">
+            <span></span>
+            <button class="btn btn-black btn-lg" onclick="nextStep(2)">Proximo: Midia &rarr;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div id="step-panel-2" style="display:none">
+      <div class="card fade-in">
+        <div class="card-header">
+          <div><h2>Fotos e Videos</h2><p>Imagens que aparecem na sua listagem no Radar</p></div>
+        </div>
+        <div class="card-body">
+          <div class="section-block">
+            <div class="section-title">Foto Capa <span style="color:var(--red);font-size:13px">*</span></div>
+            <div class="section-desc">Imagem principal da oportunidade (1200x800px recomendado)</div>
+            <div class="upload-zone" onclick="triggerUpload('cover')">
+              <div class="upload-icon">
+                <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+              </div>
+              <h4>Arraste ou clique para enviar</h4>
+              <p>JPG, PNG ou WEBP - Max. 10MB</p>
+            </div>
+            <input type="file" id="upload-cover" accept="image/*" style="display:none" onchange="previewCover(this)">
+            <div id="cover-preview" style="margin-top:12px;display:none">
+              <img id="cover-img" style="width:100%;max-height:220px;object-fit:cover;border-radius:10px;border:1px solid var(--gray-200)">
+            </div>
+          </div>
+          <div class="section-block">
+            <div class="section-title">Galeria de fotos</div>
+            <div class="section-desc">Ate 12 fotos adicionais do evento, espaco ou propriedade</div>
+            <div class="upload-zone" onclick="triggerUpload('gallery')">
+              <div class="upload-icon">
+                <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h7a2 2 0 012 2z"/></svg>
+              </div>
+              <h4>Adicionar fotos da galeria</h4>
+              <p>Selecione varias fotos de uma vez</p>
+            </div>
+            <input type="file" id="upload-gallery" accept="image/*" multiple style="display:none">
+            <div class="media-grid" id="gallery-grid"></div>
+          </div>
+          <div class="section-block">
+            <div class="section-title">Videos</div>
+            <div class="section-desc">Links do YouTube ou Vimeo para mostrar o evento em acao</div>
+            <div id="video-links" style="display:flex;flex-direction:column;gap:8px">
+              <div class="ativacao-row">
+                <input type="url" placeholder="https://youtube.com/watch?v=...">
+                <button class="btn-remove-row" onclick="removeRow(this)">&times;</button>
+              </div>
+            </div>
+            <button class="btn-add-row" onclick="addVideoRow()">+ Adicionar video</button>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-ghost" onclick="nextStep(1)">&larr; Voltar</button>
+            <button class="btn btn-black btn-lg" onclick="nextStep(3)">Proximo: Publico & Canais &rarr;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div id="step-panel-3" style="display:none">
+      <div class="card fade-in" style="margin-bottom:20px">
+        <div class="card-header">
+          <div><h2>Descricao do Publico</h2><p>Ajuda as marcas a entenderem se o fit faz sentido</p></div>
+        </div>
+        <div class="card-body">
+          <div class="grid-2">
+            <div class="form-group">
+              <label>Faixa etaria predominante</label>
+              <div class="select-wrapper"><select><option value="">Selecione...</option><option>18 a 24 anos</option><option>25 a 34 anos</option><option>35 a 44 anos</option><option>45 a 54 anos</option><option>Mista / Diversa</option></select></div>
+            </div>
+            <div class="form-group">
+              <label>Genero predominante</label>
+              <div class="select-wrapper"><select><option value="">Selecione...</option><option>Masculino</option><option>Feminino</option><option>Equilibrado</option><option>Misto</option></select></div>
+            </div>
+            <div class="form-group">
+              <label>Classe social predominante</label>
+              <div class="select-wrapper"><select><option value="">Selecione...</option><option>A</option><option>A/B</option><option>B/C</option><option>C</option><option>Mista</option></select></div>
+            </div>
+            <div class="form-group">
+              <label>Abrangencia geografica</label>
+              <div class="select-wrapper"><select><option value="">Selecione...</option><option>Local (cidade)</option><option>Regional (estado)</option><option>Nacional</option><option>Internacional</option></select></div>
+            </div>
+            <div class="form-group full-width">
+              <label>Descricao livre do publico-alvo</label>
+              <textarea rows="4" placeholder="Descreva o perfil comportamental, interesses, habitos de consumo..."></textarea>
+            </div>
+            <div class="form-group full-width">
+              <label>Palavras-chave do publico <span class="hint">(pressione Enter para adicionar)</span></label>
+              <div class="tags-input-area" onclick="this.querySelector('input').focus()">
+                <span class="tag tag-gray">Esporte<button class="tag-remove" onclick="removeTag(this)">&times;</button></span>
+                <span class="tag tag-gray">Lifestyle<button class="tag-remove" onclick="removeTag(this)">&times;</button></span>
+                <input class="tags-input" placeholder="Ex: fitness, tecnologia..." onkeydown="addTag(event,this,'tag-gray')">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card fade-in">
+        <div class="card-header">
+          <div><h2>Canais e Redes Sociais</h2><p>Dados de alcance da propriedade (seguidores, audiencia)</p></div>
+        </div>
+        <div class="card-body">
+          <div class="social-grid">
+            <div class="social-row"><span class="social-icon">IG</span><input type="text" placeholder="@usuario - ex: 120k seguidores"></div>
+            <div class="social-row"><span class="social-icon">YT</span><input type="text" placeholder="Canal YouTube - ex: 45k inscritos"></div>
+            <div class="social-row"><span class="social-icon">TK</span><input type="text" placeholder="@tiktok - ex: 80k seguidores"></div>
+            <div class="social-row"><span class="social-icon">X</span><input type="text" placeholder="@twitter - ex: 30k seguidores"></div>
+            <div class="social-row"><span class="social-icon">FB</span><input type="text" placeholder="Pagina Facebook - ex: 200k curtidas"></div>
+            <div class="social-row"><span class="social-icon">PC</span><input type="text" placeholder="Podcast / Spotify - audiencia mensal"></div>
+          </div>
+          <hr class="divider">
+          <div class="section-title" style="margin-bottom:4px">Outros canais</div>
+          <div class="section-desc">Newsletter, aplicativo, midia OOH, etc.</div>
+          <div id="other-channels" style="display:flex;flex-direction:column;gap:8px">
+            <div class="ativacao-row">
+              <input type="text" placeholder="Canal (ex: Newsletter)">
+              <input type="text" placeholder="Alcance / detalhe">
+              <button class="btn-remove-row" onclick="removeRow(this)">&times;</button>
+            </div>
+          </div>
+          <button class="btn-add-row" onclick="addChannelRow()">+ Adicionar canal</button>
+          <div class="form-actions">
+            <button class="btn btn-ghost" onclick="nextStep(2)">&larr; Voltar</button>
+            <button class="btn btn-black btn-lg" onclick="nextStep(4)">Proximo: Cotas & Entregas &rarr;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div id="step-panel-4" style="display:none">
+      <div class="card fade-in">
+        <div class="card-header">
+          <div><h2>Cotas & Entregas</h2><p>Defina os pacotes de patrocinio disponiveis</p></div>
+        </div>
+        <div class="card-body">
+          <div class="alert alert-gold">Voce pode criar ate 3 cotas. Cada cota tem ativacoes padrao + formatos comerciais + ativacoes personalizadas.</div>
+          <div class="cotas-wrapper">
+            <!-- BRONZE -->
+            <div class="cota-card">
+              <div class="cota-header" onclick="toggleCota(this)">
+                <h3><span class="cota-dot cota-dot-bronze"></span> Cota Bronze</h3><span style="font-size:14px;color:var(--gray-400)">&darr;</span>
+              </div>
+              <div class="cota-body open">
+                <div class="grid-2" style="margin-bottom:16px">
+                  <div class="form-group"><label>Nome da cota</label><input type="text" value="Bronze" placeholder="Ex: Apoiador..."></div>
+                  <div class="form-group"><label>Valor (R$) <span class="required">*</span></label><input type="number" placeholder="0,00"></div>
+                  <div class="form-group"><label>Vagas disponiveis</label><input type="number" placeholder="Ex: 3"></div>
+                  <div class="form-group"><label>Vagas ocupadas</label><input type="number" placeholder="0"></div>
+                </div>
+                <div class="section-title" style="font-size:13px;margin-bottom:8px">Ativacoes Padrao</div>
+                <div class="ativacoes-list" id="bronze-std">
+                  <div class="ativacao-row"><input type="text" placeholder="Ex: Logo na camisa do time"><button class="btn-remove-row" onclick="removeRow(this)">&times;</button></div>
+                </div>
+                <button class="btn-add-row" onclick="addAtivacao('bronze-std')">+ Adicionar ativacao</button>
+                <hr class="divider">
+                <div class="section-title" style="font-size:13px;margin-bottom:8px">Formatos Comerciais</div>
+                <div class="ativacoes-list" id="bronze-com">
+                  <div class="ativacao-row"><input type="text" placeholder="Ex: Mencao nas redes sociais (3x)"><button class="btn-remove-row" onclick="removeRow(this)">&times;</button></div>
+                </div>
+                <button class="btn-add-row" onclick="addAtivacao('bronze-com')">+ Adicionar formato</button>
+                <hr class="divider">
+                <div class="section-title" style="font-size:13px;margin-bottom:8px">Ativacoes Personalizadas <span style="font-size:11px;font-weight:400;color:var(--gray-400)">(negociaveis)</span></div>
+                <div class="ativacoes-list" id="bronze-custom">
+                  <div class="ativacao-row"><input type="text" placeholder="Ex: Acao de sampling no evento"><button class="btn-remove-row" onclick="removeRow(this)">&times;</button></div>
+                </div>
+                <button class="btn-add-row" onclick="addAtivacao('bronze-custom')">+ Adicionar personalizada</button>
+              </div>
+            </div>
+            <!-- PRATA -->
+            <div class="cota-card">
+              <div class="cota-header" onclick="toggleCota(this)">
+                <h3><span class="cota-dot cota-dot-silver"></span> Cota Prata</h3><span style="font-size:14px;color:var(--gray-400)">&darr;</span>
+              </div>
+              <div class="cota-body">
+                <div class="grid-2" style="margin-bottom:16px">
+                  <div class="form-group"><label>Nome da cota</label><input type="text" value="Prata" placeholder="Ex: Parceiro Master..."></div>
+                  <div class="form-group"><label>Valor (R$) <span class="required">*</span></label><input type="number" placeholder="0,00"></div>
+                  <div class="form-group"><label>Vagas disponiveis</label><input type="number" placeholder="Ex: 2"></div>
+                  <div class="form-group"><label>Vagas ocupadas</label><input type="number" placeholder="0"></div>
+                </div>
+                <div class="ativacoes-list" id="prata-std"><div class="ativacao-row"><input type="text" placeholder="Inclui tudo da cota Bronze +"><button class="btn-remove-row" onclick="removeRow(this)">&times;</button></div></div>
+                <button class="btn-add-row" onclick="addAtivacao('prata-std')">+ Adicionar ativacao</button>
+                <hr class="divider">
+                <div class="ativacoes-list" id="prata-com"><div class="ativacao-row"><input type="text" placeholder="Ex: Post dedicado no Instagram"><button class="btn-remove-row" onclick="removeRow(this)">&times;</button></div></div>
+                <button class="btn-add-row" onclick="addAtivacao('prata-com')">+ Adicionar formato</button>
+                <hr class="divider">
+                <div class="ativacoes-list" id="prata-custom"><div class="ativacao-row"><input type="text" placeholder="Ex: Ativacao de produto no evento"><button class="btn-remove-row" onclick="removeRow(this)">&times;</button></div></div>
+                <button class="btn-add-row" onclick="addAtivacao('prata-custom')">+ Adicionar personalizada</button>
+              </div>
+            </div>
+            <!-- OURO -->
+            <div class="cota-card">
+              <div class="cota-header" onclick="toggleCota(this)">
+                <h3><span class="cota-dot cota-dot-gold"></span> Cota Ouro</h3><span style="font-size:14px;color:var(--gray-400)">&darr;</span>
+              </div>
+              <div class="cota-body">
+                <div class="grid-2" style="margin-bottom:16px">
+                  <div class="form-group"><label>Nome da cota</label><input type="text" value="Ouro" placeholder="Ex: Patrocinador Master..."></div>
+                  <div class="form-group"><label>Valor (R$) <span class="required">*</span></label><input type="number" placeholder="0,00"></div>
+                  <div class="form-group"><label>Vagas disponiveis</label><input type="number" placeholder="1"></div>
+                  <div class="form-group"><label>Vagas ocupadas</label><input type="number" placeholder="0"></div>
+                </div>
+                <div class="ativacoes-list" id="ouro-std"><div class="ativacao-row"><input type="text" placeholder="Inclui tudo da cota Prata +"><button class="btn-remove-row" onclick="removeRow(this)">&times;</button></div></div>
+                <button class="btn-add-row" onclick="addAtivacao('ouro-std')">+ Adicionar ativacao</button>
+                <hr class="divider">
+                <div class="ativacoes-list" id="ouro-com"><div class="ativacao-row"><input type="text" placeholder="Ex: Naming rights de area VIP"><button class="btn-remove-row" onclick="removeRow(this)">&times;</button></div></div>
+                <button class="btn-add-row" onclick="addAtivacao('ouro-com')">+ Adicionar formato</button>
+                <hr class="divider">
+                <div class="ativacoes-list" id="ouro-custom"><div class="ativacao-row"><input type="text" placeholder="Ex: Patrocinio naming do evento"><button class="btn-remove-row" onclick="removeRow(this)">&times;</button></div></div>
+                <button class="btn-add-row" onclick="addAtivacao('ouro-custom')">+ Adicionar personalizada</button>
+              </div>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-ghost" onclick="nextStep(3)">&larr; Voltar</button>
+            <button class="btn btn-black btn-lg" onclick="nextStep(5)">Proximo: Visibilidade &rarr;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 5 -->
+    <div id="step-panel-5" style="display:none">
+      <div class="card fade-in" style="margin-bottom:20px">
+        <div class="card-header">
+          <div><h2>Visibilidade da Oportunidade</h2><p>Controle quem pode ver essa oportunidade no Radar</p></div>
+        </div>
+        <div class="card-body">
+          <div class="visibility-options">
+            <div class="visibility-card selected" onclick="selectVisibility(this)">
+              <div class="vis-check">&check;</div><div class="vis-icon">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+              </div>
+              <h4>Publica</h4><p>Visivel para todas as marcas no Radar Relevantia</p>
+            </div>
+            <div class="visibility-card" onclick="selectVisibility(this)">
+              <div class="vis-check">&check;</div><div class="vis-icon">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              </div>
+              <h4>Privada</h4><p>Apenas marcas convidadas diretamente pela Relevantia podem ver</p>
+            </div>
+            <div class="visibility-card" onclick="selectVisibility(this)">
+              <div class="vis-check">&check;</div><div class="vis-icon">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 2v20M2 12h20"/><circle cx="12" cy="12" r="4"/></svg>
+              </div>
+              <h4>Segmentada</h4><p>Visivel apenas para segmentos de mercado selecionados</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card fade-in" style="margin-bottom:20px">
+        <div class="card-header"><div><h2>Segmentos que fazem sentido</h2><p>Indique para quais setores essa oportunidade e relevante</p></div></div>
+        <div class="card-body">
+          <div class="alert alert-gold">A Relevantia usara isso para recomendar sua oportunidade para marcas dos setores selecionados.</div>
+          <div class="segment-grid">
+            <div class="segment-pill" onclick="toggleSegment(this,'green')">Bebidas</div>
+            <div class="segment-pill" onclick="toggleSegment(this,'green')">Alimentacao</div>
+            <div class="segment-pill" onclick="toggleSegment(this,'green')">Esporte & Fitness</div>
+            <div class="segment-pill" onclick="toggleSegment(this,'green')">Moda & Vestuario</div>
+            <div class="segment-pill" onclick="toggleSegment(this,'green')">Tecnologia</div>
+            <div class="segment-pill" onclick="toggleSegment(this,'green')">Automotivo</div>
+            <div class="segment-pill" onclick="toggleSegment(this,'green')">Financeiro & Bancos</div>
+            <div class="segment-pill" onclick="toggleSegment(this,'green')">Saude & Farma</div>
+            <div class="segment-pill" onclick="toggleSegment(this,'green')">Games & eSports</div>
+            <div class="segment-pill" onclick="toggleSegment(this,'green')">Casa & Decoracao</div>
+            <div class="segment-pill" onclick="toggleSegment(this,'green')">Viagens & Turismo</div>
+            <div class="segment-pill" onclick="toggleSegment(this,'green')">Educacao</div>
+            <div class="segment-pill" onclick="toggleSegment(this,'green')">Software & SaaS</div>
+            <div class="segment-pill" onclick="toggleSegment(this,'green')">Entretenimento</div>
+            <div class="segment-pill" onclick="toggleSegment(this,'green')">Beleza & Cosmeticos</div>
+            <div class="segment-pill" onclick="toggleSegment(this,'green')">Pet</div>
+            <div class="segment-pill" onclick="toggleSegment(this,'green')">Construcao & Imoveis</div>
+            <div class="segment-pill" onclick="toggleSegment(this,'green')">Sustentabilidade</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card fade-in" style="margin-bottom:20px">
+        <div class="card-header"><div><h2>Segmentos que NAO fazem sentido</h2><p>Setores que voce quer excluir ou que conflitam com sua marca</p></div></div>
+        <div class="card-body">
+          <div class="alert alert-info">Marcas desses segmentos nao serao notificadas, independente da visibilidade escolhida.</div>
+          <div class="segment-grid">
+            <div class="segment-pill" onclick="toggleSegment(this,'red')">Bebidas Alcoolicas</div>
+            <div class="segment-pill" onclick="toggleSegment(this,'red')">Tabaco</div>
+            <div class="segment-pill" onclick="toggleSegment(this,'red')">Apostas & Cassinos</div>
+            <div class="segment-pill" onclick="toggleSegment(this,'red')">Farmaceutico</div>
+            <div class="segment-pill" onclick="toggleSegment(this,'red')">Juridico</div>
+            <div class="segment-pill" onclick="toggleSegment(this,'red')">Financeiro & Bancos</div>
+            <div class="segment-pill" onclick="toggleSegment(this,'red')">Armas & Defesa</div>
+            <div class="segment-pill" onclick="toggleSegment(this,'red')">Pet</div>
+            <div class="segment-pill" onclick="toggleSegment(this,'red')">Games & eSports</div>
+            <div class="segment-pill" onclick="toggleSegment(this,'red')">Moda & Vestuario</div>
+            <div class="segment-pill" onclick="toggleSegment(this,'red')">Entretenimento</div>
+            <div class="segment-pill" onclick="toggleSegment(this,'red')">Automotivo</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card fade-in">
+        <div class="card-header"><div><h2>Publicar Oportunidade</h2><p>Revise e escolha o status de publicacao</p></div></div>
+        <div class="card-body">
+          <div style="display:flex;flex-direction:column;gap:0">
+            <div class="toggle-row">
+              <div><div class="toggle-label">Aceita interesse direto de marcas</div><div class="toggle-hint">Marcas poderao demonstrar interesse sem intermediacao previa</div></div>
+              <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+            </div>
+            <div class="toggle-row">
+              <div><div class="toggle-label">Exibir valores das cotas</div><div class="toggle-hint">Se desativado, os valores ficam ocultos e sob consulta</div></div>
+              <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+            </div>
+            <div class="toggle-row">
+              <div><div class="toggle-label">Permitir download do midia kit</div><div class="toggle-hint">Marcas poderao baixar um PDF com as informacoes da oportunidade</div></div>
+              <div class="toggle" onclick="this.classList.toggle('on')"></div>
+            </div>
+            <div class="toggle-row">
+              <div><div class="toggle-label">Sinalizar como Exclusivo Relevantia</div><div class="toggle-hint">Destaque especial curado pelo time da Relevantia</div></div>
+              <div class="toggle" onclick="this.classList.toggle('on')"></div>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-ghost" onclick="nextStep(4)">&larr; Voltar</button>
+            <div style="display:flex;gap:10px">
+              <button class="btn btn-ghost btn-lg">Salvar rascunho</button>
+              <button class="btn btn-gold btn-lg" onclick="publishSuccess()">Publicar no Radar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+// ─── LOADING ───
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    const ls = document.getElementById('loadingScreen');
+    if (ls) { ls.style.opacity = '0'; ls.style.transition = 'opacity 0.3s'; setTimeout(() => ls.remove(), 300); }
+  }, 400);
+});
+
+// ─── SESSION ───
+const MOCK_USER = { nome: 'Isaac Gabriel', email: 'isaac@radar.com' };
+function setUserInfo(nome, email) {
+  const initials = nome.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+  const sa = document.getElementById('sidebarAvatar');
+  const sn = document.getElementById('sidebarName');
+  const se = document.getElementById('sidebarEmail');
+  if (sa) sa.textContent = initials;
+  if (sn) sn.textContent = nome;
+  if (se) se.textContent = email;
+}
+function initSession() {
+  const stored = localStorage.getItem('sb_detentor_session');
+  if (stored) {
+    try {
+      const session = JSON.parse(stored);
+      const meta = session.user?.user_metadata || {};
+      const nome = meta.nome || session.user?.email?.split('@')[0] || MOCK_USER.nome;
+      const email = session.user?.email || MOCK_USER.email;
+      setUserInfo(nome, email);
+    } catch { setUserInfo(MOCK_USER.nome, MOCK_USER.email); }
+  } else {
+    setUserInfo(MOCK_USER.nome, MOCK_USER.email);
+  }
+}
+initSession();
+
+function doLogout() {
+  localStorage.removeItem('sb_detentor_session');
+  window.location.href = 'login.html';
+}
+
+// ─── SIDEBAR MOBILE ───
+function openSidebar() {
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('sidebarOverlay').classList.add('open');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('open');
+}
+
+// ─── STEPS ───
+let currentStep = 1;
+const totalSteps = 5;
+
+function nextStep(n) {
+  const prevPanel = document.getElementById('step-panel-' + currentStep);
+  const nextPanel = document.getElementById('step-panel-' + n);
+  if (!nextPanel) return;
+  if (prevPanel) prevPanel.style.display = 'none';
+  nextPanel.style.display = 'block';
+  nextPanel.classList.remove('fade-in');
+  void nextPanel.offsetWidth;
+  nextPanel.classList.add('fade-in');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  const prevDot = document.getElementById('step-dot-' + currentStep);
+  if (prevDot && n > currentStep) {
+    prevDot.classList.remove('active'); prevDot.classList.add('done');
+    prevDot.querySelector('.step-circle').textContent = '\u2713';
+  }
+  if (prevDot && n < currentStep) {
+    prevDot.classList.remove('active','done');
+    prevDot.querySelector('.step-circle').textContent = currentStep;
+  }
+  const nextDot = document.getElementById('step-dot-' + n);
+  if (nextDot) { nextDot.classList.remove('done'); nextDot.classList.add('active'); nextDot.querySelector('.step-circle').textContent = n; }
+  for (let i = 1; i < totalSteps; i++) {
+    const line = document.getElementById('step-line-' + i);
+    if (line) line.classList.toggle('done', i < n);
+  }
+  currentStep = n;
+}
+
+// ─── COTAS ───
+function toggleCota(header) {
+  const body = header.nextElementSibling;
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+}
+
+// ─── ATIVACOES ───
+function addAtivacao(listId) {
+  const list = document.getElementById(listId);
+  const row = document.createElement('div');
+  row.className = 'ativacao-row';
+  row.innerHTML = '<input type="text" placeholder="Descreva a ativacao..."><button class="btn-remove-row" onclick="removeRow(this)">\u00D7</button>';
+  list.appendChild(row);
+  row.querySelector('input').focus();
+}
+function addVideoRow() {
+  const list = document.getElementById('video-links');
+  const row = document.createElement('div');
+  row.className = 'ativacao-row';
+  row.innerHTML = '<input type="url" placeholder="https://youtube.com/watch?v=..."><button class="btn-remove-row" onclick="removeRow(this)">\u00D7</button>';
+  list.appendChild(row);
+}
+function addChannelRow() {
+  const list = document.getElementById('other-channels');
+  const row = document.createElement('div');
+  row.className = 'ativacao-row';
+  row.innerHTML = '<input type="text" placeholder="Canal (ex: Newsletter)"><input type="text" placeholder="Alcance / detalhe"><button class="btn-remove-row" onclick="removeRow(this)">\u00D7</button>';
+  list.appendChild(row);
+}
+function removeRow(btn) { btn.closest('.ativacao-row')?.remove(); }
+
+// ─── TAGS ───
+function addTag(e, input, cls) {
+  if (e.key === 'Enter' && input.value.trim()) {
+    e.preventDefault();
+    const tag = document.createElement('span');
+    tag.className = 'tag ' + cls;
+    tag.innerHTML = input.value.trim() + '<button class="tag-remove" onclick="removeTag(this)">\u00D7</button>';
+    input.parentNode.insertBefore(tag, input);
+    input.value = '';
+  }
+}
+function removeTag(btn) { btn.closest('.tag').remove(); }
+
+// ─── VISIBILITY ───
+function selectVisibility(card) {
+  document.querySelectorAll('.visibility-card').forEach(function(c) { c.classList.remove('selected'); });
+  card.classList.add('selected');
+}
+
+// ─── SEGMENTS ───
+function toggleSegment(pill, type) {
+  pill.classList.toggle(type === 'green' ? 'selected-green' : 'selected-red');
+}
+
+// ─── UPLOAD ───
+function triggerUpload(type) { document.getElementById('upload-' + type).click(); }
+function previewCover(input) {
+  var file = input.files[0]; if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    document.getElementById('cover-img').src = e.target.result;
+    document.getElementById('cover-preview').style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+// ─── CHAR COUNTER ───
+function updateChar(el, id, max) {
+  var count = el.value.length;
+  var counter = document.getElementById(id);
+  if (counter) { counter.textContent = count; counter.style.color = count > max * 0.9 ? '#E65100' : ''; }
+}
+
+// ─── PUBLISH SUCCESS ───
+function publishSuccess() {
+  var overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999;display:flex;align-items:center;justify-content:center;';
+  overlay.innerHTML = '<div style="background:white;border-radius:16px;padding:40px;text-align:center;max-width:400px;width:90%;animation:fadeUp 0.3s ease">' +
+    '<div style="width:56px;height:56px;border-radius:50%;background:rgba(201,164,58,0.12);display:flex;align-items:center;justify-content:center;margin:0 auto 16px"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#C9A43A" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg></div>' +
+    '<h2 style="font-family:Playfair Display,serif;font-size:22px;margin-bottom:8px">Oportunidade publicada!</h2>' +
+    '<p style="font-size:14px;color:#9A9A9A;margin-bottom:24px;line-height:1.5">Sua oportunidade ja esta visivel no Radar Relevantia. O time da Relevantia vai curar e divulgar para as marcas certas.</p>' +
+    '<button onclick="window.location.href=\'dashboard-detentor.html\'" style="padding:12px 28px;background:#0E0E0E;color:white;border:none;border-radius:10px;font-size:14px;font-family:DM Sans,sans-serif;font-weight:600;cursor:pointer;width:100%;transition:background 0.2s">Ver meu dashboard</button>' +
+    '</div>';
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
+}
+</script>
+</body>
+</html>
