@@ -1718,8 +1718,8 @@ async function criarContaEEnviarAcesso(table, id) {
     const tipo = table === 'marcas_waitlist' ? 'marca' : 'detentor';
     const selectFields = table === 'marcas_waitlist' ? 'email,primeiro_nome' : 'email,nome';
     const loginUrl = tipo === 'marca'
-      ? 'https://radar-relevantia.vercel.app/acesso-marca.html'
-      : 'https://radar-relevantia.vercel.app/acesso-detentor.html';
+      ? 'https://radar-relevantia-v1.vercel.app/acesso-marca.html'
+      : 'https://radar-relevantia-v1.vercel.app/acesso-detentor.html';
 
     // Buscar dados do registro
     const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}&select=${selectFields}`, {

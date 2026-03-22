@@ -9,7 +9,7 @@
  */
 
 const SUPABASE_URL = 'https://bzckerazidgrkbpgqqee.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_23vtXVo1wT1gFhNaOw8fpA_M2AwRbgR';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ6Y2tlcmF6aWRncmticGdxcWVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2MjczODksImV4cCI6MjA4ODIwMzM4OX0.HIVnwcGvKiYNGfVFEnP0Ik9kfOeXPB4c4BFqDpqFCS4';
 
 // localStorage key mapping — DO NOT rename these keys, they would log out existing users.
 // See GLOSSARY.md for meaning of each key.
