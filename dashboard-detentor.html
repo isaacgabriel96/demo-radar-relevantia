@@ -325,8 +325,11 @@ tbody tr:last-child td { border-bottom: none; }
   .form-grid { grid-template-columns: 1fr; }
   .bottom-nav { display: flex; }
   .page-title { font-size: 22px; }
-  .page-header { flex-direction: column; align-items: flex-end; }
-  .page-header-left { width: 100%; }
+  .page-header { flex-direction: row; align-items: center; flex-wrap: wrap; }
+  .page-header-left { flex: 1; min-width: 0; }
+  .page-header-left .page-subtitle { display: none; }
+  .page-header + .page-subtitle-mobile { display: block; }
+  .page-header .btn-gold { flex-shrink: 0; }
   .table-wrap { margin: 0 -16px; padding: 0 16px; }
   .form-textarea { max-height: 120px; overflow-y: auto; }
 }
@@ -419,13 +422,14 @@ tbody tr:last-child td { border-bottom: none; }
       <div class="page-header">
         <div class="page-header-left">
           <h1 class="page-title">Olá, <em id="welcomeName">Isaac</em></h1>
-          <p class="page-subtitle">Gerencie suas oportunidades de patrocínio e naming rights</p>
+          <p class="page-subtitle">Visão geral da sua conta</p>
         </div>
         <a href="criar-oportunidade.html" class="btn btn-gold">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:16px;height:16px"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
           Nova oportunidade
         </a>
       </div>
+      <p class="page-subtitle-mobile" style="display:none;font-size:14px;color:var(--gray-500);margin-top:6px;margin-bottom:28px;line-height:1.5">Visão geral da sua conta</p>
 
       <!-- KPIs -->
       <div class="kpi-grid">
@@ -488,13 +492,14 @@ tbody tr:last-child td { border-bottom: none; }
       <div class="page-header">
         <div class="page-header-left">
           <h1 class="page-title">Minhas Oportunidades</h1>
-          <p class="page-subtitle">Gerencie as oportunidades que você publicou na plataforma</p>
+          <p class="page-subtitle">Publique e acompanhe seus ativos</p>
         </div>
         <a href="criar-oportunidade.html" class="btn btn-gold">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:16px;height:16px"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
           Criar oportunidade
         </a>
       </div>
+      <p class="page-subtitle-mobile" style="display:none;font-size:14px;color:var(--gray-500);margin-top:6px;margin-bottom:28px;line-height:1.5">Publique e acompanhe seus ativos</p>
 
       <div class="card">
         <div class="table-wrap">
