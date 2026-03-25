@@ -467,13 +467,49 @@ a { text-decoration: none; color: inherit; }
   z-index: 109; backdrop-filter: blur(4px);
 }
 
+/* ─── MOBILE BOTTOM BAR ─── */
+.mobile-cta-bar {
+  display: none;
+}
+@media (max-width: 1024px) {
+  .mobile-cta-bar {
+    display: flex;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 200;
+    background: var(--white);
+    border-top: 1px solid var(--gray-200);
+    padding: 12px 16px;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom));
+    gap: 10px;
+    box-shadow: 0 -4px 24px rgba(30,22,0,0.08);
+  }
+  .mobile-cta-bar .btn-interest {
+    flex: 1;
+    padding: 14px 12px;
+    font-size: 14px;
+    border-radius: var(--radius-pill);
+  }
+  .mobile-cta-bar .btn-contact {
+    flex: 1;
+    padding: 14px 12px;
+    font-size: 14px;
+    border-radius: var(--radius-pill);
+    margin-top: 0;
+  }
+  /* ocultar card interesse no sidebar em tablet/mobile */
+  .interest-card { display: none; }
+}
+
 /* ─── RESPONSIVE ─── */
 @media (max-width: 1024px) {
   .detail-body { grid-template-columns: 1fr; }
-  .interest-card { position: static; }
   .opp-cards-grid { grid-template-columns: repeat(2, 1fr); }
   .detail-gallery { grid-template-columns: 1fr; grid-template-rows: 300px; height: 300px; }
   .gallery-side { display: none; }
+  .gallery-main { border-radius: var(--radius-lg); }
+  /* extra padding bottom para não ficar atrás da barra fixa */
+  .detail-wrap { padding-bottom: 120px; }
 }
 @media (max-width: 768px) {
   .sidebar { transform: translateX(-100%); }
@@ -481,23 +517,40 @@ a { text-decoration: none; color: inherit; }
   .sidebar-overlay.open { display: block; }
   .topbar { left: 0; }
   .topbar-inner { padding: 0 16px; }
-  .topbar-breadcrumb strong { max-width: 160px; }
+  .topbar-breadcrumb strong { max-width: 140px; }
+  .topbar-breadcrumb a:first-child { display: none; } /* esconde "Portal Marca" em telas pequenas */
+  .topbar-sep:first-of-type { display: none; }
   .hamburger { display: flex; }
   .main { margin-left: 0; }
-  .detail-wrap { padding: 20px 20px 80px; }
-  .detail-header { flex-direction: column; gap: 14px; }
-  .detail-title { font-size: 24px; }
-  .detail-facts { grid-template-columns: 1fr; }
-  .cotas-grid { grid-template-columns: 1fr; }
+  .detail-wrap { padding: 20px 16px 120px; }
+  .detail-header { flex-direction: column; gap: 10px; }
+  .detail-header-actions { align-self: flex-end; margin-top: -8px; }
+  .detail-title { font-size: 22px; }
+  .detail-meta { gap: 10px; }
+  .detail-gallery { height: 240px; grid-template-rows: 240px; margin-bottom: 20px; }
+  .detail-facts { grid-template-columns: 1fr 1fr; }
+  .cotas-grid { grid-template-columns: 1fr 1fr; }
   .ativacoes-grid { grid-template-columns: 1fr 1fr; }
   .canais-grid { grid-template-columns: 1fr; }
   .opp-cards-grid { grid-template-columns: 1fr 1fr; }
-  .owner-card { flex-direction: column; gap: 16px; }
-  .owner-stats { gap: 16px; }
+  .owner-card { flex-direction: column; gap: 16px; padding: 20px; }
+  .owner-stats { gap: 14px; }
+  .owner-section { margin-top: 36px; padding-top: 36px; }
+  .similar-section { margin-top: 36px; padding-top: 36px; }
+  .detail-section-title { font-size: 16px; }
+  .entregas-table { font-size: 12px; }
+  .entregas-table thead th, .entregas-table tbody td { padding: 9px 10px; }
 }
 @media (max-width: 480px) {
-  .opp-cards-grid { grid-template-columns: 1fr; }
+  .detail-wrap { padding: 16px 14px 120px; }
+  .detail-title { font-size: 20px; }
+  .detail-gallery { height: 200px; grid-template-rows: 200px; }
+  .detail-facts { grid-template-columns: 1fr; }
+  .cotas-grid { grid-template-columns: 1fr; }
   .ativacoes-grid { grid-template-columns: 1fr; }
+  .opp-cards-grid { grid-template-columns: 1fr; }
+  .mobile-cta-bar .btn-interest,
+  .mobile-cta-bar .btn-contact { font-size: 13px; padding: 13px 10px; }
 }
 </style>
 </head>
@@ -837,6 +890,19 @@ a { text-decoration: none; color: inherit; }
 
 <!-- Toast container -->
 <div class="toast-container" id="toastContainer"></div>
+
+<!-- Mobile CTA bar (visível apenas em ≤1024px) -->
+<div class="mobile-cta-bar">
+  <button class="btn-interest" onclick="openModal()">
+    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Manifestar interesse
+  </button>
+  <button class="btn-contact">
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    Falar com o time
+  </button>
+</div>
+
 
 <script>
 /* ═══════════════════════════════════════════
