@@ -557,19 +557,27 @@ a { text-decoration: none; color: inherit; }
   .topbar-sep:first-of-type { display: none; }
   .hamburger { display: flex; }
   .main { margin-left: 0; }
+  .main-inner { max-width: 100%; }
 
-  /* ── Wrap principal: padding uniforme 16px, galeria usa margem negativa ── */
-  .detail-wrap { padding: 0 16px 120px; }
+  /* ── Wrap: sem padding lateral — galeria vai de borda a borda naturalmente ── */
+  .detail-wrap { padding: 0 0 120px; }
 
-  /* ── Galeria edge-to-edge (margem negativa compensa o padding do wrap) ── */
-  .gallery-mobile-strip { margin-left: -16px; margin-right: -16px; margin-bottom: 24px; }
-  .gallery-strip-track { gap: 0; }
-  .gallery-strip-item { height: 220px; border-radius: 0; }
+  /* ── Todo conteúdo exceto galeria recebe padding 16px ── */
+  .detail-header { padding-left: 16px; padding-right: 16px; }
+  .detail-body { padding-left: 16px; padding-right: 16px; }
+  .owner-section { padding-left: 16px; padding-right: 16px; }
+  .similar-section { padding-left: 16px; padding-right: 16px; }
+
+  /* ── Galeria ocupa 100% da largura sem margem ── */
+  .gallery-mobile-strip { margin: 0; margin-bottom: 24px; width: 100%; }
+  .gallery-strip-track { gap: 0; width: 100%; }
+  .gallery-strip-item { height: 220px; border-radius: 0; width: 100%; flex: 0 0 100%; }
   .gallery-strip-dots { padding: 8px 16px 0; }
 
-  /* ── Header ── */
-  .detail-header { flex-direction: column; gap: 8px; padding-top: 20px; margin-bottom: 20px; }
-  .detail-header-actions { align-self: flex-end; }
+  /* ── Header: título + meta em coluna, botões ao lado do título ── */
+  .detail-header { flex-direction: row; flex-wrap: wrap; gap: 0; padding-top: 20px; margin-bottom: 20px; align-items: flex-start; }
+  .detail-header-left { flex: 1; min-width: 0; }
+  .detail-header-actions { flex-shrink: 0; padding-top: 4px; align-self: flex-start; }
   .detail-title { font-size: 22px; }
   .detail-meta { gap: 10px; flex-wrap: wrap; }
 
@@ -615,13 +623,20 @@ a { text-decoration: none; color: inherit; }
 }
 
 @media (max-width: 480px) {
-  .detail-wrap { padding: 0 14px 120px; }
-  .gallery-mobile-strip { margin-left: -14px; margin-right: -14px; }
+  /* ── padding lateral reduz um pouco em telas muito pequenas ── */
+  .detail-header { padding-left: 14px; padding-right: 14px; }
+  .detail-body { padding-left: 14px; padding-right: 14px; }
+  .owner-section { padding-left: 14px; padding-right: 14px; }
+  .similar-section { padding-left: 14px; padding-right: 14px; }
   .gallery-strip-dots { padding: 8px 14px 0; }
+  /* ── galeria continua 100% — sem margens negativas ── */
+  .gallery-mobile-strip { margin: 0; width: 100%; }
+  .gallery-strip-item { height: 200px; }
+  /* tabs: margem negativa relativa ao padding do body ── */
   .detail-tabs { margin-left: -14px; margin-right: -14px; padding: 0 14px; }
+  /* entregas: margem negativa relativa ao padding do body ── */
   .entregas-wrap { margin-left: -14px; margin-right: -14px; }
   .detail-title { font-size: 20px; }
-  .gallery-strip-item { height: 200px; }
   .detail-facts { grid-template-columns: 1fr; }
   .cotas-grid { grid-template-columns: 1fr; }
   .opp-cards-grid { grid-template-columns: 1fr; }
