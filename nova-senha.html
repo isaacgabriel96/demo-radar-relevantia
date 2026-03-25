@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login — Radar Relevantia</title>
+<title>Nova senha — Radar Relevantia</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -29,7 +29,6 @@ html, body {
   color: var(--white);
 }
 
-/* ── Fundo com grid gold ── */
 body::before {
   content: '';
   position: fixed; inset: 0;
@@ -58,22 +57,14 @@ body::before {
   color: rgba(255,255,255,0.35);
   letter-spacing: 0.06em;
 }
-@keyframes spin { to { transform: rotate(360deg); } }
 
-/* ── Layout split ── */
-#loginPage {
+.login-layout {
   display: none;
+  grid-template-columns: 1fr 1fr;
   min-height: 100vh;
   position: relative; z-index: 1;
 }
 
-.login-layout {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  min-height: 100vh;
-}
-
-/* ── Lado esquerdo — decorativo ── */
 .login-left {
   background: var(--black-2);
   border-right: 1px solid rgba(255,255,255,0.06);
@@ -82,8 +73,6 @@ body::before {
   padding: 48px 56px;
   position: relative; overflow: hidden;
 }
-
-/* Orb decorativo */
 .login-left::before {
   content: '';
   position: absolute;
@@ -93,8 +82,6 @@ body::before {
   transform: translate(-50%, -50%);
   pointer-events: none;
 }
-
-/* Grid sutil no painel esquerdo */
 .login-left::after {
   content: '';
   position: absolute; inset: 0;
@@ -108,7 +95,6 @@ body::before {
 .left-top { position: relative; z-index: 1; }
 .left-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; margin-bottom: 20px; }
 .left-logo img { height: 43px; width: auto; }
-
 .left-headline {
   font-family: 'Playfair Display', serif;
   font-size: clamp(32px, 3.5vw, 52px);
@@ -118,39 +104,25 @@ body::before {
   color: var(--white);
   margin-bottom: 20px;
 }
-.left-headline em {
-  font-style: italic;
-  color: var(--gold);
-}
-
+.left-headline em { font-style: italic; color: var(--gold); }
 .left-sub {
   font-size: 15px;
   color: rgba(255,255,255,0.4);
   line-height: 1.7;
   max-width: 380px;
 }
-
 .left-bottom { position: relative; z-index: 1; }
-.left-quote {
-  border-left: 2px solid rgba(201,164,58,0.4);
-  padding-left: 20px;
-}
+.left-quote { border-left: 2px solid rgba(201,164,58,0.4); padding-left: 20px; }
 .left-quote-text {
   font-size: 14px;
   color: rgba(255,255,255,0.35);
-  line-height: 1.7;
-  font-style: italic;
-  margin-bottom: 10px;
+  line-height: 1.7; font-style: italic; margin-bottom: 10px;
 }
 .left-quote-author {
-  font-size: 12px;
-  color: var(--gold);
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-size: 12px; color: var(--gold); font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
 }
 
-/* ── Lado direito — formulário ── */
 .login-right {
   display: flex;
   align-items: center;
@@ -163,7 +135,6 @@ body::before {
   max-width: 400px;
 }
 
-/* Badge de volta */
 .back-link {
   display: inline-flex;
   align-items: center;
@@ -193,7 +164,6 @@ body::before {
   margin-bottom: 32px;
 }
 
-/* ── Card de vidro do form ── */
 .glass-card {
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.09);
@@ -252,19 +222,6 @@ body::before {
   display: none;
 }
 
-.forgot-link {
-  text-align: right;
-  margin-top: 8px;
-}
-.forgot-link a {
-  font-size: 12px;
-  color: rgba(255,255,255,0.25);
-  text-decoration: none;
-  transition: color 0.2s;
-}
-.forgot-link a:hover { color: var(--gold); }
-
-/* ── Botão principal ── */
 .btn-primary {
   width: 100%;
   padding: 15px;
@@ -300,7 +257,57 @@ body::before {
   display: none;
 }
 
-/* ── Rodapé do form ── */
+/* ── Estado de link inválido ── */
+.error-state {
+  text-align: center;
+  padding: 32px 24px;
+}
+.error-icon {
+  font-size: 40px;
+  margin-bottom: 16px;
+}
+.error-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--white);
+  margin-bottom: 10px;
+}
+.error-text {
+  font-size: 14px;
+  color: rgba(255,255,255,0.4);
+  line-height: 1.7;
+  margin-bottom: 24px;
+}
+
+/* ── Estado de sucesso ── */
+.success-state {
+  text-align: center;
+  padding: 32px 24px;
+}
+.success-icon {
+  width: 56px; height: 56px;
+  background: rgba(34,197,94,0.12);
+  border: 1px solid rgba(34,197,94,0.3);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 20px;
+  font-size: 24px;
+}
+.success-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--white);
+  margin-bottom: 10px;
+}
+.success-text {
+  font-size: 14px;
+  color: rgba(255,255,255,0.4);
+  line-height: 1.7;
+  margin-bottom: 24px;
+}
+
 .form-footer {
   text-align: center;
   margin-top: 20px;
@@ -317,23 +324,6 @@ body::before {
 }
 .form-footer a:hover { opacity: 0.75; }
 
-/* ── Divider ── */
-.divider {
-  display: flex; align-items: center; gap: 12px;
-  margin: 20px 0;
-}
-.divider-line {
-  flex: 1; height: 1px;
-  background: rgba(255,255,255,0.08);
-}
-.divider-text {
-  font-size: 11px;
-  color: rgba(255,255,255,0.2);
-  letter-spacing: 0.06em;
-  white-space: nowrap;
-}
-
-/* ── Toast ── */
 .toast {
   position: fixed; bottom: 28px; left: 50%;
   transform: translateX(-50%) translateY(20px);
@@ -350,13 +340,11 @@ body::before {
 .toast.success { border-color: rgba(34,197,94,0.4); color: #4ade80; }
 .toast.error { border-color: rgba(239,68,68,0.4); color: #fca5a5; }
 
-/* ── Responsive ── */
 @media (max-width: 860px) {
   .login-layout { grid-template-columns: 1fr; }
   .login-left { display: none; }
   .login-right { padding: 40px 24px; align-items: flex-start; padding-top: 48px; }
   .login-form-wrap { max-width: 100%; }
-  /* Logo compacta no mobile */
   .mobile-logo {
     display: flex;
     align-items: center;
@@ -370,6 +358,7 @@ body::before {
   .mobile-logo { display: none; }
 }
 
+@keyframes spin { to { transform: rotate(360deg); } }
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
@@ -385,129 +374,147 @@ body::before {
 <div id="loadingScreen">
   <img src="1.png" alt="Relevantia" style="height:48px;width:auto;opacity:0.6">
   <div class="loading-spinner"></div>
-  <div class="loading-text">Carregando...</div>
+  <div class="loading-text">Verificando link...</div>
 </div>
 
-<!-- ── Página de Login ── -->
-<div id="loginPage">
-  <div class="login-layout">
+<div class="login-layout" id="mainLayout">
 
-    <!-- ════════════════════════════
-         LADO ESQUERDO — Decorativo
-    ════════════════════════════ -->
-    <div class="login-left">
-      <div class="left-top">
-        <a href="index.html" class="left-logo">
-          <img src="1.png" alt="Radar Relevantia">
-        </a>
-        <h2 class="left-headline">
-          O marketplace de<br>
-          <em>patrocínios</em><br>
-          estratégicos.
-        </h2>
-        <p class="left-sub">
-          Conectando marcas a ativos de alto impacto — com curadoria, dados e propósito.
-        </p>
-      </div>
-
-      <div class="left-bottom">
-        <div class="left-quote">
-          <p class="left-quote-text">
-            "O Radar mudou a forma como eu encontro parceiros de patrocínio. Tudo em um só lugar, com curadoria de verdade."
-          </p>
-          <span class="left-quote-author">Usuário do Radar Relevantia</span>
-        </div>
-      </div>
+  <!-- ════════════════════════════
+       LADO ESQUERDO — Decorativo
+  ════════════════════════════ -->
+  <div class="login-left">
+    <div class="left-top">
+      <a href="index.html" class="left-logo">
+        <img src="1.png" alt="Radar Relevantia">
+      </a>
+      <h2 class="left-headline">
+        O marketplace de<br>
+        <em>patrocínios</em><br>
+        estratégicos.
+      </h2>
+      <p class="left-sub">
+        Conectando marcas a ativos de alto impacto — com curadoria, dados e propósito.
+      </p>
     </div>
 
-    <!-- ════════════════════════════
-         LADO DIREITO — Formulário
-    ════════════════════════════ -->
-    <div class="login-right">
-      <div class="login-form-wrap fade-in">
+    <div class="left-bottom">
+      <div class="left-quote">
+        <p class="left-quote-text">
+          "O Radar mudou a forma como eu encontro parceiros de patrocínio. Tudo em um só lugar, com curadoria de verdade."
+        </p>
+        <span class="left-quote-author">Usuário do Radar Relevantia</span>
+      </div>
+    </div>
+  </div>
 
-        <!-- Logo mobile -->
-        <a href="index.html" class="mobile-logo">
-          <img src="1.png" alt="Radar Relevantia">
-        </a>
+  <!-- ════════════════════════════
+       LADO DIREITO — Formulário / Estados
+  ════════════════════════════ -->
+  <div class="login-right">
+    <div class="login-form-wrap fade-in" id="formWrap">
 
-        <!-- Voltar -->
-        <a href="index.html" class="back-link">
+      <!-- Logo mobile -->
+      <a href="index.html" class="mobile-logo">
+        <img src="1.png" alt="Radar Relevantia">
+      </a>
+
+      <!-- ── Estado: link inválido ── -->
+      <div id="stateInvalid" style="display:none;">
+        <div class="glass-card error-state">
+          <div class="error-icon">🔗</div>
+          <div class="error-title">Link inválido ou expirado</div>
+          <p class="error-text">
+            Este link de recuperação não é mais válido.<br>
+            Links expiram em 1 hora após o envio.
+          </p>
+          <a href="esqueci-senha.html" style="display:inline-block;padding:12px 28px;background:var(--gold);color:var(--black);border-radius:10px;font-weight:700;font-size:14px;text-decoration:none;transition:all 0.2s;">
+            Solicitar novo link
+          </a>
+        </div>
+        <div class="form-footer">
+          <p>Dúvidas? Fale com <a href="mailto:hello@relevantia.com.br">hello@relevantia.com.br</a></p>
+        </div>
+      </div>
+
+      <!-- ── Estado: formulário de nova senha ── -->
+      <div id="stateForm" style="display:none;">
+        <a href="login.html" class="back-link">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M10 3L5 8L10 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
-          Voltar ao início
+          Voltar ao login
         </a>
 
-        <h1 class="form-title">Bem-vindo de<br>volta ao <em>Radar</em></h1>
-        <p class="form-subtitle">Entre com seu email e senha para acessar sua conta.</p>
+        <h1 class="form-title">Criar<br>nova <em>senha</em></h1>
+        <p class="form-subtitle">Escolha uma senha segura para acessar sua conta.</p>
 
-        <!-- Formulário -->
         <div class="glass-card">
           <div class="form-group">
-            <label class="form-label" for="inputEmail">Email</label>
-            <input
-              type="email"
-              class="form-input"
-              id="inputEmail"
-              placeholder="seu@email.com"
-              autocomplete="email"
-              onkeydown="if(event.key==='Enter') doLogin()"
-            >
-            <div class="form-error" id="errEmail">Digite um email válido.</div>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="inputPassword">Senha</label>
+            <label class="form-label" for="inputNovaSenha">Nova senha</label>
             <div class="password-wrap">
               <input
                 type="password"
                 class="form-input"
-                id="inputPassword"
-                placeholder="Sua senha"
-                autocomplete="current-password"
-                onkeydown="if(event.key==='Enter') doLogin()"
+                id="inputNovaSenha"
+                placeholder="Mínimo 6 caracteres"
+                autocomplete="new-password"
+                onkeydown="if(event.key==='Enter') salvarNovaSenha()"
               >
-              <button class="btn-toggle-pw" type="button" onclick="togglePw('inputPassword', this)">👁</button>
+              <button class="btn-toggle-pw" type="button" onclick="togglePw('inputNovaSenha', this)">👁</button>
             </div>
-            <div class="form-error" id="errLogin">Email ou senha incorretos.</div>
-            <div class="forgot-link">
-              <a href="esqueci-senha.html">Esqueceu a senha?</a>
+            <div class="form-error" id="errNovaSenha">A senha deve ter pelo menos 6 caracteres.</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="inputConfirma">Confirmar nova senha</label>
+            <div class="password-wrap">
+              <input
+                type="password"
+                class="form-input"
+                id="inputConfirma"
+                placeholder="Repita a senha"
+                autocomplete="new-password"
+                onkeydown="if(event.key==='Enter') salvarNovaSenha()"
+              >
+              <button class="btn-toggle-pw" type="button" onclick="togglePw('inputConfirma', this)">👁</button>
             </div>
+            <div class="form-error" id="errConfirma">As senhas não coincidem.</div>
           </div>
         </div>
 
-        <button class="btn-primary" id="btnLogin" onclick="doLogin()">
-          <span class="btn-spinner" id="spinnerLogin"></span>
-          <span id="btnLoginText">Entrar →</span>
+        <button class="btn-primary" id="btnSalvar" onclick="salvarNovaSenha()">
+          <span class="btn-spinner" id="spinnerSalvar"></span>
+          <span id="btnSalvarText">Salvar nova senha →</span>
         </button>
 
-        <div class="divider">
-          <div class="divider-line"></div>
-          <span class="divider-text">Ainda não tem conta?</span>
-          <div class="divider-line"></div>
-        </div>
-
         <div class="form-footer">
-          <p>
-            <a href="index.html" onclick="window.history.back();return false;">Cadastre-se no Radar Relevantia</a>
-          </p>
-          <p style="margin-top: 16px;">
-            Dúvidas? Fale com <a href="mailto:hello@relevantia.com.br">hello@relevantia.com.br</a>
+          <p>Dúvidas? Fale com <a href="mailto:hello@relevantia.com.br">hello@relevantia.com.br</a></p>
+        </div>
+      </div>
+
+      <!-- ── Estado: sucesso ── -->
+      <div id="stateSuccess" style="display:none;">
+        <div class="glass-card success-state">
+          <div class="success-icon">✅</div>
+          <div class="success-title">Senha alterada!</div>
+          <p class="success-text">
+            Sua senha foi atualizada com sucesso.<br>
+            Redirecionando para o login...
           </p>
         </div>
-
       </div>
-    </div>
 
+    </div>
   </div>
+
 </div>
 
 <script>
 const SUPABASE_URL = 'https://bzckerazidgrkbpgqqee.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ6Y2tlcmF6aWRncmticGdxcWVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2MjczODksImV4cCI6MjA4ODIwMzM4OX0.HIVnwcGvKiYNGfVFEnP0Ik9kfOeXPB4c4BFqDpqFCS4';
 
-/* ── Utilitários ── */
+let accessToken = null;
+
 function showToast(msg, type = '') {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -522,117 +529,87 @@ function togglePw(inputId, btn) {
   btn.textContent = isText ? '👁' : '🙈';
 }
 
-/* ── Redireciona baseado no tipo do usuário (user_metadata.tipo) ── */
-function redirecionar(data) {
-  const meta = data.user?.user_metadata || {};
-  const tipo = meta.tipo;
-
-  if (tipo === 'detentor') {
-    localStorage.setItem('sb_detentor_session', JSON.stringify(data));
-    window.location.href = meta.senha_provisoria === true
-      ? 'acesso-detentor.html'
-      : 'dashboard-detentor.html';
-  } else if (tipo === 'marca') {
-    localStorage.setItem('sb_marca_session', JSON.stringify(data));
-    window.location.href = 'dashboard-marca.html';
-  } else {
-    // Tipo não definido no cadastro — exibe erro orientativo
-    showToast('Conta sem tipo definido. Contate hello@relevantia.com.br', 'error');
-  }
+function showState(state) {
+  document.getElementById('stateInvalid').style.display = 'none';
+  document.getElementById('stateForm').style.display = 'none';
+  document.getElementById('stateSuccess').style.display = 'none';
+  document.getElementById(state).style.display = 'block';
 }
 
-/* ── Login ── */
-async function doLogin() {
-  const email    = document.getElementById('inputEmail').value.trim();
-  const password = document.getElementById('inputPassword').value;
+async function salvarNovaSenha() {
+  const novaSenha = document.getElementById('inputNovaSenha').value;
+  const confirma  = document.getElementById('inputConfirma').value;
 
-  document.getElementById('errEmail').style.display = 'none';
-  document.getElementById('errLogin').style.display = 'none';
-  document.getElementById('inputEmail').classList.remove('error');
-  document.getElementById('inputPassword').classList.remove('error');
+  document.getElementById('errNovaSenha').style.display = 'none';
+  document.getElementById('errConfirma').style.display = 'none';
+  document.getElementById('inputNovaSenha').classList.remove('error');
+  document.getElementById('inputConfirma').classList.remove('error');
 
-  if (!email || !email.includes('@')) {
-    document.getElementById('errEmail').style.display = 'block';
-    document.getElementById('inputEmail').classList.add('error');
-    document.getElementById('inputEmail').focus();
+  if (!novaSenha || novaSenha.length < 6) {
+    document.getElementById('errNovaSenha').style.display = 'block';
+    document.getElementById('inputNovaSenha').classList.add('error');
+    document.getElementById('inputNovaSenha').focus();
     return;
   }
-  if (!password) {
-    document.getElementById('errLogin').style.display = 'block';
-    document.getElementById('inputPassword').classList.add('error');
-    document.getElementById('inputPassword').focus();
+  if (novaSenha !== confirma) {
+    document.getElementById('errConfirma').style.display = 'block';
+    document.getElementById('inputConfirma').classList.add('error');
+    document.getElementById('inputConfirma').focus();
     return;
   }
 
-  const btn     = document.getElementById('btnLogin');
-  const spinner = document.getElementById('spinnerLogin');
-  const label   = document.getElementById('btnLoginText');
+  const btn     = document.getElementById('btnSalvar');
+  const spinner = document.getElementById('spinnerSalvar');
+  const label   = document.getElementById('btnSalvarText');
   btn.disabled  = true;
   spinner.style.display = 'block';
-  label.textContent = 'Entrando...';
+  label.textContent = 'Salvando...';
 
   try {
-    const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
-      method: 'POST',
-      headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${accessToken}`
+      },
+      body: JSON.stringify({ password: novaSenha })
     });
 
-    const data = await res.json();
-
-    if (!res.ok) {
-      document.getElementById('errLogin').style.display = 'block';
-      document.getElementById('inputPassword').classList.add('error');
-      return;
+    if (res.ok) {
+      showState('stateSuccess');
+      setTimeout(() => { window.location.href = 'login.html'; }, 2500);
+    } else {
+      const data = await res.json();
+      showToast('Erro ao salvar senha. Solicite um novo link.', 'error');
+      btn.disabled = false;
+      spinner.style.display = 'none';
+      label.textContent = 'Salvar nova senha →';
     }
-
-    redirecionar(data);
-
   } catch (e) {
     showToast('Erro de conexão. Tente novamente.', 'error');
-  } finally {
     btn.disabled = false;
     spinner.style.display = 'none';
-    label.textContent = 'Entrar →';
+    label.textContent = 'Salvar nova senha →';
   }
 }
 
-/* ── Init: checa sessão salva ── */
 function init() {
-  // Checa sessão de detentor ativa
-  const sessionDetentor = localStorage.getItem('sb_detentor_session');
-  if (sessionDetentor) {
-    try {
-      const s = JSON.parse(sessionDetentor);
-      const now = Math.floor(Date.now() / 1000);
-      if (s.expires_at && now < s.expires_at) {
-        const meta = s.user?.user_metadata || {};
-        window.location.href = meta.senha_provisoria === true
-          ? 'acesso-detentor.html'
-          : 'dashboard-detentor.html';
-        return;
-      }
-    } catch {}
-    localStorage.removeItem('sb_detentor_session');
-  }
+  // Parsear hash da URL: #access_token=...&type=recovery&...
+  const hash = new URLSearchParams(window.location.hash.substring(1));
+  const token = hash.get('access_token');
+  const type  = hash.get('type');
 
-  // Checa sessão de marca ativa
-  const sessionMarca = localStorage.getItem('sb_marca_session');
-  if (sessionMarca) {
-    try {
-      const s = JSON.parse(sessionMarca);
-      const now = Math.floor(Date.now() / 1000);
-      if (s.expires_at && now < s.expires_at) {
-        window.location.href = 'dashboard-marca.html';
-        return;
-      }
-    } catch {}
-    localStorage.removeItem('sb_marca_session');
-  }
-
-  // Sem sessão válida — mostra tela de login
   document.getElementById('loadingScreen').style.display = 'none';
-  document.getElementById('loginPage').style.display = 'block';
+  document.getElementById('mainLayout').style.display = 'grid';
+
+  if (!token || type !== 'recovery') {
+    showState('stateInvalid');
+    return;
+  }
+
+  accessToken = token;
+  showState('stateForm');
 }
 
 init();

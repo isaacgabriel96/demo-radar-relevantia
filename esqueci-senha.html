@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Esqueci a senha — Radar Relevantia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --gold: #C9A43A;
+  --gold-light: #E8C96A;
+  --gold-pale: #FBF5E6;
+  --black: #0E0E0E;
+  --black-2: #1A1A1A;
+  --white: #FFFFFF;
+  --gray-1: #F7F7F7;
+  --gray-2: #EBEBEB;
+  --gray-3: #DDDDDD;
+  --gray-5: #717171;
+  --red: #EF4444;
+}
+
+html, body {
+  min-height: 100vh;
+  font-family: 'DM Sans', sans-serif;
+  background: var(--black);
+  color: var(--white);
+}
+
+/* ── Fundo com grid gold ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(201,164,58,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(201,164,58,0.04) 1px, transparent 1px);
+  background-size: 56px 56px;
+  pointer-events: none; z-index: 0;
+}
+
+/* ── Layout split ── */
+.login-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 100vh;
+  position: relative; z-index: 1;
+}
+
+/* ── Lado esquerdo — decorativo ── */
+.login-left {
+  background: var(--black-2);
+  border-right: 1px solid rgba(255,255,255,0.06);
+  display: flex; flex-direction: column;
+  justify-content: space-between;
+  padding: 48px 56px;
+  position: relative; overflow: hidden;
+}
+
+.login-left::before {
+  content: '';
+  position: absolute;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(201,164,58,0.1) 0%, transparent 65%);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.login-left::after {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(201,164,58,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(201,164,58,0.03) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+}
+
+.left-top { position: relative; z-index: 1; }
+.left-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; margin-bottom: 20px; }
+.left-logo img { height: 43px; width: auto; }
+
+.left-headline {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(32px, 3.5vw, 52px);
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  color: var(--white);
+  margin-bottom: 20px;
+}
+.left-headline em {
+  font-style: italic;
+  color: var(--gold);
+}
+
+.left-sub {
+  font-size: 15px;
+  color: rgba(255,255,255,0.4);
+  line-height: 1.7;
+  max-width: 380px;
+}
+
+.left-bottom { position: relative; z-index: 1; }
+.left-quote {
+  border-left: 2px solid rgba(201,164,58,0.4);
+  padding-left: 20px;
+}
+.left-quote-text {
+  font-size: 14px;
+  color: rgba(255,255,255,0.35);
+  line-height: 1.7;
+  font-style: italic;
+  margin-bottom: 10px;
+}
+.left-quote-author {
+  font-size: 12px;
+  color: var(--gold);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ── Lado direito — formulário ── */
+.login-right {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 56px;
+}
+
+.login-form-wrap {
+  width: 100%;
+  max-width: 400px;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.3);
+  text-decoration: none;
+  margin-bottom: 12px;
+  transition: color 0.2s;
+}
+.back-link:hover { color: var(--gold); }
+.back-link svg { flex-shrink: 0; }
+
+.form-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(26px, 3vw, 34px);
+  font-weight: 600;
+  color: var(--white);
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+.form-title em { font-style: italic; color: var(--gold); }
+.form-subtitle {
+  font-size: 14px;
+  color: rgba(255,255,255,0.35);
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+
+.glass-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 16px;
+  padding: 28px;
+}
+
+.form-group { margin-bottom: 20px; }
+.form-group:last-of-type { margin-bottom: 0; }
+
+.form-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 13px 16px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  font-size: 15px;
+  font-family: 'DM Sans', sans-serif;
+  color: var(--white);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.form-input:focus {
+  border-color: rgba(201,164,58,0.5);
+  box-shadow: 0 0 0 3px rgba(201,164,58,0.1);
+}
+.form-input::placeholder { color: rgba(255,255,255,0.2); }
+.form-input.error { border-color: rgba(239,68,68,0.6); }
+
+.form-error {
+  font-size: 12px;
+  color: #FCA5A5;
+  margin-top: 6px;
+  display: none;
+}
+
+/* ── Botão principal ── */
+.btn-primary {
+  width: 100%;
+  padding: 15px;
+  background: var(--gold);
+  color: var(--black);
+  border: none;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 24px;
+}
+.btn-primary:hover {
+  background: var(--gold-light);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(201,164,58,0.25);
+}
+.btn-primary:active { transform: translateY(0); box-shadow: none; }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+.btn-spinner {
+  width: 18px; height: 18px;
+  border: 2px solid rgba(14,14,14,0.25);
+  border-top-color: var(--black);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: none;
+}
+
+/* ── Estado de sucesso ── */
+.success-state {
+  display: none;
+  text-align: center;
+  padding: 32px 24px;
+}
+.success-icon {
+  width: 56px; height: 56px;
+  background: rgba(34,197,94,0.12);
+  border: 1px solid rgba(34,197,94,0.3);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 20px;
+  font-size: 24px;
+}
+.success-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--white);
+  margin-bottom: 10px;
+}
+.success-text {
+  font-size: 14px;
+  color: rgba(255,255,255,0.4);
+  line-height: 1.7;
+  margin-bottom: 24px;
+}
+.success-email-highlight {
+  color: var(--gold);
+  font-weight: 600;
+}
+
+/* ── Rodapé do form ── */
+.form-footer {
+  text-align: center;
+  margin-top: 20px;
+}
+.form-footer p {
+  font-size: 12px;
+  color: rgba(255,255,255,0.2);
+  line-height: 1.6;
+}
+.form-footer a {
+  color: var(--gold);
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+.form-footer a:hover { opacity: 0.75; }
+
+/* ── Toast ── */
+.toast {
+  position: fixed; bottom: 28px; left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: rgba(30,30,30,0.96);
+  border: 1px solid rgba(255,255,255,0.1);
+  backdrop-filter: blur(12px);
+  border-radius: 12px;
+  padding: 12px 20px;
+  font-size: 13.5px; font-weight: 500;
+  color: var(--white); white-space: nowrap; z-index: 999;
+  opacity: 0; transition: all 0.3s; pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.success { border-color: rgba(34,197,94,0.4); color: #4ade80; }
+.toast.error { border-color: rgba(239,68,68,0.4); color: #fca5a5; }
+
+/* ── Responsive ── */
+@media (max-width: 860px) {
+  .login-layout { grid-template-columns: 1fr; }
+  .login-left { display: none; }
+  .login-right { padding: 40px 24px; align-items: flex-start; padding-top: 48px; }
+  .login-form-wrap { max-width: 100%; }
+  .mobile-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    text-decoration: none;
+  }
+  .mobile-logo img { height: 38px; }
+}
+@media (min-width: 861px) {
+  .mobile-logo { display: none; }
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.fade-in { animation: fadeUp 0.4s ease both; }
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<div class="login-layout">
+
+  <!-- ════════════════════════════
+       LADO ESQUERDO — Decorativo
+  ════════════════════════════ -->
+  <div class="login-left">
+    <div class="left-top">
+      <a href="index.html" class="left-logo">
+        <img src="1.png" alt="Radar Relevantia">
+      </a>
+      <h2 class="left-headline">
+        O marketplace de<br>
+        <em>patrocínios</em><br>
+        estratégicos.
+      </h2>
+      <p class="left-sub">
+        Conectando marcas a ativos de alto impacto — com curadoria, dados e propósito.
+      </p>
+    </div>
+
+    <div class="left-bottom">
+      <div class="left-quote">
+        <p class="left-quote-text">
+          "O Radar mudou a forma como eu encontro parceiros de patrocínio. Tudo em um só lugar, com curadoria de verdade."
+        </p>
+        <span class="left-quote-author">Usuário do Radar Relevantia</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════
+       LADO DIREITO — Formulário
+  ════════════════════════════ -->
+  <div class="login-right">
+    <div class="login-form-wrap fade-in">
+
+      <!-- Logo mobile -->
+      <a href="index.html" class="mobile-logo">
+        <img src="1.png" alt="Radar Relevantia">
+      </a>
+
+      <!-- Voltar -->
+      <a href="login.html" class="back-link">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M10 3L5 8L10 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Voltar ao login
+      </a>
+
+      <h1 class="form-title">Recuperar<br><em>acesso</em></h1>
+      <p class="form-subtitle">Informe seu email e enviaremos um link para você criar uma nova senha.</p>
+
+      <!-- Formulário -->
+      <div class="glass-card" id="formCard">
+        <div class="form-group">
+          <label class="form-label" for="inputEmail">Email</label>
+          <input
+            type="email"
+            class="form-input"
+            id="inputEmail"
+            placeholder="seu@email.com"
+            autocomplete="email"
+            onkeydown="if(event.key==='Enter') enviarRecuperacao()"
+          >
+          <div class="form-error" id="errEmail">Digite um email válido.</div>
+        </div>
+      </div>
+
+      <!-- Estado de sucesso (oculto inicialmente) -->
+      <div class="glass-card success-state" id="successCard">
+        <div class="success-icon">✉️</div>
+        <div class="success-title">Email enviado!</div>
+        <p class="success-text">
+          Enviamos um link de recuperação para<br>
+          <span class="success-email-highlight" id="successEmail"></span>
+        </p>
+        <p class="success-text" style="font-size:12px;margin-bottom:0;">
+          Verifique sua caixa de entrada e a pasta de spam. O link expira em 1 hora.
+        </p>
+      </div>
+
+      <button class="btn-primary" id="btnEnviar" onclick="enviarRecuperacao()">
+        <span class="btn-spinner" id="spinnerEnviar"></span>
+        <span id="btnEnviarText">Enviar link de recuperação →</span>
+      </button>
+
+      <div class="form-footer">
+        <p>
+          Lembrou a senha? <a href="login.html">Voltar ao login</a>
+        </p>
+        <p style="margin-top: 16px;">
+          Dúvidas? Fale com <a href="mailto:hello@relevantia.com.br">hello@relevantia.com.br</a>
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+const SUPABASE_URL = 'https://bzckerazidgrkbpgqqee.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ6Y2tlcmF6aWRncmticGdxcWVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2MjczODksImV4cCI6MjA4ODIwMzM4OX0.HIVnwcGvKiYNGfVFEnP0Ik9kfOeXPB4c4BFqDpqFCS4';
+
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  setTimeout(() => { t.className = 'toast'; }, 3500);
+}
+
+async function enviarRecuperacao() {
+  const email = document.getElementById('inputEmail').value.trim();
+
+  document.getElementById('errEmail').style.display = 'none';
+  document.getElementById('inputEmail').classList.remove('error');
+
+  if (!email || !email.includes('@')) {
+    document.getElementById('errEmail').style.display = 'block';
+    document.getElementById('inputEmail').classList.add('error');
+    document.getElementById('inputEmail').focus();
+    return;
+  }
+
+  const btn     = document.getElementById('btnEnviar');
+  const spinner = document.getElementById('spinnerEnviar');
+  const label   = document.getElementById('btnEnviarText');
+  btn.disabled  = true;
+  spinner.style.display = 'block';
+  label.textContent = 'Enviando...';
+
+  try {
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/send-password-reset`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_KEY
+      },
+      body: JSON.stringify({ email })
+    });
+
+    // Sempre mostramos o estado de sucesso, mesmo se o email não existir
+    // (evita revelar quais emails estão cadastrados)
+    document.getElementById('formCard').style.display = 'none';
+    document.getElementById('successEmail').textContent = email;
+    document.getElementById('successCard').style.display = 'block';
+    btn.style.display = 'none';
+
+  } catch (e) {
+    showToast('Erro de conexão. Tente novamente.', 'error');
+    btn.disabled = false;
+    spinner.style.display = 'none';
+    label.textContent = 'Enviar link de recuperação →';
+  }
+}
+</script>
+</body>
+</html>
