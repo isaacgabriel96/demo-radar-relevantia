@@ -1,0 +1,129 @@
+<!--
+  Radar Relevantia - Logo Animado
+  Cola esse código num componente "Embed" ou "Custom Code" no Framer.
+  Ou usa direto como <iframe> em qualquer site.
+-->
+<style>
+  @keyframes sweep {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  @keyframes dot1 {
+    0%, 100% { opacity: 0.06; }
+    28%, 48% { opacity: 1; }
+  }
+  @keyframes dot2 {
+    0%, 100% { opacity: 0.06; }
+    48%, 66% { opacity: 1; }
+  }
+  @keyframes dot3 {
+    0%, 100% { opacity: 0.06; }
+    66%, 80% { opacity: 1; }
+  }
+  .radar-wrapper {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+  }
+  .radar-sweep {
+    transform-origin: 140px 140px;
+    animation: sweep 5s linear infinite;
+  }
+  .radar-dot1 { animation: dot1 5s linear infinite; }
+  .radar-dot2 { animation: dot2 5s linear infinite; }
+  .radar-dot3 { animation: dot3 5s linear infinite; }
+</style>
+
+<div class="radar-wrapper">
+  <svg width="100%" viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="base" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#6b5a14"/>
+        <stop offset="20%" stop-color="#504510"/>
+        <stop offset="40%" stop-color="#3a340c"/>
+        <stop offset="60%" stop-color="#282208"/>
+        <stop offset="80%" stop-color="#181404"/>
+        <stop offset="100%" stop-color="#0a0802"/>
+      </radialGradient>
+      <linearGradient id="swG" x1="0.5" y1="0" x2="0" y2="0.5">
+        <stop offset="0%" stop-color="#c8a428" stop-opacity="0.28"/>
+        <stop offset="100%" stop-color="#c8a428" stop-opacity="0"/>
+      </linearGradient>
+      <clipPath id="dc"><circle cx="140" cy="140" r="118"/></clipPath>
+    </defs>
+
+    <!-- Base -->
+    <circle cx="140" cy="140" r="121" fill="#060502"/>
+    <circle cx="140" cy="140" r="118" fill="url(#base)"/>
+
+    <!-- Textura: anéis concêntricos finos -->
+    <g clip-path="url(#dc)">
+      <circle cx="140" cy="140" r="116" fill="none" stroke="#9a8828" stroke-width="0.5" opacity="0.55"/>
+      <circle cx="140" cy="140" r="112.8" fill="none" stroke="#9a8828" stroke-width="0.45" opacity="0.52"/>
+      <circle cx="140" cy="140" r="109.6" fill="none" stroke="#9a8828" stroke-width="0.45" opacity="0.50"/>
+      <circle cx="140" cy="140" r="106.4" fill="none" stroke="#9a8828" stroke-width="0.45" opacity="0.48"/>
+      <circle cx="140" cy="140" r="103.2" fill="none" stroke="#9a8828" stroke-width="0.45" opacity="0.48"/>
+      <circle cx="140" cy="140" r="100" fill="none" stroke="#9a8828" stroke-width="0.45" opacity="0.50"/>
+      <circle cx="140" cy="140" r="96.8" fill="none" stroke="#9a8828" stroke-width="0.45" opacity="0.50"/>
+      <circle cx="140" cy="140" r="93.6" fill="none" stroke="#9a8828" stroke-width="0.45" opacity="0.52"/>
+      <circle cx="140" cy="140" r="90.4" fill="none" stroke="#9a8828" stroke-width="0.45" opacity="0.52"/>
+      <circle cx="140" cy="140" r="87.2" fill="none" stroke="#9a8828" stroke-width="0.45" opacity="0.54"/>
+      <circle cx="140" cy="140" r="84" fill="none" stroke="#9a8828" stroke-width="0.45" opacity="0.54"/>
+      <circle cx="140" cy="140" r="80.8" fill="none" stroke="#9a8828" stroke-width="0.45" opacity="0.56"/>
+      <circle cx="140" cy="140" r="77.6" fill="none" stroke="#9a8828" stroke-width="0.45" opacity="0.56"/>
+      <circle cx="140" cy="140" r="74.4" fill="none" stroke="#9a8828" stroke-width="0.45" opacity="0.58"/>
+      <circle cx="140" cy="140" r="71.2" fill="none" stroke="#9a8828" stroke-width="0.45" opacity="0.58"/>
+      <circle cx="140" cy="140" r="68" fill="none" stroke="#9a8828" stroke-width="0.45" opacity="0.60"/>
+      <circle cx="140" cy="140" r="64.8" fill="none" stroke="#9a8828" stroke-width="0.45" opacity="0.60"/>
+      <circle cx="140" cy="140" r="61.6" fill="none" stroke="#9a8828" stroke-width="0.45" opacity="0.62"/>
+      <circle cx="140" cy="140" r="58.4" fill="none" stroke="#9a8828" stroke-width="0.45" opacity="0.62"/>
+      <circle cx="140" cy="140" r="55.2" fill="none" stroke="#9a8828" stroke-width="0.45" opacity="0.64"/>
+      <circle cx="140" cy="140" r="52" fill="none" stroke="#9a8828" stroke-width="0.45" opacity="0.64"/>
+      <circle cx="140" cy="140" r="48.8" fill="none" stroke="#9a8828" stroke-width="0.45" opacity="0.66"/>
+      <circle cx="140" cy="140" r="45.6" fill="none" stroke="#9a8828" stroke-width="0.45" opacity="0.66"/>
+      <circle cx="140" cy="140" r="42.4" fill="none" stroke="#9a8828" stroke-width="0.45" opacity="0.68"/>
+      <circle cx="140" cy="140" r="39.2" fill="none" stroke="#9a8828" stroke-width="0.45" opacity="0.68"/>
+      <circle cx="140" cy="140" r="36" fill="none" stroke="#9a8828" stroke-width="0.45" opacity="0.70"/>
+      <circle cx="140" cy="140" r="32.8" fill="none" stroke="#9a8828" stroke-width="0.45" opacity="0.70"/>
+      <circle cx="140" cy="140" r="29.6" fill="none" stroke="#9a8828" stroke-width="0.45" opacity="0.72"/>
+      <circle cx="140" cy="140" r="26.4" fill="none" stroke="#9a8828" stroke-width="0.45" opacity="0.72"/>
+      <circle cx="140" cy="140" r="23.2" fill="none" stroke="#9a8828" stroke-width="0.45" opacity="0.74"/>
+      <circle cx="140" cy="140" r="20" fill="none" stroke="#9a8828" stroke-width="0.45" opacity="0.74"/>
+      <circle cx="140" cy="140" r="16.8" fill="none" stroke="#9a8828" stroke-width="0.45" opacity="0.76"/>
+      <circle cx="140" cy="140" r="13.6" fill="none" stroke="#9a8828" stroke-width="0.45" opacity="0.76"/>
+      <circle cx="140" cy="140" r="10.4" fill="none" stroke="#9a8828" stroke-width="0.45" opacity="0.78"/>
+      <circle cx="140" cy="140" r="7.2" fill="none" stroke="#9a8828" stroke-width="0.45" opacity="0.78"/>
+      <!-- Hexágono central -->
+      <polygon points="140,135.5 136,140 140,144.5 144,140" fill="none" stroke="#a09028" stroke-width="0.6" opacity="0.7"/>
+    </g>
+
+    <!-- 5 círculos principais -->
+    <circle cx="140" cy="140" r="118" fill="none" stroke="#b89824" stroke-width="1.6" opacity="0.65"/>
+    <circle cx="140" cy="140" r="103" fill="none" stroke="#b89824" stroke-width="1.1" opacity="0.55"/>
+    <circle cx="140" cy="140" r="80" fill="none" stroke="#b89824" stroke-width="1.1" opacity="0.50"/>
+    <circle cx="140" cy="140" r="52" fill="none" stroke="#b89824" stroke-width="1.1" opacity="0.45"/>
+    <circle cx="140" cy="140" r="26" fill="none" stroke="#b89824" stroke-width="1.1" opacity="0.42"/>
+
+    <!-- Crosshair -->
+    <line x1="140" y1="22" x2="140" y2="258" stroke="#b89824" stroke-width="0.8" opacity="0.55"/>
+    <line x1="22" y1="140" x2="258" y2="140" stroke="#b89824" stroke-width="0.8" opacity="0.55"/>
+
+    <!-- Sweep animado -->
+    <g clip-path="url(#dc)">
+      <g class="radar-sweep">
+        <path d="M140 140 L140 22 A118 118 0 0 1 223.5 53.5 Z" fill="url(#swG)"/>
+        <path d="M140 140 L190 28 A118 118 0 0 0 140 22 Z" fill="#c8a428" opacity="0.16"/>
+        <line x1="140" y1="140" x2="140" y2="22" stroke="#c8a428" stroke-width="1.8" opacity="0.7"/>
+      </g>
+    </g>
+
+    <!-- Ponto central -->
+    <circle cx="140" cy="140" r="3" fill="#1a1608" stroke="#b89824" stroke-width="0.6" opacity="0.7"/>
+
+    <!-- Pontos de detecção -->
+    <circle cx="190" cy="72" r="5" fill="#d8c890" class="radar-dot1"/>
+    <circle cx="82" cy="170" r="5" fill="#d8c890" class="radar-dot2"/>
+    <circle cx="222" cy="195" r="5" fill="#d8c890" class="radar-dot3"/>
+  </svg>
+</div>
