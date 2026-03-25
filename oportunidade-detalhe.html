@@ -210,7 +210,7 @@ a { text-decoration: none; color: inherit; }
 }
 .gallery-strip-track {
   display: flex;
-  gap: 8px;
+  gap: 0;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
@@ -272,7 +272,8 @@ a { text-decoration: none; color: inherit; }
 .cota-price { font-size: 13px; color: var(--gold); font-weight: 600; }
 
 /* Entregas table */
-.entregas-table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 16px; border: 1px solid var(--gray-200); border-radius: var(--radius); overflow: hidden; font-size: 13px; }
+.entregas-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 16px; border-radius: var(--radius); border: 1px solid var(--gray-200); }
+.entregas-table { width: 100%; border-collapse: collapse; border-spacing: 0; font-size: 13px; min-width: 480px; }
 .entregas-table thead th { background: var(--gray-100); padding: 11px 14px; text-align: left; font-weight: 600; color: var(--gray-600); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; }
 .entregas-table tbody td { padding: 12px 14px; border-top: 1px solid var(--gray-200); color: var(--gray-600); }
 .entregas-table tbody tr:hover { background: rgba(184,134,11,0.03); }
@@ -537,62 +538,95 @@ a { text-decoration: none; color: inherit; }
 @media (max-width: 1024px) {
   .detail-body { grid-template-columns: 1fr; }
   .opp-cards-grid { grid-template-columns: repeat(2, 1fr); }
-  /* gallery desktop oculta, strip mobile ativa */
   .detail-gallery { display: none; }
-  .gallery-mobile-strip { display: block; margin-bottom: 20px; }
+  .gallery-mobile-strip { display: block; }
   .detail-wrap { padding-bottom: 120px; }
+  /* entregas: scroll horizontal em telas menores */
+  .entregas-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 }
+
 @media (max-width: 768px) {
+  /* ── Sidebar / topbar ── */
   .sidebar { transform: translateX(-100%); }
   .sidebar.open { transform: translateX(0); }
   .sidebar-overlay.open { display: block; }
   .topbar { left: 0; }
   .topbar-inner { padding: 0 16px; }
-  .topbar-breadcrumb strong { max-width: 140px; }
+  .topbar-breadcrumb strong { max-width: 130px; }
   .topbar-breadcrumb a:first-child { display: none; }
   .topbar-sep:first-of-type { display: none; }
   .hamburger { display: flex; }
   .main { margin-left: 0; }
-  /* detail-wrap: sem padding lateral — galeria vai de borda a borda */
-  .detail-wrap { padding: 0 0 120px; }
-  /* conteúdo interno com padding horizontal, exceto galeria */
-  .detail-header,
-  .detail-body,
-  .owner-section,
-  .similar-section { padding-left: 16px; padding-right: 16px; }
-  .detail-header { flex-direction: column; gap: 10px; padding-top: 20px; }
-  .detail-header-actions { align-self: flex-end; margin-top: -8px; }
-  .detail-title { font-size: 22px; }
-  .detail-meta { gap: 10px; }
-  /* strip mobile ocupa 100% */
-  .gallery-mobile-strip { margin-left: 0; margin-right: 0; }
-  .gallery-strip-item { height: 220px; border-radius: 0; }
-  .gallery-strip-dots { padding: 0 16px; }
+
+  /* ── Wrap principal: padding uniforme 16px, galeria usa margem negativa ── */
+  .detail-wrap { padding: 0 16px 120px; }
+
+  /* ── Galeria edge-to-edge (margem negativa compensa o padding do wrap) ── */
+  .gallery-mobile-strip { margin-left: -16px; margin-right: -16px; margin-bottom: 24px; }
   .gallery-strip-track { gap: 0; }
-  .detail-facts { grid-template-columns: 1fr 1fr; }
-  .cotas-grid { grid-template-columns: 1fr 1fr; }
-  .ativacoes-grid { grid-template-columns: 1fr 1fr; }
-  .canais-grid { grid-template-columns: 1fr; }
-  .opp-cards-grid { grid-template-columns: 1fr 1fr; }
-  .owner-card { flex-direction: column; gap: 16px; padding: 20px; }
-  .owner-stats { gap: 14px; }
-  .owner-section { margin-top: 36px; padding-top: 36px; }
-  .similar-section { margin-top: 36px; padding-top: 36px; }
+  .gallery-strip-item { height: 220px; border-radius: 0; }
+  .gallery-strip-dots { padding: 8px 16px 0; }
+
+  /* ── Header ── */
+  .detail-header { flex-direction: column; gap: 8px; padding-top: 20px; margin-bottom: 20px; }
+  .detail-header-actions { align-self: flex-end; }
+  .detail-title { font-size: 22px; }
+  .detail-meta { gap: 10px; flex-wrap: wrap; }
+
+  /* ── Body / tabs ── */
+  .detail-body { gap: 0; }
+  .detail-tabs { margin-left: -16px; margin-right: -16px; padding: 0 16px; }
+  .tab-btn { padding: 10px 12px; font-size: 13px; }
+
+  /* ── Conteúdo das tabs ── */
+  .detail-section { margin-bottom: 24px; }
   .detail-section-title { font-size: 16px; }
-  .entregas-table { font-size: 12px; }
-  .entregas-table thead th, .entregas-table tbody td { padding: 9px 10px; }
+  .detail-facts { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .fact-item { padding: 12px; }
+  .cotas-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+  .ativacoes-grid { grid-template-columns: 1fr; gap: 10px; }
+  .canais-grid { grid-template-columns: 1fr; }
+  .entregas-wrap { margin-left: -16px; margin-right: -16px; }
+  .entregas-table { border-radius: 0; border-left: none; border-right: none; font-size: 12px; }
+  .entregas-table thead th,
+  .entregas-table tbody td { padding: 9px 12px; }
+
+  /* ── Owner section ── */
+  .owner-section { margin-top: 32px; padding-top: 32px; }
+  .owner-section-title { font-size: 18px; margin-bottom: 16px; }
+  .owner-card { flex-direction: column; gap: 16px; padding: 20px; margin-bottom: 24px; }
+  .owner-avatar { width: 56px; height: 56px; font-size: 20px; }
+  .owner-name { font-size: 17px; }
+  .owner-bio { font-size: 13px; margin-bottom: 12px; }
+  .owner-stats { gap: 16px; }
+  .owner-stat-val { font-size: 15px; }
+  .owner-opps-title { font-size: 15px; margin-bottom: 14px; }
+
+  /* ── Similares ── */
+  .similar-section { margin-top: 32px; padding-top: 32px; }
+  .similar-title { font-size: 18px; margin-bottom: 16px; }
+
+  /* ── Cards grid ── */
+  .opp-cards-grid { grid-template-columns: 1fr 1fr; gap: 14px; }
+  .opp-card-image { height: 140px; }
+  .opp-card-body { padding: 14px; }
+  .opp-card-title { font-size: 13px; }
+  .opp-card-desc { display: none; } /* remove desc em mobile para não sobrecarregar */
 }
+
 @media (max-width: 480px) {
-  .detail-header,
-  .detail-body,
-  .owner-section,
-  .similar-section { padding-left: 14px; padding-right: 14px; }
+  .detail-wrap { padding: 0 14px 120px; }
+  .gallery-mobile-strip { margin-left: -14px; margin-right: -14px; }
+  .gallery-strip-dots { padding: 8px 14px 0; }
+  .detail-tabs { margin-left: -14px; margin-right: -14px; padding: 0 14px; }
+  .entregas-wrap { margin-left: -14px; margin-right: -14px; }
   .detail-title { font-size: 20px; }
   .gallery-strip-item { height: 200px; }
   .detail-facts { grid-template-columns: 1fr; }
   .cotas-grid { grid-template-columns: 1fr; }
-  .ativacoes-grid { grid-template-columns: 1fr; }
   .opp-cards-grid { grid-template-columns: 1fr; }
+  .opp-card-image { height: 160px; }
+  .opp-card-desc { display: -webkit-box; } /* volta a mostrar em 1 coluna */
   .mobile-cta-bar .btn-interest,
   .mobile-cta-bar .btn-contact { font-size: 13px; padding: 13px 10px; }
 }
@@ -822,10 +856,12 @@ a { text-decoration: none; color: inherit; }
               </div>
               <div class="detail-section">
                 <h3 class="detail-section-title">Formatos comerciais incluídos</h3>
-                <table class="entregas-table">
-                  <thead><tr><th>Entrega</th><th>Formato</th><th>Canal</th><th>Descrição</th></tr></thead>
-                  <tbody id="entregasBody"></tbody>
-                </table>
+                <div class="entregas-wrap">
+                  <table class="entregas-table">
+                    <thead><tr><th>Entrega</th><th>Formato</th><th>Canal</th><th>Descrição</th></tr></thead>
+                    <tbody id="entregasBody"></tbody>
+                  </table>
+                </div>
               </div>
             </div>
 
