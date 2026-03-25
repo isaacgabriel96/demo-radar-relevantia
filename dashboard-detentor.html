@@ -255,6 +255,82 @@ tbody tr:last-child td { border-bottom: none; }
 .badge-blue { background: var(--blue-bg); color: #1E40AF; border: 1px solid var(--blue-border); }
 .badge-gold { background: rgba(184,134,11,0.1); color: var(--gold); border: 1px solid rgba(184,134,11,0.2); }
 
+/* ─── SUB-ABAS (Oportunidades / Negociações) ─── */
+.sub-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--gray-200); margin-bottom: 20px; }
+.sub-tab { background: none; border: none; border-bottom: 2px solid transparent; padding: 10px 18px; font-family: var(--font-body); font-size: 13px; font-weight: 500; color: var(--gray-400); cursor: pointer; transition: all 0.15s; white-space: nowrap; display: flex; align-items: center; gap: 7px; margin-bottom: -1px; }
+.sub-tab:hover { color: var(--text); }
+.sub-tab.active { color: var(--text); border-bottom-color: var(--gold); font-weight: 600; }
+.sub-tab-badge { background: var(--gold-pale); color: var(--gold); border: 1px solid rgba(184,134,11,0.2); border-radius: 100px; font-size: 10px; font-weight: 700; padding: 1px 7px; }
+.sub-tab.active .sub-tab-badge { background: var(--gold); color: var(--white); border-color: var(--gold); }
+.sub-panel { display: none; }
+.sub-panel.active { display: block; }
+
+/* ─── FILTRO OPORTUNIDADE ─── */
+.neg-filter-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+.neg-filter-label { font-size: 12px; font-weight: 600; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+.neg-filter-select { border: 1.5px solid var(--gray-200); border-radius: 8px; padding: 7px 32px 7px 12px; font-family: var(--font-body); font-size: 13px; color: var(--text); background: var(--white); outline: none; cursor: pointer; transition: border-color 0.15s; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; }
+.neg-filter-select:focus { border-color: var(--gold); }
+.neg-count { font-size: 12px; color: var(--gray-400); margin-left: auto; }
+
+/* ─── MODAL NEGOCIAÇÃO (detentor) ─── */
+.modal-overlay-det { position: fixed; inset: 0; background: rgba(30,22,0,0.45); backdrop-filter: blur(4px); z-index: 500; display: none; align-items: center; justify-content: center; padding: 20px; }
+.modal-overlay-det.open { display: flex; }
+.modal-neg { background: var(--white); border-radius: 16px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(30,22,0,0.18); }
+.modal-neg-header { padding: 22px 24px 0; display: flex; justify-content: space-between; align-items: flex-start; }
+.modal-neg-title { font-family: var(--font-heading); font-size: 18px; font-weight: 600; color: var(--black); }
+.modal-neg-opp { font-size: 12px; color: var(--gray-400); margin-top: 2px; }
+.modal-neg-close { background: var(--gray-100); border: none; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center; color: var(--gray-500); flex-shrink: 0; transition: background 0.15s; }
+.modal-neg-close:hover { background: var(--gray-200); color: var(--black); }
+.modal-neg-body { padding: 20px 24px 24px; }
+.modal-neg-from { display: flex; align-items: center; gap: 10px; background: var(--gray-1); border-radius: 10px; padding: 10px 14px; margin-bottom: 16px; }
+.modal-neg-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--gold-gradient); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--black); flex-shrink: 0; }
+.modal-neg-from-info { display: flex; flex-direction: column; gap: 1px; }
+.modal-neg-from-name { font-size: 12px; font-weight: 600; color: var(--black); }
+.modal-neg-from-tag { font-size: 11px; color: var(--gray-400); }
+.modal-neg-rows { display: flex; flex-direction: column; border: 1px solid var(--gray-200); border-radius: 10px; overflow: hidden; margin-bottom: 14px; }
+.modal-neg-row { display: flex; align-items: flex-start; gap: 12px; padding: 11px 14px; border-bottom: 1px solid var(--gray-200); }
+.modal-neg-row:last-child { border-bottom: none; }
+.modal-neg-row-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--gray-400); min-width: 80px; padding-top: 1px; }
+.modal-neg-row-value { font-size: 13px; color: var(--text); line-height: 1.5; }
+.modal-neg-msg { background: var(--gray-1); border-radius: 10px; padding: 12px 14px; font-size: 13px; color: var(--text); line-height: 1.6; font-style: italic; margin-bottom: 14px; border-left: 3px solid var(--gray-300); }
+.modal-neg-divider { border: none; border-top: 1px solid var(--gray-200); margin: 14px 0; }
+.modal-neg-actions { display: flex; gap: 10px; }
+.modal-neg-status-select { flex: 1; border: 1.5px solid var(--gray-200); border-radius: 8px; padding: 10px 12px; font-family: var(--font-body); font-size: 13px; color: var(--text); background: var(--white); outline: none; cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; transition: border-color 0.15s; }
+.modal-neg-status-select:focus { border-color: var(--gold); }
+.btn-neg-save { background: var(--black); color: var(--white); border: none; padding: 10px 20px; border-radius: 100px; font-family: var(--font-body); font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s; white-space: nowrap; }
+.btn-neg-save:hover { background: var(--gold); color: var(--black); }
+
+/* ─── NEG STATUS BADGES ─── */
+.neg-status { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 100px; font-size: 11px; font-weight: 600; letter-spacing: 0.04em; }
+.neg-status-pendente  { background: #FFF8E1; color: #B45309; border: 1px solid rgba(180,83,9,0.2); }
+.neg-status-aceita    { background: #ECFDF5; color: #059669; border: 1px solid rgba(5,150,105,0.2); }
+.neg-status-analise   { background: #EFF6FF; color: #2563EB; border: 1px solid rgba(37,99,235,0.2); }
+.neg-status-recusada  { background: #FEF2F2; color: #DC2626; border: 1px solid rgba(220,38,38,0.2); }
+
+/* ─── BTN SM OUTLINE ─── */
+.btn-sm-outline { background: transparent; border: 1.5px solid var(--gray-200); color: var(--text); padding: 5px 14px; border-radius: 100px; font-size: 12px; font-weight: 600; font-family: var(--font-body); cursor: pointer; transition: all 0.15s; }
+.btn-sm-outline:hover { border-color: var(--gold); color: var(--gold); }
+
+/* ─── MODAL NEG HEADER CLOSE ─── */
+.modal-close-det { background: var(--gray-100); border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center; color: var(--gray-500); flex-shrink: 0; transition: background 0.15s; }
+.modal-close-det:hover { background: var(--gray-200); color: var(--black); }
+.modal-neg-action { margin-top: 4px; }
+
+/* ─── STATUS VARIANTS IN NEG MODAL ─── */
+.modal-neg-status { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 10px; margin-bottom: 16px; font-size: 13px; }
+.modal-neg-status.pendente  { background: #FFF8E1; }
+.modal-neg-status.aceita    { background: #ECFDF5; }
+.modal-neg-status.analise   { background: #EFF6FF; }
+.modal-neg-status.recusada  { background: #FEF2F2; }
+.modal-neg-status-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.modal-neg-status.pendente  .modal-neg-status-dot { background: #B45309; }
+.modal-neg-status.aceita    .modal-neg-status-dot { background: #059669; }
+.modal-neg-status.analise   .modal-neg-status-dot { background: #2563EB; }
+.modal-neg-status.recusada  .modal-neg-status-dot { background: #DC2626; }
+.modal-neg-status-label { font-weight: 700; color: var(--black); }
+.modal-neg-status-hint  { font-size: 12px; color: var(--gray-400); margin-left: 2px; }
+.modal-neg-next { font-size: 12px; color: var(--gray-400); background: var(--gray-1); border-radius: 8px; padding: 10px 12px; line-height: 1.5; margin-top: 14px; }
+
 /* ─── EMPTY STATE ─── */
 .empty-state {
   text-align: center; padding: 48px 24px;
@@ -557,7 +633,7 @@ tbody tr:last-child td { border-bottom: none; }
       <div class="page-header">
         <div class="page-header-left">
           <h1 class="page-title">Minhas Oportunidades</h1>
-          <p class="page-subtitle">Publique e acompanhe seus ativos</p>
+          <p class="page-subtitle">Publique, acompanhe e gerencie negociações</p>
         </div>
         <a href="criar-oportunidade.html" class="btn btn-gold">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:16px;height:16px"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
@@ -566,47 +642,98 @@ tbody tr:last-child td { border-bottom: none; }
       </div>
       <p class="page-subtitle-mobile" style="display:none;font-size:14px;color:var(--gray-500);margin-top:6px;margin-bottom:28px;line-height:1.5">Publique e acompanhe seus ativos</p>
 
-      <div class="card">
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Título</th>
-                <th>Categoria</th>
-                <th>Status</th>
-                <th>Interesses</th>
-                <th>Criada em</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td style="font-weight:600">Maratona de São Paulo 2026</td>
-                <td><span class="badge badge-blue">Esporte</span></td>
-                <td><span class="badge badge-green">Publicada</span></td>
-                <td style="font-weight:600">4</td>
-                <td style="color:var(--gray-400)">18 mar 2026</td>
-                <td><a href="oportunidade-detalhe.html?id=1" class="btn btn-ghost btn-sm">Ver →</a></td>
-              </tr>
-              <tr>
-                <td style="font-weight:600">Naming Rights — Arena Esportiva</td>
-                <td><span class="badge badge-blue">Esporte</span></td>
-                <td><span class="badge badge-green">Publicada</span></td>
-                <td style="font-weight:600">6</td>
-                <td style="color:var(--gray-400)">20 mar 2026</td>
-                <td><a href="oportunidade-detalhe.html?id=2" class="btn btn-ghost btn-sm">Ver →</a></td>
-              </tr>
-              <tr>
-                <td style="font-weight:600">Festival Cultural do Recife</td>
-                <td><span class="badge badge-gold">Cultura</span></td>
-                <td><span class="badge badge-orange">Rascunho</span></td>
-                <td style="font-weight:600;color:var(--gray-400)">—</td>
-                <td style="color:var(--gray-400)">21 mar 2026</td>
-                <td><a href="criar-oportunidade.html?edit=3" class="btn btn-ghost btn-sm">Editar →</a></td>
-              </tr>
-            </tbody>
-          </table>
+      <!-- Sub-abas -->
+      <div class="sub-tabs">
+        <button class="sub-tab active" id="subtab-publicadas" onclick="switchSubTab('publicadas')">
+          Publicadas
+          <span class="sub-tab-badge">3</span>
+        </button>
+        <button class="sub-tab" id="subtab-negociacoes" onclick="switchSubTab('negociacoes')">
+          Negociações
+          <span class="sub-tab-badge" id="neg-badge-count">10</span>
+        </button>
+      </div>
+
+      <!-- Painel: Publicadas -->
+      <div class="sub-panel active" id="subpanel-publicadas">
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Título</th>
+                  <th>Categoria</th>
+                  <th>Status</th>
+                  <th>Interesses</th>
+                  <th>Criada em</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="font-weight:600">Maratona de São Paulo 2026</td>
+                  <td><span class="badge badge-blue">Esporte</span></td>
+                  <td><span class="badge badge-green">Publicada</span></td>
+                  <td style="font-weight:600">4</td>
+                  <td style="color:var(--gray-400)">18 mar 2026</td>
+                  <td><a href="oportunidade-detalhe.html?id=1" class="btn btn-ghost btn-sm">Ver →</a></td>
+                </tr>
+                <tr>
+                  <td style="font-weight:600">Naming Rights — Arena Esportiva</td>
+                  <td><span class="badge badge-blue">Esporte</span></td>
+                  <td><span class="badge badge-green">Publicada</span></td>
+                  <td style="font-weight:600">6</td>
+                  <td style="color:var(--gray-400)">20 mar 2026</td>
+                  <td><a href="oportunidade-detalhe.html?id=2" class="btn btn-ghost btn-sm">Ver →</a></td>
+                </tr>
+                <tr>
+                  <td style="font-weight:600">Festival Cultural do Recife</td>
+                  <td><span class="badge badge-gold">Cultura</span></td>
+                  <td><span class="badge badge-orange">Rascunho</span></td>
+                  <td style="font-weight:600;color:var(--gray-400)">—</td>
+                  <td style="color:var(--gray-400)">21 mar 2026</td>
+                  <td><a href="criar-oportunidade.html?edit=3" class="btn btn-ghost btn-sm">Editar →</a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
+      </div>
+
+      <!-- Painel: Negociações -->
+      <div class="sub-panel" id="subpanel-negociacoes">
+
+        <!-- Filtro por oportunidade -->
+        <div class="neg-filter-bar">
+          <span class="neg-filter-label">Oportunidade</span>
+          <select class="neg-filter-select" id="neg-filter" onchange="filterNegociacoes()">
+            <option value="">Todas</option>
+            <option value="1">Maratona Internacional SP 2026</option>
+            <option value="2">Festival Cultura Viva 2026</option>
+          </select>
+          <span class="neg-count" id="neg-count-label">10 negociações</span>
+        </div>
+
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Marca</th>
+                  <th>Oportunidade</th>
+                  <th>Assunto</th>
+                  <th>Status</th>
+                  <th>Recebida em</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="neg-tbody">
+                <!-- preenchido por JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -960,6 +1087,184 @@ function showToast(message, type = 'success') {
 
 // ─── START ───
 init();
+
+// ─── NEGOCIAÇÕES ───
+const NEGOCIACOES = [
+  { id:1,  opp_id:1, opp:'Maratona Internacional SP 2026', marca:'Nike Brasil',         cota:'Patrocinador Premium',   assunto:'Quero negociar esta cota',                         mensagem:'Temos grande interesse em fortalecer nossa presença neste evento. Gostaríamos de entender os entregáveis e condições de pagamento.',  enviadaEm:'15/03/2026', status:'pendente',  statusLabel:'Pendente'   },
+  { id:2,  opp_id:1, opp:'Maratona Internacional SP 2026', marca:'Adidas Brasil',       cota:'Patrocinador Oficial',   assunto:'Gostaria de fazer uma proposta',                   mensagem:'Podemos oferecer contrapartidas adicionais de mídia digital.',                                                                          enviadaEm:'14/03/2026', status:'aceita',    statusLabel:'Aceita'     },
+  { id:3,  opp_id:1, opp:'Maratona Internacional SP 2026', marca:'Gatorade',            cota:'Cota Saúde',             assunto:'Tenho interesse, mas preciso de mais informações',  mensagem:'',                                                                                                                                     enviadaEm:'13/03/2026', status:'analise',   statusLabel:'Em análise' },
+  { id:4,  opp_id:1, opp:'Maratona Internacional SP 2026', marca:'New Balance',         cota:'Patrocinador Premium',   assunto:'Quero negociar esta cota',                         mensagem:'Somos parceiros históricos de maratonas no Brasil.',                                                                                    enviadaEm:'12/03/2026', status:'pendente',  statusLabel:'Pendente'   },
+  { id:5,  opp_id:1, opp:'Maratona Internacional SP 2026', marca:'Under Armour',        cota:'Patrocinador Oficial',   assunto:'Gostaria de fazer uma proposta',                   mensagem:'',                                                                                                                                     enviadaEm:'11/03/2026', status:'recusada',  statusLabel:'Recusada'   },
+  { id:6,  opp_id:2, opp:'Festival Cultura Viva 2026',     marca:'Natura',              cota:'Patrocínio Cultural',    assunto:'Quero entender as possibilidades',                 mensagem:'Temos interesse em associar nossa marca a eventos culturais de impacto.',                                                              enviadaEm:'10/03/2026', status:'pendente',  statusLabel:'Pendente'   },
+  { id:7,  opp_id:2, opp:'Festival Cultura Viva 2026',     marca:'Itaú Cultural',       cota:'Patrocínio Cultural',    assunto:'Gostaria de fazer uma proposta',                   mensagem:'Buscamos parceiros alinhados ao nosso posicionamento cultural.',                                                                        enviadaEm:'09/03/2026', status:'aceita',    statusLabel:'Aceita'     },
+  { id:8,  opp_id:2, opp:'Festival Cultura Viva 2026',     marca:'Vivo',                cota:'Naming Rights',          assunto:'Quero entender as possibilidades',                 mensagem:'Gostaríamos de explorar o naming rights do festival.',                                                                                  enviadaEm:'08/03/2026', status:'analise',   statusLabel:'Em análise' },
+  { id:9,  opp_id:2, opp:'Festival Cultura Viva 2026',     marca:'Magazine Luiza',      cota:'Patrocínio Cultural',    assunto:'Tenho interesse, mas preciso de mais informações', mensagem:'',                                                                                                                                     enviadaEm:'07/03/2026', status:'pendente',  statusLabel:'Pendente'   },
+  { id:10, opp_id:2, opp:'Festival Cultura Viva 2026',     marca:'Ambev',               cota:'Naming Rights',          assunto:'Outro assunto',                                   mensagem:'Podemos conversar sobre uma parceria diferenciada?',                                                                                    enviadaEm:'06/03/2026', status:'pendente',  statusLabel:'Pendente'   }
+];
+
+function switchSubTab(tab) {
+  document.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.sub-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('subtab-' + tab).classList.add('active');
+  document.getElementById('subpanel-' + tab).classList.add('active');
+}
+
+function renderNegociacoes(data) {
+  const tbody = document.getElementById('neg-tbody');
+  if (!tbody) return;
+  if (data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--gray-3);padding:32px 0;">Nenhuma negociação encontrada.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = data.map(n => {
+    const statusClass = { pendente:'neg-status-pendente', aceita:'neg-status-aceita', analise:'neg-status-analise', recusada:'neg-status-recusada' }[n.status] || '';
+    return `<tr>
+      <td style="font-weight:500">${n.marca}</td>
+      <td style="color:var(--gray-4);font-size:13px">${n.opp}</td>
+      <td style="color:var(--gray-4);font-size:13px;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${n.assunto}</td>
+      <td><span class="neg-status ${statusClass}">${n.statusLabel}</span></td>
+      <td style="color:var(--gray-4);font-size:13px">${n.enviadaEm}</td>
+      <td style="text-align:right"><button class="btn-sm-outline" onclick="openNegModal(${n.id})">Ver</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function filterNegociacoes() {
+  const val = document.getElementById('neg-filter') ? document.getElementById('neg-filter').value : '';
+  const filtered = val ? NEGOCIACOES.filter(n => String(n.opp_id) === val) : NEGOCIACOES;
+  renderNegociacoes(filtered);
+  const label = document.getElementById('neg-count-label');
+  if (label) label.textContent = filtered.length + ' negociação' + (filtered.length !== 1 ? 'ões' : '');
+}
+
+function openNegModal(id) {
+  const n = NEGOCIACOES.find(x => x.id === id);
+  if (!n) return;
+
+  document.getElementById('mn-marca').textContent = n.marca;
+  document.getElementById('mn-opp').textContent = n.opp;
+  document.getElementById('mn-cota').textContent = n.cota;
+  document.getElementById('mn-assunto').textContent = n.assunto;
+  document.getElementById('mn-data').textContent = n.enviadaEm;
+
+  const msgWrap = document.getElementById('mn-msg-wrap');
+  if (n.mensagem) {
+    msgWrap.style.display = '';
+    document.getElementById('mn-msg').textContent = n.mensagem;
+  } else {
+    msgWrap.style.display = 'none';
+  }
+
+  const statusWrap = document.getElementById('mn-status-wrap');
+  statusWrap.className = 'modal-neg-status';
+  const statusMap = {
+    pendente:  { cls:'pendente',  label:'Pendente',    hint:'Aguardando sua resposta' },
+    aceita:    { cls:'aceita',    label:'Aceita',      hint:'Proposta aprovada. Entre em contato com a marca.' },
+    analise:   { cls:'analise',   label:'Em análise',  hint:'O time da Relevantia está mediando' },
+    recusada:  { cls:'recusada',  label:'Recusada',    hint:'Não foi possível avançar neste momento' }
+  };
+  const s = statusMap[n.status] || { cls:'', label:n.statusLabel, hint:'' };
+  statusWrap.classList.add(s.cls);
+  document.getElementById('mn-status-label').textContent = s.label;
+  document.getElementById('mn-status-hint').textContent = s.hint;
+
+  // populate status select
+  const sel = document.getElementById('mn-status-select');
+  if (sel) sel.value = n.status;
+
+  document.getElementById('modal-neg').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeNegModal() {
+  document.getElementById('modal-neg').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function saveNegStatus() {
+  const sel = document.getElementById('mn-status-select');
+  if (!sel) return;
+  showToast('Status atualizado para "' + sel.options[sel.selectedIndex].text + '"', 'success');
+  closeNegModal();
+}
+
+// Init negociações table on load
+document.addEventListener('DOMContentLoaded', function() {
+  renderNegociacoes(NEGOCIACOES);
+  const label = document.getElementById('neg-count-label');
+  if (label) label.textContent = NEGOCIACOES.length + ' negociações';
+});
 </script>
+
+<!-- ═══════════════════ MODAL NEGOCIAÇÃO (DETENTOR) ═══════════════════ -->
+<div class="modal-overlay-det" id="modal-neg" onclick="if(event.target===this)closeNegModal()">
+  <div class="modal-neg">
+
+    <div class="modal-neg-header">
+      <div>
+        <div class="modal-neg-title">Detalhes da Negociação</div>
+        <div class="modal-neg-opp" id="mn-marca"></div>
+      </div>
+      <button class="modal-close-det" onclick="closeNegModal()">✕</button>
+    </div>
+
+    <div class="modal-neg-body">
+
+      <!-- Status badge -->
+      <div class="modal-neg-status" id="mn-status-wrap">
+        <span class="modal-neg-status-dot"></span>
+        <span class="modal-neg-status-label" id="mn-status-label"></span>
+        <span class="modal-neg-status-hint" id="mn-status-hint"></span>
+      </div>
+
+      <!-- Rows -->
+      <div class="modal-neg-rows">
+        <div class="modal-neg-row">
+          <span class="modal-neg-row-label">Oportunidade</span>
+          <span class="modal-neg-row-value" id="mn-opp"></span>
+        </div>
+        <div class="modal-neg-row">
+          <span class="modal-neg-row-label">Cota</span>
+          <span class="modal-neg-row-value" id="mn-cota"></span>
+        </div>
+        <div class="modal-neg-row">
+          <span class="modal-neg-row-label">Assunto</span>
+          <span class="modal-neg-row-value" id="mn-assunto"></span>
+        </div>
+        <div class="modal-neg-row">
+          <span class="modal-neg-row-label">Recebida em</span>
+          <span class="modal-neg-row-value" id="mn-data"></span>
+        </div>
+      </div>
+
+      <!-- Mensagem (opcional) -->
+      <div id="mn-msg-wrap" style="margin-top:8px;margin-bottom:14px;">
+        <div class="modal-neg-row-label" style="margin-bottom:6px;text-transform:uppercase;font-size:11px;letter-spacing:0.07em;">Mensagem da marca</div>
+        <div class="modal-neg-msg" id="mn-msg"></div>
+      </div>
+
+      <hr class="modal-neg-divider">
+
+      <!-- Ação: atualizar status -->
+      <div class="modal-neg-action">
+        <div class="modal-neg-row-label" style="margin-bottom:8px;text-transform:uppercase;font-size:11px;letter-spacing:0.07em;">Atualizar status</div>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <select id="mn-status-select" class="neg-filter-select" style="flex:1;">
+            <option value="pendente">Pendente</option>
+            <option value="analise">Em análise</option>
+            <option value="aceita">Aceita</option>
+            <option value="recusada">Recusada</option>
+          </select>
+          <button class="btn-neg-save" onclick="saveNegStatus()">Salvar</button>
+        </div>
+        <div class="modal-neg-next">
+          💡 Após aceitar, a Relevantia entrará em contato para intermediar o fechamento.
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
