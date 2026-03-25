@@ -464,25 +464,60 @@ a { text-decoration: none; color: inherit; }
 /* ─── MODAL ─── */
 .modal-overlay { position: fixed; inset: 0; background: rgba(30,22,0,0.45); backdrop-filter: blur(4px); z-index: 500; display: none; align-items: center; justify-content: center; padding: 20px; }
 .modal-overlay.open { display: flex; }
-.modal { background: var(--white); border-radius: var(--radius-lg); width: 100%; max-width: 540px; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg); }
-.modal-header { padding: 24px 26px 0; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-.modal-title { font-family: var(--font-heading); font-size: 22px; font-weight: 600; color: var(--black); }
-.modal-close { background: var(--gray-100); border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: background 0.15s; color: var(--gray-500); }
+.modal { background: var(--white); border-radius: var(--radius-lg); width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg); }
+.modal-header { padding: 22px 24px 0; display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; }
+.modal-header-left { display: flex; flex-direction: column; gap: 2px; }
+.modal-title { font-family: var(--font-heading); font-size: 20px; font-weight: 600; color: var(--black); }
+.modal-subtitle { font-size: 12px; color: var(--gray-400); font-weight: 400; }
+.modal-close { background: var(--gray-100); border: none; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center; transition: background 0.15s; color: var(--gray-500); flex-shrink: 0; margin-top: 2px; }
 .modal-close:hover { background: var(--gray-200); color: var(--black); }
-.modal-body { padding: 0 26px 26px; }
-.form-group { margin-bottom: 16px; }
-.form-label { display: block; font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 6px; }
-.form-input, .form-textarea, .form-select { width: 100%; border: 1.5px solid var(--gray-300); border-radius: var(--radius); padding: 11px 13px; font-family: var(--font-body); font-size: 13px; color: var(--text); background: var(--white); outline: none; transition: border-color 0.15s; }
-.form-input:focus, .form-textarea:focus, .form-select:focus { border-color: var(--gold); }
-.form-input::placeholder, .form-textarea::placeholder { color: var(--gray-400); }
-.form-textarea { resize: vertical; min-height: 85px; }
-.btn-submit { width: 100%; background: var(--black); color: var(--white); border: none; padding: 13px; border-radius: var(--radius); font-family: var(--font-body); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 6px; }
+.modal-body { padding: 0 24px 24px; }
+
+/* remetente — linha "de:" */
+.modal-from { display: flex; align-items: center; gap: 10px; background: var(--gray-1); border-radius: var(--radius-md); padding: 10px 14px; margin-bottom: 16px; }
+.modal-from-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--gold-gradient); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--black); flex-shrink: 0; }
+.modal-from-info { display: flex; flex-direction: column; gap: 1px; flex: 1; min-width: 0; }
+.modal-from-name { font-size: 12px; font-weight: 600; color: var(--black); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.modal-from-tag { font-size: 11px; color: var(--gray-400); }
+
+/* divisor fino */
+.modal-divider { border: none; border-top: 1px solid var(--gray-2); margin: 0 0 16px; }
+
+/* select de cota */
+.form-group { margin-bottom: 14px; }
+.form-label { display: block; font-size: 12px; font-weight: 600; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
+.form-select { width: 100%; border: 1.5px solid var(--gray-200); border-radius: var(--radius); padding: 10px 13px; font-family: var(--font-body); font-size: 13px; color: var(--text); background: var(--white); outline: none; transition: border-color 0.15s; cursor: pointer; }
+.form-select:focus { border-color: var(--gold); }
+
+/* assuntos — radio pills */
+.subject-label { font-size: 12px; font-weight: 600; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px; display: block; }
+.subject-options { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.subject-option { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border: 1.5px solid var(--gray-200); border-radius: var(--radius); cursor: pointer; transition: all 0.15s; background: var(--white); }
+.subject-option:hover { border-color: var(--gray-300); background: var(--gray-1); }
+.subject-option.selected { border-color: var(--black); background: var(--gray-1); }
+.subject-option input[type="radio"] { display: none; }
+.subject-radio-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--gray-300); flex-shrink: 0; transition: all 0.15s; display: flex; align-items: center; justify-content: center; }
+.subject-option.selected .subject-radio-dot { border-color: var(--black); background: var(--black); }
+.subject-option.selected .subject-radio-dot::after { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--white); display: block; }
+.subject-option-text { font-size: 13px; color: var(--text); font-weight: 400; line-height: 1.3; }
+.subject-option.selected .subject-option-text { font-weight: 500; color: var(--black); }
+
+/* textarea */
+.form-textarea { width: 100%; border: 1.5px solid var(--gray-200); border-radius: var(--radius); padding: 11px 13px; font-family: var(--font-body); font-size: 13px; color: var(--text); background: var(--white); outline: none; transition: border-color 0.15s; resize: vertical; min-height: 80px; box-sizing: border-box; }
+.form-textarea:focus { border-color: var(--gold); }
+.form-textarea::placeholder { color: var(--gray-300); }
+
+/* botão enviar */
+.btn-submit { width: 100%; background: var(--black); color: var(--white); border: none; padding: 13px; border-radius: var(--radius-pill); font-family: var(--font-body); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 6px; letter-spacing: 0.01em; }
 .btn-submit:hover { background: var(--gold); color: var(--black); }
-.success-state { text-align: center; padding: 36px 20px; display: none; }
+.btn-submit:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* success */
+.success-state { text-align: center; padding: 40px 24px; display: none; }
 .success-state.show { display: block; }
-.success-icon { font-size: 44px; margin-bottom: 10px; }
-.success-title { font-family: var(--font-heading); font-size: 20px; margin-bottom: 7px; color: var(--black); }
-.success-text { font-size: 13px; color: var(--gray-500); line-height: 1.6; }
+.success-icon { margin-bottom: 14px; }
+.success-title { font-family: var(--font-heading); font-size: 20px; font-weight: 600; margin-bottom: 8px; color: var(--black); }
+.success-text { font-size: 13px; color: var(--gray-500); line-height: 1.65; max-width: 320px; margin: 0 auto; }
 
 /* ─── TOAST ─── */
 .toast-container { position: fixed; top: 80px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
@@ -522,13 +557,6 @@ a { text-decoration: none; color: inherit; }
     padding: 14px 12px;
     font-size: 14px;
     border-radius: var(--radius-pill);
-  }
-  .mobile-cta-bar .btn-contact {
-    flex: 1;
-    padding: 14px 12px;
-    font-size: 14px;
-    border-radius: var(--radius-pill);
-    margin-top: 0;
   }
   /* ocultar card interesse no sidebar em tablet/mobile */
   .interest-card { display: none; }
@@ -642,8 +670,7 @@ a { text-decoration: none; color: inherit; }
   .opp-cards-grid { grid-template-columns: 1fr; }
   .opp-card-image { height: 160px; }
   .opp-card-desc { display: -webkit-box; } /* volta a mostrar em 1 coluna */
-  .mobile-cta-bar .btn-interest,
-  .mobile-cta-bar .btn-contact { font-size: 13px; padding: 13px 10px; }
+  .mobile-cta-bar .btn-interest { font-size: 13px; padding: 13px 10px; }
 }
 </style>
 </head>
@@ -914,10 +941,6 @@ a { text-decoration: none; color: inherit; }
               <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
               Manifestar interesse
             </button>
-            <button class="btn-contact">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-              Falar com o time
-            </button>
 
             <div class="interest-disclaimer">Sem compromisso. Nossa equipe entrará em contato em até 24h.</div>
 
@@ -947,60 +970,95 @@ a { text-decoration: none; color: inherit; }
   </div><!-- /main-inner -->
 </div><!-- /main -->
 
-<!-- MODAL -->
+<!-- MODAL INTERESSE -->
 <div class="modal-overlay" id="modal-overlay" onclick="closeModalOutside(event)">
   <div class="modal">
+
+    <!-- estado: formulário -->
     <div id="modal-form-state">
       <div class="modal-header">
-        <div class="modal-title">Manifestar interesse</div>
+        <div class="modal-header-left">
+          <div class="modal-title">Manifestar interesse</div>
+          <div class="modal-subtitle" id="modal-opp-name">Maratona Internacional de São Paulo</div>
+        </div>
         <button class="modal-close" onclick="closeModal()">✕</button>
       </div>
       <div class="modal-body">
-        <div class="form-group">
-          <label class="form-label">Empresa / Marca</label>
-          <input type="text" class="form-input" placeholder="Nome da sua empresa">
+
+        <!-- De: (automático do perfil logado) -->
+        <div class="modal-from">
+          <div class="modal-from-avatar" id="modal-avatar">NB</div>
+          <div class="modal-from-info">
+            <div class="modal-from-name" id="modal-from-name">João Silva · Nike Brasil</div>
+            <div class="modal-from-tag">Seu perfil cadastrado</div>
+          </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Seu nome</label>
-          <input type="text" class="form-input" placeholder="Nome completo">
-        </div>
-        <div class="form-group">
-          <label class="form-label">E-mail</label>
-          <input type="email" class="form-input" placeholder="seu@email.com">
-        </div>
-        <div class="form-group">
+
+        <hr class="modal-divider">
+
+        <!-- Cota (ocultado automaticamente se a oportunidade não tiver cotas) -->
+        <div class="form-group" id="modal-cota-group">
           <label class="form-label">Cota de interesse</label>
           <select class="form-select" id="modalCotaSelect">
             <option value="">Selecione uma cota</option>
           </select>
         </div>
-        <div class="form-group">
-          <label class="form-label">Mensagem (opcional)</label>
-          <textarea class="form-textarea" placeholder="Conte um pouco sobre seus objetivos com este patrocínio..."></textarea>
+
+        <!-- Assunto -->
+        <div>
+          <span class="subject-label">Assunto</span>
+          <div class="subject-options" id="subject-options">
+            <label class="subject-option" onclick="selectSubject(this)">
+              <input type="radio" name="subject" value="negociar">
+              <span class="subject-radio-dot"></span>
+              <span class="subject-option-text">Quero negociar esta cota</span>
+            </label>
+            <label class="subject-option" onclick="selectSubject(this)">
+              <input type="radio" name="subject" value="proposta">
+              <span class="subject-radio-dot"></span>
+              <span class="subject-option-text">Gostaria de fazer uma proposta</span>
+            </label>
+            <label class="subject-option" onclick="selectSubject(this)">
+              <input type="radio" name="subject" value="info">
+              <span class="subject-radio-dot"></span>
+              <span class="subject-option-text">Tenho interesse, mas preciso de mais informações</span>
+            </label>
+            <label class="subject-option" onclick="selectSubject(this)">
+              <input type="radio" name="subject" value="outro">
+              <span class="subject-radio-dot"></span>
+              <span class="subject-option-text">Outro assunto</span>
+            </label>
+          </div>
         </div>
-        <button class="btn-submit" onclick="submitModal()">Enviar manifestação de interesse</button>
+
+        <!-- Mensagem livre -->
+        <div class="form-group">
+          <label class="form-label">Mensagem <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--gray-300)">(opcional)</span></label>
+          <textarea class="form-textarea" id="modal-message" placeholder="Adicione detalhes se quiser — objetivos, dúvidas, contexto da sua marca..."></textarea>
+        </div>
+
+        <button class="btn-submit" id="btn-submit" onclick="submitModal()" disabled>Enviar manifestação</button>
       </div>
     </div>
+
+    <!-- estado: sucesso -->
     <div class="success-state" id="modal-success">
       <div class="success-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
       </div>
       <div class="success-title">Interesse registrado!</div>
-      <div class="success-text">Nossa equipe entrará em contato em até 24 horas com mais detalhes sobre esta oportunidade.</div>
+      <div class="success-text">Sua mensagem foi enviada ao time da Relevantia. Entraremos em contato em até 24 horas com os próximos passos.</div>
     </div>
+
   </div>
 </div>
 
 <!-- Toast container -->
 <div class="toast-container" id="toastContainer"></div>
 
-<!-- Mobile CTA bar (visível apenas em ≤1024px) — contact esquerda, interest direita -->
+<!-- Mobile CTA bar (visível apenas em ≤1024px) -->
 <div class="mobile-cta-bar">
-  <button class="btn-contact">
-    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-    Falar com o time
-  </button>
-  <button class="btn-interest" onclick="openModal()">
+  <button class="btn-interest" onclick="openModal()" style="flex:1">
     <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
     Manifestar interesse
   </button>
@@ -1375,12 +1433,18 @@ function renderPage() {
   infoHtml += '<div class="interest-row"><span class="interest-row-label">Participantes</span><span class="interest-row-value">' + opp.sidebar.participantes + '</span></div>';
   document.getElementById('interestInfo').innerHTML = infoHtml;
 
-  // Modal cota select
-  var cotaSelectHtml = '<option value="">Selecione uma cota</option>';
-  opp.cotas.forEach(function(c) {
-    cotaSelectHtml += '<option>' + c.name + ' — ' + c.price + '</option>';
-  });
-  document.getElementById('modalCotaSelect').innerHTML = cotaSelectHtml;
+  // Modal cota select — esconde o grupo inteiro se não houver cotas definidas
+  var cotaGroup = document.getElementById('modal-cota-group');
+  if (opp.cotas && opp.cotas.length > 0) {
+    var cotaSelectHtml = '<option value="">Selecione uma cota</option>';
+    opp.cotas.forEach(function(c) {
+      cotaSelectHtml += '<option>' + c.name + ' — ' + c.price + '</option>';
+    });
+    document.getElementById('modalCotaSelect').innerHTML = cotaSelectHtml;
+    if (cotaGroup) cotaGroup.style.display = '';
+  } else {
+    if (cotaGroup) cotaGroup.style.display = 'none';
+  }
 
   // Cota click handlers
   document.querySelectorAll('.cota-card').forEach(function(card) {
@@ -1433,21 +1497,87 @@ function switchTab(id, btn) {
 }
 
 /* ─── MODAL ─── */
+// Dados simulados do usuário logado (virão do perfil real futuramente)
+var LOGGED_USER = { name: 'João Silva', company: 'Nike Brasil', initials: 'NB' };
+
+// Assuntos para oportunidades COM cota definida
+var SUBJECTS_WITH_COTAS = [
+  { value: 'negociar',  text: 'Quero negociar esta cota' },
+  { value: 'proposta',  text: 'Gostaria de fazer uma proposta' },
+  { value: 'info',      text: 'Tenho interesse, mas preciso de mais informações' },
+  { value: 'outro',     text: 'Outro assunto' }
+];
+
+// Assuntos para oportunidades SEM cota definida
+var SUBJECTS_NO_COTAS = [
+  { value: 'possibilidades', text: 'Quero entender as possibilidades' },
+  { value: 'proposta',       text: 'Gostaria de fazer uma proposta' },
+  { value: 'info',           text: 'Tenho interesse, mas preciso de mais informações' },
+  { value: 'outro',          text: 'Outro assunto' }
+];
+
 function openModal() {
+  var opp = getOpp();
+  var hasCotas = opp.cotas && opp.cotas.length > 0;
+
+  // preenche nome da oportunidade no subtítulo
+  var sub = document.getElementById('modal-opp-name');
+  if (sub) sub.textContent = opp.title;
+
+  // preenche "De:" com dados do usuário logado
+  var avatar = document.getElementById('modal-avatar');
+  var fromName = document.getElementById('modal-from-name');
+  if (avatar) avatar.textContent = LOGGED_USER.initials;
+  if (fromName) fromName.textContent = LOGGED_USER.name + ' · ' + LOGGED_USER.company;
+
+  // ajusta assuntos conforme existência de cotas
+  var subjects = hasCotas ? SUBJECTS_WITH_COTAS : SUBJECTS_NO_COTAS;
+  var optionsEl = document.getElementById('subject-options');
+  if (optionsEl) {
+    optionsEl.innerHTML = subjects.map(function(s) {
+      return '<label class="subject-option" onclick="selectSubject(this)">' +
+        '<input type="radio" name="subject" value="' + s.value + '">' +
+        '<span class="subject-radio-dot"></span>' +
+        '<span class="subject-option-text">' + s.text + '</span>' +
+        '</label>';
+    }).join('');
+  }
+
+  // reseta estado anterior
+  document.getElementById('modal-form-state').style.display = '';
+  document.getElementById('modal-success').classList.remove('show');
+  var msg = document.getElementById('modal-message');
+  if (msg) msg.value = '';
+  var btn = document.getElementById('btn-submit');
+  if (btn) btn.disabled = true;
+
   document.getElementById('modal-overlay').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
+
 function closeModal() {
   document.getElementById('modal-overlay').classList.remove('open');
   document.body.style.overflow = '';
 }
+
 function closeModalOutside(e) {
   if (e.target === document.getElementById('modal-overlay')) closeModal();
 }
+
+function selectSubject(el) {
+  document.querySelectorAll('.subject-option').forEach(function(o) { o.classList.remove('selected'); });
+  el.classList.add('selected');
+  var radio = el.querySelector('input[type="radio"]');
+  if (radio) radio.checked = true;
+  // habilita botão assim que um assunto é escolhido
+  var btn = document.getElementById('btn-submit');
+  if (btn) btn.disabled = false;
+}
+
 function submitModal() {
   document.getElementById('modal-form-state').style.display = 'none';
   document.getElementById('modal-success').classList.add('show');
-  setTimeout(closeModal, 3000);
+  setTimeout(closeModal, 3200);
 }
 
 /* ─── SIDEBAR MOBILE ─── */
