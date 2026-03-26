@@ -62,7 +62,7 @@
       assunto: 'Tenho interesse, mas preciso de mais informações',
       valor: 'R$ 30.000', enviadaEm: '13/03/2026',
       status: 'analise', statusLabel: 'Em análise',
-      statusHint: 'O time da Relevantia está avaliando',
+      statusHint: 'O detentor de direitos está avaliando',
       thread: [
         { autor:'marca', nome:'Gatorade', texto:'Gostaríamos de entender melhor o perfil de público e as cotas de ativação disponíveis na área de hidratação.', data:'13/03 · 14:10' }
       ],
@@ -158,7 +158,7 @@
       assunto: 'Quero entender as possibilidades',
       valor: 'R$ 120.000', enviadaEm: '08/03/2026',
       status: 'analise', statusLabel: 'Em análise',
-      statusHint: 'O time da Relevantia está avaliando',
+      statusHint: 'O detentor de direitos está avaliando',
       thread: [
         { autor:'marca',    nome:'Vivo',                       texto:'Gostaríamos de explorar o naming rights do festival. Qual o valor e os entregáveis previstos?', data:'08/03 · 15:00' },
         { autor:'detentor', nome:'Festival de Verão Salvador', texto:'Olá Vivo! Estamos preparando um dossiê completo sobre o naming rights. Enviaremos em breve.', data:'09/03 · 09:40' }
@@ -176,7 +176,7 @@
       assunto: 'Tenho interesse, mas preciso de mais informações',
       valor: 'R$ 40.000', enviadaEm: '10/03/2026',
       status: 'analise', statusLabel: 'Em análise',
-      statusHint: 'O time da Relevantia está avaliando',
+      statusHint: 'O detentor de direitos está avaliando',
       thread: [
         { autor:'marca',    nome:'Nike Brasil',  texto:'Precisamos entender melhor os dados de público e os entregáveis antes de avançar com a proposta.', data:'10/03 · 11:30' },
         { autor:'detentor', nome:'Expo Tech BR', texto:'Claro! Temos um media kit completo. Posso te enviar por aqui ou prefere por e-mail?', data:'11/03 · 08:55' }
