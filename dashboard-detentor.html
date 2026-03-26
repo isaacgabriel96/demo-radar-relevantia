@@ -1624,7 +1624,7 @@ function renderNegociacoes(data) {
         <div class="neg-opp-cover" style="background:${cfg.gradient}">${cfg.icon}</div>
         <div class="neg-opp-info">
           <div class="neg-opp-title">${g.opp}</div>
-          <div class="neg-opp-subtitle">${total} negociação${total !== 1 ? 'ões' : ''}</div>
+          <div class="neg-opp-subtitle">${total} ${total !== 1 ? 'negociações' : 'negociação'}</div>
         </div>
         ${chevronSvg}
       </div>
@@ -1982,7 +1982,6 @@ function openDealDetModal(negId) {
   document.getElementById('ddet-entregas').innerHTML = aceitos.length
     ? aceitos.map(cp => `<div class="modal-deal-det-row">
         <span class="modal-deal-det-row-label">${cp.descricao}</span>
-        <span class="modal-deal-det-row-val">${fmt(cp.valor)}</span>
       </div>`).join('')
     : '<div style="font-size:13px;color:var(--gray-400);padding:8px 0">Nenhuma entrega registrada.</div>';
 
