@@ -902,6 +902,13 @@ tbody tr:last-child td { border-bottom: none; }
 
       <!-- Painel: Publicadas -->
       <div class="sub-panel active" id="subpanel-publicadas">
+        <div class="neg-pills">
+          <button class="neg-pill active" id="pubpill-todos"      onclick="filterPubPill('todos')">Todos</button>
+          <button class="neg-pill"        id="pubpill-publicada"  onclick="filterPubPill('publicada')">Publicadas</button>
+          <button class="neg-pill"        id="pubpill-rascunho"   onclick="filterPubPill('rascunho')">Rascunho</button>
+          <button class="neg-pill"        id="pubpill-finalizada" onclick="filterPubPill('finalizada')">Encerradas</button>
+          <span class="neg-pills-count" id="pub-pills-count"></span>
+        </div>
         <div class="pub-grid" id="pub-grid-container">
           <!-- preenchido por renderPublicadas() -->
         </div>
@@ -1586,11 +1593,39 @@ function editarOportunidade(id) {
 const calSvgPub = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:12px;height:12px"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>';
 const locSvgPub = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:12px;height:12px"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z" fill="none"/></svg>';
 
+let _pubFilterAtivo = 'todos';
+
+function filterPubPill(val) {
+  _pubFilterAtivo = val;
+  document.querySelectorAll('.neg-pill[id^="pubpill-"]').forEach(p => p.classList.remove('active'));
+  const active = document.getElementById('pubpill-' + val);
+  if (active) active.classList.add('active');
+  renderPublicadas();
+}
+
 function renderPublicadas() {
   const container = document.getElementById('pub-grid-container');
   if (!container) return;
   const statusLabel = { publicada:'Publicada', rascunho:'Rascunho', finalizada:'Encerrada' };
-  container.innerHTML = MINHAS_OPPS.map(o => {
+
+  const filtered = _pubFilterAtivo === 'todos'
+    ? MINHAS_OPPS
+    : MINHAS_OPPS.filter(o => o.status === _pubFilterAtivo);
+
+  // atualiza contagem
+  const countEl = document.getElementById('pub-pills-count');
+  if (countEl) {
+    const total = filtered.length;
+    countEl.textContent = total > 0 ? `${total} oportunidade${total !== 1 ? 's' : ''}` : '';
+  }
+
+  if (filtered.length === 0) {
+    const labels = { publicada:'publicadas', rascunho:'em rascunho', finalizada:'encerradas', todos:'oportunidades' };
+    container.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px 0;color:var(--gray-3);font-size:14px">Nenhuma oportunidade ${labels[_pubFilterAtivo] || ''} encontrada.</div>`;
+    return;
+  }
+
+  container.innerHTML = filtered.map(o => {
     const cfg = OPP_CAT[o.categoria] || OPP_CAT['Cultura'];
     const isPublicada  = o.status === 'publicada';
     const isFinalizada = o.status === 'finalizada';
