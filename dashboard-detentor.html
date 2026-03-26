@@ -302,7 +302,8 @@ tbody tr:last-child td { border-bottom: none; }
 .pub-card-title { font-family: var(--font-heading); font-size: 15px; font-weight: 600; color: var(--black); line-height: 1.35; margin-bottom: 8px; }
 .pub-card-meta { display: flex; align-items: center; gap: 12px; font-size: 12px; color: var(--gray-400); margin-bottom: 14px; }
 .pub-card-meta-item { display: flex; align-items: center; gap: 4px; }
-.pub-card-footer { display: flex; align-items: center; justify-content: flex-end; gap: 8px; padding-top: 12px; border-top: 1px solid var(--gray-200); margin-top: auto; }
+.pub-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 12px; border-top: 1px solid var(--gray-200); margin-top: auto; }
+.pub-card-footer-right { display: flex; align-items: center; gap: 8px; }
 
 /* ─── NEGOCIAÇÕES AGRUPADAS POR OPORTUNIDADE ─── */
 .neg-opp-group { display: flex; flex-direction: column; gap: 12px; }
@@ -388,9 +389,11 @@ tbody tr:last-child td { border-bottom: none; }
 .neg-pill.active { background: var(--black); border-color: var(--black); color: var(--white); }
 .neg-pills-count { font-size: 12px; color: var(--gray-400); margin-left: auto; }
 
-/* ─── BTN FINALIZAR ─── */
-.btn-finalizar { background: transparent; border: 1.5px solid #E5E0D8; color: #B45309; padding: 5px 14px; border-radius: 100px; font-size: 12px; font-weight: 600; font-family: var(--font-body); cursor: pointer; transition: all 0.15s; }
-.btn-finalizar:hover { background: #FEF3C7; border-color: #B45309; }
+/* ─── BTN ENCERRAR / EXCLUIR ─── */
+.btn-encerrar { background: transparent; border: 1.5px solid #E5E0D8; color: #B45309; padding: 5px 14px; border-radius: 100px; font-size: 12px; font-weight: 600; font-family: var(--font-body); cursor: pointer; transition: all 0.15s; }
+.btn-encerrar:hover { background: #FEF3C7; border-color: #B45309; }
+.btn-excluir { background: transparent; border: 1.5px solid #E5E0D8; color: #DC2626; padding: 5px 14px; border-radius: 100px; font-size: 12px; font-weight: 600; font-family: var(--font-body); cursor: pointer; transition: all 0.15s; }
+.btn-excluir:hover { background: #FEF2F2; border-color: #DC2626; }
 
 /* ─── MODAL NEGOCIAÇÃO (detentor) ─── */
 .modal-overlay-det { position: fixed; inset: 0; background: rgba(30,22,0,0.45); backdrop-filter: blur(4px); z-index: 500; display: none; align-items: center; justify-content: center; padding: 20px; }
@@ -1555,13 +1558,22 @@ function publishOportunidade(id) {
   showToast('Oportunidade publicada com sucesso!', 'success');
 }
 
-function finalizarOportunidade(id) {
-  if (!confirm('Deseja finalizar esta oportunidade? Ela será retirada do ar e não receberá novos interesses.')) return;
+function encerrarOportunidade(id) {
+  if (!confirm('Deseja encerrar esta oportunidade? Ela será retirada do ar e não receberá novos interesses.')) return;
   const opp = MINHAS_OPPS.find(o => o.id === id);
   if (!opp) return;
   opp.status = 'finalizada';
   renderPublicadas();
-  showToast('Oportunidade finalizada e retirada do ar.', 'success');
+  showToast('Oportunidade encerrada e retirada do ar.', 'success');
+}
+
+function excluirOportunidade(id) {
+  if (!confirm('Deseja excluir este rascunho? Esta ação não pode ser desfeita.')) return;
+  const idx = MINHAS_OPPS.findIndex(o => o.id === id);
+  if (idx === -1) return;
+  MINHAS_OPPS.splice(idx, 1);
+  renderPublicadas();
+  showToast('Rascunho excluído.', 'success');
 }
 
 const calSvgPub = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:12px;height:12px"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>';
@@ -1570,21 +1582,24 @@ const locSvgPub = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" st
 function renderPublicadas() {
   const container = document.getElementById('pub-grid-container');
   if (!container) return;
-  const statusLabel = { publicada:'Publicada', rascunho:'Rascunho', finalizada:'Finalizada' };
+  const statusLabel = { publicada:'Publicada', rascunho:'Rascunho', finalizada:'Encerrada' };
   container.innerHTML = MINHAS_OPPS.map(o => {
     const cfg = OPP_CAT[o.categoria] || OPP_CAT['Cultura'];
     const isPublicada  = o.status === 'publicada';
     const isFinalizada = o.status === 'finalizada';
-    let actions;
+    const isRascunho   = o.status === 'rascunho';
+    let leftBtn = '';
+    let rightBtns = '';
     if (isPublicada) {
-      actions = `<button class="btn-finalizar" onclick="finalizarOportunidade(${o.id})">Finalizar</button>
-                 <a href="criar-oportunidade.html?edit=${o.id}" class="btn btn-ghost btn-sm">Editar</a>
-                 <a href="oportunidade-detalhe.html?id=${o.id}" class="btn btn-ghost btn-sm">Ver →</a>`;
+      leftBtn   = `<button class="btn-encerrar" onclick="encerrarOportunidade(${o.id})">Encerrar</button>`;
+      rightBtns = `<a href="criar-oportunidade.html?edit=${o.id}" class="btn btn-ghost btn-sm">Editar</a>
+                   <a href="oportunidade-detalhe.html?id=${o.id}" class="btn btn-ghost btn-sm">Ver →</a>`;
     } else if (isFinalizada) {
-      actions = `<a href="oportunidade-detalhe.html?id=${o.id}" class="btn btn-ghost btn-sm">Ver →</a>`;
+      rightBtns = `<a href="oportunidade-detalhe.html?id=${o.id}" class="btn btn-ghost btn-sm">Ver →</a>`;
     } else {
-      actions = `<a href="criar-oportunidade.html?edit=${o.id}" class="btn btn-ghost btn-sm">Editar</a>
-                 <button class="btn btn-gold btn-sm" onclick="publishOportunidade(${o.id})">Publicar</button>`;
+      leftBtn   = `<button class="btn-excluir" onclick="excluirOportunidade(${o.id})">Excluir</button>`;
+      rightBtns = `<a href="criar-oportunidade.html?edit=${o.id}" class="btn btn-ghost btn-sm">Editar</a>
+                   <button class="btn btn-gold btn-sm" onclick="publishOportunidade(${o.id})">Publicar</button>`;
     }
     const cardStyle = isFinalizada ? 'opacity:0.65;' : '';
     return `<div class="pub-opp-card" style="${cardStyle}">
@@ -1600,7 +1615,10 @@ function renderPublicadas() {
           <span class="pub-card-meta-item">${calSvgPub} ${o.data}</span>
           ${isPublicada ? `<span class="pub-card-meta-item" style="color:var(--gold);font-weight:600">${o.interesses} interesses</span>` : ''}
         </div>
-        <div class="pub-card-footer">${actions}</div>
+        <div class="pub-card-footer">
+          ${leftBtn}
+          <div class="pub-card-footer-right">${rightBtns}</div>
+        </div>
       </div>
     </div>`;
   }).join('');
@@ -1762,8 +1780,8 @@ function openNegModal(id) {
   const btn = document.getElementById('mn-send-btn');
   if (btn) btn.disabled = true;
 
-  // reset to tab Mensagens + hide form
-  switchNegTab('mensagens');
+  // reset to tab Proposta + hide form
+  switchNegTab('proposta');
   const cpForm = document.getElementById('mn-cp-form');
   if (cpForm) cpForm.classList.remove('open');
 
@@ -2213,8 +2231,8 @@ function escapeHtml(str) {
 
     <!-- Abas -->
     <div class="modal-tabs-det">
-      <button class="modal-tab-det active" data-tab="mensagens" onclick="switchNegTab('mensagens')">Mensagens</button>
-      <button class="modal-tab-det" data-tab="proposta" onclick="switchNegTab('proposta')">Proposta</button>
+      <button class="modal-tab-det active" data-tab="proposta" onclick="switchNegTab('proposta')">Proposta</button>
+      <button class="modal-tab-det" data-tab="mensagens" onclick="switchNegTab('mensagens')">Mensagens</button>
     </div>
 
     <div class="modal-neg-body">
@@ -2248,7 +2266,7 @@ function escapeHtml(str) {
       <hr class="modal-neg-divider">
 
       <!-- PAINEL: Mensagens -->
-      <div class="modal-tab-panel-det active" data-panel="mensagens">
+      <div class="modal-tab-panel-det" data-panel="mensagens">
         <div class="msg-thread-label">Mensagens</div>
         <div class="msg-thread" id="mn-thread"></div>
 
@@ -2289,7 +2307,7 @@ function escapeHtml(str) {
       </div>
 
       <!-- PAINEL: Proposta (contrapartidas) -->
-      <div class="modal-tab-panel-det" data-panel="proposta">
+      <div class="modal-tab-panel-det active" data-panel="proposta">
         <div class="cp-total-row">
           <span class="cp-total-label">Total aceito</span>
           <span class="cp-total-value" id="mn-cp-total">R$ 0<span>(apenas itens aceitos)</span></span>
