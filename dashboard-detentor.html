@@ -1892,11 +1892,15 @@ function _updateDealFooterState() {
   const btnFechar  = document.getElementById('mn-btn-fechar');
   if (!btnRecusar || !btnFechar || !_negAtiva) return;
   const st = _negAtiva.status;
-  btnRecusar.disabled = (st === 'recusada');
+  btnRecusar.disabled = (st === 'recusada' || st === 'aceita');
   if (st === 'aceita') {
     btnFechar.classList.add('aceito');
     btnFechar.disabled = true;
     btnFechar.textContent = 'Deal fechado ✓';
+  } else if (st === 'recusada') {
+    btnFechar.classList.remove('aceito');
+    btnFechar.disabled = true;
+    btnFechar.textContent = 'Fechar deal ✓';
   } else {
     btnFechar.classList.remove('aceito');
     btnFechar.disabled = false;
