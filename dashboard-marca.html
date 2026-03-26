@@ -459,7 +459,7 @@ tbody tr:last-child td { border-bottom: none; }
 .olc-hero-dots { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); display: flex; gap: 5px; z-index: 4; }
 .olc-hero-dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,0.5); transition: background 0.22s, transform 0.22s; cursor: pointer; border: none; padding: 0; flex-shrink: 0; }
 .olc-hero-dot.active { background: rgba(255,255,255,0.95); transform: scale(1.3); }
-.olc-hero-tag { position: absolute; top: 12px; right: 12px; z-index: 3; background: rgba(255,255,255,0.18); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,0.28); border-radius: 100px; padding: 4px 11px; font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.95); letter-spacing: 0.01em; }
+.olc-hero-tag { position: absolute; bottom: 12px; right: 12px; z-index: 3; background: rgba(255,255,255,0.18); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,0.28); border-radius: 100px; padding: 4px 11px; font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.95); letter-spacing: 0.01em; }
 .olc-hero-count { position: absolute; top: 10px; left: 10px; z-index: 3; background: rgba(0,0,0,0.45); backdrop-filter: blur(6px); border-radius: 100px; padding: 3px 8px; font-size: 10px; font-weight: 600; color: rgba(255,255,255,0.9); display: flex; align-items: center; gap: 4px; }
 .olc-hero-count svg { width: 10px; height: 10px; }
 
@@ -1331,9 +1331,68 @@ tbody tr:last-child td { border-bottom: none; }
    Sem Supabase (dados mockados)
    ═══════════════════════════════════════ */
 
-// ─── DATA (from centralized demo-data.js or future API) ───
+// ─── DATA ───
 const MOCK_USER = (window.DEMO && window.DEMO.marca) ? window.DEMO.marca.user : { nome: 'Marca', email: 'marca@radar.com' };
-const MOCK_OPPORTUNITIES = window.CATALOG ? window.CATALOG.slice(0, 6) : [];
+
+// Catálogo carregado do Supabase (real) ou do CATALOG demo como fallback
+let MOCK_OPPORTUNITIES = [];
+
+/**
+ * Mapeia uma linha da tabela `oportunidades` (Supabase) para o formato
+ * esperado pelo renderOpportunities() e filterOpportunities().
+ */
+function mapDbOpp(row) {
+  // Extrai cidade da localizacao (ex: "São Paulo, SP — Brasil" → "São Paulo")
+  const city = row.localizacao ? row.localizacao.split(',')[0].trim() : '';
+  // Usa icone + bg_gradient como hero visual (sem fotos reais por enquanto)
+  return {
+    id:          row.id,
+    title:       row.titulo,
+    desc:        row.descricao_curta || (row.tags ? row.tags.slice(0, 3).join(' · ') : ''),
+    category:    row.categoria,
+    city:        city,
+    org:         row.localizacao || '',
+    orgInitials: row.icone || row.titulo.substring(0, 2).toUpperCase(),
+    images:      [],          // sem fotos no banco ainda
+    _bgGradient: row.bg_gradient,
+    _icon:       row.icone,
+    _alcance:    row.alcance,
+    _price:      row.preco_minimo,
+    _rating:     row.rating,
+    _tags:       row.tags || []
+  };
+}
+
+/**
+ * Carrega oportunidades do Supabase. Em demo mode, usa window.CATALOG.
+ * Chama callback(opps) quando pronto.
+ */
+function loadOpportunities(callback) {
+  // Demo mode: usa dados mockados
+  if (isDemoMode() && window.CATALOG) {
+    MOCK_OPPORTUNITIES = window.CATALOG.slice(0, 6);
+    callback(MOCK_OPPORTUNITIES);
+    return;
+  }
+
+  // Produção: busca do Supabase
+  fetch(SUPABASE_URL + '/rest/v1/oportunidades?select=id,titulo,categoria,localizacao,alcance,preco_minimo,icone,bg_gradient,tags,descricao_curta,rating&ativo=eq.true&order=id.asc', {
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Content-Type': 'application/json'
+    }
+  })
+  .then(r => r.ok ? r.json() : Promise.reject(r.status))
+  .then(rows => {
+    MOCK_OPPORTUNITIES = rows.map(mapDbOpp);
+    callback(MOCK_OPPORTUNITIES);
+  })
+  .catch(() => {
+    // Fallback para CATALOG se Supabase falhar
+    MOCK_OPPORTUNITIES = window.CATALOG ? window.CATALOG.slice(0, 6) : [];
+    callback(MOCK_OPPORTUNITIES);
+  });
+}
 
 // ─── SECTION NAMES ───
 const SECTION_TITLES = {
@@ -1366,8 +1425,8 @@ function init() {
     setUserInfo(MOCK_USER.nome, MOCK_USER.email);
   }
 
-  // Render opportunities
-  renderOpportunities(MOCK_OPPORTUNITIES);
+  // Render opportunities (loads from Supabase or CATALOG in demo mode)
+  loadOpportunities(opps => renderOpportunities(opps));
 
   // Check hash for deep linking
   const hash = window.location.hash.replace('#', '');
