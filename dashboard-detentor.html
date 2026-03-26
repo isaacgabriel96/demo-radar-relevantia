@@ -453,27 +453,53 @@ tbody tr:last-child td { border-bottom: none; }
 .pub-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 12px; border-top: 1px solid var(--gray-200); margin-top: auto; }
 .pub-card-footer-right { display: flex; align-items: center; gap: 8px; }
 
-/* ─── NEGOCIAÇÕES AGRUPADAS POR OPORTUNIDADE ─── */
-.neg-opp-group { display: flex; flex-direction: column; gap: 12px; }
-.neg-opp-accordion { background: var(--white); border: 1px solid var(--gray-200); border-radius: 14px; overflow: hidden; transition: box-shadow 0.2s; }
-.neg-opp-accordion.open { box-shadow: 0 4px 20px rgba(30,22,0,0.08); }
-.neg-opp-header { display: flex; align-items: center; gap: 14px; padding: 16px 20px; cursor: pointer; user-select: none; }
-.neg-opp-header:hover { background: var(--gray-1); }
+/* ─── NEGOCIAÇÕES — LISTA DE OPORTUNIDADES (view 1) ─── */
+.neg-opp-cards { display: flex; flex-direction: column; gap: 10px; }
+.neg-opp-card { background: var(--white); border: 1px solid var(--gray-200); border-radius: 14px; padding: 16px 20px; display: flex; align-items: center; gap: 14px; cursor: pointer; transition: box-shadow 0.18s, border-color 0.18s; }
+.neg-opp-card:hover { box-shadow: 0 4px 20px rgba(30,22,0,0.09); border-color: var(--gray-300); }
 .neg-opp-cover { width: 52px; height: 52px; border-radius: 10px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; }
 .neg-opp-cover svg { width: 22px; height: 22px; color: rgba(255,255,255,0.25); }
-.neg-opp-info { flex: 1; }
+.neg-opp-info { flex: 1; min-width: 0; }
 .neg-opp-title { font-family: var(--font-heading); font-size: 14px; font-weight: 600; color: var(--black); line-height: 1.3; }
-.neg-opp-subtitle { font-size: 12px; color: var(--gray-400); margin-top: 2px; }
-.neg-opp-chevron { width: 20px; height: 20px; color: var(--gray-400); transition: transform 0.2s; flex-shrink: 0; }
-.neg-opp-accordion.open .neg-opp-chevron { transform: rotate(180deg); }
-.neg-opp-list { border-top: 1px solid var(--gray-200); }
-.neg-opp-list-item { display: flex; align-items: center; gap: 12px; padding: 13px 20px; border-bottom: 1px solid var(--gray-100); }
-.neg-opp-list-item:last-child { border-bottom: none; }
-.neg-opp-list-item:hover { background: var(--gray-1); }
-.neg-marca-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--gold-gradient); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: var(--black); flex-shrink: 0; }
-.neg-marca-name { font-size: 13px; font-weight: 600; color: var(--black); flex: 1; }
-.neg-marca-cota { font-size: 11px; color: var(--gray-400); }
-.neg-marca-meta { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.neg-opp-subtitle { font-size: 12px; color: var(--gray-400); margin-top: 3px; }
+.neg-opp-status-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.neg-opp-chip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 100px; font-size: 10px; font-weight: 700; }
+.neg-opp-chip.pendente { background: #FFF8E1; color: #B45309; border: 1px solid rgba(180,83,9,0.18); }
+.neg-opp-chip.analise  { background: #EFF6FF; color: #2563EB; border: 1px solid rgba(37,99,235,0.18); }
+.neg-opp-chip.aceita   { background: #ECFDF5; color: #059669; border: 1px solid rgba(5,150,105,0.18); }
+.neg-opp-chip.recusada { background: #FEF2F2; color: #DC2626; border: 1px solid rgba(220,38,38,0.15); }
+.neg-opp-arrow { color: var(--gray-300); flex-shrink: 0; }
+
+/* ─── NEGOCIAÇÕES — DETALHE DA OPORTUNIDADE (view 2) ─── */
+.neg-detail-view { display: none; flex-direction: column; gap: 0; }
+.neg-detail-view.active { display: flex; }
+.neg-list-view { display: flex; flex-direction: column; gap: 0; }
+.neg-list-view.hidden { display: none; }
+.neg-detail-header { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+.neg-detail-back { display: flex; align-items: center; gap: 6px; background: none; border: none; cursor: pointer; font-family: var(--font-body); font-size: 13px; font-weight: 500; color: var(--gray-400); padding: 0; transition: color 0.15s; }
+.neg-detail-back:hover { color: var(--black); }
+.neg-detail-opp-title { font-family: var(--font-heading); font-size: 16px; font-weight: 700; color: var(--black); }
+.neg-detail-opp-sub   { font-size: 12px; color: var(--gray-400); margin-top: 1px; }
+.neg-detail-cover { width: 40px; height: 40px; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+.neg-detail-cover svg { width: 18px; height: 18px; color: rgba(255,255,255,0.3); }
+/* Cards de negociação no detalhe */
+.neg-card-list { display: flex; flex-direction: column; gap: 8px; }
+.neg-card { background: var(--white); border: 1px solid var(--gray-200); border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; transition: box-shadow 0.15s; }
+.neg-card:hover { box-shadow: 0 2px 12px rgba(30,22,0,0.07); }
+.neg-card.recusada-card { opacity: 0.55; }
+.neg-card-avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--gold-gradient); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--black); flex-shrink: 0; }
+.neg-card-body { flex: 1; min-width: 0; }
+.neg-card-name { font-size: 13px; font-weight: 600; color: var(--black); }
+.neg-card-sub  { font-size: 11px; color: var(--gray-400); margin-top: 2px; }
+.neg-card-hint { font-size: 11px; color: var(--gray-400); margin-top: 4px; font-style: italic; }
+.neg-card-hint.urgente { color: #B45309; font-style: normal; font-weight: 600; }
+.neg-card-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+/* CTA contextual */
+.neg-cta { padding: 6px 14px; border-radius: 8px; font-family: var(--font-body); font-size: 12px; font-weight: 700; border: none; cursor: pointer; white-space: nowrap; transition: background 0.2s, box-shadow 0.2s, transform 0.2s; }
+.neg-cta.primary { background: #503A00; color: var(--white); }
+.neg-cta.primary:hover { background: var(--gold-gradient); box-shadow: 0 4px 16px rgba(184,134,11,0.35); transform: translateY(-1px); }
+.neg-cta.ghost { background: none; border: 1px solid var(--gray-200); color: var(--gray-500); }
+.neg-cta.ghost:hover { background: var(--gray-1); }
 
 /* ─── DEALS FECHADOS — ACCORDION POR OPP ─── */
 .deals-opp-group { display: flex; flex-direction: column; gap: 12px; }
@@ -1150,17 +1176,45 @@ tbody tr:last-child td { border-bottom: none; }
 
       <!-- Painel: Negociações -->
       <div class="sub-panel" id="subpanel-negociacoes">
-        <div class="neg-pills">
-          <button class="neg-pill active" id="negpill-todos"    onclick="filterNegPill('todos')">Todos</button>
-          <button class="neg-pill"        id="negpill-pendente" onclick="filterNegPill('pendente')">Pendente</button>
-          <button class="neg-pill"        id="negpill-analise"  onclick="filterNegPill('analise')">Em análise</button>
-          <button class="neg-pill"        id="negpill-aceita"   onclick="filterNegPill('aceita')">Aceita</button>
-          <button class="neg-pill"        id="negpill-recusada" onclick="filterNegPill('recusada')">Recusada</button>
-          <span class="neg-pills-count" id="neg-pills-count"></span>
+
+        <!-- VIEW 1: Lista de oportunidades -->
+        <div class="neg-list-view" id="neg-list-view">
+          <div class="neg-opp-cards" id="neg-opp-cards-container">
+            <!-- preenchido por renderNegOppCards() -->
+          </div>
         </div>
-        <div class="neg-opp-group" id="neg-opp-group-container">
-          <!-- preenchido por renderNegociacoes() -->
+
+        <!-- VIEW 2: Detalhe de uma oportunidade -->
+        <div class="neg-detail-view" id="neg-detail-view">
+          <!-- Header com breadcrumb/back -->
+          <div class="neg-detail-header">
+            <button class="neg-detail-back" onclick="backToNegList()">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"/></svg>
+              Voltar
+            </button>
+            <div style="display:flex;align-items:center;gap:10px;flex:1">
+              <div class="neg-detail-cover" id="neg-detail-cover"></div>
+              <div>
+                <div class="neg-detail-opp-title" id="neg-detail-opp-title"></div>
+                <div class="neg-detail-opp-sub"   id="neg-detail-opp-sub"></div>
+              </div>
+            </div>
+          </div>
+          <!-- Filtros de status -->
+          <div class="neg-pills" style="margin-bottom:14px">
+            <button class="neg-pill active" id="detpill-todos"    onclick="filterDetailPill('todos')">Todos</button>
+            <button class="neg-pill"        id="detpill-pendente" onclick="filterDetailPill('pendente')">Pendente</button>
+            <button class="neg-pill"        id="detpill-analise"  onclick="filterDetailPill('analise')">Em análise</button>
+            <button class="neg-pill"        id="detpill-aceita"   onclick="filterDetailPill('aceita')">Aceita</button>
+            <button class="neg-pill"        id="detpill-recusada" onclick="filterDetailPill('recusada')">Recusada</button>
+            <span class="neg-pills-count" id="det-pills-count"></span>
+          </div>
+          <!-- Cards de negociação -->
+          <div class="neg-card-list" id="neg-card-list">
+            <!-- preenchido por renderNegCards() -->
+          </div>
         </div>
+
       </div>
 
       <!-- Painel: Deals Fechados -->
@@ -1989,90 +2043,155 @@ function _initials(name) {
   return name.split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
 }
 
-let _negFilterAtivo = 'todos';
+let _negFilterAtivo = 'todos'; // legado — mantido para evitar erros
 
-function filterNegPill(val) {
-  _negFilterAtivo = val;
-  // atualiza pills
-  document.querySelectorAll('.neg-pill').forEach(p => p.classList.remove('active'));
-  const active = document.getElementById('negpill-' + val);
-  if (active) active.classList.add('active');
-  renderNegociacoes(NEGOCIACOES);
+// ─── NEGOCIAÇÕES: estado da navegação ───
+let _negOppAtiva = null;   // opp_id da oportunidade em detalhe
+let _detFilterAtivo = 'todos';
+
+// CTA contextual por status
+function _negCtaConfig(n) {
+  const s = n.status;
+  if (s === 'pendente')  return { label: 'Revisar proposta', cls: 'primary', hint: '⚡ Aguardando sua resposta', urgente: true };
+  if (s === 'analise')   return { label: 'Ver negociação',   cls: 'ghost',   hint: 'Você está analisando',       urgente: false };
+  if (s === 'aceita')    return { label: 'Ver deal',         cls: 'ghost',   hint: '✓ Deal fechado',             urgente: false };
+  if (s === 'recusada')  return { label: 'Ver detalhes',     cls: 'ghost',   hint: 'Negociação encerrada',       urgente: false };
+  return { label: 'Ver detalhes', cls: 'ghost', hint: '', urgente: false };
 }
 
-function renderNegociacoes(data) {
-  const container = document.getElementById('neg-opp-group-container');
-  if (!container) return;
-
-  // atualiza badge (sempre o total)
+// VIEW 1 — cards de oportunidades
+function renderNegOppCards() {
+  const container = document.getElementById('neg-opp-cards-container');
   const badge = document.getElementById('neg-badge-count');
+  if (!container) return;
   if (badge) badge.textContent = NEGOCIACOES.length;
 
-  // aplica filtro
-  const filtered = _negFilterAtivo === 'todos' ? data : data.filter(n => n.status === _negFilterAtivo);
-
-  // contador
-  const countEl = document.getElementById('neg-pills-count');
-  if (countEl) countEl.textContent = filtered.length + ' negociação' + (filtered.length !== 1 ? 'ões' : '');
-
-  if (filtered.length === 0) {
-    container.innerHTML = '<div class="deal-empty"><div class="deal-empty-icon">💬</div><div class="deal-empty-title">Nenhuma negociação</div><div class="deal-empty-text">Nenhuma negociação com esse status.</div></div>';
-    return;
-  }
-
-  // Agrupa por oportunidade
+  // agrupa todas as negociações por oportunidade
   const groups = {};
-  filtered.forEach(n => {
+  NEGOCIACOES.forEach(n => {
     if (!groups[n.opp_id]) groups[n.opp_id] = { opp_id: n.opp_id, opp: n.opp, items: [] };
     groups[n.opp_id].items.push(n);
   });
 
-  const statusClass = { pendente:'neg-status-pendente', aceita:'neg-status-aceita', analise:'neg-status-analise', recusada:'neg-status-recusada' };
-
-  // ordem: pendente → analise → aceita → recusada
-  const statusOrder = { pendente:0, analise:1, aceita:2, recusada:3 };
+  if (Object.keys(groups).length === 0) {
+    container.innerHTML = '<div class="deal-empty"><div class="deal-empty-icon">💬</div><div class="deal-empty-title">Nenhuma negociação</div><div class="deal-empty-text">Quando marcas enviarem propostas, elas aparecerão aqui.</div></div>';
+    return;
+  }
 
   container.innerHTML = Object.values(groups).map(g => {
-    const cfg = OPP_CAT[g.opp_id === 1 ? 'Esporte' : 'Cultura'] || OPP_CAT['Esporte'];
-    const sorted = [...g.items].sort((a,b) => (statusOrder[a.status]??9) - (statusOrder[b.status]??9));
-    const total = sorted.length;
-    const listItems = sorted.map(n => `
-      <div class="neg-opp-list-item">
-        <div class="neg-marca-avatar">${_initials(n.marca)}</div>
-        <div style="flex:1;min-width:0">
-          <div class="neg-marca-name">${n.marca}</div>
-          <div class="neg-marca-cota">${n.cota} · ${n.enviadaEm}</div>
-        </div>
-        <div class="neg-marca-meta">
-          <span class="neg-status ${statusClass[n.status] || ''}">${n.statusLabel}</span>
-          <button class="btn-sm-outline" onclick="openNegModal(${n.id})">Ver detalhes</button>
-        </div>
-      </div>`).join('');
-    return `<div class="neg-opp-accordion" id="neg-acc-${g.opp_id}">
-      <div class="neg-opp-header" onclick="toggleNegAcc(${g.opp_id})">
-        <div class="neg-opp-cover" style="background:${cfg.gradient}">${cfg.icon}</div>
-        <div class="neg-opp-info">
-          <div class="neg-opp-title">${g.opp}</div>
-          <div class="neg-opp-subtitle">${total} ${total !== 1 ? 'negociações' : 'negociação'}</div>
-        </div>
-        ${chevronSvg}
+    const cfg = _oppCfg(g.opp_id);
+    const total = g.items.length;
+    // conta por status
+    const counts = { pendente:0, analise:0, aceita:0, recusada:0 };
+    g.items.forEach(n => { if (counts[n.status] !== undefined) counts[n.status]++; });
+    const chips = ['pendente','analise','aceita','recusada']
+      .filter(s => counts[s] > 0)
+      .map(s => {
+        const labels = { pendente:'Pendente', analise:'Em análise', aceita:'Aceita', recusada:'Recusada' };
+        return `<span class="neg-opp-chip ${s}">${counts[s]} ${labels[s]}</span>`;
+      }).join('');
+    return `<div class="neg-opp-card" onclick="openNegOppDetail(${g.opp_id})">
+      <div class="neg-opp-cover" style="background:${cfg.gradient}">${cfg.icon}</div>
+      <div class="neg-opp-info">
+        <div class="neg-opp-title">${g.opp}</div>
+        <div class="neg-opp-subtitle">${total} ${total !== 1 ? 'negociações' : 'negociação'}</div>
+        <div class="neg-opp-status-chips">${chips}</div>
       </div>
-      <div class="neg-opp-list" style="display:none">${listItems}</div>
+      <svg class="neg-opp-arrow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:18px;height:18px"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
     </div>`;
   }).join('');
 }
 
-function toggleNegAcc(oppId) {
-  const acc = document.getElementById('neg-acc-' + oppId);
-  if (!acc) return;
-  const list = acc.querySelector('.neg-opp-list');
-  const isOpen = acc.classList.contains('open');
-  acc.classList.toggle('open', !isOpen);
-  list.style.display = isOpen ? 'none' : 'block';
+// Abre VIEW 2 para a oportunidade clicada
+function openNegOppDetail(oppId) {
+  _negOppAtiva = oppId;
+  _detFilterAtivo = 'todos';
+  // reset pills
+  document.querySelectorAll('[id^="detpill-"]').forEach(b => b.classList.remove('active'));
+  const todosBtn = document.getElementById('detpill-todos');
+  if (todosBtn) todosBtn.classList.add('active');
+  // popula header
+  const negs = NEGOCIACOES.filter(n => n.opp_id === oppId);
+  const cfg  = _oppCfg(oppId);
+  const opp  = negs[0]?.opp || '';
+  const cover = document.getElementById('neg-detail-cover');
+  const titleEl = document.getElementById('neg-detail-opp-title');
+  const subEl   = document.getElementById('neg-detail-opp-sub');
+  if (cover)   { cover.style.background = cfg.gradient; cover.innerHTML = cfg.icon; }
+  if (titleEl) titleEl.textContent = opp;
+  if (subEl)   subEl.textContent   = negs.length + (negs.length !== 1 ? ' negociações' : ' negociação');
+  // mostra view 2
+  document.getElementById('neg-list-view').classList.add('hidden');
+  document.getElementById('neg-detail-view').classList.add('active');
+  renderNegCards();
 }
 
-function _buildNegMarcaOptions() { /* legado — mantido para compatibilidade */ }
-function filterNegociacoes() { renderNegociacoes(NEGOCIACOES); }
+// Volta para VIEW 1
+function backToNegList() {
+  _negOppAtiva = null;
+  document.getElementById('neg-detail-view').classList.remove('active');
+  document.getElementById('neg-list-view').classList.remove('hidden');
+}
+
+// Filtro de pills na VIEW 2
+function filterDetailPill(val) {
+  _detFilterAtivo = val;
+  document.querySelectorAll('[id^="detpill-"]').forEach(b => b.classList.remove('active'));
+  const btn = document.getElementById('detpill-' + val);
+  if (btn) btn.classList.add('active');
+  renderNegCards();
+}
+
+// Renderiza os cards de negociação dentro da VIEW 2
+function renderNegCards() {
+  const container = document.getElementById('neg-card-list');
+  const countEl   = document.getElementById('det-pills-count');
+  if (!container) return;
+
+  const statusOrder = { pendente:0, analise:1, aceita:2, recusada:3 };
+  let list = NEGOCIACOES.filter(n => n.opp_id === _negOppAtiva);
+  if (_detFilterAtivo !== 'todos') list = list.filter(n => n.status === _detFilterAtivo);
+  list = [...list].sort((a,b) => (statusOrder[a.status]??9) - (statusOrder[b.status]??9));
+
+  const statusClass = { pendente:'neg-status-pendente', aceita:'neg-status-aceita', analise:'neg-status-analise', recusada:'neg-status-recusada' };
+
+  if (countEl) countEl.textContent = list.length + ' negociação' + (list.length !== 1 ? 'ões' : '');
+
+  if (list.length === 0) {
+    container.innerHTML = '<div class="deal-empty"><div class="deal-empty-icon">💬</div><div class="deal-empty-title">Nenhuma negociação</div><div class="deal-empty-text">Nenhuma negociação com esse status.</div></div>';
+    return;
+  }
+
+  container.innerHTML = list.map(n => {
+    const cta  = _negCtaConfig(n);
+    return `<div class="neg-card${n.status === 'recusada' ? ' recusada-card' : ''}">
+      <div class="neg-card-avatar">${_initials(n.marca)}</div>
+      <div class="neg-card-body">
+        <div class="neg-card-name">${n.marca}</div>
+        <div class="neg-card-sub">${n.cota} · ${n.enviadaEm}</div>
+        <div class="neg-card-hint${cta.urgente ? ' urgente' : ''}">${cta.hint}</div>
+      </div>
+      <div class="neg-card-right">
+        <span class="neg-status ${statusClass[n.status] || ''}">${n.statusLabel}</span>
+        <button class="neg-cta ${cta.cls}" onclick="openNegModal(${n.id})">${cta.label}</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// Helper: config visual da oportunidade
+function _oppCfg(oppId) {
+  const n = NEGOCIACOES.find(x => x.opp_id === oppId);
+  const cat = n ? (n.categoria || (oppId === 1 ? 'Esporte' : 'Cultura')) : 'Esporte';
+  return OPP_CAT[cat] || OPP_CAT['Esporte'];
+}
+
+// Mantido para compatibilidade com chamadas existentes
+function renderNegociacoes(data) { renderNegOppCards(); }
+function toggleNegAcc(oppId) { openNegOppDetail(oppId); }
+function filterNegPill(val) { /* legado — não usado na nova UI */ }
+function _buildNegMarcaOptions() { /* legado */ }
+function filterNegociacoes() { renderNegOppCards(); }
 
 let _negAtiva = null;
 
@@ -2485,6 +2604,12 @@ function closeNegModal() {
   document.getElementById('modal-neg').classList.remove('open');
   document.body.style.overflow = '';
   _negAtiva = null;
+  // Atualiza a view que estiver ativa
+  if (_negOppAtiva !== null) {
+    renderNegCards();
+  } else {
+    renderNegOppCards();
+  }
 }
 
 function saveNegStatus() {
