@@ -260,7 +260,7 @@ tbody tr:last-child td { border-bottom: none; }
 /* ─── MODAL PROPOSTA ─── */
 .modal-overlay { position: fixed; inset: 0; background: rgba(30,22,0,0.45); backdrop-filter: blur(4px); z-index: 500; display: none; align-items: center; justify-content: center; padding: 20px; }
 .modal-overlay.open { display: flex; }
-.modal-prop { background: var(--white); border-radius: 16px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(30,22,0,0.18); }
+.modal-prop { background: var(--white); border-radius: 16px; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(30,22,0,0.18); }
 .modal-prop-header { padding: 22px 24px 0; display: flex; justify-content: space-between; align-items: flex-start; }
 .modal-prop-title { font-family: var(--font-heading); font-size: 18px; font-weight: 600; color: var(--black); }
 .modal-prop-opp { font-size: 12px; color: var(--gray-400); margin-top: 2px; }
@@ -296,6 +296,53 @@ tbody tr:last-child td { border-bottom: none; }
 .modal-prop-divider { border: none; border-top: 1px solid var(--gray-200); margin: 16px 0; }
 .modal-prop-next { font-size: 12px; color: var(--gray-500); line-height: 1.6; }
 .modal-prop-next strong { color: var(--text); display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+
+/* ─── ABAS DO MODAL ─── */
+.modal-tabs { display: flex; border-bottom: 1px solid var(--gray-200); margin: 0 24px; }
+.modal-tab { background: none; border: none; border-bottom: 2px solid transparent; padding: 11px 16px; font-family: var(--font-body); font-size: 13px; font-weight: 500; color: var(--gray-400); cursor: pointer; transition: all 0.15s; white-space: nowrap; margin-bottom: -1px; }
+.modal-tab:hover { color: var(--text); }
+.modal-tab.active { color: var(--text); border-bottom-color: var(--gold); font-weight: 600; }
+.modal-tab-panel { display: none; }
+.modal-tab-panel.active { display: block; }
+
+/* ─── TABELA DE CONTRAPARTIDAS ─── */
+.cp-table-wrap { border: 1px solid var(--gray-200); border-radius: 10px; overflow: hidden; margin-bottom: 14px; }
+.cp-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.cp-table thead th { background: var(--gray-1); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--gray-400); padding: 9px 12px; text-align: left; border-bottom: 1px solid var(--gray-200); white-space: nowrap; }
+.cp-table tbody td { padding: 10px 12px; border-bottom: 1px solid var(--gray-200); vertical-align: top; line-height: 1.45; color: var(--text); }
+.cp-table tbody tr:last-child td { border-bottom: none; }
+.cp-table tbody tr:hover { background: var(--gray-1); }
+.cp-status { display: inline-flex; align-items: center; padding: 2px 9px; border-radius: 100px; font-size: 10px; font-weight: 700; white-space: nowrap; }
+.cp-status.proposta  { background: #FFF8E1; color: #B45309; border: 1px solid rgba(180,83,9,0.2); }
+.cp-status.aceita    { background: #ECFDF5; color: #059669; border: 1px solid rgba(5,150,105,0.2); }
+.cp-status.recusada  { background: #FEF2F2; color: #DC2626; border: 1px solid rgba(220,38,38,0.2); }
+.cp-actions { display: flex; gap: 5px; }
+.cp-btn { background: none; border: 1px solid var(--gray-200); border-radius: 6px; padding: 3px 9px; font-size: 11px; font-weight: 600; font-family: var(--font-body); cursor: pointer; transition: all 0.15s; }
+.cp-btn.accept { border-color: rgba(5,150,105,0.4); color: #059669; }
+.cp-btn.accept:hover { background: #ECFDF5; }
+.cp-btn.reject { border-color: rgba(220,38,38,0.4); color: #DC2626; }
+.cp-btn.reject:hover { background: #FEF2F2; }
+.cp-btn.counter { border-color: var(--gray-300); color: var(--gray-500); }
+.cp-btn.counter:hover { background: var(--gray-1); }
+.cp-total-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--gray-1); border-radius: 10px; margin-bottom: 14px; }
+.cp-total-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--gray-400); }
+.cp-total-value { font-size: 16px; font-weight: 700; color: var(--black); font-family: var(--font-heading); }
+.cp-total-value span { font-size: 11px; font-weight: 500; color: var(--gray-400); margin-left: 4px; }
+.btn-add-cp { display: flex; align-items: center; gap: 7px; background: transparent; border: 1.5px dashed var(--gray-200); color: var(--gray-400); padding: 9px 14px; border-radius: 10px; font-family: var(--font-body); font-size: 13px; font-weight: 500; cursor: pointer; width: 100%; justify-content: center; transition: all 0.15s; margin-bottom: 14px; }
+.btn-add-cp:hover { border-color: var(--gold); color: var(--gold); background: var(--gold-pale); }
+
+/* ─── FORM ADD CONTRAPARTIDA ─── */
+.cp-form { background: var(--gray-1); border-radius: 10px; padding: 14px; margin-bottom: 14px; display: none; flex-direction: column; gap: 10px; }
+.cp-form.open { display: flex; }
+.cp-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.cp-form-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--gray-400); margin-bottom: 4px; display: block; }
+.cp-form-input { width: 100%; padding: 8px 11px; border: 1.5px solid var(--gray-200); border-radius: 8px; font-family: var(--font-body); font-size: 13px; color: var(--text); background: var(--white); outline: none; transition: border-color 0.15s; }
+.cp-form-input:focus { border-color: var(--gold); }
+.cp-form-input::placeholder { color: var(--gray-400); }
+.cp-form-actions { display: flex; gap: 8px; justify-content: flex-end; }
+.cp-form-btn-add { background: var(--black); color: var(--white); border: none; padding: 8px 18px; border-radius: 100px; font-family: var(--font-body); font-size: 13px; font-weight: 600; cursor: pointer; }
+.cp-form-btn-add:hover { background: var(--gold); color: var(--black); }
+.cp-form-btn-cancel { background: transparent; border: 1px solid var(--gray-200); color: var(--gray-500); padding: 8px 14px; border-radius: 100px; font-family: var(--font-body); font-size: 13px; cursor: pointer; }
 
 /* ─── THREAD DE MENSAGENS ─── */
 .msg-thread-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--gray-400); margin-bottom: 10px; }
@@ -441,6 +488,45 @@ tbody tr:last-child td { border-bottom: none; }
 .toast-error { background: #991B1B; color: white; }
 @keyframes slideIn { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
 
+/* ─── VOZ DO USUÁRIO ─── */
+.voz-cat-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border-radius: 100px; border: 1.5px solid var(--gray-200);
+  background: var(--white); font-family: var(--font-body); font-size: 13px;
+  font-weight: 500; color: var(--gray-400); cursor: pointer; transition: all 0.15s;
+}
+.voz-cat-btn:hover { border-color: var(--gold); color: var(--black); }
+.voz-cat-btn.active { border-color: var(--gold); background: rgba(184,134,11,0.08); color: var(--black); font-weight: 600; }
+.voz-prio-btn {
+  padding: 6px 18px; border-radius: 100px; border: 1.5px solid var(--gray-200);
+  background: var(--white); font-family: var(--font-body); font-size: 13px;
+  font-weight: 500; color: var(--gray-400); cursor: pointer; transition: all 0.15s;
+}
+.voz-prio-btn:hover { border-color: var(--gray-3); color: var(--black); }
+.voz-prio-btn.active[data-prio="alta"] { border-color: #EF4444; background: rgba(239,68,68,0.07); color: #B91C1C; font-weight: 700; }
+.voz-prio-btn.active[data-prio="media"] { border-color: var(--gold); background: rgba(184,134,11,0.08); color: #92670a; font-weight: 700; }
+.voz-prio-btn.active[data-prio="baixa"] { border-color: #22C55E; background: rgba(34,197,94,0.07); color: #166534; font-weight: 700; }
+.voz-guide-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+.voz-filter-btn {
+  padding: 5px 14px; border-radius: 100px; border: 1.5px solid var(--gray-200);
+  background: var(--white); font-family: var(--font-body); font-size: 12px;
+  font-weight: 500; color: var(--gray-400); cursor: pointer; transition: all 0.15s;
+}
+.voz-filter-btn:hover { border-color: var(--gray-3); color: var(--black); }
+.voz-filter-btn.active { border-color: var(--black); background: var(--black); color: var(--white); }
+.voz-hist-item {
+  background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg);
+  padding: 18px 20px; display: flex; gap: 14px; align-items: flex-start; transition: border-color 0.15s;
+}
+.voz-hist-item:hover { border-color: var(--gray-3); }
+.voz-hist-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.voz-status-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 100px; font-size: 11px; font-weight: 600; }
+.voz-empty { text-align: center; padding: 48px 24px; background: var(--white); border: 1.5px dashed var(--gray-200); border-radius: var(--radius-lg); }
+@media (max-width: 900px) {
+  #sec-voz > div:nth-child(2) { grid-template-columns: 1fr !important; }
+  #sec-voz > div:nth-child(2) > div:last-child { display: none; }
+}
+
 /* ─── MOBILE ─── */
 .bottom-nav {
   display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 120;
@@ -581,6 +667,10 @@ tbody tr:last-child td { border-bottom: none; }
     <a class="nav-item" data-section="configuracoes" onclick="showSection('configuracoes')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
       Configurações
+    </a>
+    <a class="nav-item" data-section="voz" onclick="showSection('voz')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8z"/><circle cx="17" cy="7" r="1" fill="currentColor" stroke="none"/></svg>
+      Sua Voz
     </a>
   </nav>
 
@@ -975,6 +1065,149 @@ tbody tr:last-child td { border-bottom: none; }
   </div>
 </div>
 
+<!-- Seção: Sua Voz -->
+<div class="section" id="sec-voz">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Sua Voz</h1>
+      <p class="page-subtitle">Compartilhe o que pensa. Cada mensagem alimenta diretamente o roadmap do Radar.</p>
+    </div>
+  </div>
+  <div style="display:grid; grid-template-columns: 1fr 340px; gap:24px; align-items:start">
+
+    <!-- Formulário principal -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Enviar feedback</div>
+        <div style="font-size:13px; color:var(--gray-400)">Problema, ideia ou sugestão — tudo é bem-vindo</div>
+      </div>
+      <div style="padding:24px; display:flex; flex-direction:column; gap:20px">
+
+        <!-- Categoria -->
+        <div>
+          <label style="font-size:12px; font-weight:600; color:var(--gray-400); text-transform:uppercase; letter-spacing:0.06em; display:block; margin-bottom:8px">Categoria</label>
+          <div style="display:flex; flex-wrap:wrap; gap:8px" id="vozCategories">
+            <button type="button" class="voz-cat-btn active" data-cat="bug" onclick="selectVozCat(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:14px;height:14px"><path d="M12 22c4.97 0 9-4.03 9-9H3c0 4.97 4.03 9 9 9z"/><path d="M6.44 13a5.99 5.99 0 01-.44-2.24C6 7.56 8.69 5 12 5s6 2.56 6 5.76c0 .77-.15 1.52-.44 2.24"/><path d="M9 3L8 1M15 3l1-2M15.26 13H8.74"/></svg>
+              Bug / Erro
+            </button>
+            <button type="button" class="voz-cat-btn" data-cat="melhoria" onclick="selectVozCat(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:14px;height:14px"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              Melhoria
+            </button>
+            <button type="button" class="voz-cat-btn" data-cat="nova-feature" onclick="selectVozCat(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:14px;height:14px"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              Nova feature
+            </button>
+            <button type="button" class="voz-cat-btn" data-cat="duvida" onclick="selectVozCat(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:14px;height:14px"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              Dúvida
+            </button>
+            <button type="button" class="voz-cat-btn" data-cat="outro" onclick="selectVozCat(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:14px;height:14px"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+              Outro
+            </button>
+          </div>
+        </div>
+
+        <!-- Prioridade -->
+        <div>
+          <label style="font-size:12px; font-weight:600; color:var(--gray-400); text-transform:uppercase; letter-spacing:0.06em; display:block; margin-bottom:8px">Urgência para você</label>
+          <div style="display:flex; gap:8px" id="vozPriority">
+            <button type="button" class="voz-prio-btn" data-prio="alta" onclick="selectVozPrio(this)">Alta</button>
+            <button type="button" class="voz-prio-btn active" data-prio="media" onclick="selectVozPrio(this)">Média</button>
+            <button type="button" class="voz-prio-btn" data-prio="baixa" onclick="selectVozPrio(this)">Baixa</button>
+          </div>
+        </div>
+
+        <!-- Mensagem -->
+        <div>
+          <label style="font-size:12px; font-weight:600; color:var(--gray-400); text-transform:uppercase; letter-spacing:0.06em; display:block; margin-bottom:8px">Sua mensagem</label>
+          <textarea id="vozMensagem" placeholder="Descreva com liberdade. O que aconteceu? O que você esperava? O que o Radar deveria ter?&#10;&#10;Quanto mais contexto, melhor para o time." style="width:100%; min-height:140px; padding:14px 16px; border-radius:var(--radius-md); border:1.5px solid var(--gray-200); background:var(--white); font-family:var(--font-body); font-size:14px; color:var(--text); resize:vertical; outline:none; transition:border-color 0.2s; box-sizing:border-box; line-height:1.6" onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--gray-200)'"></textarea>
+          <div style="font-size:12px; color:var(--gray-400); margin-top:6px; text-align:right" id="vozCharCount">0 / 800</div>
+        </div>
+
+        <!-- Anônimo -->
+        <label style="display:flex; align-items:center; gap:10px; cursor:pointer; user-select:none">
+          <input type="checkbox" id="vozAnonimo" style="width:16px; height:16px; accent-color:var(--gold); cursor:pointer">
+          <div>
+            <div style="font-size:13px; font-weight:500; color:var(--text)">Enviar anonimamente</div>
+            <div style="font-size:12px; color:var(--gray-400)">Seu nome não aparecerá no feedback</div>
+          </div>
+        </label>
+
+        <!-- Botão enviar -->
+        <button class="btn btn-gold" style="align-self:flex-start" onclick="submitVozFeedback()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:16px;height:16px"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          Enviar feedback
+        </button>
+      </div>
+    </div>
+
+    <!-- Painel lateral -->
+    <div style="display:flex; flex-direction:column; gap:16px">
+
+      <!-- Dica estratégica -->
+      <div style="background:linear-gradient(135deg, rgba(184,134,11,0.07), rgba(200,168,75,0.04)); border:1px solid rgba(184,134,11,0.18); border-radius:var(--radius-lg); padding:20px">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px">
+          <div style="width:32px; height:32px; background:var(--gold-gradient); border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" style="width:16px;height:16px"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div style="font-size:13px; font-weight:700; color:var(--black)">Seu feedback importa</div>
+        </div>
+        <p style="font-size:13px; color:var(--gray-4); line-height:1.6; margin:0">Cada mensagem é lida pelo time e alimenta diretamente o roadmap do Radar. Você não está falando para o vazio.</p>
+      </div>
+
+      <!-- Categorias explicadas -->
+      <div class="card" style="padding:0; overflow:hidden">
+        <div style="padding:16px 20px; border-bottom:1px solid var(--gray-200)">
+          <div style="font-size:13px; font-weight:700; color:var(--black)">Guia de categorias</div>
+        </div>
+        <div style="padding:16px 20px; display:flex; flex-direction:column; gap:12px">
+          <div style="display:flex; gap:10px; align-items:flex-start">
+            <span class="voz-guide-dot" style="background:#EF4444"></span>
+            <div><div style="font-size:12px; font-weight:700; color:var(--text); margin-bottom:2px">Bug / Erro</div><div style="font-size:12px; color:var(--gray-400); line-height:1.5">Algo quebrado, comportamento inesperado ou falha na plataforma</div></div>
+          </div>
+          <div style="display:flex; gap:10px; align-items:flex-start">
+            <span class="voz-guide-dot" style="background:#3B82F6"></span>
+            <div><div style="font-size:12px; font-weight:700; color:var(--text); margin-bottom:2px">Melhoria</div><div style="font-size:12px; color:var(--gray-400); line-height:1.5">Algo que funciona, mas poderia ser mais fácil, rápido ou claro</div></div>
+          </div>
+          <div style="display:flex; gap:10px; align-items:flex-start">
+            <span class="voz-guide-dot" style="background:var(--gold)"></span>
+            <div><div style="font-size:12px; font-weight:700; color:var(--text); margin-bottom:2px">Nova feature</div><div style="font-size:12px; color:var(--gray-400); line-height:1.5">Funcionalidade que o Radar ainda não tem mas deveria ter</div></div>
+          </div>
+          <div style="display:flex; gap:10px; align-items:flex-start">
+            <span class="voz-guide-dot" style="background:#8B5CF6"></span>
+            <div><div style="font-size:12px; font-weight:700; color:var(--text); margin-bottom:2px">Dúvida</div><div style="font-size:12px; color:var(--gray-400); line-height:1.5">Não entendeu algo ou quer saber como usar um recurso</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Histórico de feedbacks -->
+  <div style="margin-top:24px">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px">
+      <div>
+        <h2 style="font-size:16px; font-weight:700; color:var(--black); margin:0">Seus feedbacks anteriores</h2>
+        <p style="font-size:13px; color:var(--gray-400); margin:4px 0 0">Acompanhe o status de cada mensagem enviada</p>
+      </div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap" id="vozHistFilter">
+        <button class="voz-filter-btn active" data-filter="todos" onclick="filterVozHist(this)">Todos</button>
+        <button class="voz-filter-btn" data-filter="bug" onclick="filterVozHist(this)">Bug</button>
+        <button class="voz-filter-btn" data-filter="melhoria" onclick="filterVozHist(this)">Melhoria</button>
+        <button class="voz-filter-btn" data-filter="nova-feature" onclick="filterVozHist(this)">Nova feature</button>
+        <button class="voz-filter-btn" data-filter="duvida" onclick="filterVozHist(this)">Dúvida</button>
+      </div>
+    </div>
+    <div id="vozHistList">
+      <!-- Preenchido por JS -->
+    </div>
+  </div>
+
+</div>
+
 <!-- Bottom nav mobile -->
 <nav class="bottom-nav">
   <button class="bottom-nav-item active" id="bn-dashboard" onclick="showSection('dashboard')">
@@ -992,6 +1225,10 @@ tbody tr:last-child td { border-bottom: none; }
   <button class="bottom-nav-item" id="bn-configuracoes" onclick="showSection('configuracoes')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
     <span>Config</span>
+  </button>
+  <button class="bottom-nav-item" id="bn-voz" onclick="showSection('voz')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8z"/></svg>
+    <span>Voz</span>
   </button>
 </nav>
 
@@ -1127,7 +1364,8 @@ const SECTION_TITLES = {
   dashboard: 'Dashboard',
   oportunidades: 'Explorar Oportunidades',
   propostas: 'Minhas Propostas',
-  configuracoes: 'Configurações'
+  configuracoes: 'Configurações',
+  voz: 'Sua Voz'
 };
 
 // ─── INIT ───
@@ -1387,9 +1625,35 @@ function showToast(message, type = 'success') {
 init();
 
 // ─── MOCK DATA PROPOSTAS ───
+// Estrutura de dados planejada para uso futuro:
+//
+// PROPOSTA / NEGOCIAÇÃO
+//   id            : number          — identificador único
+//   opp_id        : number          — ID da oportunidade (link para tabela de oportunidades)
+//   cota_id       : string          — identificador da cota dentro da oportunidade
+//   marca_id      : string          — ID da marca (link para tabela de marcas)
+//   opp           : string          — nome da oportunidade (desnormalizado para UI)
+//   cota          : string          — nome da cota (desnormalizado para UI)
+//   assunto       : string          — mensagem inicial
+//   valor         : string          — valor formatado da cota base
+//   enviadaEm     : string (date)   — data de criação
+//   status        : 'pendente' | 'aceita' | 'analise' | 'recusada'
+//   thread        : Mensagem[]      — histórico de mensagens
+//   contrapartidas: Contrapartida[] — itens negociados (para contratos e financeiro)
+//
+// CONTRAPARTIDA (insumo para: contratos, ativação, financeiro)
+//   id            : number          — identificador único dentro da negociação
+//   descricao     : string          — descrição do entregável
+//   categoria     : 'branding' | 'digital' | 'ativacao' | 'midia' | 'outro'
+//   valor         : number          — valor em R$ (sem formatação — usar para cálculos)
+//   prazo         : string (date)   — prazo de entrega/execução
+//   status        : 'proposta' | 'aceita' | 'recusada'
+//   propostoPor   : 'marca' | 'detentor'
+//   — futuros campos: responsavel, evidencia_entrega, data_entrega_real, pago, data_pagamento
+//
 const PROPOSTAS = [
   {
-    id: 1,
+    id: 1, opp_id: 1, marca_id: 'nike-brasil',
     opp: 'Maratona Internacional SP',
     cota: 'Patrocinador Premium',
     assunto: 'Quero negociar esta cota',
@@ -1400,10 +1664,14 @@ const PROPOSTAS = [
     statusHint: 'Aguardando retorno do organizador',
     thread: [
       { autor: 'marca', nome: 'Nike Brasil', texto: 'Temos grande interesse nesta oportunidade. Gostaríamos de discutir os detalhes do pacote Premium e entender melhor as possibilidades de ativação.', data: '15/03 · 10:22' }
+    ],
+    contrapartidas: [
+      { id:1, descricao:'Logo na camiseta oficial', categoria:'branding', valor: 15000, prazo:'30/04/2026', status:'proposta', propostoPor:'marca' },
+      { id:2, descricao:'Estande 6m² no evento',    categoria:'ativacao', valor: 20000, prazo:'15/05/2026', status:'proposta', propostoPor:'marca' }
     ]
   },
   {
-    id: 2,
+    id: 2, opp_id: 2, marca_id: 'nike-brasil',
     opp: 'Festival de Verão Salvador',
     cota: 'Patrocinador Master',
     assunto: 'Gostaria de fazer uma proposta',
@@ -1416,10 +1684,16 @@ const PROPOSTAS = [
       { autor: 'marca',    nome: 'Nike Brasil',               texto: 'Acreditamos que nossa marca tem alto alinhamento com o público do festival. Enviamos uma proposta formal para análise.', data: '12/03 · 09:15' },
       { autor: 'detentor', nome: 'Festival de Verão Salvador', texto: 'Olá! Recebemos sua proposta e ficamos muito animados com o potencial desta parceria. Vamos alinhar os detalhes em breve.', data: '13/03 · 14:40' },
       { autor: 'marca',    nome: 'Nike Brasil',               texto: 'Ótimo! Podemos agendar uma call para a próxima semana?', data: '13/03 · 16:05' }
+    ],
+    contrapartidas: [
+      { id:1, descricao:'Logo na camiseta oficial',       categoria:'branding', valor: 15000, prazo:'30/04/2026', status:'aceita',   propostoPor:'marca' },
+      { id:2, descricao:'Estande 6m² no palco principal', categoria:'ativacao', valor: 30000, prazo:'20/05/2026', status:'aceita',   propostoPor:'detentor' },
+      { id:3, descricao:'Menção em redes sociais (5x)',   categoria:'digital',  valor:  8000, prazo:'01/05/2026', status:'recusada', propostoPor:'marca' },
+      { id:4, descricao:'Banner LED no palco',            categoria:'midia',    valor: 12000, prazo:'20/05/2026', status:'proposta', propostoPor:'detentor' }
     ]
   },
   {
-    id: 3,
+    id: 3, opp_id: 3, marca_id: 'nike-brasil',
     opp: 'Expo Tech Brasil',
     cota: 'Apoiador Oficial',
     assunto: 'Tenho interesse, mas preciso de mais informações',
@@ -1431,10 +1705,13 @@ const PROPOSTAS = [
     thread: [
       { autor: 'marca',    nome: 'Nike Brasil',  texto: 'Precisamos entender melhor os dados de público e os entregáveis antes de avançar com a proposta.', data: '10/03 · 11:30' },
       { autor: 'detentor', nome: 'Expo Tech BR', texto: 'Claro! Temos um media kit completo. Posso te enviar por aqui ou prefere por e-mail?', data: '11/03 · 08:55' }
+    ],
+    contrapartidas: [
+      { id:1, descricao:'Logo no backdrop do evento', categoria:'branding', valor: 10000, prazo:'05/06/2026', status:'proposta', propostoPor:'marca' }
     ]
   },
   {
-    id: 4,
+    id: 4, opp_id: 4, marca_id: 'nike-brasil',
     opp: 'Arena Music Curitiba',
     cota: 'Patrocinador Premium',
     assunto: 'Quero negociar esta cota',
@@ -1446,7 +1723,8 @@ const PROPOSTAS = [
     thread: [
       { autor: 'marca',    nome: 'Nike Brasil',         texto: 'Gostaríamos de negociar essa cota. Temos flexibilidade nos valores e nos entregáveis.', data: '05/03 · 13:00' },
       { autor: 'detentor', nome: 'Arena Music Curitiba', texto: 'Agradecemos o interesse, mas a cota já foi fechada com outro parceiro. Manteremos contato para futuras edições.', data: '07/03 · 10:15' }
-    ]
+    ],
+    contrapartidas: []
   }
 ];
 
@@ -1484,6 +1762,7 @@ function openPropostaModal(id) {
   document.getElementById('mp-enviada').textContent = p.enviadaEm;
 
   renderMsgThread(p.thread);
+  renderContrapartidas(p.contrapartidas || []);
 
   // reset compose
   const ta = document.getElementById('mp-compose-input');
@@ -1491,8 +1770,99 @@ function openPropostaModal(id) {
   const btn = document.getElementById('mp-send-btn');
   if (btn) btn.disabled = true;
 
+  // reset to tab Mensagens
+  switchModalTab('mensagens');
+  // hide cp form
+  const cpForm = document.getElementById('mp-cp-form');
+  if (cpForm) cpForm.classList.remove('open');
+
   document.getElementById('modal-proposta').classList.add('open');
   document.body.style.overflow = 'hidden';
+}
+
+function switchModalTab(tab) {
+  document.querySelectorAll('#modal-proposta .modal-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.tab === tab);
+  });
+  document.querySelectorAll('#modal-proposta .modal-tab-panel').forEach(p => {
+    p.classList.toggle('active', p.dataset.panel === tab);
+  });
+}
+
+function formatValorCp(v) {
+  return 'R$ ' + v.toLocaleString('pt-BR');
+}
+
+function renderContrapartidas(list) {
+  const tbody = document.getElementById('mp-cp-tbody');
+  const totalEl = document.getElementById('mp-cp-total');
+  if (!tbody) return;
+
+  if (list.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:20px;font-size:13px;">Nenhuma contrapartida adicionada ainda.</td></tr>';
+  } else {
+    tbody.innerHTML = list.map(cp => {
+      const statusClass = cp.status; // proposta | aceita | recusada
+      const statusLabel = cp.status === 'proposta' ? 'Proposta' : cp.status === 'aceita' ? 'Aceita' : 'Recusada';
+      // marca can act on items proposed by detentor that are still "proposta"
+      const canAct = cp.propostoPor === 'detentor' && cp.status === 'proposta';
+      const actions = canAct
+        ? `<div class="cp-actions">
+            <button class="cp-btn accept" onclick="acceptCpMarca(${cp.id})">Aceitar</button>
+            <button class="cp-btn reject" onclick="rejectCpMarca(${cp.id})">Recusar</button>
+           </div>`
+        : '';
+      return `<tr>
+        <td>${cp.descricao}</td>
+        <td style="white-space:nowrap">${formatValorCp(cp.valor)}</td>
+        <td style="white-space:nowrap">${cp.prazo}</td>
+        <td><span class="cp-status ${statusClass}">${statusLabel}</span></td>
+        <td>${actions}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  const total = list.filter(c => c.status === 'aceita').reduce((s, c) => s + c.valor, 0);
+  if (totalEl) totalEl.textContent = formatValorCp(total);
+}
+
+function toggleCpForm() {
+  const form = document.getElementById('mp-cp-form');
+  if (form) form.classList.toggle('open');
+}
+
+function addContrapartidaMarca() {
+  const p = _propostaAtiva;
+  if (!p) return;
+  const desc  = document.getElementById('mp-cp-desc').value.trim();
+  const valor = parseFloat(document.getElementById('mp-cp-valor').value);
+  const prazo = document.getElementById('mp-cp-prazo').value.trim();
+  if (!desc || !valor || !prazo) { showToast('Preencha todos os campos.', 'error'); return; }
+
+  const newId = p.contrapartidas.length ? Math.max(...p.contrapartidas.map(c=>c.id)) + 1 : 1;
+  p.contrapartidas.push({ id: newId, descricao: desc, valor, prazo, status:'proposta', propostoPor:'marca' });
+  renderContrapartidas(p.contrapartidas);
+
+  // reset form
+  document.getElementById('mp-cp-desc').value = '';
+  document.getElementById('mp-cp-valor').value = '';
+  document.getElementById('mp-cp-prazo').value = '';
+  document.getElementById('mp-cp-form').classList.remove('open');
+  showToast('Contrapartida adicionada!', 'success');
+}
+
+function acceptCpMarca(cpId) {
+  const p = _propostaAtiva;
+  if (!p) return;
+  const cp = p.contrapartidas.find(c => c.id === cpId);
+  if (cp) { cp.status = 'aceita'; renderContrapartidas(p.contrapartidas); showToast('Contrapartida aceita!', 'success'); }
+}
+
+function rejectCpMarca(cpId) {
+  const p = _propostaAtiva;
+  if (!p) return;
+  const cp = p.contrapartidas.find(c => c.id === cpId);
+  if (cp) { cp.status = 'recusada'; renderContrapartidas(p.contrapartidas); showToast('Contrapartida recusada.', 'error'); }
 }
 
 function closePropostaModal() {
@@ -1519,6 +1889,153 @@ function sendPropostaMsg() {
   document.getElementById('mp-send-btn').disabled = true;
   showToast('Mensagem enviada!', 'success');
 }
+
+// ─── VOZ DO USUÁRIO ───
+const VOZ_STORAGE_KEY = 'radar_voz_marca';
+
+const VOZ_CAT_CONFIG = {
+  'bug':          { label: 'Bug / Erro',    color: '#EF4444', bg: 'rgba(239,68,68,0.09)',   icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="M12 22c4.97 0 9-4.03 9-9H3c0 4.97 4.03 9 9 9z"/><path d="M6.44 13a5.99 5.99 0 01-.44-2.24C6 7.56 8.69 5 12 5s6 2.56 6 5.76"/></svg>' },
+  'melhoria':     { label: 'Melhoria',      color: '#3B82F6', bg: 'rgba(59,130,246,0.09)',  icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>' },
+  'nova-feature': { label: 'Nova feature',  color: '#B8860B', bg: 'rgba(184,134,11,0.09)',  icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>' },
+  'duvida':       { label: 'Dúvida',        color: '#8B5CF6', bg: 'rgba(139,92,246,0.09)',  icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>' },
+  'outro':        { label: 'Outro',         color: '#6B7280', bg: 'rgba(107,114,128,0.09)', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>' }
+};
+
+const VOZ_STATUS_CONFIG = {
+  'recebido':  { label: 'Recebido',    color: '#6B7280', bg: 'rgba(107,114,128,0.1)' },
+  'analise':   { label: 'Em análise',  color: '#B8860B', bg: 'rgba(184,134,11,0.1)'  },
+  'planejado': { label: 'Planejado',   color: '#3B82F6', bg: 'rgba(59,130,246,0.1)'  },
+  'entregue':  { label: 'Entregue ✓', color: '#16A34A', bg: 'rgba(22,163,74,0.1)'   }
+};
+
+let _vozCatAtual = 'bug';
+let _vozPrioAtual = 'media';
+let _vozFilterAtual = 'todos';
+
+function selectVozCat(btn) {
+  document.querySelectorAll('.voz-cat-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  _vozCatAtual = btn.dataset.cat;
+}
+
+function selectVozPrio(btn) {
+  document.querySelectorAll('.voz-prio-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  _vozPrioAtual = btn.dataset.prio;
+}
+
+function filterVozHist(btn) {
+  document.querySelectorAll('.voz-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  _vozFilterAtual = btn.dataset.filter;
+  renderVozHistorico();
+}
+
+function getVozFeedbacks() {
+  try { return JSON.parse(localStorage.getItem(VOZ_STORAGE_KEY) || '[]'); }
+  catch { return []; }
+}
+
+function saveVozFeedbacks(list) {
+  localStorage.setItem(VOZ_STORAGE_KEY, JSON.stringify(list));
+}
+
+function submitVozFeedback() {
+  const texto = document.getElementById('vozMensagem').value.trim();
+  if (!texto) { showToast('Escreva sua mensagem antes de enviar.', 'error'); return; }
+  if (texto.length > 800) { showToast('Mensagem muito longa. Máximo 800 caracteres.', 'error'); return; }
+
+  const anonimo = document.getElementById('vozAnonimo').checked;
+  const nomeEl = document.getElementById('sidebarName');
+  const emailEl = document.getElementById('sidebarEmail');
+
+  const feedback = {
+    id: Date.now(),
+    categoria: _vozCatAtual,
+    prioridade: _vozPrioAtual,
+    mensagem: texto,
+    anonimo,
+    autor: anonimo ? 'Anônimo' : (nomeEl ? nomeEl.textContent : 'Usuário'),
+    email: anonimo ? null : (emailEl ? emailEl.textContent : null),
+    portal: 'marca',
+    status: 'recebido',
+    data: new Date().toISOString()
+  };
+
+  const list = getVozFeedbacks();
+  list.unshift(feedback);
+  saveVozFeedbacks(list);
+
+  // Reset form
+  document.getElementById('vozMensagem').value = '';
+  document.getElementById('vozCharCount').textContent = '0 / 800';
+  document.getElementById('vozAnonimo').checked = false;
+  _vozCatAtual = 'bug';
+  _vozPrioAtual = 'media';
+  document.querySelectorAll('.voz-cat-btn').forEach(b => b.classList.toggle('active', b.dataset.cat === 'bug'));
+  document.querySelectorAll('.voz-prio-btn').forEach(b => b.classList.toggle('active', b.dataset.prio === 'media'));
+
+  renderVozHistorico();
+  showToast('Feedback enviado! Obrigado pela sua voz.', 'success');
+}
+
+function renderVozHistorico() {
+  const list = getVozFeedbacks();
+  const filtered = _vozFilterAtual === 'todos' ? list : list.filter(f => f.categoria === _vozFilterAtual);
+  const container = document.getElementById('vozHistList');
+  if (!container) return;
+
+  if (filtered.length === 0) {
+    container.innerHTML = `<div class="voz-empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:40px;height:40px;color:var(--gray-3);margin:0 auto 12px;display:block"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      <div style="font-size:14px;font-weight:600;color:var(--black);margin-bottom:6px">Nenhum feedback ainda</div>
+      <div style="font-size:13px;color:var(--gray-400)">Seja o primeiro a enviar uma mensagem ao time do Radar.</div>
+    </div>`;
+    return;
+  }
+
+  container.innerHTML = `<div style="display:flex;flex-direction:column;gap:10px">${filtered.map(f => {
+    const cat = VOZ_CAT_CONFIG[f.categoria] || VOZ_CAT_CONFIG['outro'];
+    const status = VOZ_STATUS_CONFIG[f.status] || VOZ_STATUS_CONFIG['recebido'];
+    const prio = { alta: '🔴 Alta', media: '🟡 Média', baixa: '🟢 Baixa' }[f.prioridade] || 'Média';
+    const dt = new Date(f.data).toLocaleDateString('pt-BR', { day:'2-digit', month:'short', year:'numeric' });
+    return `<div class="voz-hist-item">
+      <div class="voz-hist-icon" style="background:${cat.bg}">${cat.icon.replace('stroke="currentColor"', `stroke="${cat.color}"`)}</div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+          <span style="font-size:12px;font-weight:700;color:${cat.color}">${cat.label}</span>
+          <span style="color:var(--gray-3);font-size:11px">·</span>
+          <span style="font-size:12px;color:var(--gray-400)">${prio}</span>
+          <span style="color:var(--gray-3);font-size:11px">·</span>
+          <span style="font-size:12px;color:var(--gray-400)">${dt}</span>
+          ${f.anonimo ? '<span style="font-size:11px;color:var(--gray-400);font-style:italic">anônimo</span>' : ''}
+        </div>
+        <div style="font-size:13px;color:var(--text);line-height:1.6;margin-bottom:10px">${escapeHtml(f.mensagem)}</div>
+        <span class="voz-status-badge" style="background:${status.bg};color:${status.color}">
+          <span style="width:6px;height:6px;border-radius:50%;background:${status.color};flex-shrink:0"></span>
+          ${status.label}
+        </span>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Contador de caracteres textarea
+document.addEventListener('DOMContentLoaded', () => {
+  const ta = document.getElementById('vozMensagem');
+  if (ta) {
+    ta.addEventListener('input', () => {
+      const len = ta.value.length;
+      document.getElementById('vozCharCount').textContent = len + ' / 800';
+      if (len > 800) ta.value = ta.value.substring(0, 800);
+    });
+  }
+  renderVozHistorico();
+});
 </script>
 
 <!-- MODAL DETALHES DA PROPOSTA -->
@@ -1531,16 +2048,21 @@ function sendPropostaMsg() {
       </div>
       <button class="modal-prop-close" onclick="closePropostaModal()">✕</button>
     </div>
+    <!-- Abas -->
+    <div class="modal-tabs">
+      <button class="modal-tab active" data-tab="mensagens" onclick="switchModalTab('mensagens')">Mensagens</button>
+      <button class="modal-tab" data-tab="proposta" onclick="switchModalTab('proposta')">Proposta</button>
+    </div>
+
     <div class="modal-prop-body">
 
-      <!-- Status -->
+      <!-- Status + detalhes (sempre visível) -->
       <div class="modal-prop-status" id="mp-status-wrap">
         <span class="modal-prop-status-dot"></span>
         <span class="modal-prop-status-text" id="mp-status-label"></span>
         <span class="modal-prop-status-hint" id="mp-status-hint"></span>
       </div>
 
-      <!-- Linhas de detalhe -->
       <div class="modal-prop-rows">
         <div class="modal-prop-row">
           <span class="modal-prop-row-label">Cota</span>
@@ -1562,27 +2084,77 @@ function sendPropostaMsg() {
 
       <hr class="modal-prop-divider">
 
-      <!-- Thread de mensagens -->
-      <div class="msg-thread-label">Mensagens</div>
-      <div class="msg-thread" id="mp-thread">
-        <!-- preenchido por JS -->
+      <!-- PAINEL: Mensagens -->
+      <div class="modal-tab-panel active" data-panel="mensagens">
+        <div class="msg-thread-label">Mensagens</div>
+        <div class="msg-thread" id="mp-thread"></div>
+        <div class="msg-compose">
+          <textarea
+            class="msg-compose-textarea"
+            id="mp-compose-input"
+            placeholder="Escreva uma mensagem para o organizador…"
+            rows="3"
+            oninput="document.getElementById('mp-send-btn').disabled = !this.value.trim()"
+          ></textarea>
+          <div class="msg-compose-footer">
+            <button class="btn-send-msg" id="mp-send-btn" onclick="sendPropostaMsg()" disabled>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12zm0 0h7.5"/></svg>
+              Enviar
+            </button>
+          </div>
+        </div>
       </div>
 
-      <!-- Compor nova mensagem -->
-      <div class="msg-compose">
-        <textarea
-          class="msg-compose-textarea"
-          id="mp-compose-input"
-          placeholder="Escreva uma mensagem para o organizador…"
-          rows="3"
-          oninput="document.getElementById('mp-send-btn').disabled = !this.value.trim()"
-        ></textarea>
-        <div class="msg-compose-footer">
-          <button class="btn-send-msg" id="mp-send-btn" onclick="sendPropostaMsg()" disabled>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12zm0 0h7.5"/></svg>
-            Enviar
-          </button>
+      <!-- PAINEL: Proposta (contrapartidas) -->
+      <div class="modal-tab-panel" data-panel="proposta">
+        <!-- Total aceito -->
+        <div class="cp-total-row">
+          <span class="cp-total-label">Total aceito</span>
+          <span class="cp-total-value" id="mp-cp-total">R$ 0<span>(apenas itens aceitos)</span></span>
         </div>
+
+        <!-- Tabela de contrapartidas -->
+        <div class="cp-table-wrap">
+          <table class="cp-table">
+            <thead>
+              <tr>
+                <th>Descrição</th>
+                <th>Valor</th>
+                <th>Prazo</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="mp-cp-tbody"></tbody>
+          </table>
+        </div>
+
+        <!-- Form adicionar -->
+        <div class="cp-form" id="mp-cp-form">
+          <div>
+            <label class="cp-form-label">Descrição</label>
+            <input class="cp-form-input" id="mp-cp-desc" type="text" placeholder="Ex: Logo na camiseta oficial">
+          </div>
+          <div class="cp-form-row">
+            <div>
+              <label class="cp-form-label">Valor (R$)</label>
+              <input class="cp-form-input" id="mp-cp-valor" type="number" placeholder="15000">
+            </div>
+            <div>
+              <label class="cp-form-label">Prazo de entrega</label>
+              <input class="cp-form-input" id="mp-cp-prazo" type="text" placeholder="DD/MM/AAAA">
+            </div>
+          </div>
+          <div class="cp-form-actions">
+            <button class="cp-form-btn-cancel" onclick="toggleCpForm()">Cancelar</button>
+            <button class="cp-form-btn-add" onclick="addContrapartidaMarca()">Adicionar</button>
+          </div>
+        </div>
+
+        <button class="btn-add-cp" onclick="toggleCpForm()">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+          Adicionar contrapartida
+        </button>
       </div>
 
     </div>

@@ -275,7 +275,7 @@ tbody tr:last-child td { border-bottom: none; }
 /* ─── MODAL NEGOCIAÇÃO (detentor) ─── */
 .modal-overlay-det { position: fixed; inset: 0; background: rgba(30,22,0,0.45); backdrop-filter: blur(4px); z-index: 500; display: none; align-items: center; justify-content: center; padding: 20px; }
 .modal-overlay-det.open { display: flex; }
-.modal-neg { background: var(--white); border-radius: 16px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(30,22,0,0.18); }
+.modal-neg { background: var(--white); border-radius: 16px; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(30,22,0,0.18); }
 .modal-neg-header { padding: 22px 24px 0; display: flex; justify-content: space-between; align-items: flex-start; }
 .modal-neg-title { font-family: var(--font-heading); font-size: 18px; font-weight: 600; color: var(--black); }
 .modal-neg-opp { font-size: 12px; color: var(--gray-400); margin-top: 2px; }
@@ -330,6 +330,49 @@ tbody tr:last-child td { border-bottom: none; }
 .modal-neg-status-label { font-weight: 700; color: var(--black); }
 .modal-neg-status-hint  { font-size: 12px; color: var(--gray-400); margin-left: 2px; }
 .modal-neg-next { font-size: 12px; color: var(--gray-400); background: var(--gray-1); border-radius: 8px; padding: 10px 12px; line-height: 1.5; margin-top: 14px; }
+
+/* ─── ABAS DO MODAL (detentor) ─── */
+.modal-tabs-det { display: flex; border-bottom: 1px solid var(--gray-200); margin: 0 24px; }
+.modal-tab-det { background: none; border: none; border-bottom: 2px solid transparent; padding: 11px 16px; font-family: var(--font-body); font-size: 13px; font-weight: 500; color: var(--gray-400); cursor: pointer; transition: all 0.15s; white-space: nowrap; margin-bottom: -1px; }
+.modal-tab-det:hover { color: var(--text); }
+.modal-tab-det.active { color: var(--text); border-bottom-color: var(--gold); font-weight: 600; }
+.modal-tab-panel-det { display: none; }
+.modal-tab-panel-det.active { display: block; }
+
+/* ─── TABELA DE CONTRAPARTIDAS (detentor) ─── */
+.cp-table-wrap { border: 1px solid var(--gray-200); border-radius: 10px; overflow: hidden; margin-bottom: 14px; }
+.cp-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.cp-table thead th { background: var(--gray-1); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--gray-400); padding: 9px 12px; text-align: left; border-bottom: 1px solid var(--gray-200); white-space: nowrap; }
+.cp-table tbody td { padding: 10px 12px; border-bottom: 1px solid var(--gray-200); vertical-align: top; line-height: 1.45; color: var(--text); }
+.cp-table tbody tr:last-child td { border-bottom: none; }
+.cp-table tbody tr:hover { background: var(--gray-1); }
+.cp-status { display: inline-flex; align-items: center; padding: 2px 9px; border-radius: 100px; font-size: 10px; font-weight: 700; white-space: nowrap; }
+.cp-status.proposta { background: #FFF8E1; color: #B45309; border: 1px solid rgba(180,83,9,0.2); }
+.cp-status.aceita   { background: #ECFDF5; color: #059669; border: 1px solid rgba(5,150,105,0.2); }
+.cp-status.recusada { background: #FEF2F2; color: #DC2626; border: 1px solid rgba(220,38,38,0.2); }
+.cp-actions { display: flex; gap: 5px; }
+.cp-btn { background: none; border: 1px solid var(--gray-200); border-radius: 6px; padding: 3px 9px; font-size: 11px; font-weight: 600; font-family: var(--font-body); cursor: pointer; transition: all 0.15s; }
+.cp-btn.accept { border-color: rgba(5,150,105,0.4); color: #059669; }
+.cp-btn.accept:hover { background: #ECFDF5; }
+.cp-btn.reject { border-color: rgba(220,38,38,0.4); color: #DC2626; }
+.cp-btn.reject:hover { background: #FEF2F2; }
+.cp-total-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--gray-1); border-radius: 10px; margin-bottom: 14px; }
+.cp-total-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--gray-400); }
+.cp-total-value { font-size: 16px; font-weight: 700; color: var(--black); font-family: var(--font-heading); }
+.cp-total-value span { font-size: 11px; font-weight: 500; color: var(--gray-400); margin-left: 4px; }
+.btn-add-cp-det { display: flex; align-items: center; gap: 7px; background: transparent; border: 1.5px dashed var(--gray-200); color: var(--gray-400); padding: 9px 14px; border-radius: 10px; font-family: var(--font-body); font-size: 13px; font-weight: 500; cursor: pointer; width: 100%; justify-content: center; transition: all 0.15s; margin-bottom: 14px; }
+.btn-add-cp-det:hover { border-color: var(--gold); color: var(--gold); background: rgba(184,134,11,0.05); }
+.cp-form-det { background: var(--gray-1); border-radius: 10px; padding: 14px; margin-bottom: 14px; display: none; flex-direction: column; gap: 10px; }
+.cp-form-det.open { display: flex; }
+.cp-form-row-det { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.cp-form-label-det { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--gray-400); margin-bottom: 4px; display: block; }
+.cp-form-input-det { width: 100%; padding: 8px 11px; border: 1.5px solid var(--gray-200); border-radius: 8px; font-family: var(--font-body); font-size: 13px; color: var(--text); background: var(--white); outline: none; transition: border-color 0.15s; }
+.cp-form-input-det:focus { border-color: var(--gold); }
+.cp-form-input-det::placeholder { color: var(--gray-400); }
+.cp-form-actions-det { display: flex; gap: 8px; justify-content: flex-end; }
+.cp-form-btn-add-det { background: var(--black); color: var(--white); border: none; padding: 8px 18px; border-radius: 100px; font-family: var(--font-body); font-size: 13px; font-weight: 600; cursor: pointer; }
+.cp-form-btn-add-det:hover { background: var(--gold); color: var(--black); }
+.cp-form-btn-cancel-det { background: transparent; border: 1px solid var(--gray-200); color: var(--gray-500); padding: 8px 14px; border-radius: 100px; font-family: var(--font-body); font-size: 13px; cursor: pointer; }
 
 /* ─── THREAD MENSAGENS (detentor) ─── */
 .msg-thread-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--gray-400); margin-bottom: 10px; }
@@ -409,6 +452,45 @@ tbody tr:last-child td { border-bottom: none; }
 .toast-success { background: #065F46; color: white; }
 .toast-error { background: #991B1B; color: white; }
 @keyframes slideIn { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+
+/* ─── VOZ DO USUÁRIO ─── */
+.voz-cat-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border-radius: 100px; border: 1.5px solid var(--gray-200);
+  background: var(--white); font-family: var(--font-body); font-size: 13px;
+  font-weight: 500; color: var(--gray-400); cursor: pointer; transition: all 0.15s;
+}
+.voz-cat-btn:hover { border-color: var(--gold); color: var(--black); }
+.voz-cat-btn.active { border-color: var(--gold); background: rgba(184,134,11,0.08); color: var(--black); font-weight: 600; }
+.voz-prio-btn {
+  padding: 6px 18px; border-radius: 100px; border: 1.5px solid var(--gray-200);
+  background: var(--white); font-family: var(--font-body); font-size: 13px;
+  font-weight: 500; color: var(--gray-400); cursor: pointer; transition: all 0.15s;
+}
+.voz-prio-btn:hover { border-color: var(--gray-3); color: var(--black); }
+.voz-prio-btn.active[data-prio="alta"] { border-color: #EF4444; background: rgba(239,68,68,0.07); color: #B91C1C; font-weight: 700; }
+.voz-prio-btn.active[data-prio="media"] { border-color: var(--gold); background: rgba(184,134,11,0.08); color: #92670a; font-weight: 700; }
+.voz-prio-btn.active[data-prio="baixa"] { border-color: #22C55E; background: rgba(34,197,94,0.07); color: #166534; font-weight: 700; }
+.voz-guide-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+.voz-filter-btn {
+  padding: 5px 14px; border-radius: 100px; border: 1.5px solid var(--gray-200);
+  background: var(--white); font-family: var(--font-body); font-size: 12px;
+  font-weight: 500; color: var(--gray-400); cursor: pointer; transition: all 0.15s;
+}
+.voz-filter-btn:hover { border-color: var(--gray-3); color: var(--black); }
+.voz-filter-btn.active { border-color: var(--black); background: var(--black); color: var(--white); }
+.voz-hist-item {
+  background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg);
+  padding: 18px 20px; display: flex; gap: 14px; align-items: flex-start; transition: border-color 0.15s;
+}
+.voz-hist-item:hover { border-color: var(--gray-3); }
+.voz-hist-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.voz-status-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 100px; font-size: 11px; font-weight: 600; }
+.voz-empty { text-align: center; padding: 48px 24px; background: var(--white); border: 1.5px dashed var(--gray-200); border-radius: var(--radius-lg); }
+@media (max-width: 900px) {
+  #sec-voz > div:nth-child(2) { grid-template-columns: 1fr !important; }
+  #sec-voz > div:nth-child(2) > div:last-child { display: none; }
+}
 
 /* ─── MOBILE ─── */
 .bottom-nav {
@@ -548,6 +630,10 @@ tbody tr:last-child td { border-bottom: none; }
     <a class="nav-item" data-section="perfil" onclick="showSection('perfil')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
       Meu Perfil
+    </a>
+    <a class="nav-item" data-section="voz" onclick="showSection('voz')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8z"/><circle cx="17" cy="7" r="1" fill="currentColor" stroke="none"/></svg>
+      Sua Voz
     </a>
   </nav>
 
@@ -758,6 +844,59 @@ tbody tr:last-child td { border-bottom: none; }
           </div>
         </div>
 
+        <!-- ─── DETALHES DO DEAL ─── -->
+        <div id="deal-details-section" style="display:none;margin-top:24px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+            <div>
+              <div style="font-family:var(--font-heading);font-size:16px;font-weight:600;color:var(--black)" id="deal-title">Detalhes do Deal</div>
+              <div style="font-size:12px;color:var(--gray-4);margin-top:2px" id="deal-subtitle"></div>
+            </div>
+            <button style="background:none;border:none;font-size:13px;color:var(--gray-4);cursor:pointer;padding:4px 8px;border-radius:6px" onclick="hideDealDetails()">✕ Fechar</button>
+          </div>
+
+          <!-- Resumo financeiro -->
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px">
+            <div style="background:var(--gray-1);border-radius:10px;padding:14px">
+              <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--gray-4);margin-bottom:4px">Total aceito</div>
+              <div style="font-family:var(--font-heading);font-size:20px;font-weight:700;color:var(--black)" id="deal-total-aceito">R$ 0</div>
+            </div>
+            <div style="background:var(--gray-1);border-radius:10px;padding:14px">
+              <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--gray-4);margin-bottom:4px">Em negociação</div>
+              <div style="font-family:var(--font-heading);font-size:20px;font-weight:700;color:#B45309" id="deal-total-proposta">R$ 0</div>
+            </div>
+            <div style="background:var(--gray-1);border-radius:10px;padding:14px">
+              <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--gray-4);margin-bottom:4px">Itens aceitos</div>
+              <div style="font-family:var(--font-heading);font-size:20px;font-weight:700;color:#059669" id="deal-count-aceitos">0</div>
+            </div>
+          </div>
+
+          <!-- Tabela de contrapartidas aceitas -->
+          <div class="card" style="padding:0">
+            <div class="card-header" style="padding:14px 18px">
+              <div class="card-title" style="font-size:13px">Contrapartidas acordadas</div>
+              <span style="font-size:11px;background:#ECFDF5;color:#059669;border:1px solid rgba(5,150,105,0.2);padding:2px 9px;border-radius:100px;font-weight:700">Apenas itens aceitos</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Descrição</th>
+                    <th>Valor</th>
+                    <th>Prazo</th>
+                    <th>Proposto por</th>
+                  </tr>
+                </thead>
+                <tbody id="deal-cp-tbody">
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div style="font-size:12px;color:var(--gray-4);background:var(--gray-1);border-radius:8px;padding:10px 14px;margin-top:12px;line-height:1.5">
+            📋 Estes dados servem de base para a formalização do contrato. A Relevantia utilizará estas informações para gerar o documento oficial de patrocínio.
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -896,6 +1035,144 @@ tbody tr:last-child td { border-bottom: none; }
   </div>
 </div>
 
+<!-- Seção: Sua Voz -->
+<div class="section" id="sec-voz">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Sua Voz</h1>
+      <p class="page-subtitle">Compartilhe o que pensa. Cada mensagem alimenta diretamente o roadmap do Radar.</p>
+    </div>
+  </div>
+  <div style="display:grid; grid-template-columns: 1fr 340px; gap:24px; align-items:start">
+
+    <!-- Formulário principal -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Enviar feedback</div>
+        <div style="font-size:13px; color:var(--gray-400)">Problema, ideia ou sugestão — tudo é bem-vindo</div>
+      </div>
+      <div style="padding:24px; display:flex; flex-direction:column; gap:20px">
+
+        <!-- Categoria -->
+        <div>
+          <label style="font-size:12px; font-weight:600; color:var(--gray-400); text-transform:uppercase; letter-spacing:0.06em; display:block; margin-bottom:8px">Categoria</label>
+          <div style="display:flex; flex-wrap:wrap; gap:8px" id="vozCategories">
+            <button type="button" class="voz-cat-btn active" data-cat="bug" onclick="selectVozCat(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:14px;height:14px"><path d="M12 22c4.97 0 9-4.03 9-9H3c0 4.97 4.03 9 9 9z"/><path d="M6.44 13a5.99 5.99 0 01-.44-2.24C6 7.56 8.69 5 12 5s6 2.56 6 5.76c0 .77-.15 1.52-.44 2.24"/></svg>
+              Bug / Erro
+            </button>
+            <button type="button" class="voz-cat-btn" data-cat="melhoria" onclick="selectVozCat(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:14px;height:14px"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              Melhoria
+            </button>
+            <button type="button" class="voz-cat-btn" data-cat="nova-feature" onclick="selectVozCat(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:14px;height:14px"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              Nova feature
+            </button>
+            <button type="button" class="voz-cat-btn" data-cat="duvida" onclick="selectVozCat(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:14px;height:14px"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              Dúvida
+            </button>
+            <button type="button" class="voz-cat-btn" data-cat="outro" onclick="selectVozCat(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:14px;height:14px"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+              Outro
+            </button>
+          </div>
+        </div>
+
+        <!-- Prioridade -->
+        <div>
+          <label style="font-size:12px; font-weight:600; color:var(--gray-400); text-transform:uppercase; letter-spacing:0.06em; display:block; margin-bottom:8px">Urgência para você</label>
+          <div style="display:flex; gap:8px" id="vozPriority">
+            <button type="button" class="voz-prio-btn" data-prio="alta" onclick="selectVozPrio(this)">Alta</button>
+            <button type="button" class="voz-prio-btn active" data-prio="media" onclick="selectVozPrio(this)">Média</button>
+            <button type="button" class="voz-prio-btn" data-prio="baixa" onclick="selectVozPrio(this)">Baixa</button>
+          </div>
+        </div>
+
+        <!-- Mensagem -->
+        <div>
+          <label style="font-size:12px; font-weight:600; color:var(--gray-400); text-transform:uppercase; letter-spacing:0.06em; display:block; margin-bottom:8px">Sua mensagem</label>
+          <textarea id="vozMensagem" placeholder="Descreva com liberdade. O que aconteceu? O que você esperava? O que o Radar deveria ter?&#10;&#10;Quanto mais contexto, melhor para o time." style="width:100%; min-height:140px; padding:14px 16px; border-radius:var(--radius-md); border:1.5px solid var(--gray-200); background:var(--white); font-family:var(--font-body); font-size:14px; color:var(--text); resize:vertical; outline:none; transition:border-color 0.2s; box-sizing:border-box; line-height:1.6" onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--gray-200)'"></textarea>
+          <div style="font-size:12px; color:var(--gray-400); margin-top:6px; text-align:right" id="vozCharCount">0 / 800</div>
+        </div>
+
+        <!-- Anônimo -->
+        <label style="display:flex; align-items:center; gap:10px; cursor:pointer; user-select:none">
+          <input type="checkbox" id="vozAnonimo" style="width:16px; height:16px; accent-color:var(--gold); cursor:pointer">
+          <div>
+            <div style="font-size:13px; font-weight:500; color:var(--text)">Enviar anonimamente</div>
+            <div style="font-size:12px; color:var(--gray-400)">Seu nome não aparecerá no feedback</div>
+          </div>
+        </label>
+
+        <!-- Botão enviar -->
+        <button class="btn btn-gold" style="align-self:flex-start" onclick="submitVozFeedback()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:16px;height:16px"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          Enviar feedback
+        </button>
+      </div>
+    </div>
+
+    <!-- Painel lateral -->
+    <div style="display:flex; flex-direction:column; gap:16px">
+      <div style="background:linear-gradient(135deg, rgba(184,134,11,0.07), rgba(200,168,75,0.04)); border:1px solid rgba(184,134,11,0.18); border-radius:var(--radius-lg); padding:20px">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px">
+          <div style="width:32px; height:32px; background:var(--gold-gradient); border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" style="width:16px;height:16px"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div style="font-size:13px; font-weight:700; color:var(--black)">Seu feedback importa</div>
+        </div>
+        <p style="font-size:13px; color:var(--gray-4); line-height:1.6; margin:0">Cada mensagem é lida pelo time e alimenta diretamente o roadmap do Radar. Você não está falando para o vazio.</p>
+      </div>
+
+      <div class="card" style="padding:0; overflow:hidden">
+        <div style="padding:16px 20px; border-bottom:1px solid var(--gray-200)">
+          <div style="font-size:13px; font-weight:700; color:var(--black)">Guia de categorias</div>
+        </div>
+        <div style="padding:16px 20px; display:flex; flex-direction:column; gap:12px">
+          <div style="display:flex; gap:10px; align-items:flex-start">
+            <span class="voz-guide-dot" style="background:#EF4444"></span>
+            <div><div style="font-size:12px; font-weight:700; color:var(--text); margin-bottom:2px">Bug / Erro</div><div style="font-size:12px; color:var(--gray-400); line-height:1.5">Algo quebrado, comportamento inesperado ou falha na plataforma</div></div>
+          </div>
+          <div style="display:flex; gap:10px; align-items:flex-start">
+            <span class="voz-guide-dot" style="background:#3B82F6"></span>
+            <div><div style="font-size:12px; font-weight:700; color:var(--text); margin-bottom:2px">Melhoria</div><div style="font-size:12px; color:var(--gray-400); line-height:1.5">Algo que funciona, mas poderia ser mais fácil, rápido ou claro</div></div>
+          </div>
+          <div style="display:flex; gap:10px; align-items:flex-start">
+            <span class="voz-guide-dot" style="background:var(--gold)"></span>
+            <div><div style="font-size:12px; font-weight:700; color:var(--text); margin-bottom:2px">Nova feature</div><div style="font-size:12px; color:var(--gray-400); line-height:1.5">Funcionalidade que o Radar ainda não tem mas deveria ter</div></div>
+          </div>
+          <div style="display:flex; gap:10px; align-items:flex-start">
+            <span class="voz-guide-dot" style="background:#8B5CF6"></span>
+            <div><div style="font-size:12px; font-weight:700; color:var(--text); margin-bottom:2px">Dúvida</div><div style="font-size:12px; color:var(--gray-400); line-height:1.5">Não entendeu algo ou quer saber como usar um recurso</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Histórico -->
+  <div style="margin-top:24px">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px">
+      <div>
+        <h2 style="font-size:16px; font-weight:700; color:var(--black); margin:0">Seus feedbacks anteriores</h2>
+        <p style="font-size:13px; color:var(--gray-400); margin:4px 0 0">Acompanhe o status de cada mensagem enviada</p>
+      </div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap" id="vozHistFilter">
+        <button class="voz-filter-btn active" data-filter="todos" onclick="filterVozHist(this)">Todos</button>
+        <button class="voz-filter-btn" data-filter="bug" onclick="filterVozHist(this)">Bug</button>
+        <button class="voz-filter-btn" data-filter="melhoria" onclick="filterVozHist(this)">Melhoria</button>
+        <button class="voz-filter-btn" data-filter="nova-feature" onclick="filterVozHist(this)">Nova feature</button>
+        <button class="voz-filter-btn" data-filter="duvida" onclick="filterVozHist(this)">Dúvida</button>
+      </div>
+    </div>
+    <div id="vozHistList"></div>
+  </div>
+
+</div>
+
 <!-- Bottom nav mobile -->
 <nav class="bottom-nav">
   <button class="bottom-nav-item active" id="bn-dashboard" onclick="showSection('dashboard')">
@@ -913,6 +1190,10 @@ tbody tr:last-child td { border-bottom: none; }
   <button class="bottom-nav-item" id="bn-perfil" onclick="showSection('perfil')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
     <span>Perfil</span>
+  </button>
+  <button class="bottom-nav-item" id="bn-voz" onclick="showSection('voz')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8z"/></svg>
+    <span>Voz</span>
   </button>
 </nav>
 
@@ -948,7 +1229,8 @@ const SECTION_TITLES = {
   dashboard: 'Dashboard',
   oportunidades: 'Minhas Oportunidades',
   empresa: 'Minha Empresa',
-  perfil: 'Meu Perfil'
+  perfil: 'Meu Perfil',
+  voz: 'Sua Voz'
 };
 
 // ─── INIT ───
@@ -1113,60 +1395,112 @@ function showToast(message, type = 'success') {
 init();
 
 // ─── NEGOCIAÇÕES ───
+// Estrutura de dados planejada para uso futuro:
+//
+// NEGOCIAÇÃO (perspectiva do detentor)
+//   id            : number          — identificador único
+//   opp_id        : number          — ID da oportunidade
+//   cota_id       : string          — ID da cota dentro da oportunidade
+//   marca_id      : string          — ID da marca
+//   marca         : string          — nome da marca (desnormalizado)
+//   opp           : string          — nome da oportunidade (desnormalizado)
+//   cota          : string          — nome da cota (desnormalizado)
+//   assunto       : string          — mensagem inicial
+//   enviadaEm     : string (date)   — data de criação
+//   status        : 'pendente' | 'aceita' | 'analise' | 'recusada'
+//   thread        : Mensagem[]
+//   contrapartidas: Contrapartida[] — insumo para contratos, ativação e financeiro
+//
+// CONTRAPARTIDA
+//   id            : number
+//   descricao     : string          — descrição do entregável
+//   categoria     : 'branding' | 'digital' | 'ativacao' | 'midia' | 'outro'
+//   valor         : number          — R$ (número para cálculos)
+//   prazo         : string (date)   — prazo de entrega
+//   status        : 'proposta' | 'aceita' | 'recusada'
+//   propostoPor   : 'marca' | 'detentor'
+//   — futuros: responsavel, evidencia_entrega, data_entrega_real, pago, data_pagamento
+//
 const NEGOCIACOES = [
   { id:1,  opp_id:1, opp:'Maratona Internacional SP 2026', marca:'Nike Brasil',    cota:'Patrocinador Premium',  assunto:'Quero negociar esta cota',                        enviadaEm:'15/03/2026', status:'pendente',  statusLabel:'Pendente',
     thread: [
       { autor:'marca',    nome:'Nike Brasil',            texto:'Temos grande interesse em fortalecer nossa presença neste evento. Gostaríamos de entender os entregáveis e condições de pagamento.', data:'15/03 · 10:22' }
+    ],
+    contrapartidas: [
+      { id:1, descricao:'Logo na largada e chegada',     categoria:'branding',  valor: 18000, prazo:'20/04/2026', status:'proposta', propostoPor:'marca' },
+      { id:2, descricao:'Estande de ativação 4m²',       categoria:'ativacao',  valor: 12000, prazo:'20/04/2026', status:'proposta', propostoPor:'detentor' }
     ]
   },
   { id:2,  opp_id:1, opp:'Maratona Internacional SP 2026', marca:'Adidas Brasil',  cota:'Patrocinador Oficial', assunto:'Gostaria de fazer uma proposta',                   enviadaEm:'14/03/2026', status:'aceita',    statusLabel:'Aceita',
     thread: [
       { autor:'marca',    nome:'Adidas Brasil',          texto:'Podemos oferecer contrapartidas adicionais de mídia digital.', data:'14/03 · 09:00' },
       { autor:'detentor', nome:'Maratona Internacional', texto:'Olá Adidas! Sua proposta foi aceita. Vamos alinhar os detalhes do contrato.', data:'15/03 · 11:30' }
+    ],
+    contrapartidas: [
+      { id:1, descricao:'Branding nas camisetas oficiais', categoria:'branding', valor: 25000, prazo:'20/04/2026', status:'aceita',   propostoPor:'marca' },
+      { id:2, descricao:'Cobertura digital (5 posts)',     categoria:'digital',  valor: 10000, prazo:'01/05/2026', status:'aceita',   propostoPor:'detentor' },
+      { id:3, descricao:'Totem 3D no expo center',         categoria:'ativacao', valor:  8000, prazo:'20/04/2026', status:'recusada', propostoPor:'marca' }
     ]
   },
   { id:3,  opp_id:1, opp:'Maratona Internacional SP 2026', marca:'Gatorade',       cota:'Cota Saúde',           assunto:'Tenho interesse, mas preciso de mais informações', enviadaEm:'13/03/2026', status:'analise',   statusLabel:'Em análise',
     thread: [
       { autor:'marca',    nome:'Gatorade',               texto:'Gostaríamos de entender melhor o perfil de público e as cotas de ativação disponíveis na área de hidratação.', data:'13/03 · 14:10' }
+    ],
+    contrapartidas: [
+      { id:1, descricao:'Posto de hidratação exclusivo',  categoria:'ativacao', valor: 15000, prazo:'20/04/2026', status:'proposta', propostoPor:'detentor' }
     ]
   },
   { id:4,  opp_id:1, opp:'Maratona Internacional SP 2026', marca:'New Balance',    cota:'Patrocinador Premium', assunto:'Quero negociar esta cota',                        enviadaEm:'12/03/2026', status:'pendente',  statusLabel:'Pendente',
     thread: [
       { autor:'marca',    nome:'New Balance',            texto:'Somos parceiros históricos de maratonas no Brasil e gostaríamos de manter essa tradição aqui.', data:'12/03 · 08:45' }
-    ]
+    ],
+    contrapartidas: []
   },
   { id:5,  opp_id:1, opp:'Maratona Internacional SP 2026', marca:'Under Armour',   cota:'Patrocinador Oficial', assunto:'Gostaria de fazer uma proposta',                   enviadaEm:'11/03/2026', status:'recusada',  statusLabel:'Recusada',
     thread: [
       { autor:'marca',    nome:'Under Armour',           texto:'Gostaríamos de negociar esta cota. Temos flexibilidade em valores e ativações.', data:'11/03 · 16:00' },
       { autor:'detentor', nome:'Maratona Internacional', texto:'Agradecemos o interesse, mas a cota foi reservada para outro parceiro. Entraremos em contato em futuras edições.', data:'12/03 · 09:20' }
-    ]
+    ],
+    contrapartidas: []
   },
   { id:6,  opp_id:2, opp:'Festival Cultura Viva 2026', marca:'Natura',        cota:'Patrocínio Cultural', assunto:'Quero entender as possibilidades',                enviadaEm:'10/03/2026', status:'pendente',  statusLabel:'Pendente',
     thread: [
       { autor:'marca',    nome:'Natura',                 texto:'Temos interesse em associar nossa marca a eventos culturais de impacto. Quais são as possibilidades de ativação?', data:'10/03 · 11:55' }
+    ],
+    contrapartidas: [
+      { id:1, descricao:'Logo no cenário principal',     categoria:'branding', valor: 20000, prazo:'10/06/2026', status:'proposta', propostoPor:'detentor' }
     ]
   },
   { id:7,  opp_id:2, opp:'Festival Cultura Viva 2026', marca:'Itaú Cultural',  cota:'Patrocínio Cultural', assunto:'Gostaria de fazer uma proposta',                  enviadaEm:'09/03/2026', status:'aceita',    statusLabel:'Aceita',
     thread: [
       { autor:'marca',    nome:'Itaú Cultural',          texto:'Buscamos parceiros alinhados ao nosso posicionamento cultural. Podemos conversar sobre o projeto?', data:'09/03 · 14:30' },
       { autor:'detentor', nome:'Festival Cultura Viva',  texto:'Com certeza! A proposta do Itaú Cultural está aprovada. Vamos agendar uma reunião de alinhamento.', data:'10/03 · 10:05' }
+    ],
+    contrapartidas: [
+      { id:1, descricao:'Naming rights do palco principal', categoria:'branding', valor: 40000, prazo:'10/06/2026', status:'aceita', propostoPor:'detentor' },
+      { id:2, descricao:'Cobertura no app do festival',     categoria:'digital',  valor: 15000, prazo:'01/06/2026', status:'aceita', propostoPor:'marca'    }
     ]
   },
   { id:8,  opp_id:2, opp:'Festival Cultura Viva 2026', marca:'Vivo',          cota:'Naming Rights',       assunto:'Quero entender as possibilidades',                enviadaEm:'08/03/2026', status:'analise',   statusLabel:'Em análise',
     thread: [
       { autor:'marca',    nome:'Vivo',                   texto:'Gostaríamos de explorar o naming rights do festival. Qual o valor e os entregáveis previstos?', data:'08/03 · 15:00' },
       { autor:'detentor', nome:'Festival Cultura Viva',  texto:'Olá Vivo! Estamos preparando um dossiê completo sobre o naming rights. Enviaremos em breve.', data:'09/03 · 09:40' }
+    ],
+    contrapartidas: [
+      { id:1, descricao:'Naming rights + cobertura digital', categoria:'midia', valor: 60000, prazo:'10/06/2026', status:'proposta', propostoPor:'detentor' }
     ]
   },
   { id:9,  opp_id:2, opp:'Festival Cultura Viva 2026', marca:'Magazine Luiza', cota:'Patrocínio Cultural', assunto:'Tenho interesse, mas preciso de mais informações', enviadaEm:'07/03/2026', status:'pendente',  statusLabel:'Pendente',
     thread: [
       { autor:'marca',    nome:'Magazine Luiza',         texto:'Precisamos entender o perfil do público e os dados de edições anteriores antes de avançar.', data:'07/03 · 12:20' }
-    ]
+    ],
+    contrapartidas: []
   },
   { id:10, opp_id:2, opp:'Festival Cultura Viva 2026', marca:'Ambev',         cota:'Naming Rights',       assunto:'Outro assunto',                                   enviadaEm:'06/03/2026', status:'pendente',  statusLabel:'Pendente',
     thread: [
       { autor:'marca',    nome:'Ambev',                  texto:'Podemos conversar sobre uma parceria diferenciada? Temos interesse em uma ativação exclusiva de bebidas.', data:'06/03 · 17:05' }
-    ]
+    ],
+    contrapartidas: []
   }
 ];
 
@@ -1192,7 +1526,10 @@ function renderNegociacoes(data) {
       <td style="color:var(--gray-4);font-size:13px;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${n.assunto}</td>
       <td><span class="neg-status ${statusClass}">${n.statusLabel}</span></td>
       <td style="color:var(--gray-4);font-size:13px">${n.enviadaEm}</td>
-      <td style="text-align:right"><button class="btn-sm-outline" onclick="openNegModal(${n.id})">Ver</button></td>
+      <td style="text-align:right;display:flex;gap:6px;justify-content:flex-end">
+        ${n.status === 'aceita' ? `<button class="btn-sm-outline" style="border-color:rgba(5,150,105,0.4);color:#059669" onclick="showDealDetails(${n.id})">Deal</button>` : ''}
+        <button class="btn-sm-outline" onclick="openNegModal(${n.id})">Ver</button>
+      </td>
     </tr>`;
   }).join('');
 }
@@ -1252,8 +1589,9 @@ function openNegModal(id) {
   const sel = document.getElementById('mn-status-select');
   if (sel) sel.value = n.status;
 
-  // thread
+  // thread + contrapartidas
   renderNegThread(n.thread);
+  renderContrapartidasDet(n.contrapartidas || []);
 
   // reset compose
   const ta = document.getElementById('mn-compose-input');
@@ -1261,8 +1599,96 @@ function openNegModal(id) {
   const btn = document.getElementById('mn-send-btn');
   if (btn) btn.disabled = true;
 
+  // reset to tab Mensagens + hide form
+  switchNegTab('mensagens');
+  const cpForm = document.getElementById('mn-cp-form');
+  if (cpForm) cpForm.classList.remove('open');
+
   document.getElementById('modal-neg').classList.add('open');
   document.body.style.overflow = 'hidden';
+}
+
+function switchNegTab(tab) {
+  document.querySelectorAll('#modal-neg .modal-tab-det').forEach(t => {
+    t.classList.toggle('active', t.dataset.tab === tab);
+  });
+  document.querySelectorAll('#modal-neg .modal-tab-panel-det').forEach(p => {
+    p.classList.toggle('active', p.dataset.panel === tab);
+  });
+}
+
+function formatValorCpDet(v) {
+  return 'R$ ' + v.toLocaleString('pt-BR');
+}
+
+function renderContrapartidasDet(list) {
+  const tbody = document.getElementById('mn-cp-tbody');
+  const totalEl = document.getElementById('mn-cp-total');
+  if (!tbody) return;
+
+  if (list.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--gray-4);padding:20px;font-size:13px;">Nenhuma contrapartida adicionada ainda.</td></tr>';
+  } else {
+    tbody.innerHTML = list.map(cp => {
+      const statusLabel = cp.status === 'proposta' ? 'Proposta' : cp.status === 'aceita' ? 'Aceita' : 'Recusada';
+      // detentor can act on items proposed by marca that are still "proposta"
+      const canAct = cp.propostoPor === 'marca' && cp.status === 'proposta';
+      const actions = canAct
+        ? `<div class="cp-actions">
+            <button class="cp-btn accept" onclick="acceptCpDet(${cp.id})">Aceitar</button>
+            <button class="cp-btn reject" onclick="rejectCpDet(${cp.id})">Recusar</button>
+           </div>`
+        : '';
+      return `<tr>
+        <td>${cp.descricao}</td>
+        <td style="white-space:nowrap">${formatValorCpDet(cp.valor)}</td>
+        <td style="white-space:nowrap">${cp.prazo}</td>
+        <td><span class="cp-status ${cp.status}">${statusLabel}</span></td>
+        <td>${actions}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  const total = list.filter(c => c.status === 'aceita').reduce((s, c) => s + c.valor, 0);
+  if (totalEl) totalEl.textContent = formatValorCpDet(total);
+}
+
+function toggleCpFormDet() {
+  const form = document.getElementById('mn-cp-form');
+  if (form) form.classList.toggle('open');
+}
+
+function addContrapartidaDet() {
+  const n = _negAtiva;
+  if (!n) return;
+  const desc  = document.getElementById('mn-cp-desc').value.trim();
+  const valor = parseFloat(document.getElementById('mn-cp-valor').value);
+  const prazo = document.getElementById('mn-cp-prazo').value.trim();
+  if (!desc || !valor || !prazo) { showToast('Preencha todos os campos.', 'error'); return; }
+
+  const newId = n.contrapartidas.length ? Math.max(...n.contrapartidas.map(c=>c.id)) + 1 : 1;
+  n.contrapartidas.push({ id: newId, descricao: desc, valor, prazo, status:'proposta', propostoPor:'detentor' });
+  renderContrapartidasDet(n.contrapartidas);
+
+  document.getElementById('mn-cp-desc').value = '';
+  document.getElementById('mn-cp-valor').value = '';
+  document.getElementById('mn-cp-prazo').value = '';
+  document.getElementById('mn-cp-form').classList.remove('open');
+  showToast('Contrapartida adicionada!', 'success');
+}
+
+function acceptCpDet(cpId) {
+  const n = _negAtiva;
+  if (!n) return;
+  const cp = n.contrapartidas.find(c => c.id === cpId);
+  if (cp) { cp.status = 'aceita'; renderContrapartidasDet(n.contrapartidas); showToast('Contrapartida aceita!', 'success'); }
+}
+
+function rejectCpDet(cpId) {
+  const n = _negAtiva;
+  if (!n) return;
+  const cp = n.contrapartidas.find(c => c.id === cpId);
+  if (cp) { cp.status = 'recusada'; renderContrapartidasDet(n.contrapartidas); showToast('Contrapartida recusada.', 'error'); }
 }
 
 function closeNegModal() {
@@ -1298,6 +1724,45 @@ function sendNegMsg() {
   showToast('Mensagem enviada!', 'success');
 }
 
+function showDealDetails(negId) {
+  const n = NEGOCIACOES.find(x => x.id === negId);
+  if (!n) return;
+
+  document.getElementById('deal-title').textContent = 'Deal — ' + n.marca;
+  document.getElementById('deal-subtitle').textContent = n.opp + ' · ' + n.cota;
+
+  const aceitos   = (n.contrapartidas || []).filter(c => c.status === 'aceita');
+  const propostos = (n.contrapartidas || []).filter(c => c.status === 'proposta');
+
+  const fmt = v => 'R$ ' + v.toLocaleString('pt-BR');
+  const totalAceito   = aceitos.reduce((s, c) => s + c.valor, 0);
+  const totalProposta = propostos.reduce((s, c) => s + c.valor, 0);
+
+  document.getElementById('deal-total-aceito').textContent  = fmt(totalAceito);
+  document.getElementById('deal-total-proposta').textContent = fmt(totalProposta);
+  document.getElementById('deal-count-aceitos').textContent  = aceitos.length;
+
+  const tbody = document.getElementById('deal-cp-tbody');
+  if (aceitos.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--gray-4);padding:20px;font-size:13px;">Nenhuma contrapartida aceita ainda.</td></tr>';
+  } else {
+    tbody.innerHTML = aceitos.map(cp => `<tr>
+      <td>${cp.descricao}</td>
+      <td style="white-space:nowrap;font-weight:500">${fmt(cp.valor)}</td>
+      <td style="white-space:nowrap">${cp.prazo}</td>
+      <td><span style="font-size:11px;font-weight:600;color:${cp.propostoPor==='marca'?'#2563EB':'#059669'}">${cp.propostoPor === 'marca' ? 'Marca' : 'Você'}</span></td>
+    </tr>`).join('');
+  }
+
+  const sec = document.getElementById('deal-details-section');
+  sec.style.display = 'block';
+  sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function hideDealDetails() {
+  document.getElementById('deal-details-section').style.display = 'none';
+}
+
 // Init negociações table on load
 document.addEventListener('DOMContentLoaded', function() {
   renderNegociacoes(NEGOCIACOES);
@@ -1318,16 +1783,21 @@ document.addEventListener('DOMContentLoaded', function() {
       <button class="modal-close-det" onclick="closeNegModal()">✕</button>
     </div>
 
+    <!-- Abas -->
+    <div class="modal-tabs-det">
+      <button class="modal-tab-det active" data-tab="mensagens" onclick="switchNegTab('mensagens')">Mensagens</button>
+      <button class="modal-tab-det" data-tab="proposta" onclick="switchNegTab('proposta')">Proposta</button>
+    </div>
+
     <div class="modal-neg-body">
 
-      <!-- Status badge -->
+      <!-- Status badge + detalhes (sempre visíveis) -->
       <div class="modal-neg-status" id="mn-status-wrap">
         <span class="modal-neg-status-dot"></span>
         <span class="modal-neg-status-label" id="mn-status-label"></span>
         <span class="modal-neg-status-hint" id="mn-status-hint"></span>
       </div>
 
-      <!-- Rows -->
       <div class="modal-neg-rows">
         <div class="modal-neg-row">
           <span class="modal-neg-row-label">Oportunidade</span>
@@ -1349,46 +1819,94 @@ document.addEventListener('DOMContentLoaded', function() {
 
       <hr class="modal-neg-divider">
 
-      <!-- Thread de mensagens -->
-      <div class="msg-thread-label">Mensagens</div>
-      <div class="msg-thread" id="mn-thread">
-        <!-- preenchido por JS -->
-      </div>
+      <!-- PAINEL: Mensagens -->
+      <div class="modal-tab-panel-det active" data-panel="mensagens">
+        <div class="msg-thread-label">Mensagens</div>
+        <div class="msg-thread" id="mn-thread"></div>
 
-      <!-- Compose resposta -->
-      <div class="msg-compose-det">
-        <textarea
-          class="msg-compose-textarea-det"
-          id="mn-compose-input"
-          placeholder="Responda à marca…"
-          rows="3"
-          oninput="document.getElementById('mn-send-btn').disabled = !this.value.trim()"
-        ></textarea>
-        <div class="msg-compose-footer-det">
-          <button class="btn-send-msg-det" id="mn-send-btn" onclick="sendNegMsg()" disabled>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12zm0 0h7.5"/></svg>
-            Responder
-          </button>
+        <div class="msg-compose-det">
+          <textarea
+            class="msg-compose-textarea-det"
+            id="mn-compose-input"
+            placeholder="Responda à marca…"
+            rows="3"
+            oninput="document.getElementById('mn-send-btn').disabled = !this.value.trim()"
+          ></textarea>
+          <div class="msg-compose-footer-det">
+            <button class="btn-send-msg-det" id="mn-send-btn" onclick="sendNegMsg()" disabled>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12zm0 0h7.5"/></svg>
+              Responder
+            </button>
+          </div>
+        </div>
+
+        <hr class="modal-neg-divider">
+
+        <!-- Ação: atualizar status -->
+        <div class="modal-neg-action">
+          <div class="modal-neg-row-label" style="margin-bottom:8px;text-transform:uppercase;font-size:11px;letter-spacing:0.07em;">Atualizar status</div>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <select id="mn-status-select" class="neg-filter-select" style="flex:1;">
+              <option value="pendente">Pendente</option>
+              <option value="analise">Em análise</option>
+              <option value="aceita">Aceita</option>
+              <option value="recusada">Recusada</option>
+            </select>
+            <button class="btn-neg-save" onclick="saveNegStatus()">Salvar</button>
+          </div>
+          <div class="modal-neg-next">
+            💡 Após aceitar, a Relevantia entrará em contato para intermediar o fechamento.
+          </div>
         </div>
       </div>
 
-      <hr class="modal-neg-divider">
+      <!-- PAINEL: Proposta (contrapartidas) -->
+      <div class="modal-tab-panel-det" data-panel="proposta">
+        <div class="cp-total-row">
+          <span class="cp-total-label">Total aceito</span>
+          <span class="cp-total-value" id="mn-cp-total">R$ 0<span>(apenas itens aceitos)</span></span>
+        </div>
 
-      <!-- Ação: atualizar status -->
-      <div class="modal-neg-action">
-        <div class="modal-neg-row-label" style="margin-bottom:8px;text-transform:uppercase;font-size:11px;letter-spacing:0.07em;">Atualizar status</div>
-        <div style="display:flex;gap:10px;align-items:center;">
-          <select id="mn-status-select" class="neg-filter-select" style="flex:1;">
-            <option value="pendente">Pendente</option>
-            <option value="analise">Em análise</option>
-            <option value="aceita">Aceita</option>
-            <option value="recusada">Recusada</option>
-          </select>
-          <button class="btn-neg-save" onclick="saveNegStatus()">Salvar</button>
+        <div class="cp-table-wrap">
+          <table class="cp-table">
+            <thead>
+              <tr>
+                <th>Descrição</th>
+                <th>Valor</th>
+                <th>Prazo</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="mn-cp-tbody"></tbody>
+          </table>
         </div>
-        <div class="modal-neg-next">
-          💡 Após aceitar, a Relevantia entrará em contato para intermediar o fechamento.
+
+        <div class="cp-form-det" id="mn-cp-form">
+          <div>
+            <label class="cp-form-label-det">Descrição</label>
+            <input class="cp-form-input-det" id="mn-cp-desc" type="text" placeholder="Ex: Estande 6m² no evento">
+          </div>
+          <div class="cp-form-row-det">
+            <div>
+              <label class="cp-form-label-det">Valor (R$)</label>
+              <input class="cp-form-input-det" id="mn-cp-valor" type="number" placeholder="20000">
+            </div>
+            <div>
+              <label class="cp-form-label-det">Prazo de entrega</label>
+              <input class="cp-form-input-det" id="mn-cp-prazo" type="text" placeholder="DD/MM/AAAA">
+            </div>
+          </div>
+          <div class="cp-form-actions-det">
+            <button class="cp-form-btn-cancel-det" onclick="toggleCpFormDet()">Cancelar</button>
+            <button class="cp-form-btn-add-det" onclick="addContrapartidaDet()">Adicionar</button>
+          </div>
         </div>
+
+        <button class="btn-add-cp-det" onclick="toggleCpFormDet()">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+          Adicionar contrapartida
+        </button>
       </div>
 
     </div>
