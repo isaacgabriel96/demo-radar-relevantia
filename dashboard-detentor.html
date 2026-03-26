@@ -1929,6 +1929,7 @@ function recusarNegociacao() {
 
 function fecharDeal() {
   if (!_negAtiva || _negAtiva.status === 'aceita') return;
+  if (!confirm('Confirmar fechamento do deal com ' + _negAtiva.marca + '?\n\nAo fechar, a negociação será marcada como aceita e a Relevantia entrará em contato para formalizar o contrato.')) return;
   _negAtiva.status = 'aceita';
   const sel = document.getElementById('mn-status-select');
   if (sel) sel.value = 'aceita';
