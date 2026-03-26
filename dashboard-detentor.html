@@ -265,6 +265,31 @@ tbody tr:last-child td { border-bottom: none; }
 .sub-panel { display: none; }
 .sub-panel.active { display: block; }
 
+/* ─── CARDS DE DEAL ─── */
+.deals-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 640px) { .deals-grid { grid-template-columns: 1fr; } }
+.deal-card { background: var(--white); border: 1px solid var(--gray-200); border-radius: 16px; overflow: hidden; }
+.deal-card-header { padding: 16px 18px 14px; border-bottom: 1px solid var(--gray-200); display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.deal-card-brand { font-family: var(--font-heading); font-size: 15px; font-weight: 600; color: var(--black); line-height: 1.3; }
+.deal-card-opp { font-size: 11px; color: var(--gray-400); margin-top: 3px; line-height: 1.4; }
+.deal-card-badge { background: #ECFDF5; color: #059669; border: 1px solid rgba(5,150,105,0.2); border-radius: 100px; font-size: 10px; font-weight: 700; padding: 2px 9px; white-space: nowrap; flex-shrink: 0; }
+.deal-card-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--gray-200); border-bottom: 1px solid var(--gray-200); }
+.deal-metric { background: var(--white); padding: 12px 14px; }
+.deal-metric-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--gray-400); margin-bottom: 3px; }
+.deal-metric-value { font-family: var(--font-heading); font-size: 16px; font-weight: 700; color: var(--black); }
+.deal-metric-value.green { color: #059669; }
+.deal-metric-value.amber { color: #B45309; }
+.deal-card-cp { padding: 12px 18px 16px; }
+.deal-card-cp-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--gray-400); margin-bottom: 8px; }
+.deal-card-cp-item { display: flex; justify-content: space-between; align-items: center; font-size: 12px; padding: 5px 0; border-bottom: 1px solid var(--gray-200); gap: 8px; }
+.deal-card-cp-item:last-child { border-bottom: none; }
+.deal-card-cp-desc { color: var(--text); flex: 1; }
+.deal-card-cp-val { font-weight: 600; color: var(--black); white-space: nowrap; }
+.deal-empty { text-align: center; padding: 48px 24px; color: var(--gray-400); }
+.deal-empty-icon { font-size: 32px; margin-bottom: 12px; }
+.deal-empty-title { font-family: var(--font-heading); font-size: 15px; font-weight: 600; color: var(--black); margin-bottom: 6px; }
+.deal-empty-text { font-size: 13px; line-height: 1.6; }
+
 /* ─── FILTRO OPORTUNIDADE ─── */
 .neg-filter-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
 .neg-filter-label { font-size: 12px; font-weight: 600; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
@@ -633,7 +658,7 @@ tbody tr:last-child td { border-bottom: none; }
     </a>
     <a class="nav-item" data-section="voz" onclick="showSection('voz')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8z"/><circle cx="17" cy="7" r="1" fill="currentColor" stroke="none"/></svg>
-      Sua Voz
+      Fale com o Radar
     </a>
   </nav>
 
@@ -762,6 +787,10 @@ tbody tr:last-child td { border-bottom: none; }
           Negociações
           <span class="sub-tab-badge" id="neg-badge-count">10</span>
         </button>
+        <button class="sub-tab" id="subtab-deals" onclick="switchSubTab('deals')">
+          Deals Fechados
+          <span class="sub-tab-badge" id="deals-badge-count">0</span>
+        </button>
       </div>
 
       <!-- Painel: Publicadas -->
@@ -844,60 +873,15 @@ tbody tr:last-child td { border-bottom: none; }
           </div>
         </div>
 
-        <!-- ─── DETALHES DO DEAL ─── -->
-        <div id="deal-details-section" style="display:none;margin-top:24px">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-            <div>
-              <div style="font-family:var(--font-heading);font-size:16px;font-weight:600;color:var(--black)" id="deal-title">Detalhes do Deal</div>
-              <div style="font-size:12px;color:var(--gray-4);margin-top:2px" id="deal-subtitle"></div>
-            </div>
-            <button style="background:none;border:none;font-size:13px;color:var(--gray-4);cursor:pointer;padding:4px 8px;border-radius:6px" onclick="hideDealDetails()">✕ Fechar</button>
-          </div>
-
-          <!-- Resumo financeiro -->
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px">
-            <div style="background:var(--gray-1);border-radius:10px;padding:14px">
-              <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--gray-4);margin-bottom:4px">Total aceito</div>
-              <div style="font-family:var(--font-heading);font-size:20px;font-weight:700;color:var(--black)" id="deal-total-aceito">R$ 0</div>
-            </div>
-            <div style="background:var(--gray-1);border-radius:10px;padding:14px">
-              <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--gray-4);margin-bottom:4px">Em negociação</div>
-              <div style="font-family:var(--font-heading);font-size:20px;font-weight:700;color:#B45309" id="deal-total-proposta">R$ 0</div>
-            </div>
-            <div style="background:var(--gray-1);border-radius:10px;padding:14px">
-              <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--gray-4);margin-bottom:4px">Itens aceitos</div>
-              <div style="font-family:var(--font-heading);font-size:20px;font-weight:700;color:#059669" id="deal-count-aceitos">0</div>
-            </div>
-          </div>
-
-          <!-- Tabela de contrapartidas aceitas -->
-          <div class="card" style="padding:0">
-            <div class="card-header" style="padding:14px 18px">
-              <div class="card-title" style="font-size:13px">Contrapartidas acordadas</div>
-              <span style="font-size:11px;background:#ECFDF5;color:#059669;border:1px solid rgba(5,150,105,0.2);padding:2px 9px;border-radius:100px;font-weight:700">Apenas itens aceitos</span>
-            </div>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Descrição</th>
-                    <th>Valor</th>
-                    <th>Prazo</th>
-                    <th>Proposto por</th>
-                  </tr>
-                </thead>
-                <tbody id="deal-cp-tbody">
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div style="font-size:12px;color:var(--gray-4);background:var(--gray-1);border-radius:8px;padding:10px 14px;margin-top:12px;line-height:1.5">
-            📋 Estes dados servem de base para a formalização do contrato. A Relevantia utilizará estas informações para gerar o documento oficial de patrocínio.
-          </div>
-        </div>
-
       </div>
+
+      <!-- Painel: Deals Fechados -->
+      <div class="sub-panel" id="subpanel-deals">
+        <div class="deals-grid" id="deals-grid-container">
+          <!-- preenchido por renderDeals() -->
+        </div>
+      </div>
+
     </div>
 
     <!-- ═══════ SEÇÃO: MINHA EMPRESA ═══════ -->
@@ -1035,11 +1019,11 @@ tbody tr:last-child td { border-bottom: none; }
   </div>
 </div>
 
-<!-- Seção: Sua Voz -->
+<!-- Seção: Fale com o Radar -->
 <div class="section" id="sec-voz">
   <div class="page-header">
     <div>
-      <h1 class="page-title">Sua Voz</h1>
+      <h1 class="page-title">Fale com o Radar</h1>
       <p class="page-subtitle">Compartilhe o que pensa. Cada mensagem alimenta diretamente o roadmap do Radar.</p>
     </div>
   </div>
@@ -1230,7 +1214,7 @@ const SECTION_TITLES = {
   oportunidades: 'Minhas Oportunidades',
   empresa: 'Minha Empresa',
   perfil: 'Meu Perfil',
-  voz: 'Sua Voz'
+  voz: 'Fale com o Radar'
 };
 
 // ─── INIT ───
@@ -1527,7 +1511,7 @@ function renderNegociacoes(data) {
       <td><span class="neg-status ${statusClass}">${n.statusLabel}</span></td>
       <td style="color:var(--gray-4);font-size:13px">${n.enviadaEm}</td>
       <td style="text-align:right;display:flex;gap:6px;justify-content:flex-end">
-        ${n.status === 'aceita' ? `<button class="btn-sm-outline" style="border-color:rgba(5,150,105,0.4);color:#059669" onclick="showDealDetails(${n.id})">Deal</button>` : ''}
+        ${n.status === 'aceita' ? `<button class="btn-sm-outline" style="border-color:rgba(5,150,105,0.4);color:#059669" onclick="switchSubTab('deals')">Deal</button>` : ''}
         <button class="btn-sm-outline" onclick="openNegModal(${n.id})">Ver</button>
       </td>
     </tr>`;
@@ -1724,51 +1708,186 @@ function sendNegMsg() {
   showToast('Mensagem enviada!', 'success');
 }
 
-function showDealDetails(negId) {
-  const n = NEGOCIACOES.find(x => x.id === negId);
-  if (!n) return;
-
-  document.getElementById('deal-title').textContent = 'Deal — ' + n.marca;
-  document.getElementById('deal-subtitle').textContent = n.opp + ' · ' + n.cota;
-
-  const aceitos   = (n.contrapartidas || []).filter(c => c.status === 'aceita');
-  const propostos = (n.contrapartidas || []).filter(c => c.status === 'proposta');
-
+function renderDeals() {
   const fmt = v => 'R$ ' + v.toLocaleString('pt-BR');
-  const totalAceito   = aceitos.reduce((s, c) => s + c.valor, 0);
-  const totalProposta = propostos.reduce((s, c) => s + c.valor, 0);
+  const deals = NEGOCIACOES.filter(n => n.status === 'aceita');
 
-  document.getElementById('deal-total-aceito').textContent  = fmt(totalAceito);
-  document.getElementById('deal-total-proposta').textContent = fmt(totalProposta);
-  document.getElementById('deal-count-aceitos').textContent  = aceitos.length;
+  // Atualizar badge
+  const badge = document.getElementById('deals-badge-count');
+  if (badge) badge.textContent = deals.length;
 
-  const tbody = document.getElementById('deal-cp-tbody');
-  if (aceitos.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--gray-4);padding:20px;font-size:13px;">Nenhuma contrapartida aceita ainda.</td></tr>';
-  } else {
-    tbody.innerHTML = aceitos.map(cp => `<tr>
-      <td>${cp.descricao}</td>
-      <td style="white-space:nowrap;font-weight:500">${fmt(cp.valor)}</td>
-      <td style="white-space:nowrap">${cp.prazo}</td>
-      <td><span style="font-size:11px;font-weight:600;color:${cp.propostoPor==='marca'?'#2563EB':'#059669'}">${cp.propostoPor === 'marca' ? 'Marca' : 'Você'}</span></td>
-    </tr>`).join('');
+  const container = document.getElementById('deals-grid-container');
+  if (!container) return;
+
+  if (deals.length === 0) {
+    container.innerHTML = `<div class="deal-empty" style="grid-column:1/-1">
+      <div class="deal-empty-icon">🤝</div>
+      <div class="deal-empty-title">Nenhum deal fechado ainda</div>
+      <div class="deal-empty-text">Quando uma negociação for concluída com sucesso,<br>ela aparecerá aqui como base para o contrato.</div>
+    </div>`;
+    return;
   }
 
-  const sec = document.getElementById('deal-details-section');
-  sec.style.display = 'block';
-  sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
+  container.innerHTML = deals.map(n => {
+    const aceitos = (n.contrapartidas || []).filter(c => c.status === 'aceita');
+    const emNeg   = (n.contrapartidas || []).filter(c => c.status === 'proposta');
+    const totalAceito = aceitos.reduce((s, c) => s + c.valor, 0);
+    const prazos = aceitos.filter(c => c.prazo).map(c => c.prazo).sort();
+    const prazoProximo = prazos.length ? prazos[0] : '—';
 
-function hideDealDetails() {
-  document.getElementById('deal-details-section').style.display = 'none';
+    const cpRows = aceitos.map(cp => `
+      <div class="deal-card-cp-item">
+        <span class="deal-card-cp-desc">${cp.descricao}</span>
+        <span class="deal-card-cp-val">${fmt(cp.valor)}</span>
+      </div>`).join('');
+
+    return `<div class="deal-card">
+      <div class="deal-card-header">
+        <div>
+          <div class="deal-card-brand">${n.marca}</div>
+          <div class="deal-card-opp">${n.opp} · ${n.cota}</div>
+        </div>
+        <span class="deal-card-badge">Aceito</span>
+      </div>
+      <div class="deal-card-metrics">
+        <div class="deal-metric">
+          <div class="deal-metric-label">Total aceito</div>
+          <div class="deal-metric-value green">${fmt(totalAceito)}</div>
+        </div>
+        <div class="deal-metric">
+          <div class="deal-metric-label">Itens aceitos</div>
+          <div class="deal-metric-value">${aceitos.length}</div>
+        </div>
+        <div class="deal-metric">
+          <div class="deal-metric-label">Em negociação</div>
+          <div class="deal-metric-value amber">${emNeg.length}</div>
+        </div>
+        <div class="deal-metric">
+          <div class="deal-metric-label">Prazo próximo</div>
+          <div class="deal-metric-value" style="font-size:13px">${prazoProximo}</div>
+        </div>
+      </div>
+      <div class="deal-card-cp">
+        <div class="deal-card-cp-title">Contrapartidas aceitas</div>
+        ${cpRows || '<div style="font-size:12px;color:var(--gray-400)">Nenhuma contrapartida aceita.</div>'}
+      </div>
+    </div>`;
+  }).join('');
 }
 
 // Init negociações table on load
 document.addEventListener('DOMContentLoaded', function() {
   renderNegociacoes(NEGOCIACOES);
+  renderDeals();
   const label = document.getElementById('neg-count-label');
   if (label) label.textContent = NEGOCIACOES.length + ' negociações';
+  renderVozHistorico();
+  const ta = document.getElementById('vozMensagem');
+  if (ta) {
+    ta.addEventListener('input', () => {
+      const len = ta.value.length;
+      document.getElementById('vozCharCount').textContent = len + ' / 800';
+      if (len > 800) ta.value = ta.value.substring(0, 800);
+    });
+  }
 });
+
+// ─── VOZ DO USUÁRIO ───
+const VOZ_STORAGE_KEY = 'radar_voz_detentor';
+const VOZ_CAT_CONFIG = {
+  'bug':          { label: 'Bug / Erro',    color: '#EF4444', bg: 'rgba(239,68,68,0.09)',   icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="M12 22c4.97 0 9-4.03 9-9H3c0 4.97 4.03 9 9 9z"/><path d="M6.44 13a5.99 5.99 0 01-.44-2.24C6 7.56 8.69 5 12 5s6 2.56 6 5.76"/></svg>' },
+  'melhoria':     { label: 'Melhoria',      color: '#3B82F6', bg: 'rgba(59,130,246,0.09)',  icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>' },
+  'nova-feature': { label: 'Nova feature',  color: '#B8860B', bg: 'rgba(184,134,11,0.09)',  icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>' },
+  'duvida':       { label: 'Dúvida',        color: '#8B5CF6', bg: 'rgba(139,92,246,0.09)',  icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>' },
+  'outro':        { label: 'Outro',         color: '#6B7280', bg: 'rgba(107,114,128,0.09)', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>' }
+};
+const VOZ_STATUS_CONFIG = {
+  'recebido':  { label: 'Recebido',    color: '#6B7280', bg: 'rgba(107,114,128,0.1)' },
+  'analise':   { label: 'Em análise',  color: '#B8860B', bg: 'rgba(184,134,11,0.1)'  },
+  'planejado': { label: 'Planejado',   color: '#3B82F6', bg: 'rgba(59,130,246,0.1)'  },
+  'entregue':  { label: 'Entregue ✓', color: '#16A34A', bg: 'rgba(22,163,74,0.1)'   }
+};
+let _vozCatAtual = 'bug', _vozPrioAtual = 'media', _vozFilterAtual = 'todos';
+function selectVozCat(btn) {
+  document.querySelectorAll('.voz-cat-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active'); _vozCatAtual = btn.dataset.cat;
+}
+function selectVozPrio(btn) {
+  document.querySelectorAll('.voz-prio-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active'); _vozPrioAtual = btn.dataset.prio;
+}
+function filterVozHist(btn) {
+  document.querySelectorAll('.voz-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active'); _vozFilterAtual = btn.dataset.filter; renderVozHistorico();
+}
+function getVozFeedbacks() {
+  try { return JSON.parse(localStorage.getItem(VOZ_STORAGE_KEY) || '[]'); } catch { return []; }
+}
+function saveVozFeedbacks(list) { localStorage.setItem(VOZ_STORAGE_KEY, JSON.stringify(list)); }
+function submitVozFeedback() {
+  const texto = document.getElementById('vozMensagem').value.trim();
+  if (!texto) { showToast('Escreva sua mensagem antes de enviar.', 'error'); return; }
+  if (texto.length > 800) { showToast('Mensagem muito longa. Máximo 800 caracteres.', 'error'); return; }
+  const anonimo = document.getElementById('vozAnonimo').checked;
+  const nomeEl = document.getElementById('sidebarName');
+  const emailEl = document.getElementById('sidebarEmail');
+  const feedback = {
+    id: Date.now(), categoria: _vozCatAtual, prioridade: _vozPrioAtual, mensagem: texto,
+    anonimo, autor: anonimo ? 'Anônimo' : (nomeEl ? nomeEl.textContent : 'Usuário'),
+    email: anonimo ? null : (emailEl ? emailEl.textContent : null),
+    portal: 'detentor', status: 'recebido', data: new Date().toISOString()
+  };
+  const list = getVozFeedbacks(); list.unshift(feedback); saveVozFeedbacks(list);
+  document.getElementById('vozMensagem').value = '';
+  document.getElementById('vozCharCount').textContent = '0 / 800';
+  document.getElementById('vozAnonimo').checked = false;
+  _vozCatAtual = 'bug'; _vozPrioAtual = 'media';
+  document.querySelectorAll('.voz-cat-btn').forEach(b => b.classList.toggle('active', b.dataset.cat === 'bug'));
+  document.querySelectorAll('.voz-prio-btn').forEach(b => b.classList.toggle('active', b.dataset.prio === 'media'));
+  renderVozHistorico();
+  showToast('Feedback enviado! Obrigado pela sua voz.', 'success');
+}
+function renderVozHistorico() {
+  const list = getVozFeedbacks();
+  const filtered = _vozFilterAtual === 'todos' ? list : list.filter(f => f.categoria === _vozFilterAtual);
+  const container = document.getElementById('vozHistList');
+  if (!container) return;
+  if (filtered.length === 0) {
+    container.innerHTML = `<div class="voz-empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:40px;height:40px;color:var(--gray-3);margin:0 auto 12px;display:block"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      <div style="font-size:14px;font-weight:600;color:var(--black);margin-bottom:6px">Nenhum feedback ainda</div>
+      <div style="font-size:13px;color:var(--gray-400)">Seja o primeiro a enviar uma mensagem ao time do Radar.</div>
+    </div>`;
+    return;
+  }
+  container.innerHTML = '<div style="display:flex;flex-direction:column;gap:10px">' + filtered.map(f => {
+    const cat = VOZ_CAT_CONFIG[f.categoria] || VOZ_CAT_CONFIG['outro'];
+    const status = VOZ_STATUS_CONFIG[f.status] || VOZ_STATUS_CONFIG['recebido'];
+    const prio = { alta: '🔴 Alta', media: '🟡 Média', baixa: '🟢 Baixa' }[f.prioridade] || 'Média';
+    const dt = new Date(f.data).toLocaleDateString('pt-BR', { day:'2-digit', month:'short', year:'numeric' });
+    return '<div class="voz-hist-item">' +
+      '<div class="voz-hist-icon" style="background:' + cat.bg + '">' + cat.icon.replace('stroke="currentColor"', 'stroke="' + cat.color + '"') + '</div>' +
+      '<div style="flex:1;min-width:0">' +
+        '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">' +
+          '<span style="font-size:12px;font-weight:700;color:' + cat.color + '">' + cat.label + '</span>' +
+          '<span style="color:var(--gray-3);font-size:11px">·</span>' +
+          '<span style="font-size:12px;color:var(--gray-400)">' + prio + '</span>' +
+          '<span style="color:var(--gray-3);font-size:11px">·</span>' +
+          '<span style="font-size:12px;color:var(--gray-400)">' + dt + '</span>' +
+          (f.anonimo ? '<span style="font-size:11px;color:var(--gray-400);font-style:italic">anônimo</span>' : '') +
+        '</div>' +
+        '<div style="font-size:13px;color:var(--text);line-height:1.6;margin-bottom:10px">' + escapeHtml(f.mensagem) + '</div>' +
+        '<span class="voz-status-badge" style="background:' + status.bg + ';color:' + status.color + '">' +
+          '<span style="width:6px;height:6px;border-radius:50%;background:' + status.color + ';flex-shrink:0"></span>' +
+          status.label +
+        '</span>' +
+      '</div>' +
+    '</div>';
+  }).join('') + '</div>';
+}
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 </script>
 
 <!-- ═══════════════════ MODAL NEGOCIAÇÃO (DETENTOR) ═══════════════════ -->
