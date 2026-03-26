@@ -1333,7 +1333,7 @@ tbody tr:last-child td { border-bottom: none; }
 
 // ─── DATA (from centralized demo-data.js or future API) ───
 const MOCK_USER = (window.DEMO && window.DEMO.marca) ? window.DEMO.marca.user : { nome: 'Marca', email: 'marca@radar.com' };
-const MOCK_OPPORTUNITIES = (window.DEMO && window.DEMO.catalog) ? window.DEMO.catalog.slice(0, 6) : [];
+const MOCK_OPPORTUNITIES = window.CATALOG ? window.CATALOG.slice(0, 6) : [];
 
 // ─── SECTION NAMES ───
 const SECTION_TITLES = {
