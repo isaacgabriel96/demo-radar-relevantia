@@ -673,6 +673,16 @@ tbody tr:last-child td { border-bottom: none; }
 </head>
 <body>
 
+<!-- Demo Banner (hidden by default) -->
+<div id="demoBanner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:10000;background:linear-gradient(135deg,#B8860B,#C8A84B);color:#1A1200;padding:10px 20px;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:500;align-items:center;justify-content:center;gap:12px;box-shadow:0 2px 8px rgba(30,22,0,0.15)">
+  <span style="background:#1A1200;color:#C8A84B;padding:2px 10px;border-radius:100px;font-size:11px;font-weight:700;letter-spacing:0.08em">DEMO</span>
+  <span>Modo demonstração ativo — os dados exibidos são fictícios</span>
+  <button onclick="exitDemoMode()" style="margin-left:auto;background:#1A1200;color:#C8A84B;border:none;padding:6px 16px;border-radius:100px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">Sair do demo</button>
+</div>
+<script src="js/core.js"></script>
+<script src="js/demo-data.js"></script>
+<script src="shared-state.js"></script>
+
 <!-- Loading -->
 <div id="loadingScreen">
   <div class="ld-spinner"></div>
@@ -1242,23 +1252,9 @@ tbody tr:last-child td { border-bottom: none; }
    Sem Supabase (dados mockados)
    ═══════════════════════════════════════ */
 
-// ─── MOCK DATA ───
-const MOCK_USER = {
-  nome: 'Isaac Gabriel',
-  email: 'isaac@radar.com',
-  telefone: '(11) 98765-4321',
-  cargo: 'Diretor Executivo'
-};
-
-const MOCK_EMPRESA = {
-  nome: 'Instituto Esportivo SP',
-  cnpj: '12.345.678/0001-90',
-  segmento: 'Esporte',
-  telefone: '(11) 99999-0000',
-  endereco: 'Av. Paulista, 1000 — São Paulo, SP',
-  site: 'https://institutoesportivo.com.br',
-  descricao: 'Instituto dedicado à promoção do esporte de alto rendimento, organizador de maratonas e eventos esportivos em todo o Brasil.'
-};
+// ─── DATA (from centralized demo-data.js or future API) ───
+const MOCK_USER = (window.DEMO && window.DEMO.detentor) ? window.DEMO.detentor.user : { nome: 'Detentor', email: 'detentor@radar.com' };
+const MOCK_EMPRESA = (window.DEMO && window.DEMO.detentor) ? window.DEMO.detentor.empresa : { nome: 'Empresa' };
 
 // ─── SECTION NAMES ───
 const SECTION_TITLES = {
@@ -1271,6 +1267,9 @@ const SECTION_TITLES = {
 
 // ─── INIT ───
 function init() {
+  // Demo mode banner
+  showDemoBannerIfActive();
+
   // Tentar pegar dados da sessão se existir
   const stored = localStorage.getItem('sb_detentor_session');
   if (stored) {
@@ -1409,7 +1408,7 @@ function savePerfil() {
 function doLogout() {
   localStorage.removeItem('sb_detentor_session');
   localStorage.removeItem('sb_marca_session');
-  window.location.href = 'acesso-detentor.html';
+  window.location.href = 'index.html';
 }
 
 // ─── TOAST ───
@@ -1457,92 +1456,13 @@ init();
 //   propostoPor   : 'marca' | 'detentor'
 //   — futuros: responsavel, evidencia_entrega, data_entrega_real, pago, data_pagamento
 //
-const NEGOCIACOES = [
-  { id:1,  opp_id:1, opp:'Maratona Internacional SP 2026', marca:'Nike Brasil',    cota:'Patrocinador Premium',  assunto:'Quero negociar esta cota',                        enviadaEm:'15/03/2026', status:'pendente',  statusLabel:'Pendente',
-    thread: [
-      { autor:'marca',    nome:'Nike Brasil',            texto:'Temos grande interesse em fortalecer nossa presença neste evento. Gostaríamos de entender os entregáveis e condições de pagamento.', data:'15/03 · 10:22' }
-    ],
-    contrapartidas: [
-      { id:1, descricao:'Logo na largada e chegada',     categoria:'branding',  valor: 18000, prazo:'20/04/2026', status:'proposta', propostoPor:'marca' },
-      { id:2, descricao:'Estande de ativação 4m²',       categoria:'ativacao',  valor: 12000, prazo:'20/04/2026', status:'proposta', propostoPor:'detentor' }
-    ]
-  },
-  { id:2,  opp_id:1, opp:'Maratona Internacional SP 2026', marca:'Adidas Brasil',  cota:'Patrocinador Oficial', assunto:'Gostaria de fazer uma proposta',                   enviadaEm:'14/03/2026', status:'aceita',    statusLabel:'Aceita',
-    thread: [
-      { autor:'marca',    nome:'Adidas Brasil',          texto:'Podemos oferecer contrapartidas adicionais de mídia digital.', data:'14/03 · 09:00' },
-      { autor:'detentor', nome:'Maratona Internacional', texto:'Olá Adidas! Sua proposta foi aceita. Vamos alinhar os detalhes do contrato.', data:'15/03 · 11:30' }
-    ],
-    contrapartidas: [
-      { id:1, descricao:'Branding nas camisetas oficiais', categoria:'branding', valor: 25000, prazo:'20/04/2026', status:'aceita',   propostoPor:'marca' },
-      { id:2, descricao:'Cobertura digital (5 posts)',     categoria:'digital',  valor: 10000, prazo:'01/05/2026', status:'aceita',   propostoPor:'detentor' },
-      { id:3, descricao:'Totem 3D no expo center',         categoria:'ativacao', valor:  8000, prazo:'20/04/2026', status:'recusada', propostoPor:'marca' }
-    ]
-  },
-  { id:3,  opp_id:1, opp:'Maratona Internacional SP 2026', marca:'Gatorade',       cota:'Cota Saúde',           assunto:'Tenho interesse, mas preciso de mais informações', enviadaEm:'13/03/2026', status:'analise',   statusLabel:'Em análise',
-    thread: [
-      { autor:'marca',    nome:'Gatorade',               texto:'Gostaríamos de entender melhor o perfil de público e as cotas de ativação disponíveis na área de hidratação.', data:'13/03 · 14:10' }
-    ],
-    contrapartidas: [
-      { id:1, descricao:'Posto de hidratação exclusivo',  categoria:'ativacao', valor: 15000, prazo:'20/04/2026', status:'proposta', propostoPor:'detentor' }
-    ]
-  },
-  { id:4,  opp_id:1, opp:'Maratona Internacional SP 2026', marca:'New Balance',    cota:'Patrocinador Premium', assunto:'Quero negociar esta cota',                        enviadaEm:'12/03/2026', status:'pendente',  statusLabel:'Pendente',
-    thread: [
-      { autor:'marca',    nome:'New Balance',            texto:'Somos parceiros históricos de maratonas no Brasil e gostaríamos de manter essa tradição aqui.', data:'12/03 · 08:45' }
-    ],
-    contrapartidas: []
-  },
-  { id:5,  opp_id:1, opp:'Maratona Internacional SP 2026', marca:'Under Armour',   cota:'Patrocinador Oficial', assunto:'Gostaria de fazer uma proposta',                   enviadaEm:'11/03/2026', status:'recusada',  statusLabel:'Recusada',
-    thread: [
-      { autor:'marca',    nome:'Under Armour',           texto:'Gostaríamos de negociar esta cota. Temos flexibilidade em valores e ativações.', data:'11/03 · 16:00' },
-      { autor:'detentor', nome:'Maratona Internacional', texto:'Agradecemos o interesse, mas a cota foi reservada para outro parceiro. Entraremos em contato em futuras edições.', data:'12/03 · 09:20' }
-    ],
-    contrapartidas: []
-  },
-  { id:6,  opp_id:2, opp:'Festival Cultura Viva 2026', marca:'Natura',        cota:'Patrocínio Cultural', assunto:'Quero entender as possibilidades',                enviadaEm:'10/03/2026', status:'pendente',  statusLabel:'Pendente',
-    thread: [
-      { autor:'marca',    nome:'Natura',                 texto:'Temos interesse em associar nossa marca a eventos culturais de impacto. Quais são as possibilidades de ativação?', data:'10/03 · 11:55' }
-    ],
-    contrapartidas: [
-      { id:1, descricao:'Logo no cenário principal',     categoria:'branding', valor: 20000, prazo:'10/06/2026', status:'proposta', propostoPor:'detentor' }
-    ]
-  },
-  { id:7,  opp_id:2, opp:'Festival Cultura Viva 2026', marca:'Itaú Cultural',  cota:'Patrocínio Cultural', assunto:'Gostaria de fazer uma proposta',                  enviadaEm:'09/03/2026', status:'aceita',    statusLabel:'Aceita',
-    thread: [
-      { autor:'marca',    nome:'Itaú Cultural',          texto:'Buscamos parceiros alinhados ao nosso posicionamento cultural. Podemos conversar sobre o projeto?', data:'09/03 · 14:30' },
-      { autor:'detentor', nome:'Festival Cultura Viva',  texto:'Com certeza! A proposta do Itaú Cultural está aprovada. Vamos agendar uma reunião de alinhamento.', data:'10/03 · 10:05' }
-    ],
-    contrapartidas: [
-      { id:1, descricao:'Naming rights do palco principal', categoria:'branding', valor: 40000, prazo:'10/06/2026', status:'aceita', propostoPor:'detentor' },
-      { id:2, descricao:'Cobertura no app do festival',     categoria:'digital',  valor: 15000, prazo:'01/06/2026', status:'aceita', propostoPor:'marca'    }
-    ]
-  },
-  { id:8,  opp_id:2, opp:'Festival Cultura Viva 2026', marca:'Vivo',          cota:'Naming Rights',       assunto:'Quero entender as possibilidades',                enviadaEm:'08/03/2026', status:'analise',   statusLabel:'Em análise',
-    thread: [
-      { autor:'marca',    nome:'Vivo',                   texto:'Gostaríamos de explorar o naming rights do festival. Qual o valor e os entregáveis previstos?', data:'08/03 · 15:00' },
-      { autor:'detentor', nome:'Festival Cultura Viva',  texto:'Olá Vivo! Estamos preparando um dossiê completo sobre o naming rights. Enviaremos em breve.', data:'09/03 · 09:40' }
-    ],
-    contrapartidas: [
-      { id:1, descricao:'Naming rights + cobertura digital', categoria:'midia', valor: 60000, prazo:'10/06/2026', status:'proposta', propostoPor:'detentor' }
-    ]
-  },
-  { id:9,  opp_id:2, opp:'Festival Cultura Viva 2026', marca:'Magazine Luiza', cota:'Patrocínio Cultural', assunto:'Tenho interesse, mas preciso de mais informações', enviadaEm:'07/03/2026', status:'pendente',  statusLabel:'Pendente',
-    thread: [
-      { autor:'marca',    nome:'Magazine Luiza',         texto:'Precisamos entender o perfil do público e os dados de edições anteriores antes de avançar.', data:'07/03 · 12:20' }
-    ],
-    contrapartidas: []
-  },
-  { id:10, opp_id:2, opp:'Festival Cultura Viva 2026', marca:'Ambev',         cota:'Naming Rights',       assunto:'Outro assunto',                                   enviadaEm:'06/03/2026', status:'pendente',  statusLabel:'Pendente',
-    thread: [
-      { autor:'marca',    nome:'Ambev',                  texto:'Podemos conversar sobre uma parceria diferenciada? Temos interesse em uma ativação exclusiva de bebidas.', data:'06/03 · 17:05' }
-    ],
-    contrapartidas: []
-  }
-];
+// NEGOCIACOES agora usa SharedNeg como fonte única de verdade (shared-state.js)
+// Qualquer mutação deve chamar SharedNeg.save() para persistir no localStorage
+const NEGOCIACOES = SharedNeg.all();
 
 // Taxa padrão da plataforma Relevantia (20%)
 // Para alterar, acesse o painel Admin — não modifique aqui diretamente.
-const PLATAFORMA_TAXA = 0.20;
+const PLATAFORMA_TAXA = (window.DEMO) ? window.DEMO.plataforma_taxa : 0.20;
 
 // ─── DADOS MOCK: OPORTUNIDADES PUBLICADAS/RASCUNHOS ───
 const OPP_CAT = {
@@ -1551,11 +1471,7 @@ const OPP_CAT = {
   'Tecnologia':     { gradient: 'linear-gradient(135deg,#2563EB,#60A5FA)', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>' },
   'Entretenimento': { gradient: 'linear-gradient(135deg,#7C3AED,#A78BFA)', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>' }
 };
-const MINHAS_OPPS = [
-  { id:1, titulo:'Maratona Internacional SP 2026', categoria:'Esporte',  status:'publicada', interesses:4, criadaEm:'18 mar 2026', cidade:'São Paulo, SP', data:'Abr 2026' },
-  { id:2, titulo:'Naming Rights — Arena Esportiva', categoria:'Esporte',  status:'publicada', interesses:6, criadaEm:'20 mar 2026', cidade:'São Paulo, SP', data:'Jun 2026' },
-  { id:3, titulo:'Festival Cultural do Recife',    categoria:'Cultura',  status:'rascunho',  interesses:0, criadaEm:'21 mar 2026', cidade:'Recife, PE',    data:'Jul 2026' }
-];
+const MINHAS_OPPS = (window.DEMO && window.DEMO.detentor) ? [...window.DEMO.detentor.oportunidades] : [];
 
 function publishOportunidade(id) {
   const opp = MINHAS_OPPS.find(o => o.id === id);
@@ -1892,6 +1808,7 @@ function addContrapartidaDet() {
 
   const newId = n.contrapartidas.length ? Math.max(...n.contrapartidas.map(c=>c.id)) + 1 : 1;
   n.contrapartidas.push({ id: newId, descricao: desc, valor, prazo, status:'proposta', propostoPor:'detentor' });
+  SharedNeg.save();
   renderContrapartidasDet(n.contrapartidas);
 
   document.getElementById('mn-cp-desc').value = '';
@@ -1905,14 +1822,14 @@ function acceptCpDet(cpId) {
   const n = _negAtiva;
   if (!n) return;
   const cp = n.contrapartidas.find(c => c.id === cpId);
-  if (cp) { cp.status = 'aceita'; renderContrapartidasDet(n.contrapartidas); showToast('Contrapartida aceita!', 'success'); }
+  if (cp) { cp.status = 'aceita'; SharedNeg.save(); renderContrapartidasDet(n.contrapartidas); showToast('Contrapartida aceita!', 'success'); }
 }
 
 function rejectCpDet(cpId) {
   const n = _negAtiva;
   if (!n) return;
   const cp = n.contrapartidas.find(c => c.id === cpId);
-  if (cp) { cp.status = 'recusada'; renderContrapartidasDet(n.contrapartidas); showToast('Contrapartida recusada.', 'error'); }
+  if (cp) { cp.status = 'recusada'; SharedNeg.save(); renderContrapartidasDet(n.contrapartidas); showToast('Contrapartida recusada.', 'error'); }
 }
 
 function closeNegModal() {
@@ -1980,6 +1897,7 @@ function recusarNegociacao() {
     document.getElementById('mn-status-label').textContent = 'Recusada';
     document.getElementById('mn-status-hint').textContent = 'Não foi possível avançar neste momento';
   }
+  SharedNeg.save();
   _updateDealFooterState();
   renderNegociacoes(NEGOCIACOES);
   renderDeals();
@@ -1999,6 +1917,7 @@ function fecharDeal() {
     document.getElementById('mn-status-label').textContent = 'Aceita';
     document.getElementById('mn-status-hint').textContent = 'Proposta aprovada. Entre em contato com a marca.';
   }
+  SharedNeg.save();
   _updateDealFooterState();
   renderNegociacoes(NEGOCIACOES);
   renderDeals();
@@ -2020,6 +1939,7 @@ function sendNegMsg() {
                now.getMinutes().toString().padStart(2,'0');
 
   _negAtiva.thread.push({ autor:'detentor', nome: _negAtiva.opp, texto: text, data });
+  SharedNeg.save();
   renderNegThread(_negAtiva.thread);
 
   ta.value = '';
