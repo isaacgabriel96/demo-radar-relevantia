@@ -2113,8 +2113,8 @@ init();
 //
 // NEGOCIACOES: loaded from Supabase (real) or SharedNeg (demo fallback).
 // Mutations call _persistNeg() which routes to Supabase API or SharedNeg.save().
-let NEGOCIACOES = [];
-let _negToken = null; // cached auth token for API calls
+var NEGOCIACOES = [];
+var _negToken = null; // cached auth token for API calls
 
 /**
  * Load negotiations: Supabase real → SharedNeg fallback.
