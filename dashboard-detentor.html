@@ -2081,40 +2081,14 @@ function showToast(message, type = 'success') {
   }, 3000);
 }
 
-// ─── START ───
-init();
-
-// ─── NEGOCIAÇÕES ───
-// Estrutura de dados planejada para uso futuro:
-//
-// NEGOCIAÇÃO (perspectiva do detentor)
-//   id            : number          — identificador único
-//   opp_id        : number          — ID da oportunidade
-//   cota_id       : string          — ID da cota dentro da oportunidade
-//   marca_id      : string          — ID da marca
-//   marca         : string          — nome da marca (desnormalizado)
-//   opp           : string          — nome da oportunidade (desnormalizado)
-//   cota          : string          — nome da cota (desnormalizado)
-//   assunto       : string          — mensagem inicial
-//   enviadaEm     : string (date)   — data de criação
-//   status        : 'pendente' | 'aceita' | 'analise' | 'recusada'
-//   thread        : Mensagem[]
-//   contrapartidas: Contrapartida[] — insumo para contratos, ativação e financeiro
-//
-// CONTRAPARTIDA
-//   id            : number
-//   descricao     : string          — descrição do entregável
-//   categoria     : 'branding' | 'digital' | 'ativacao' | 'midia' | 'outro'
-//   valor         : number          — R$ (número para cálculos)
-//   prazo         : string (date)   — prazo de entrega
-//   status        : 'proposta' | 'aceita' | 'recusada'
-//   propostoPor   : 'marca' | 'detentor'
-//   — futuros: responsavel, evidencia_entrega, data_entrega_real, pago, data_pagamento
-//
+// ─── NEGOCIAÇÕES — STATE ───
 // NEGOCIACOES: loaded from Supabase (real) or SharedNeg (demo fallback).
 // Mutations call _persistNeg() which routes to Supabase API or SharedNeg.save().
 var NEGOCIACOES = [];
 var _negToken = null; // cached auth token for API calls
+
+// ─── START ───
+init();
 
 /**
  * Load negotiations: Supabase real → SharedNeg fallback.
