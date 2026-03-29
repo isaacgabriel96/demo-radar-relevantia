@@ -508,6 +508,11 @@ body::before {
 const SUPABASE_URL = 'https://bzckerazidgrkbpgqqee.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ6Y2tlcmF6aWRncmticGdxcWVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2MjczODksImV4cCI6MjA4ODIwMzM4OX0.HIVnwcGvKiYNGfVFEnP0Ik9kfOeXPB4c4BFqDpqFCS4';
 
+// SDK client for auth (auto token refresh)
+const _sb = (typeof supabase !== 'undefined' && supabase.createClient)
+  ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+  : null;
+
 /* ── Utilitários ── */
 function showToast(msg, type = '') {
   const t = document.getElementById('toast');
@@ -573,22 +578,37 @@ async function doLogin() {
   label.textContent = 'Entrando...';
 
   try {
-    const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
-      method: 'POST',
-      headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      document.getElementById('errLogin').style.display = 'block';
-      document.getElementById('inputPassword').classList.add('error');
-      return;
+    // Use SDK for login — stores refresh_token for auto-renewal
+    if (_sb) {
+      const { data, error } = await _sb.auth.signInWithPassword({ email, password });
+      if (error || !data.session) {
+        document.getElementById('errLogin').style.display = 'block';
+        document.getElementById('inputPassword').classList.add('error');
+        return;
+      }
+      // SDK auto-stores session. Also save in legacy format for compatibility.
+      const legacyData = {
+        access_token: data.session.access_token,
+        refresh_token: data.session.refresh_token,
+        expires_at: data.session.expires_at,
+        user: data.user
+      };
+      redirecionar(legacyData);
+    } else {
+      // Fallback: manual fetch (no refresh token)
+      const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+        method: 'POST',
+        headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        document.getElementById('errLogin').style.display = 'block';
+        document.getElementById('inputPassword').classList.add('error');
+        return;
+      }
+      redirecionar(data);
     }
-
-    redirecionar(data);
-
   } catch (e) {
     showToast('Erro de conexão. Tente novamente.', 'error');
   } finally {
