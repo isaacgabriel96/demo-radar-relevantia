@@ -662,6 +662,216 @@ textarea.form-control { resize: vertical; min-height: 90px; }
   .step-actions .btn { width: 100%; justify-content: center; font-size: 14px; padding: 13px 16px; }
   .step-actions .btn-publish { order: -1; }
 }
+
+/* ══════════════════════════════════════════════
+   PREVIEW EDITÁVEL — Step 6
+══════════════════════════════════════════════ */
+
+/* Banner informativo */
+.pv-info-banner {
+  display: flex; gap: 12px; align-items: flex-start;
+  background: linear-gradient(135deg, rgba(184,134,11,0.08), rgba(200,168,75,0.06));
+  border: 1px solid var(--gold-border);
+  border-radius: var(--radius-md); padding: 16px 18px;
+  margin-bottom: 20px; font-size: 13px; line-height: 1.6; color: var(--gray-4);
+}
+.pv-info-banner svg { flex-shrink: 0; margin-top: 1px; color: var(--gold); }
+.pv-info-banner strong { color: var(--text); }
+
+/* Header card */
+.pv-header-card {
+  background: var(--white); border-radius: var(--radius-lg);
+  overflow: hidden; box-shadow: var(--shadow-sm); margin-bottom: 20px;
+}
+.pv-cover {
+  height: 200px; background: var(--gray-1); position: relative;
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+}
+.pv-cover img { width: 100%; height: 100%; object-fit: cover; }
+.pv-cover-placeholder { display: flex; flex-direction: column; align-items: center; gap: 8px; color: var(--gray-3); font-size: 13px; }
+.pv-header-body { padding: 20px 24px; }
+.pv-category-badge {
+  display: inline-block; background: var(--gold-gradient); color: var(--white);
+  font-size: 11px; font-weight: 600; padding: 3px 12px;
+  border-radius: var(--radius-pill); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.pv-title { font-family: var(--font-heading); font-size: 22px; font-weight: 600; color: var(--text); margin-bottom: 12px; }
+.pv-meta-row { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 12px; }
+.pv-meta-item { display: flex; align-items: center; gap: 5px; font-size: 13px; color: var(--gray-4); }
+.pv-meta-item svg { color: var(--gray-3); flex-shrink: 0; }
+.pv-price-tag {
+  display: inline-block; background: var(--gray-1); border-radius: var(--radius-pill);
+  padding: 6px 16px; font-size: 14px; font-weight: 600; color: var(--text);
+}
+
+/* Gallery */
+.pv-gallery {
+  display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 16px;
+}
+.pv-gallery-thumb {
+  width: 100px; height: 72px; border-radius: var(--radius-base); overflow: hidden;
+  flex-shrink: 0; background: var(--gray-1);
+}
+.pv-gallery-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Tabs */
+.pv-tabs {
+  display: flex; gap: 0; border-bottom: 2px solid var(--gray-1);
+  margin-bottom: 20px; overflow-x: auto;
+}
+.pv-tab {
+  padding: 10px 18px; font-size: 13px; font-weight: 500; color: var(--gray-3);
+  background: none; border: none; cursor: pointer;
+  border-bottom: 2px solid transparent; margin-bottom: -2px;
+  white-space: nowrap; transition: all 0.2s;
+}
+.pv-tab:hover { color: var(--gray-4); }
+.pv-tab.active { color: var(--gold); border-bottom-color: var(--gold); font-weight: 600; }
+
+/* Tab content */
+.pv-tab-content { display: none; }
+.pv-tab-content.active { display: block; }
+
+/* Description */
+.pv-description { font-size: 14px; line-height: 1.7; color: var(--gray-4); white-space: pre-wrap; }
+
+/* Facts grid */
+.pv-facts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+.pv-fact-card {
+  background: var(--gray-1); border-radius: var(--radius-base); padding: 14px 16px;
+}
+.pv-fact-value { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.pv-fact-label { font-size: 12px; color: var(--gray-3); }
+
+/* Tags */
+.pv-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.pv-tag {
+  display: inline-block; background: var(--gray-1); color: var(--gray-4);
+  font-size: 12px; font-weight: 500; padding: 5px 14px;
+  border-radius: var(--radius-pill);
+}
+
+/* Cota card */
+.pv-cota-card {
+  background: var(--white); border: 1px solid var(--gray-1); border-radius: var(--radius-md);
+  padding: 16px 18px; margin-bottom: 12px;
+}
+.pv-cota-name { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.pv-cota-price { font-size: 14px; color: var(--gold); font-weight: 600; }
+.pv-cota-vagas { font-size: 12px; color: var(--gray-3); margin-top: 2px; }
+.pv-cota-beneficios { list-style: disc; padding-left: 18px; margin-top: 8px; font-size: 13px; color: var(--gray-4); }
+.pv-cota-beneficios li { margin-bottom: 3px; }
+
+/* Canal row */
+.pv-canal-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 0; border-bottom: 1px solid var(--gray-1);
+}
+.pv-canal-row:last-child { border-bottom: none; }
+.pv-canal-icon { width: 36px; height: 36px; border-radius: 50%; background: var(--gray-1); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.pv-canal-name { font-size: 14px; font-weight: 500; color: var(--text); }
+.pv-canal-handle { font-size: 12px; color: var(--gray-3); }
+
+/* ── Editable Placeholder ── */
+.editable-placeholder {
+  border: 2px dashed var(--gold-border);
+  background: linear-gradient(135deg, rgba(184,134,11,0.04), rgba(200,168,75,0.03));
+  border-radius: var(--radius-md); padding: 20px;
+  cursor: pointer; transition: all 0.2s;
+  display: flex; align-items: center; gap: 12px;
+}
+.editable-placeholder:hover {
+  border-color: var(--gold);
+  background: linear-gradient(135deg, rgba(184,134,11,0.08), rgba(200,168,75,0.06));
+  transform: translateY(-1px);
+}
+.editable-placeholder .ep-icon {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--gold-gradient); color: var(--white);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 600; flex-shrink: 0;
+}
+.editable-placeholder .ep-text { font-size: 13px; color: var(--gray-3); line-height: 1.5; }
+.editable-placeholder.filled {
+  border: 1px solid var(--gray-1); background: var(--white);
+  cursor: pointer; padding: 16px 18px;
+}
+.editable-placeholder.filled .ep-icon { display: none; }
+.editable-placeholder.filled .ep-text { color: var(--gray-4); font-size: 14px; white-space: pre-wrap; }
+.editable-placeholder.filled:hover { border-color: var(--gold-border); background: rgba(184,134,11,0.02); }
+
+/* ── Inline Editor Overlay ── */
+.pv-inline-editor-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(26,18,0,0.5); z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px; backdrop-filter: blur(2px);
+}
+.pv-inline-editor {
+  background: var(--white); border-radius: var(--radius-lg);
+  width: 100%; max-width: 540px; box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+.pv-editor-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px; border-bottom: 1px solid var(--gray-1);
+}
+.pv-editor-title { font-size: 16px; font-weight: 600; color: var(--text); }
+.pv-editor-close {
+  width: 32px; height: 32px; border-radius: 50%; border: none;
+  background: var(--gray-1); color: var(--gray-4); font-size: 20px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+}
+.pv-editor-close:hover { background: var(--gray-2); }
+.pv-editor-body { padding: 20px; }
+.pv-editor-body textarea, .pv-editor-body input {
+  width: 100%; border: 1px solid var(--gray-2); border-radius: var(--radius-base);
+  padding: 12px 14px; font-size: 14px; font-family: var(--font-body);
+  color: var(--text); resize: vertical; transition: border-color 0.15s;
+}
+.pv-editor-body textarea { min-height: 120px; }
+.pv-editor-body textarea:focus, .pv-editor-body input:focus {
+  outline: none; border-color: var(--gold); box-shadow: var(--shadow-focus);
+}
+.pv-editor-body label { display: block; font-size: 13px; font-weight: 500; color: var(--gray-4); margin-bottom: 6px; }
+.pv-editor-body .editor-field + .editor-field { margin-top: 14px; }
+.pv-editor-footer {
+  display: flex; justify-content: flex-end; gap: 8px;
+  padding: 14px 20px; border-top: 1px solid var(--gray-1);
+}
+
+/* ── Completeness bar ── */
+.pv-completeness {
+  display: flex; align-items: center; gap: 12px;
+  margin: 20px 0 16px; padding: 12px 16px;
+  background: var(--white); border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+.pv-completeness-bar {
+  flex: 1; height: 6px; background: var(--gray-1);
+  border-radius: 3px; overflow: hidden;
+}
+.pv-completeness-fill {
+  height: 100%; background: var(--gold-gradient);
+  border-radius: 3px; transition: width 0.4s ease;
+}
+.pv-completeness-label { font-size: 12px; font-weight: 600; color: var(--gray-4); white-space: nowrap; }
+
+/* ── Empty state ── */
+.pv-empty-state { padding: 8px 0; }
+
+/* Mobile adjustments for preview */
+@media (max-width: 768px) {
+  .pv-header-body { padding: 16px; }
+  .pv-title { font-size: 18px; }
+  .pv-meta-row { gap: 10px; }
+  .pv-cover { height: 160px; }
+  .pv-tabs { gap: 0; }
+  .pv-tab { padding: 8px 12px; font-size: 12px; }
+  .pv-inline-editor { max-width: 100%; }
+  .pv-facts-grid { grid-template-columns: 1fr 1fr; }
+}
 </style>
 </head>
 <body>
@@ -780,7 +990,7 @@ textarea.form-control { resize: vertical; min-height: 90px; }
     <div class="mobile-progress" id="mobileProgress">
       <div class="mobile-progress-header">
         <span class="mobile-progress-label">Progresso</span>
-        <span class="mobile-progress-step" id="mobileProgressStep">Passo 1 de 7</span>
+        <span class="mobile-progress-step" id="mobileProgressStep">Passo 1 de 8</span>
       </div>
       <div class="mobile-progress-track">
         <div class="mobile-progress-fill" id="mobileProgressFill" style="width: 14.28%"></div>
@@ -821,6 +1031,11 @@ textarea.form-control { resize: vertical; min-height: 90px; }
       <div class="step-line" id="step-line-5"></div>
       <div class="step" id="step-dot-6">
         <div class="step-circle"><span>7</span></div>
+        <span class="step-label">Preview</span>
+      </div>
+      <div class="step-line" id="step-line-6"></div>
+      <div class="step" id="step-dot-7">
+        <div class="step-circle"><span>8</span></div>
         <span class="step-label">Publicar</span>
       </div>
     </div>
@@ -1268,16 +1483,194 @@ textarea.form-control { resize: vertical; min-height: 90px; }
       <div class="step-actions">
         <button class="btn btn-ghost" onclick="nextStep(4)">← Voltar</button>
         <button class="btn btn-primary" onclick="nextStep(6)">
-          Próximo: Publicar →
+          Próximo: Preview →
         </button>
       </div>
     </div><!-- /panel-5 -->
 
 
     <!-- ════════════════════════════════════════════
-         PASSO 6 — PUBLICAR
+         PASSO 6 — PREVIEW EDITÁVEL
     ════════════════════════════════════════════ -->
     <div id="panel-6" style="display:none">
+
+      <!-- Banner informativo -->
+      <div class="pv-info-banner">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+        <div>
+          <strong>Preview da Oportunidade</strong> — É assim que as marcas verão sua oportunidade no Radar. Campos destacados em <span style="color:var(--gold)">dourado</span> ainda não foram preenchidos — clique neles para completar.
+        </div>
+      </div>
+
+      <!-- Header da oportunidade -->
+      <div class="pv-header-card">
+        <div class="pv-cover" id="pvCover">
+          <div class="pv-cover-placeholder">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".4"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <span>Sem foto de capa</span>
+          </div>
+        </div>
+        <div class="pv-header-body">
+          <div class="pv-category-badge" id="pvCategoryBadge">—</div>
+          <h1 class="pv-title" id="pvTitle">Nome da oportunidade</h1>
+          <div class="pv-meta-row">
+            <span class="pv-meta-item" id="pvOrg">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 21V7l9-4 9 4v14"/><path d="M9 21v-6h6v6"/></svg>
+              —
+            </span>
+            <span class="pv-meta-item" id="pvLocation">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              —
+            </span>
+            <span class="pv-meta-item" id="pvDate">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+              —
+            </span>
+          </div>
+          <div class="pv-price-tag" id="pvPrice">Valor a definir</div>
+        </div>
+      </div>
+
+      <!-- Galeria de fotos -->
+      <div class="pv-gallery" id="pvGallery" style="display:none"></div>
+
+      <!-- Tabs de navegação -->
+      <div class="pv-tabs">
+        <button class="pv-tab active" onclick="switchPreviewTab('visao', this)">Visão geral</button>
+        <button class="pv-tab" onclick="switchPreviewTab('publico', this)">Público</button>
+        <button class="pv-tab" onclick="switchPreviewTab('cotas', this)">Cotas & Entregas</button>
+        <button class="pv-tab" onclick="switchPreviewTab('ativacoes', this)">Ativações</button>
+        <button class="pv-tab" onclick="switchPreviewTab('canais', this)">Canais</button>
+      </div>
+
+      <!-- Tab: Visão geral -->
+      <div class="pv-tab-content active" id="pvTab-visao">
+        <div class="form-card" style="margin:0">
+          <div class="card-header"><div class="card-title" style="font-size:16px">Sobre a oportunidade</div></div>
+          <div class="pv-description" id="pvDescription">—</div>
+        </div>
+        <div class="form-card" style="margin-top:16px">
+          <div class="card-header"><div class="card-title" style="font-size:16px">Destaques</div></div>
+          <div class="pv-facts-grid" id="pvFacts">
+            <div class="pv-fact-empty" style="color:var(--gray-3);font-size:13px;font-style:italic">Nenhum destaque adicionado</div>
+          </div>
+        </div>
+        <div class="form-card" style="margin-top:16px">
+          <div class="card-header"><div class="card-title" style="font-size:16px">Prazo de inscrição</div></div>
+          <div class="editable-placeholder" onclick="openInlineEditor('prazo')" id="pvPrazo">
+            <span class="ep-icon">+</span>
+            <span class="ep-text">Clique para definir o prazo de inscrição</span>
+          </div>
+        </div>
+        <div class="form-card" style="margin-top:16px">
+          <div class="card-header"><div class="card-title" style="font-size:16px">Segmentos</div></div>
+          <div class="pv-tags" id="pvTags">
+            <span style="color:var(--gray-3);font-size:13px;font-style:italic">Nenhum segmento selecionado</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Público -->
+      <div class="pv-tab-content" id="pvTab-publico">
+        <div class="form-card" style="margin:0">
+          <div class="card-header"><div class="card-title" style="font-size:16px">Público-alvo</div></div>
+          <div class="editable-placeholder" onclick="openInlineEditor('publico')" id="pvPublico">
+            <span class="ep-icon">+</span>
+            <span class="ep-text">Clique para descrever o público-alvo desta oportunidade</span>
+          </div>
+        </div>
+        <div class="form-card" style="margin-top:16px">
+          <div class="card-header"><div class="card-title" style="font-size:16px">Dados demográficos</div></div>
+          <div class="editable-placeholder" onclick="openInlineEditor('demografico')" id="pvDemografico">
+            <span class="ep-icon">+</span>
+            <span class="ep-text">Clique para adicionar dados demográficos (faixa etária, gênero, região, etc.)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Cotas & Entregas -->
+      <div class="pv-tab-content" id="pvTab-cotas">
+        <div class="form-card" style="margin:0">
+          <div class="card-header"><div class="card-title" style="font-size:16px">Cotas de patrocínio</div></div>
+          <div id="pvCotas">
+            <div class="pv-empty-state" style="color:var(--gray-3);font-size:13px;font-style:italic">Nenhuma cota de patrocínio definida</div>
+          </div>
+        </div>
+        <div class="form-card" style="margin-top:16px">
+          <div class="card-header"><div class="card-title" style="font-size:16px">Entregas ao patrocinador</div></div>
+          <div class="editable-placeholder" onclick="openInlineEditor('entregas')" id="pvEntregas">
+            <span class="ep-icon">+</span>
+            <span class="ep-text">Clique para descrever as entregas que o patrocinador receberá</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Ativações -->
+      <div class="pv-tab-content" id="pvTab-ativacoes">
+        <div class="form-card" style="margin:0">
+          <div class="card-header"><div class="card-title" style="font-size:16px">Ativações disponíveis</div></div>
+          <div class="editable-placeholder" onclick="openInlineEditor('ativacoes')" id="pvAtivacoes">
+            <span class="ep-icon">+</span>
+            <span class="ep-text">Clique para listar as ativações de marca disponíveis (naming rights, ações em redes sociais, etc.)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Canais -->
+      <div class="pv-tab-content" id="pvTab-canais">
+        <div class="form-card" style="margin:0">
+          <div class="card-header"><div class="card-title" style="font-size:16px">Canais e alcance</div></div>
+          <div id="pvCanais">
+            <div class="pv-empty-state" style="color:var(--gray-3);font-size:13px;font-style:italic">Nenhuma rede social adicionada no formulário</div>
+          </div>
+        </div>
+        <div class="form-card" style="margin-top:16px">
+          <div class="card-header"><div class="card-title" style="font-size:16px">Métricas de audiência</div></div>
+          <div class="editable-placeholder" onclick="openInlineEditor('metricas')" id="pvMetricas">
+            <span class="ep-icon">+</span>
+            <span class="ep-text">Clique para adicionar métricas de audiência (alcance médio, engajamento, impressões, etc.)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Inline Editor Modal -->
+      <div class="pv-inline-editor-overlay" id="pvEditorOverlay" style="display:none" onclick="closeInlineEditor(event)">
+        <div class="pv-inline-editor" onclick="event.stopPropagation()">
+          <div class="pv-editor-header">
+            <span class="pv-editor-title" id="pvEditorTitle">Editar</span>
+            <button class="pv-editor-close" onclick="closeInlineEditor()">&times;</button>
+          </div>
+          <div class="pv-editor-body" id="pvEditorBody">
+            <!-- Conteúdo dinâmico inserido por openInlineEditor -->
+          </div>
+          <div class="pv-editor-footer">
+            <button class="btn btn-ghost" onclick="closeInlineEditor()">Cancelar</button>
+            <button class="btn btn-primary" onclick="saveInlineEdit()">Salvar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contador de campos preenchidos -->
+      <div class="pv-completeness" id="pvCompleteness">
+        <div class="pv-completeness-bar">
+          <div class="pv-completeness-fill" id="pvCompletenessFill" style="width:0%"></div>
+        </div>
+        <span class="pv-completeness-label" id="pvCompletenessLabel">0% completo</span>
+      </div>
+
+      <div class="step-actions">
+        <button class="btn btn-ghost" onclick="nextStep(5)">← Voltar</button>
+        <button class="btn btn-primary" onclick="nextStep(7)">
+          Próximo: Publicar →
+        </button>
+      </div>
+    </div><!-- /panel-6 (Preview) -->
+
+
+    <!-- ════════════════════════════════════════════
+         PASSO 7 — PUBLICAR
+    ════════════════════════════════════════════ -->
+    <div id="panel-7" style="display:none">
 
       <!-- Resumo -->
       <div class="form-card">
@@ -1327,13 +1720,13 @@ textarea.form-control { resize: vertical; min-height: 90px; }
       </div>
 
       <div class="step-actions">
-        <button class="btn btn-ghost" onclick="nextStep(5)">← Voltar</button>
+        <button class="btn btn-ghost" onclick="nextStep(6)">← Voltar</button>
         <button class="btn btn-ghost" onclick="saveDraft()">Salvar rascunho</button>
         <button class="btn btn-publish" onclick="publishOpportunity()">
           Publicar no Radar
         </button>
       </div>
-    </div><!-- /panel-6 -->
+    </div><!-- /panel-7 -->
 
   </div><!-- /main-inner -->
 </main>
@@ -1360,7 +1753,7 @@ textarea.form-control { resize: vertical; min-height: 90px; }
    ESTADO GLOBAL
 ══════════════════════════════════════════════ */
 let currentStep = 0;
-const TOTAL_STEPS = 7;
+const TOTAL_STEPS = 8;
 const formState = {
   selectedTemplate: null,
   selectedVisibility: 'publica',
@@ -1587,7 +1980,8 @@ function nextStep(n) {
 
   // Hooks por passo
   if (n === 4 && formState.selectedTemplate) renderTemplateFields(formState.selectedTemplate);
-  if (n === 6) renderReviewSummary();
+  if (n === 6) renderPreview();
+  if (n === 7) renderReviewSummary();
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -1725,7 +2119,7 @@ function togglePillOpt(el) {
 }
 
 /* ══════════════════════════════════════════════
-   RESUMO (PASSO 5)
+   RESUMO (PASSO 7 — PUBLICAR)
 ══════════════════════════════════════════════ */
 function renderReviewSummary() {
   const container = document.getElementById('reviewSummary');
@@ -1896,7 +2290,430 @@ function renderReviewSummary() {
     </div>`;
   }
 
+  // Dados do Preview Editável (Step 6)
+  const pvKeys = {
+    publico: 'Público-alvo', demografico: 'Dados demográficos',
+    entregas: 'Entregas ao patrocinador', ativacoes: 'Ativações disponíveis',
+    metricas: 'Métricas de audiência', prazo: 'Prazo de inscrição'
+  };
+  const pvRows = Object.entries(pvKeys)
+    .filter(([k]) => previewEditData[k])
+    .map(([k, label]) => {
+      let val = previewEditData[k];
+      if (k === 'prazo') {
+        const dt = new Date(val + 'T12:00:00');
+        val = dt.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+      }
+      return `<div class="review-row"><span class="review-label">${label}</span><span class="review-val">${val}</span></div>`;
+    });
+  if (pvRows.length > 0) {
+    html += `<div class="review-block"><div class="review-section-title">Informações do Preview</div>${pvRows.join('')}</div>`;
+  }
+
   container.innerHTML = html;
+}
+
+/* ══════════════════════════════════════════════
+   PREVIEW EDITÁVEL — Step 6
+══════════════════════════════════════════════ */
+const previewEditData = {};
+let currentEditorKey = null;
+
+function collectFormData() {
+  const data = {};
+
+  // Template / Categoria
+  const tplKey = formState.selectedTemplate;
+  const tpl = TEMPLATES[tplKey];
+  data.category = tpl?.label || tplKey || '';
+
+  // Informações básicas
+  data.nome = document.getElementById('opp-nome')?.value || '';
+  data.desc = document.getElementById('opp-desc')?.value || '';
+  const estadoEl = document.getElementById('opp-estado');
+  const cidadeEl = document.getElementById('opp-cidade');
+  data.estado = estadoEl?.options[estadoEl.selectedIndex]?.text || '';
+  data.cidade = cidadeEl?.value || '';
+  if (data.estado === 'Selecione o estado') data.estado = '';
+  data.location = [data.cidade, data.estado].filter(Boolean).join(' — ') || '';
+  const abrangenciaEl = document.getElementById('opp-abrangencia');
+  data.abrangencia = abrangenciaEl?.options[abrangenciaEl.selectedIndex]?.text || '';
+  if (data.abrangencia === 'Selecione…') data.abrangencia = '';
+
+  // Fotos
+  data.coverImg = document.querySelector('#photosGrid .photo-thumb.cover-photo img')?.src || '';
+  data.otherImgs = Array.from(document.querySelectorAll('#photosGrid .photo-thumb img'))
+    .filter(img => img.src !== data.coverImg).map(img => img.src);
+
+  // Vídeo
+  data.videoUrl = document.getElementById('videoUrl')?.value || '';
+  data.linkExterno = document.getElementById('opp-link-externo')?.value || '';
+
+  // PDF
+  data.pdfName = document.getElementById('pdfName')?.textContent || '';
+
+  // Template-specific fields
+  data.templateFields = [];
+  if (tpl) {
+    tpl.fields.forEach(f => {
+      let val = '';
+      if (f.type === 'select') {
+        const el = document.getElementById(f.id);
+        if (el) { val = el.options[el.selectedIndex]?.text || ''; if (val === 'Selecione…') val = ''; }
+      } else if (f.type === 'text') {
+        val = document.getElementById(f.id)?.value || '';
+      } else if (f.type === 'multiselect-pills') {
+        const pills = document.querySelectorAll(`#${f.id} .pill-opt.selected`);
+        val = Array.from(pills).map(p => p.textContent.trim()).join(', ');
+      } else if (f.type === 'event-dates') {
+        const entries = document.querySelectorAll('#event-entries-list .event-entry');
+        const parts = [];
+        entries.forEach(entry => {
+          const inputs = entry.querySelectorAll('input');
+          const d = inputs[0]?.value || '';
+          const l = inputs[1]?.value || '';
+          if (d || l) parts.push([d, l].filter(Boolean).join(' — '));
+        });
+        val = parts.join(' | ');
+      }
+      data.templateFields.push({ label: f.label, value: val });
+    });
+  }
+
+  // Cotas
+  data.cotas = [];
+  const cotasAtivas = document.getElementById('cotas-toggle-switch')?.classList.contains('active');
+  if (cotasAtivas) {
+    document.querySelectorAll('#cotas-list .cota-card').forEach((card, i) => {
+      const nome = card.querySelector('.cota-nome')?.value || `Cota ${i+1}`;
+      const valor = card.querySelector('.cota-valor')?.value || '';
+      const vagas = card.querySelector('.cota-vagas')?.value || '';
+      const bens = Array.from(card.querySelectorAll('.cota-beneficios-list input'))
+        .map(el => el.value).filter(Boolean);
+      data.cotas.push({ nome, valor, vagas, beneficios: bens });
+    });
+  }
+
+  // Segmentos
+  data.segmentos = Array.from(document.querySelectorAll('#segmentPillGrid .segment-pill.selected'))
+    .map(p => p.textContent.trim());
+
+  // Redes sociais
+  data.socials = [];
+  document.querySelectorAll('#social-networks-container .social-network-group').forEach(group => {
+    const network = group.dataset.network;
+    const prefix = group.dataset.prefix;
+    const values = Array.from(group.querySelectorAll('.social-entry input'))
+      .map(i => i.value.trim()).filter(Boolean);
+    if (values.length > 0) {
+      const labelMap = { instagram:'Instagram', tiktok:'TikTok', youtube:'YouTube', linkedin:'LinkedIn' };
+      values.forEach(v => {
+        data.socials.push({ network: labelMap[network] || network, handle: prefix + v });
+      });
+    }
+  });
+
+  return data;
+}
+
+function renderPreview() {
+  const d = collectFormData();
+
+  // Header
+  document.getElementById('pvCategoryBadge').textContent = d.category || '—';
+  document.getElementById('pvTitle').textContent = d.nome || 'Nome da oportunidade';
+
+  // Cover
+  const coverEl = document.getElementById('pvCover');
+  if (d.coverImg) {
+    coverEl.innerHTML = `<img src="${d.coverImg}" alt="Capa">`;
+  } else {
+    coverEl.innerHTML = `<div class="pv-cover-placeholder"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".4"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><span>Sem foto de capa</span></div>`;
+  }
+
+  // Org (nome do usuário da sidebar)
+  const orgName = document.getElementById('sidebarUserName')?.textContent || '—';
+  const pvOrg = document.getElementById('pvOrg');
+  pvOrg.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 21V7l9-4 9 4v14"/><path d="M9 21v-6h6v6"/></svg> ${orgName}`;
+
+  // Location
+  const pvLoc = document.getElementById('pvLocation');
+  pvLoc.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg> ${d.location || '—'}`;
+
+  // Date (pegar do event-dates se tiver)
+  const pvDate = document.getElementById('pvDate');
+  const firstDate = d.templateFields.find(f => f.label.toLowerCase().includes('data'))?.value || '';
+  pvDate.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> ${firstDate || '—'}`;
+
+  // Price — check if there's a value from cotas
+  const pvPrice = document.getElementById('pvPrice');
+  if (d.cotas.length > 0 && d.cotas[0].valor) {
+    const minVal = Math.min(...d.cotas.filter(c=>c.valor).map(c=>Number(c.valor)));
+    pvPrice.textContent = `A partir de R$ ${minVal.toLocaleString('pt-BR')}`;
+  } else {
+    pvPrice.textContent = 'Valor a definir';
+  }
+
+  // Gallery
+  const galleryEl = document.getElementById('pvGallery');
+  if (d.otherImgs.length > 0) {
+    galleryEl.style.display = 'flex';
+    galleryEl.innerHTML = d.otherImgs.map(src =>
+      `<div class="pv-gallery-thumb"><img src="${src}" alt=""></div>`
+    ).join('');
+  } else {
+    galleryEl.style.display = 'none';
+  }
+
+  // Tab: Visão geral
+  document.getElementById('pvDescription').textContent = d.desc || '—';
+
+  // Facts (from template fields)
+  const factsEl = document.getElementById('pvFacts');
+  const factItems = d.templateFields.filter(f => f.value);
+  if (factItems.length > 0) {
+    factsEl.innerHTML = factItems.map(f =>
+      `<div class="pv-fact-card"><div class="pv-fact-value">${f.value}</div><div class="pv-fact-label">${f.label}</div></div>`
+    ).join('');
+  } else {
+    factsEl.innerHTML = `<div class="pv-fact-empty" style="color:var(--gray-3);font-size:13px;font-style:italic">Nenhum destaque adicionado</div>`;
+  }
+
+  // Prazo
+  const pvPrazo = document.getElementById('pvPrazo');
+  if (previewEditData.prazo) {
+    pvPrazo.className = 'editable-placeholder filled';
+    pvPrazo.innerHTML = `<span class="ep-text">${previewEditData.prazo}</span>`;
+  } else {
+    pvPrazo.className = 'editable-placeholder';
+    pvPrazo.innerHTML = `<span class="ep-icon">+</span><span class="ep-text">Clique para definir o prazo de inscrição</span>`;
+  }
+
+  // Tags / Segmentos
+  const tagsEl = document.getElementById('pvTags');
+  if (d.segmentos.length > 0) {
+    tagsEl.innerHTML = d.segmentos.map(s => `<span class="pv-tag">${s}</span>`).join('');
+  } else {
+    tagsEl.innerHTML = `<span style="color:var(--gray-3);font-size:13px;font-style:italic">Nenhum segmento selecionado</span>`;
+  }
+
+  // Tab: Público
+  renderEditableField('pvPublico', 'publico', 'Clique para descrever o público-alvo desta oportunidade');
+  renderEditableField('pvDemografico', 'demografico', 'Clique para adicionar dados demográficos (faixa etária, gênero, região, etc.)');
+
+  // Tab: Cotas
+  const pvCotas = document.getElementById('pvCotas');
+  if (d.cotas.length > 0) {
+    pvCotas.innerHTML = d.cotas.map(c => {
+      let html = `<div class="pv-cota-card"><div class="pv-cota-name">${c.nome}</div>`;
+      if (c.valor) html += `<div class="pv-cota-price">R$ ${Number(c.valor).toLocaleString('pt-BR')}</div>`;
+      if (c.vagas) html += `<div class="pv-cota-vagas">${c.vagas} vaga${c.vagas != 1 ? 's' : ''}</div>`;
+      if (c.beneficios.length > 0) {
+        html += `<ul class="pv-cota-beneficios">${c.beneficios.map(b=>`<li>${b}</li>`).join('')}</ul>`;
+      }
+      return html + '</div>';
+    }).join('');
+  } else {
+    pvCotas.innerHTML = `<div class="pv-empty-state" style="color:var(--gray-3);font-size:13px;font-style:italic">Nenhuma cota de patrocínio definida</div>`;
+  }
+
+  // Entregas
+  renderEditableField('pvEntregas', 'entregas', 'Clique para descrever as entregas que o patrocinador receberá');
+
+  // Tab: Ativações
+  renderEditableField('pvAtivacoes', 'ativacoes', 'Clique para listar as ativações de marca disponíveis');
+
+  // Tab: Canais
+  const pvCanais = document.getElementById('pvCanais');
+  if (d.socials.length > 0) {
+    pvCanais.innerHTML = d.socials.map(s => {
+      const iconMap = {
+        'Instagram': '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5" fill="currentColor"/></svg>',
+        'TikTok': '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 12a4 4 0 104 4V4a5 5 0 005 5"/></svg>',
+        'YouTube': '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="4" width="20" height="16" rx="4"/><polygon points="10 8 16 12 10 16"/></svg>',
+        'LinkedIn': '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="20" height="20" rx="3"/><path d="M8 11v5M8 8h.01M12 16v-5M16 16v-3a2 2 0 00-4 0"/></svg>'
+      };
+      const icon = iconMap[s.network] || '';
+      return `<div class="pv-canal-row"><div class="pv-canal-icon">${icon}</div><div><div class="pv-canal-name">${s.network}</div><div class="pv-canal-handle">${s.handle}</div></div></div>`;
+    }).join('');
+  } else {
+    pvCanais.innerHTML = `<div class="pv-empty-state" style="color:var(--gray-3);font-size:13px;font-style:italic">Nenhuma rede social adicionada no formulário</div>`;
+  }
+
+  // Métricas
+  renderEditableField('pvMetricas', 'metricas', 'Clique para adicionar métricas de audiência (alcance médio, engajamento, etc.)');
+
+  // Reset to first tab
+  switchPreviewTab('visao', document.querySelector('.pv-tab'));
+
+  // Update completeness
+  updateCompleteness();
+}
+
+function renderEditableField(elementId, key, placeholderText) {
+  const el = document.getElementById(elementId);
+  if (!el) return;
+  if (previewEditData[key]) {
+    el.className = 'editable-placeholder filled';
+    el.innerHTML = `<span class="ep-text">${previewEditData[key]}</span>`;
+  } else {
+    el.className = 'editable-placeholder';
+    el.innerHTML = `<span class="ep-icon">+</span><span class="ep-text">${placeholderText}</span>`;
+  }
+}
+
+function switchPreviewTab(tabId, btn) {
+  // Deactivate all tabs and contents
+  document.querySelectorAll('#panel-6 .pv-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('#panel-6 .pv-tab-content').forEach(c => c.classList.remove('active'));
+
+  // Activate selected
+  if (btn) btn.classList.add('active');
+  const content = document.getElementById('pvTab-' + tabId);
+  if (content) content.classList.add('active');
+}
+
+/* ── Inline Editor ── */
+const EDITOR_CONFIG = {
+  prazo: {
+    title: 'Prazo de inscrição',
+    fields: [
+      { key: 'prazo', label: 'Data limite', type: 'date', placeholder: '' }
+    ]
+  },
+  publico: {
+    title: 'Público-alvo',
+    fields: [
+      { key: 'publico', label: 'Descreva o público-alvo', type: 'textarea', placeholder: 'Ex: Jovens de 18-35 anos, interessados em esportes e lifestyle, majoritariamente das classes A e B...' }
+    ]
+  },
+  demografico: {
+    title: 'Dados demográficos',
+    fields: [
+      { key: 'demografico', label: 'Descreva os dados demográficos', type: 'textarea', placeholder: 'Ex: 65% masculino, 35% feminino. Faixa etária: 18-25 (40%), 26-35 (35%), 36-45 (25%). Principais regiões: SP, RJ, MG...' }
+    ]
+  },
+  entregas: {
+    title: 'Entregas ao patrocinador',
+    fields: [
+      { key: 'entregas', label: 'O que o patrocinador recebe?', type: 'textarea', placeholder: 'Ex: Logo na camisa oficial, menções em redes sociais, espaço para ativação no evento, camarote exclusivo...' }
+    ]
+  },
+  ativacoes: {
+    title: 'Ativações disponíveis',
+    fields: [
+      { key: 'ativacoes', label: 'Quais ativações estão disponíveis?', type: 'textarea', placeholder: 'Ex: Naming rights, ativação de marca no evento, distribuição de brindes, espaço para estande, ação em redes sociais...' }
+    ]
+  },
+  metricas: {
+    title: 'Métricas de audiência',
+    fields: [
+      { key: 'metricas_alcance', label: 'Alcance médio por post', type: 'text', placeholder: 'Ex: 50.000' },
+      { key: 'metricas_engajamento', label: 'Taxa de engajamento', type: 'text', placeholder: 'Ex: 4.5%' },
+      { key: 'metricas_impressoes', label: 'Impressões mensais', type: 'text', placeholder: 'Ex: 200.000' }
+    ]
+  }
+};
+
+function openInlineEditor(key) {
+  const config = EDITOR_CONFIG[key];
+  if (!config) return;
+
+  currentEditorKey = key;
+  document.getElementById('pvEditorTitle').textContent = config.title;
+
+  const body = document.getElementById('pvEditorBody');
+  body.innerHTML = config.fields.map(f => {
+    const currentVal = previewEditData[f.key] || '';
+    if (f.type === 'textarea') {
+      return `<div class="editor-field"><label>${f.label}</label><textarea id="editor-${f.key}" placeholder="${f.placeholder}">${currentVal}</textarea></div>`;
+    } else if (f.type === 'date') {
+      return `<div class="editor-field"><label>${f.label}</label><input type="date" id="editor-${f.key}" value="${currentVal}"></div>`;
+    } else {
+      return `<div class="editor-field"><label>${f.label}</label><input type="text" id="editor-${f.key}" placeholder="${f.placeholder}" value="${currentVal}"></div>`;
+    }
+  }).join('');
+
+  document.getElementById('pvEditorOverlay').style.display = 'flex';
+
+  // Focus first field
+  setTimeout(() => {
+    const firstInput = body.querySelector('textarea, input');
+    if (firstInput) firstInput.focus();
+  }, 100);
+}
+
+function saveInlineEdit() {
+  const config = EDITOR_CONFIG[currentEditorKey];
+  if (!config) return;
+
+  config.fields.forEach(f => {
+    const el = document.getElementById('editor-' + f.key);
+    if (el) {
+      const val = el.value.trim();
+      if (val) {
+        previewEditData[f.key] = val;
+      } else {
+        delete previewEditData[f.key];
+      }
+    }
+  });
+
+  closeInlineEditor();
+
+  // Re-render affected areas
+  if (currentEditorKey === 'metricas') {
+    // Format metrics as combined text
+    const parts = [];
+    if (previewEditData.metricas_alcance) parts.push('Alcance: ' + previewEditData.metricas_alcance);
+    if (previewEditData.metricas_engajamento) parts.push('Engajamento: ' + previewEditData.metricas_engajamento);
+    if (previewEditData.metricas_impressoes) parts.push('Impressões: ' + previewEditData.metricas_impressoes);
+    if (parts.length > 0) {
+      previewEditData.metricas = parts.join('\n');
+    } else {
+      delete previewEditData.metricas;
+    }
+    renderEditableField('pvMetricas', 'metricas', 'Clique para adicionar métricas de audiência (alcance médio, engajamento, etc.)');
+  } else if (currentEditorKey === 'prazo') {
+    const pvPrazo = document.getElementById('pvPrazo');
+    if (previewEditData.prazo) {
+      const dateObj = new Date(previewEditData.prazo + 'T12:00:00');
+      const formatted = dateObj.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+      pvPrazo.className = 'editable-placeholder filled';
+      pvPrazo.innerHTML = `<span class="ep-text">Até ${formatted}</span>`;
+    } else {
+      pvPrazo.className = 'editable-placeholder';
+      pvPrazo.innerHTML = `<span class="ep-icon">+</span><span class="ep-text">Clique para definir o prazo de inscrição</span>`;
+    }
+  } else {
+    renderEditableField('pv' + currentEditorKey.charAt(0).toUpperCase() + currentEditorKey.slice(1), currentEditorKey,
+      EDITOR_CONFIG[currentEditorKey]?.fields[0]?.placeholder || '');
+  }
+
+  updateCompleteness();
+}
+
+function closeInlineEditor(event) {
+  if (event && event.target !== event.currentTarget) return;
+  document.getElementById('pvEditorOverlay').style.display = 'none';
+}
+
+function updateCompleteness() {
+  const editableKeys = ['prazo', 'publico', 'demografico', 'entregas', 'ativacoes', 'metricas'];
+  const filled = editableKeys.filter(k => previewEditData[k]).length;
+  const pct = Math.round((filled / editableKeys.length) * 100);
+  const fillEl = document.getElementById('pvCompletenessFill');
+  const labelEl = document.getElementById('pvCompletenessLabel');
+  if (fillEl) fillEl.style.width = pct + '%';
+  if (labelEl) {
+    if (pct === 100) {
+      labelEl.textContent = '✓ Todos os campos preenchidos';
+      labelEl.style.color = 'var(--green)';
+    } else {
+      labelEl.textContent = filled + ' de ' + editableKeys.length + ' campos extras preenchidos';
+      labelEl.style.color = 'var(--gray-4)';
+    }
+  }
 }
 
 /* ══════════════════════════════════════════════
@@ -2246,7 +3063,7 @@ function initSession() {
 
 async function doLogout() {
   await window.supabase?.auth?.signOut();
-  window.location.href = 'login.html';
+  window.location.href = 'index.html';
 }
 
 /* ══════════════════════════════════════════════
