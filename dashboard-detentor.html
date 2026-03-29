@@ -1030,6 +1030,7 @@ tbody tr:last-child td { border-bottom: none; }
   <span>Modo demonstração ativo — os dados exibidos são fictícios</span>
   <button onclick="exitDemoMode()" style="margin-left:auto;background:#1A1200;color:#C8A84B;border:none;padding:6px 16px;border-radius:100px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">Sair do demo</button>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/core.js"></script>
 <script src="js/demo-data.js"></script>
 <script src="shared-state.js"></script>
@@ -2085,51 +2086,40 @@ function showToast(message, type = 'success') {
 // NEGOCIACOES: loaded from Supabase (real) or SharedNeg (demo fallback).
 // Mutations call _persistNeg() which routes to Supabase API or SharedNeg.save().
 var NEGOCIACOES = [];
-var _negToken = null; // cached auth token for API calls
 
 // ─── START ───
 init();
 
 /**
- * Load negotiations: Supabase real → SharedNeg fallback.
- * Called once from init().
+ * Load negotiations: Supabase real (SDK auto-refreshes token) → SharedNeg fallback.
  */
 async function loadNegociacoes() {
-  // Try real data if not demo
   if (!isDemoMode()) {
-    const session = getSession('rightsholder');
-    if (session && session.access_token && session.access_token !== 'DEMO_TOKEN') {
-      _negToken = session.access_token;
-      const real = await fetchNegociacoesDetentor(_negToken);
-      if (real && real.length >= 0) {
-        NEGOCIACOES = real;
-        console.log('[Neg] Loaded', real.length, 'negotiations from Supabase');
-        return;
-      }
+    const real = await fetchNegociacoesDetentor();
+    if (real && real.length >= 0) {
+      NEGOCIACOES = real;
+      console.log('[Neg] Loaded', real.length, 'negotiations from Supabase');
+      return;
     }
   }
-  // Fallback: demo data
   NEGOCIACOES = SharedNeg.all();
   console.log('[Neg] Using SharedNeg (demo/fallback),', NEGOCIACOES.length, 'negotiations');
 }
 
 /**
  * Persist a negotiation change. Routes to Supabase or SharedNeg.
- * @param {object} neg — the mutated negotiation object
- * @param {object} [fields] — specific fields to PATCH (for Supabase)
+ * Token is managed automatically by _getWriteToken() in core.js (SDK).
  */
 async function _persistNeg(neg, fields) {
-  if (_negToken && neg._supaId) {
-    // Real mode: PATCH to Supabase
+  if (neg._supaId && !isDemoMode()) {
     const ok = await updateNegociacao(neg._supaId, fields || {
       status: neg.status,
       status_label: neg.statusLabel,
       status_hint: neg.statusHint,
       aceita_novas_propostas: neg.aceitaNovasPropostas
-    }, _negToken);
+    });
     if (!ok) showToast('Erro ao salvar. Tente novamente.', 'error');
   } else {
-    // Demo fallback
     SharedNeg.save();
   }
 }
@@ -2949,17 +2939,16 @@ async function sendNegMsg() {
   ta.value = '';
   document.getElementById('mn-send-btn').disabled = true;
 
-  // Persist to Supabase
-  if (_negToken && _negAtiva._supaId) {
-    const session = getSession('rightsholder');
-    const userId = session?.user?.id;
+  // Persist to Supabase (SDK handles token automatically)
+  if (_negAtiva._supaId && !isDemoMode()) {
+    const userId = await getAuthUserId();
     await sendMensagem({
       negociacao_id: _negAtiva._supaId,
-      autor_id: userId,
+      autor_id: userId || _negAtiva.detentor_id,
       autor_role: 'detentor',
       autor_nome: _negAtiva.opp,
       texto: text
-    }, _negToken);
+    });
   } else {
     SharedNeg.save();
   }
