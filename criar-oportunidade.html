@@ -3154,6 +3154,204 @@ function maybePreFillEdit() {
 }
 
 /* ══════════════════════════════════════════════
+   MOCK DATA (ativar com ?mock=1)
+══════════════════════════════════════════════ */
+function loadMockData() {
+  const params = new URLSearchParams(window.location.search);
+  if (!params.has('mock')) return;
+
+  // --- Step 1: Selecionar template "Evento" ---
+  const tplCard = document.querySelector('.template-card[data-template="evento"]');
+  if (tplCard) selectTemplate(tplCard);
+
+  // --- Step 2: Informações básicas ---
+  const nomeEl = document.getElementById('opp-nome');
+  if (nomeEl) nomeEl.value = 'Copa Relevantia de Surf 2026';
+
+  const descEl = document.getElementById('opp-desc');
+  if (descEl) {
+    descEl.value = 'A maior competição de surf do litoral paulista reúne 64 atletas profissionais e amadores em 3 dias de competição na Praia de Maresias. O evento conta com área de experiências para o público, palco de shows, praça de alimentação e espaço exclusivo para marcas patrocinadoras.';
+    updateChar(descEl, 'descCount', 300);
+  }
+
+  // Estado e cidade
+  const estadoEl = document.getElementById('opp-estado');
+  if (estadoEl) {
+    estadoEl.value = 'SP';
+    if (typeof updateOppCidades === 'function') updateOppCidades('SP');
+    setTimeout(() => {
+      const cidadeEl = document.getElementById('opp-cidade');
+      if (cidadeEl) {
+        const opt = Array.from(cidadeEl.options).find(o => o.text.includes('São Sebastião'));
+        if (opt) cidadeEl.value = opt.value;
+        else cidadeEl.value = cidadeEl.options[5]?.value || '';
+      }
+    }, 100);
+  }
+
+  // Abrangência
+  const abrEl = document.getElementById('opp-abrangencia');
+  if (abrEl) abrEl.value = 'regional';
+
+  // Link externo
+  const linkEl = document.getElementById('opp-link-externo');
+  if (linkEl) linkEl.value = 'https://coparelevantiasurf.com.br';
+
+  // --- Step 3: Materiais / Redes sociais ---
+  // Preencher Instagram
+  const igInput = document.querySelector('.social-network-group[data-network="instagram"] .social-entry input');
+  if (igInput) igInput.value = 'coparelevantiasurf';
+
+  // Preencher YouTube
+  const ytInput = document.querySelector('.social-network-group[data-network="youtube"] .social-entry input');
+  if (ytInput) ytInput.value = 'CopaRelevantiaSurf';
+
+  // Preencher TikTok
+  const ttInput = document.querySelector('.social-network-group[data-network="tiktok"] .social-entry input');
+  if (ttInput) ttInput.value = 'coparelevantiasurf';
+
+  // Vídeo
+  const videoEl = document.getElementById('videoUrl');
+  if (videoEl) videoEl.value = 'https://youtube.com/watch?v=abc123mock';
+
+  // --- Step 4: Detalhes (campos do template "evento") ---
+  // Renderizar os campos primeiro
+  setTimeout(() => {
+    if (formState.selectedTemplate) renderTemplateFields(formState.selectedTemplate);
+
+    setTimeout(() => {
+      // Tipo de evento
+      const tipoEvento = document.getElementById('tipo-evento');
+      if (tipoEvento) tipoEvento.value = 'torneio';
+
+      // Edição
+      const edicao = document.getElementById('edicao-evento');
+      if (edicao) edicao.value = '3ª Edição — 2026';
+
+      // Datas do evento
+      const eventEntry = document.querySelector('#event-entries-list .event-entry');
+      if (eventEntry) {
+        const inputs = eventEntry.querySelectorAll('input');
+        if (inputs[0]) inputs[0].value = '2026-07-18';
+        if (inputs[1]) inputs[1].value = 'Praia de Maresias, São Sebastião - SP';
+      }
+
+      // Público esperado
+      const pubEsperado = document.getElementById('publico-esperado');
+      if (pubEsperado) pubEsperado.value = '2k-10k';
+
+      // Formato
+      const formato = document.getElementById('formato-evento');
+      if (formato) formato.value = 'presencial';
+
+      // Transmissão
+      const transmissaoPills = document.querySelectorAll('#transmissao-evento .pill-opt');
+      transmissaoPills.forEach(p => {
+        const txt = p.textContent.trim();
+        if (txt === 'YouTube' || txt === 'Streaming') {
+          p.classList.add('selected');
+        }
+      });
+
+      // --- Step 5: Segmentos ---
+      const segs = ['Esportes e fitness', 'Moda e lifestyle', 'Alimentação e bebidas', 'Turismo e viagens', 'Entretenimento'];
+      document.querySelectorAll('#segmentPillGrid .segment-pill').forEach(pill => {
+        if (segs.includes(pill.textContent.trim())) {
+          pill.classList.add('selected');
+        }
+      });
+
+      // --- Step 6: Cotas ---
+      // Ativar cotas
+      const cotasToggle = document.getElementById('cotas-toggle-switch');
+      if (cotasToggle && !cotasToggle.classList.contains('active')) {
+        toggleCotasSection();
+      }
+
+      // Preencher primeira cota
+      setTimeout(() => {
+        const cota1 = document.querySelector('#cotas-list .cota-card');
+        if (cota1) {
+          const nomeInput = cota1.querySelector('.cota-nome');
+          if (nomeInput) nomeInput.value = 'Diamante';
+          const valorInput = cota1.querySelector('.cota-valor');
+          if (valorInput) valorInput.value = '150000';
+          const vagasInput = cota1.querySelector('.cota-vagas');
+          if (vagasInput) vagasInput.value = '2';
+          const benInput = cota1.querySelector('.cota-beneficios-list input');
+          if (benInput) benInput.value = 'Naming rights — "Copa [Marca] de Surf"';
+          // Adicionar mais benefícios
+          const benList = cota1.querySelector('.cota-beneficios-list');
+          if (benList) {
+            addBeneficio(benList);
+            addBeneficio(benList);
+            const benInputs = benList.querySelectorAll('input');
+            if (benInputs[1]) benInputs[1].value = 'Logo principal no backdrop, pódio e camisetas';
+            if (benInputs[2]) benInputs[2].value = 'Espaço exclusivo 50m² para ativação de marca';
+          }
+        }
+
+        // Adicionar segunda cota
+        addCota();
+        setTimeout(() => {
+          const cotas = document.querySelectorAll('#cotas-list .cota-card');
+          const cota2 = cotas[1];
+          if (cota2) {
+            const nomeInput = cota2.querySelector('.cota-nome');
+            if (nomeInput) nomeInput.value = 'Ouro';
+            const valorInput = cota2.querySelector('.cota-valor');
+            if (valorInput) valorInput.value = '75000';
+            const vagasInput = cota2.querySelector('.cota-vagas');
+            if (vagasInput) vagasInput.value = '4';
+            const benInput = cota2.querySelector('.cota-beneficios-list input');
+            if (benInput) benInput.value = 'Logo no backdrop e materiais impressos';
+            const benList = cota2.querySelector('.cota-beneficios-list');
+            if (benList) {
+              addBeneficio(benList);
+              const benInputs = benList.querySelectorAll('input');
+              if (benInputs[1]) benInputs[1].value = 'Estande 25m² na área de experiências';
+            }
+          }
+
+          // Adicionar terceira cota
+          addCota();
+          setTimeout(() => {
+            const cotas3 = document.querySelectorAll('#cotas-list .cota-card');
+            const cota3 = cotas3[2];
+            if (cota3) {
+              const nomeInput = cota3.querySelector('.cota-nome');
+              if (nomeInput) nomeInput.value = 'Prata';
+              const valorInput = cota3.querySelector('.cota-valor');
+              if (valorInput) valorInput.value = '30000';
+              const vagasInput = cota3.querySelector('.cota-vagas');
+              if (vagasInput) vagasInput.value = '8';
+              const benInput = cota3.querySelector('.cota-beneficios-list input');
+              if (benInput) benInput.value = 'Logo nos materiais digitais e redes sociais';
+            }
+
+            // --- Pré-preencher previewEditData com dados extras ---
+            previewEditData.prazo = '2026-06-15';
+            previewEditData.publico = 'Jovens de 18 a 35 anos, entusiastas de esportes radicais e surf, predominantemente das classes A e B. Público engajado com lifestyle ativo, sustentabilidade e cultura de praia.';
+            previewEditData.demografico = '62% masculino, 38% feminino\nFaixa etária: 18-25 (45%), 26-35 (35%), 36-45 (20%)\nPrincipais regiões: SP (55%), RJ (20%), SC (10%), outros (15%)';
+            previewEditData.entregas = '• Logo na camisa oficial dos atletas\n• Menções em todas as postagens do evento nas redes sociais\n• Espaço para ativação de marca na arena do evento\n• Camarote exclusivo para convidados da marca\n• Relatório pós-evento com métricas de exposição';
+            previewEditData.ativacoes = '• Naming rights do evento\n• Ativação de marca na praia (tenda, distribuição de brindes)\n• Inserções no telão durante a competição\n• Ação de sampling na praça de alimentação\n• Live com atletas nas redes sociais da marca\n• Branded content pré e pós-evento';
+            previewEditData.metricas_alcance = '85.000';
+            previewEditData.metricas_engajamento = '5.2%';
+            previewEditData.metricas_impressoes = '350.000';
+            previewEditData.metricas = 'Alcance: 85.000\nEngajamento: 5.2%\nImpressões: 350.000';
+
+            // Ir para o Step 6 (Preview)
+            nextStep(6);
+
+          }, 50);
+        }, 50);
+      }, 50);
+
+    }, 100);
+  }, 50);
+}
+
+/* ══════════════════════════════════════════════
    INIT
 ══════════════════════════════════════════════ */
 async function init() {
@@ -3162,6 +3360,7 @@ async function init() {
   requireAuth('rightsholder', 'login.html');
   initSession();
   maybePreFillEdit();
+  loadMockData();
 }
 init();
 </script>
