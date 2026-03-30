@@ -2474,6 +2474,10 @@ async function addContrapartidaMarca() {
   document.getElementById('mp-cp-desc').value = '';
   document.getElementById('mp-cp-form').classList.remove('open');
 
+  // Esconde aviso de "sem entregas"
+  const hint = document.getElementById('mp-no-cp-hint');
+  if (hint) hint.style.display = 'none';
+
   if (p._supaId && !isDemoMode()) {
     const created = await createContrapartida({ negociacao_id: p._supaId, descricao: desc, status: 'proposta', proposto_por: 'marca' });
     if (created) newCp.id = created.id;
@@ -2682,31 +2686,16 @@ function _renderValorDealM(p) {
   badge.className = 'valor-deal-badge-m ' + (vd.status || 'sem_proposta');
   badge.textContent = BADGE_LABEL[vd.status] || 'Sem proposta';
 
-  // Entregas snippet
-  const cps = (p.contrapartidas || []).filter(c => c.status !== 'recusada');
-  function _entregasHtml() {
-    if (cps.length === 0) return '';
-    const MAX_SHOW = 2;
-    const shown = cps.slice(0, MAX_SHOW);
-    const rest = cps.length - MAX_SHOW;
-    let html = '<div style="margin-top:6px;font-size:12px;color:var(--gray-4)">';
-    html += '<div style="font-weight:600;margin-bottom:3px;color:var(--gray-3)">Entregas incluídas:</div>';
-    shown.forEach(c => { html += '<div style="padding-left:8px">• ' + (c.descricao || '') + '</div>'; });
-    if (rest > 0) html += '<a href="#" onclick="event.preventDefault();document.querySelector(\'#modal-proposta .cp-table-wrap\').scrollIntoView({behavior:\'smooth\'})" style="display:inline-block;margin-top:3px;padding-left:8px;color:var(--gold);font-weight:600;font-size:11px;text-decoration:none">ver mais ' + rest + ' entrega' + (rest > 1 ? 's' : '') + '</a>';
-    html += '</div>';
-    return html;
-  }
-
-  // Estado descritivo
+  // Estado descritivo (entregas já visíveis na tabela abaixo)
   if (estadoEl) {
     if (vd.status === 'aguardando_detentor') {
-      estadoEl.innerHTML = `<span style="font-size:12px;color:var(--gray-400)">Você propôs <strong style="color:var(--text)">${vd.proposto}</strong> — aguardando resposta do organizador.</span>` + _entregasHtml();
+      estadoEl.innerHTML = `<span style="font-size:12px;color:var(--gray-400)">Você propôs <strong style="color:var(--text)">${vd.proposto}</strong> — aguardando resposta do organizador.</span>`;
       estadoEl.style.display = 'block';
     } else if (vd.status === 'aguardando_marca') {
-      estadoEl.innerHTML = `<span style="font-size:12px;color:#1D4ED8">O organizador propôs <strong>${vd.proposto}</strong> — aceite ou contraproponha.</span>` + _entregasHtml();
+      estadoEl.innerHTML = `<span style="font-size:12px;color:#1D4ED8">O organizador propôs <strong>${vd.proposto}</strong> — aceite ou contraproponha.</span>`;
       estadoEl.style.display = 'block';
     } else if (vd.status === 'aceito') {
-      estadoEl.innerHTML = `<span style="font-size:12px;color:#065F46;font-weight:600">✓ Valor acordado: ${vd.proposto}</span>` + _entregasHtml();
+      estadoEl.innerHTML = `<span style="font-size:12px;color:#065F46;font-weight:600">✓ Valor acordado: ${vd.proposto}</span>`;
       estadoEl.style.display = 'block';
     } else {
       estadoEl.style.display = 'none';
@@ -2736,6 +2725,14 @@ function maskValorDealM(input) {
 function proporValorDealMarca() {
   const p = _propostaAtiva;
   if (!p) return;
+  // Bloqueia se não tem entregas
+  const cps = (p.contrapartidas || []).filter(c => c.status !== 'recusada');
+  if (cps.length === 0) {
+    showToast('Adicione pelo menos uma entrega antes de propor um valor.', 'error');
+    const hint = document.getElementById('mp-no-cp-hint');
+    if (hint) hint.style.display = '';
+    return;
+  }
   const input = document.getElementById('mp-vd-input');
   const raw = input ? input.value.trim() : '';
   if (!raw) { showToast('Insira um valor.', 'error'); return; }
@@ -3254,7 +3251,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <!-- Seção bilateral: Valor da proposta -->
         <div class="valor-deal-section-m" id="mp-valor-deal-section">
           <div class="valor-deal-header-m">
-            <span class="valor-deal-title-m">Valor da proposta</span>
+            <span class="valor-deal-title-m">Sua proposta</span>
             <span class="valor-deal-badge-m sem_proposta" id="mp-vd-badge">Sem proposta</span>
           </div>
           <div id="mp-vd-estado" class="valor-deal-estado-m"></div>
@@ -3269,42 +3266,48 @@ document.addEventListener('DOMContentLoaded', () => {
             <button class="btn-aceitar-valor-m" onclick="aceitarValorDealMarca()">Aceitar valor</button>
             <button class="btn-contrapropor-valor-m" onclick="contraproporValorDealMarca()">Contrapropor</button>
           </div>
-        </div>
 
-        <!-- Contador de contrapartidas aceitas -->
-        <!-- Entregas header -->
-        <div style="padding:10px 14px 6px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--gray-400)">Entregas</div>
+          <!-- Divider -->
+          <div style="border-top:1px solid var(--gray-200);margin:12px -14px 10px"></div>
 
-        <!-- Tabela de contrapartidas -->
-        <div class="cp-table-wrap">
-          <table class="cp-table">
-            <thead>
-              <tr>
-                <th>Descrição</th>
-                <th>Status</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody id="mp-cp-tbody"></tbody>
-          </table>
-        </div>
+          <!-- Entregas (dentro do card da proposta) -->
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--gray-400);margin-bottom:8px">Entregas incluídas</div>
 
-        <!-- Form adicionar -->
-        <div class="cp-form" id="mp-cp-form">
-          <div>
-            <label class="cp-form-label">Descrição da contrapartida</label>
-            <input class="cp-form-input" id="mp-cp-desc" type="text" placeholder="Ex: Logo na camiseta oficial">
+          <div class="cp-table-wrap" style="margin-bottom:8px">
+            <table class="cp-table">
+              <thead>
+                <tr>
+                  <th>Descrição</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="mp-cp-tbody"></tbody>
+            </table>
           </div>
-          <div class="cp-form-actions">
-            <button class="cp-form-btn-cancel" onclick="toggleCpForm()">Cancelar</button>
-            <button class="cp-form-btn-add" onclick="addContrapartidaMarca()">Adicionar</button>
+
+          <!-- Form adicionar -->
+          <div class="cp-form" id="mp-cp-form">
+            <div>
+              <label class="cp-form-label">Descrição da contrapartida</label>
+              <input class="cp-form-input" id="mp-cp-desc" type="text" placeholder="Ex: Logo na camiseta oficial">
+            </div>
+            <div class="cp-form-actions">
+              <button class="cp-form-btn-cancel" onclick="toggleCpForm()">Cancelar</button>
+              <button class="cp-form-btn-add" onclick="addContrapartidaMarca()">Adicionar</button>
+            </div>
+          </div>
+
+          <button class="btn-add-cp" id="mp-btn-add-cp" onclick="toggleCpForm()">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+            Adicionar contrapartida
+          </button>
+
+          <!-- Aviso sem entregas -->
+          <div id="mp-no-cp-hint" style="display:none;font-size:11px;color:#B45309;margin-top:6px;padding:6px 10px;background:#FEF3C7;border-radius:8px">
+            Adicione pelo menos uma entrega antes de propor um valor.
           </div>
         </div>
-
-        <button class="btn-add-cp" id="mp-btn-add-cp" onclick="toggleCpForm()">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-          Adicionar contrapartida
-        </button>
 
         <div class="modal-deal-footer" id="mp-deal-footer"></div>
       </div>

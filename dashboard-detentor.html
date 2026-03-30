@@ -2799,22 +2799,7 @@ function renderValorDeal() {
     badge.className = 'valor-deal-badge ' + vd.status;
   }
 
-  // Entregas snippet
-  const cps = (n.contrapartidas || []).filter(c => c.status !== 'recusada');
-  function _entregasHtml() {
-    if (cps.length === 0) return '';
-    const MAX_SHOW = 2;
-    const shown = cps.slice(0, MAX_SHOW);
-    const rest = cps.length - MAX_SHOW;
-    let html = '<div style="margin-top:6px;font-size:12px;color:var(--gray-4)">';
-    html += '<div style="font-weight:600;margin-bottom:3px;color:var(--gray-3)">Entregas incluídas:</div>';
-    shown.forEach(c => { html += '<div style="padding-left:8px">• ' + (c.descricao || '') + '</div>'; });
-    if (rest > 0) html += '<a href="#" onclick="event.preventDefault();document.querySelector(\'#modal-neg .cp-table-wrap\').scrollIntoView({behavior:\'smooth\'})" style="display:inline-block;margin-top:3px;padding-left:8px;color:var(--gold);font-weight:600;font-size:11px;text-decoration:none">ver mais ' + rest + ' entrega' + (rest > 1 ? 's' : '') + '</a>';
-    html += '</div>';
-    return html;
-  }
-
-  // estado atual
+  // estado atual (entregas já visíveis na tabela abaixo)
   const estadoEl = document.getElementById('mn-valor-estado');
   if (estadoEl) {
     if (vd.status === 'sem_proposta') {
@@ -2825,7 +2810,7 @@ function renderValorDeal() {
         <div class="valor-deal-estado">
           <div class="valor-deal-valor-atual">${_fmtValor(vd.proposto)}</div>
           <div class="valor-deal-autor">${quem} este valor${vd.status === 'aceito' ? ' — aceito por ambos' : ''}</div>
-        </div>` + _entregasHtml();
+        </div>`;
     }
   }
 
