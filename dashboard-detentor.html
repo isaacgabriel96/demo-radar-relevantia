@@ -2530,7 +2530,7 @@ function renderNegThread(thread) {
   el.scrollTop = el.scrollHeight;
 }
 
-function openNegModal(id) {
+async function openNegModal(id) {
   const n = NEGOCIACOES.find(x => x.id === id);
   if (!n) return;
   _negAtiva = n;
@@ -2557,6 +2557,29 @@ function openNegModal(id) {
   // status select
   const sel = document.getElementById('mn-status-select');
   if (sel) sel.value = n.status;
+
+  // Auto-carregar benefícios da cota como contrapartidas (se ainda não existem)
+  if (n.cota && (!n.contrapartidas || n.contrapartidas.length === 0) && n.opp_id && !isDemoMode()) {
+    try {
+      const beneficios = await fetchCotaBeneficios(n.opp_id, n.cota);
+      if (beneficios.length > 0) {
+        for (const desc of beneficios) {
+          const created = await createContrapartida({
+            negociacao_id: n._supaId,
+            descricao: desc,
+            status: 'proposta',
+            proposto_por: 'detentor'
+          });
+          if (created) {
+            n.contrapartidas.push({
+              id: created.id, descricao: desc, categoria: '',
+              prazo: '', status: 'proposta', propostoPor: 'detentor'
+            });
+          }
+        }
+      }
+    } catch (err) { console.error('[openNegModal] Auto-load benefícios failed:', err); }
+  }
 
   // thread + contrapartidas + valor deal
   renderNegThread(n.thread);
@@ -2654,8 +2677,8 @@ function renderContrapartidasDet(list) {
     }
   }
 
-  const total = list.filter(c => c.status === 'aceita').reduce((s, c) => s + (c.valor || 0), 0);
-  if (totalEl) totalEl.textContent = formatValorCpDet(total);
+  const aceitas = list.filter(c => c.status === 'aceita').length;
+  if (totalEl) totalEl.textContent = aceitas + ' de ' + list.length;
 }
 
 function toggleCpRecusadas(btn) {
@@ -2673,26 +2696,22 @@ async function addContrapartidaDet() {
   const n = _negAtiva;
   if (!n) return;
   const desc  = document.getElementById('mn-cp-desc').value.trim();
-  const valor = parseFloat(document.getElementById('mn-cp-valor').value) || 0;
-  const prazo = document.getElementById('mn-cp-prazo').value.trim() || '';
   if (!desc) { showToast('Preencha a descrição da contrapartida.', 'error'); return; }
 
   // Optimistic: add locally and render immediately
   const tempId = 'temp-' + Date.now();
-  const newCp = { id: tempId, descricao: desc, valor, prazo, status:'proposta', propostoPor:'detentor' };
+  const newCp = { id: tempId, descricao: desc, categoria: '', prazo: '', status:'proposta', propostoPor:'detentor' };
   n.contrapartidas.push(newCp);
   _autoStatus(n);
   renderContrapartidasDet(n.contrapartidas);
 
   document.getElementById('mn-cp-desc').value = '';
-  document.getElementById('mn-cp-valor').value = '';
-  document.getElementById('mn-cp-prazo').value = '';
   document.getElementById('mn-cp-form').classList.remove('open');
 
   // Persist to Supabase
   if (n._supaId && !isDemoMode()) {
     const created = await createContrapartida({
-      negociacao_id: n._supaId, descricao: desc, valor, prazo: prazo || null,
+      negociacao_id: n._supaId, descricao: desc,
       status: 'proposta', proposto_por: 'detentor'
     });
     if (created) { newCp.id = created.id; } // replace temp ID with real UUID
@@ -3485,10 +3504,10 @@ function escapeHtml(str) {
           </label>
         </div>
 
-        <!-- Seção: Valor do deal -->
+        <!-- Seção: Valor da proposta -->
         <div class="valor-deal-section">
           <div class="valor-deal-header">
-            <span class="valor-deal-title">Valor do deal</span>
+            <span class="valor-deal-title">Valor da proposta</span>
             <span class="valor-deal-badge sem_proposta" id="mn-valor-badge">Sem proposta</span>
           </div>
           <!-- Estado atual (preenchido por JS) -->
@@ -3509,8 +3528,8 @@ function escapeHtml(str) {
         </div>
 
         <div class="cp-total-row">
-          <span class="cp-total-label">Total aceito</span>
-          <span class="cp-total-value" id="mn-cp-total">R$ 0<span>(apenas itens aceitos)</span></span>
+          <span class="cp-total-label">Entregas</span>
+          <span class="cp-total-value" id="mn-cp-total">0 de 0</span>
         </div>
 
         <div class="cp-table-wrap">

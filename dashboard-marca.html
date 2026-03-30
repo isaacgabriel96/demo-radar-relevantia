@@ -2220,7 +2220,7 @@ function renderMsgThread(thread) {
   el.scrollTop = el.scrollHeight;
 }
 
-function openPropostaModal(id) {
+async function openPropostaModal(id) {
   const p = PROPOSTAS.find(x => x.id === id);
   if (!p) return;
   _propostaAtiva = p;
@@ -2233,6 +2233,29 @@ function openPropostaModal(id) {
   document.getElementById('mp-assunto').textContent = p.assunto;
   document.getElementById('mp-enviada').textContent = p.enviadaEm;
   _renderValorRow(p);
+
+  // Auto-carregar benefícios da cota como contrapartidas (se ainda não existem)
+  if (p.cota && (!p.contrapartidas || p.contrapartidas.length === 0) && p.opp_id && !isDemoMode()) {
+    try {
+      const beneficios = await fetchCotaBeneficios(p.opp_id, p.cota);
+      if (beneficios.length > 0) {
+        for (const desc of beneficios) {
+          const created = await createContrapartida({
+            negociacao_id: p._supaId,
+            descricao: desc,
+            status: 'proposta',
+            proposto_por: 'detentor'
+          });
+          if (created) {
+            p.contrapartidas.push({
+              id: created.id, descricao: desc, categoria: '',
+              prazo: '', status: 'proposta', propostoPor: 'detentor'
+            });
+          }
+        }
+      }
+    } catch (err) { console.error('[openPropostaModal] Auto-load benefícios failed:', err); }
+  }
 
   renderMsgThread(p.thread);
   renderContrapartidas(p.contrapartidas || []);
@@ -2346,8 +2369,8 @@ function renderContrapartidas(list) {
     }
   }
 
-  const total = list.filter(c => c.status === 'aceita').reduce((s, c) => s + (c.valor || 0), 0);
-  if (totalEl) totalEl.textContent = formatValorCp(total);
+  const aceitas = list.filter(c => c.status === 'aceita').length;
+  if (totalEl) totalEl.textContent = aceitas + ' de ' + list.length;
 }
 
 function toggleCpRecusadas(btn) {
@@ -3146,26 +3169,6 @@ document.addEventListener('DOMContentLoaded', () => {
       <!-- Banner: aceita novas propostas -->
       <div id="mp-aceita-banner" class="aceita-propostas-banner sim" style="display:none"></div>
 
-      <!-- Seção bilateral: Valor do deal -->
-      <div class="valor-deal-section-m" id="mp-valor-deal-section">
-        <div class="valor-deal-header-m">
-          <span class="valor-deal-title-m">Valor do deal</span>
-          <span class="valor-deal-badge-m sem_proposta" id="mp-vd-badge">Sem proposta</span>
-        </div>
-        <div id="mp-vd-estado" class="valor-deal-estado-m"></div>
-        <div class="valor-deal-input-row-m" id="mp-vd-input-row">
-          <div class="valor-deal-input-wrap-m">
-            <span class="valor-deal-input-prefix-m">R$</span>
-            <input type="text" inputmode="numeric" class="valor-deal-input-m" id="mp-vd-input" placeholder="0,00" oninput="maskValorDealM(this)">
-          </div>
-          <button class="btn-propor-valor-m" id="mp-vd-btn-propor" onclick="proporValorDealMarca()">Propor valor</button>
-        </div>
-        <div class="valor-deal-actions-m" id="mp-vd-actions" style="display:none">
-          <button class="btn-aceitar-valor-m" onclick="aceitarValorDealMarca()">Aceitar valor</button>
-          <button class="btn-contrapropor-valor-m" onclick="contraproporValorDealMarca()">Contrapropor</button>
-        </div>
-      </div>
-
       <hr class="modal-prop-divider">
 
       <!-- PAINEL: Mensagens -->
@@ -3189,12 +3192,33 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
       </div>
 
-      <!-- PAINEL: Proposta (contrapartidas) -->
+      <!-- PAINEL: Proposta (valor + contrapartidas) -->
       <div class="modal-tab-panel active" data-panel="proposta">
-        <!-- Total aceito -->
+
+        <!-- Seção bilateral: Valor da proposta -->
+        <div class="valor-deal-section-m" id="mp-valor-deal-section">
+          <div class="valor-deal-header-m">
+            <span class="valor-deal-title-m">Valor da proposta</span>
+            <span class="valor-deal-badge-m sem_proposta" id="mp-vd-badge">Sem proposta</span>
+          </div>
+          <div id="mp-vd-estado" class="valor-deal-estado-m"></div>
+          <div class="valor-deal-input-row-m" id="mp-vd-input-row">
+            <div class="valor-deal-input-wrap-m">
+              <span class="valor-deal-input-prefix-m">R$</span>
+              <input type="text" inputmode="numeric" class="valor-deal-input-m" id="mp-vd-input" placeholder="0,00" oninput="maskValorDealM(this)">
+            </div>
+            <button class="btn-propor-valor-m" id="mp-vd-btn-propor" onclick="proporValorDealMarca()">Propor valor</button>
+          </div>
+          <div class="valor-deal-actions-m" id="mp-vd-actions" style="display:none">
+            <button class="btn-aceitar-valor-m" onclick="aceitarValorDealMarca()">Aceitar valor</button>
+            <button class="btn-contrapropor-valor-m" onclick="contraproporValorDealMarca()">Contrapropor</button>
+          </div>
+        </div>
+
+        <!-- Contador de contrapartidas aceitas -->
         <div class="cp-total-row">
-          <span class="cp-total-label">Total aceito</span>
-          <span class="cp-total-value" id="mp-cp-total">R$ 0<span>(apenas itens aceitos)</span></span>
+          <span class="cp-total-label">Entregas</span>
+          <span class="cp-total-value" id="mp-cp-total">0 de 0</span>
         </div>
 
         <!-- Tabela de contrapartidas -->

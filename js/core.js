@@ -306,7 +306,7 @@ function rowToNegociacao(row) {
   const oppCat    = (row.oportunidade && row.oportunidade.categoria) ? row.oportunidade.categoria : '';
   const cps = (row.contrapartidas || []).map(cp => ({
     id: cp.id, descricao: cp.descricao || '', categoria: cp.categoria || '',
-    valor: parseFloat(cp.valor) || 0, prazo: cp.prazo || '',
+    prazo: cp.prazo || '',
     status: cp.status || 'proposta', propostoPor: cp.proposto_por || 'marca'
   }));
   const thread = (row.mensagens || []).map(m => ({
@@ -468,6 +468,27 @@ async function updateContrapartida(cpId, fields) {
     });
     return res.ok;
   } catch (err) { console.error('[updateContrapartida] Failed:', err); return false; }
+}
+
+/**
+ * Fetch beneficios array for a specific cota from oportunidade.cotas_data JSON.
+ * Returns string[] of benefit descriptions, or empty array if not found.
+ */
+async function fetchCotaBeneficios(oportunidadeId, cotaNome) {
+  if (!oportunidadeId || !cotaNome) return [];
+  try {
+    const res = await sbPublicFetch('/rest/v1/oportunidades?select=cotas_data&id=eq.' + oportunidadeId);
+    if (!res.ok) return [];
+    const rows = await res.json();
+    if (!rows || !rows[0] || !rows[0].cotas_data) return [];
+    // Match flexível: cota na negociação pode ser "ouro — R$ 20.000", cotas_data tem "ouro"
+    var cotaLower = cotaNome.toLowerCase().trim();
+    const cota = rows[0].cotas_data.find(function(c) {
+      var nome = (c.nome || '').toLowerCase().trim();
+      return cotaLower === nome || cotaLower.indexOf(nome) === 0;
+    });
+    return (cota && cota.beneficios) ? cota.beneficios.filter(Boolean) : [];
+  } catch (err) { console.error('[fetchCotaBeneficios] Failed:', err); return []; }
 }
 
 async function createNegociacao(neg, preferRole) {
