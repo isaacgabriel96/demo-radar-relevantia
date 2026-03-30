@@ -1527,14 +1527,14 @@ function renderPage(oppOverride) {
 
   // Facts
   var factsHtml = '';
-  opp.facts.forEach(function(f) {
+  (opp.facts || []).forEach(function(f) {
     factsHtml += '<div class="fact-item"><div class="fact-icon">' + f.icon + '</div><div><div class="fact-label">' + f.label + '</div><div class="fact-value">' + f.value + '</div></div></div>';
   });
   document.getElementById('detailFacts').innerHTML = factsHtml;
 
   // Tags
   var tagsHtml = '';
-  opp.tags.forEach(function(t, i) {
+  (opp.tags || []).forEach(function(t, i) {
     tagsHtml += '<span class="tag' + (i === 0 ? ' tag-gold' : '') + '">' + t + '</span>';
   });
   document.getElementById('detailTags').innerHTML = tagsHtml;
@@ -1542,14 +1542,14 @@ function renderPage(oppOverride) {
   // Publico
   document.getElementById('publicoDesc').textContent = opp.publico;
   var pfHtml = '';
-  opp.publicoFacts.forEach(function(f) {
+  (opp.publicoFacts || []).forEach(function(f) {
     pfHtml += '<div class="fact-item"><div class="fact-icon">' + f.icon + '</div><div><div class="fact-label">' + f.label + '</div><div class="fact-value">' + f.value + '</div></div></div>';
   });
   document.getElementById('publicoFacts').innerHTML = pfHtml;
 
   // Cotas
   var cotasHtml = '';
-  opp.cotas.forEach(function(c, i) {
+  (opp.cotas || []).forEach(function(c, i) {
     cotasHtml += '<div class="cota-card' + (i === 0 ? ' selected' : '') + '">';
     cotasHtml += '<div class="cota-img">' + c.emoji + '</div>';
     cotasHtml += '<div class="cota-body"><div class="cota-name">' + c.name + '</div><div class="cota-desc">' + c.desc + '</div><div class="cota-price">' + c.price + '</div></div>';
@@ -1559,21 +1559,21 @@ function renderPage(oppOverride) {
 
   // Entregas
   var entHtml = '';
-  opp.entregas.forEach(function(e) {
+  (opp.entregas || []).forEach(function(e) {
     entHtml += '<tr><td>' + e[0] + '</td><td>' + e[1] + '</td><td>' + e[2] + '</td><td>' + e[3] + '</td></tr>';
   });
   document.getElementById('entregasBody').innerHTML = entHtml;
 
   // Ativacoes
   var ativHtml = '';
-  opp.ativacoes.forEach(function(a) {
+  (opp.ativacoes || []).forEach(function(a) {
     ativHtml += '<div class="ativacao-card"><div class="ativacao-img">' + a.emoji + '</div><div><div class="ativacao-name">' + a.name + '</div><div class="ativacao-desc">' + a.desc + '</div></div></div>';
   });
   document.getElementById('ativacoesGrid').innerHTML = ativHtml;
 
   // Canais
   var canaisHtml = '';
-  opp.canais.forEach(function(c) {
+  (opp.canais || []).forEach(function(c) {
     canaisHtml += '<div class="canal-item"><div class="canal-icon">' + c.icon + '</div><div><div class="canal-name">' + c.name + '</div><div class="canal-reach">' + c.reach + '</div></div></div>';
   });
   document.getElementById('canaisGrid').innerHTML = canaisHtml;
