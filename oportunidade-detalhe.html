@@ -786,10 +786,10 @@ a { text-decoration: none; color: inherit; }
 
   <div class="sidebar-footer">
     <div class="sidebar-user">
-      <div class="sidebar-user-avatar">NB</div>
+      <div class="sidebar-user-avatar" id="sb-avatar">U</div>
       <div class="sidebar-user-info">
-        <div class="sidebar-user-name">Nike Brasil</div>
-        <div class="sidebar-user-email">contato@nikebrasil.com</div>
+        <div class="sidebar-user-name" id="sb-name">Usuário</div>
+        <div class="sidebar-user-email" id="sb-email"></div>
       </div>
       <button class="btn-logout-sb" onclick="doLogout()" title="Sair">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/></svg>
@@ -1673,8 +1673,31 @@ function switchTab(id, btn) {
 var _CURRENT_OPP = null;
 
 /* ─── MODAL ─── */
-// Dados simulados do usuário logado (virão do perfil real futuramente)
-var LOGGED_USER = { name: 'João Silva', company: 'Nike Brasil', initials: 'NB' };
+// Dados do usuário logado — lê da sessão real
+var LOGGED_USER = (function() {
+  var raw = localStorage.getItem('sb_marca_session');
+  if (raw) {
+    try {
+      var s = JSON.parse(raw);
+      var meta = (s.user && s.user.user_metadata) ? s.user.user_metadata : {};
+      var nome = meta.nome || (s.user && s.user.email ? s.user.email.split('@')[0] : 'Usuário');
+      var empresa = meta.empresa || meta.marca_nome || '';
+      var initials = nome.split(' ').filter(Boolean).map(function(w){ return w[0]; }).join('').substring(0,2).toUpperCase();
+      return { name: nome, company: empresa, email: s.user ? s.user.email : '', initials: initials || 'U' };
+    } catch(e) {}
+  }
+  return { name: 'Usuário', company: '', email: '', initials: 'U' };
+})();
+
+// Preenche sidebar com dados reais
+(function() {
+  var a = document.getElementById('sb-avatar');
+  var n = document.getElementById('sb-name');
+  var e = document.getElementById('sb-email');
+  if (a) a.textContent = LOGGED_USER.initials;
+  if (n) n.textContent = LOGGED_USER.company || LOGGED_USER.name;
+  if (e) e.textContent = LOGGED_USER.email;
+})();
 
 // Assuntos para oportunidades COM cota definida
 var SUBJECTS_WITH_COTAS = [
@@ -1704,7 +1727,7 @@ function openModal() {
   var avatar = document.getElementById('modal-avatar');
   var fromName = document.getElementById('modal-from-name');
   if (avatar) avatar.textContent = LOGGED_USER.initials;
-  if (fromName) fromName.textContent = LOGGED_USER.name + ' · ' + LOGGED_USER.company;
+  if (fromName) fromName.textContent = LOGGED_USER.company ? (LOGGED_USER.name + ' · ' + LOGGED_USER.company) : LOGGED_USER.name;
 
   // ajusta assuntos conforme existência de cotas
   var subjects = hasCotas ? SUBJECTS_WITH_COTAS : SUBJECTS_NO_COTAS;
