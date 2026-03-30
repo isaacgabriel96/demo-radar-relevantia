@@ -3202,14 +3202,23 @@ async function uploadPDF(oppId, token) {
   if (!input || !input.files || !input.files.length) return null;
   try {
     const file = input.files[0];
-    const fileName = oppId + '/midia-kit-' + Date.now() + '.pdf';
+    const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+    const fileName = 'opp-' + oppId + '-midia-kit-' + safeName;
+    const formData = new FormData();
+    formData.append('', file);
     const res = await fetch(
       SUPABASE_URL + '/storage/v1/object/oportunidades/' + fileName,
       { method: 'POST', body: file,
         headers: { 'Authorization': 'Bearer ' + token, 'apikey': SUPABASE_KEY,
-          'Content-Type': 'application/pdf', 'x-upsert': 'true' } }
+          'Content-Type': file.type || 'application/pdf' } }
     );
-    if (res.ok) return SUPABASE_URL + '/storage/v1/object/public/oportunidades/' + fileName;
+    if (res.ok) {
+      console.log('[Upload] PDF uploaded:', fileName);
+      return SUPABASE_URL + '/storage/v1/object/public/oportunidades/' + fileName;
+    } else {
+      const errText = await res.text();
+      console.error('[Upload] PDF error:', res.status, errText);
+    }
   } catch (err) { console.warn('[Upload] PDF failed:', err); }
   return null;
 }

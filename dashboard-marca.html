@@ -1550,7 +1550,7 @@ function mapDbOpp(row) {
     city:        city,
     org:         row.localizacao || '',
     orgInitials: row.icone || row.titulo.substring(0, 2).toUpperCase(),
-    images:      [],          // sem fotos no banco ainda
+    images:      (row.imagens && row.imagens.length > 0) ? row.imagens : [],
     _bgGradient: row.bg_gradient,
     _icon:       row.icone,
     _alcance:    row.alcance,
@@ -1573,7 +1573,7 @@ function loadOpportunities(callback) {
   }
 
   // Produção: busca do Supabase
-  fetch(SUPABASE_URL + '/rest/v1/oportunidades?select=id,titulo,categoria,localizacao,alcance,preco_minimo,icone,bg_gradient,tags,descricao_curta,rating&ativo=eq.true&order=id.asc', {
+  fetch(SUPABASE_URL + '/rest/v1/oportunidades?select=id,titulo,categoria,localizacao,alcance,preco_minimo,icone,bg_gradient,imagens,imagem_capa,tags,descricao_curta,rating&ativo=eq.true&order=id.asc', {
     headers: {
       'apikey': SUPABASE_KEY,
       'Content-Type': 'application/json'

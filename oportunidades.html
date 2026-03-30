@@ -608,10 +608,12 @@ function renderCards() {
 
   grid.innerHTML = filtered.map(o => {
     const cfg = CAT_CONFIG[o.category] || CAT_CONFIG['Cultura'];
-    const cardGradient = o.gradient || cfg.gradient;
+    const cardBg = o.imagem_capa
+      ? 'url(' + o.imagem_capa + ') center/cover no-repeat'
+      : (o.gradient || cfg.gradient);
     return '<a class="opp-card" href="oportunidade-detalhe.html?id=' + o.id + '">' +
-      '<div class="card-image" style="background:' + cardGradient + '">' +
-        cfg.icon() +
+      '<div class="card-image" style="background:' + cardBg + '">' +
+        (o.imagem_capa ? '' : cfg.icon()) +
         '<span class="card-badge ' + cfg.badge + '">' + o.category + '</span>' +
       '</div>' +
       '<div class="card-body">' +
