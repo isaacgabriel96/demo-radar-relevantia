@@ -2934,14 +2934,23 @@ function proporValorDeal() {
   showToast('Valor de ' + _fmtValor(val) + ' proposto. Aguardando resposta da marca.', 'success');
 }
 
-function aceitarValorDeal() {
+async function aceitarValorDeal() {
   const n = _negAtiva;
   if (!n || !n.valorDeal) return;
   n.valorDeal.status = 'aceito';
+
+  // Aceitar automaticamente todas as contrapartidas pendentes (proposta)
+  const pendentes = (n.contrapartidas || []).filter(c => c.status === 'proposta');
+  for (const cp of pendentes) {
+    cp.status = 'aceita';
+    if (n._supaId && !isDemoMode()) { await updateContrapartida(cp.id, { status: 'aceita' }); }
+  }
+
   _autoStatus(n);
   _persistNeg(n, { valor_deal_status: 'aceito' });
+  renderContrapartidasDet(n.contrapartidas);
   renderValorDeal();
-  showToast('Valor de ' + _fmtValor(n.valorDeal.proposto) + ' aceito! 🎉', 'success');
+  showToast('Proposta aceita — valor e entregas confirmados! 🎉', 'success');
 }
 
 function contraproporValorDeal() {

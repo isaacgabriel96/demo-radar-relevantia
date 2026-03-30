@@ -2751,13 +2751,22 @@ function proporValorDealMarca() {
   showToast('Valor proposto! Aguardando resposta do organizador.', 'success');
 }
 
-function aceitarValorDealMarca() {
+async function aceitarValorDealMarca() {
   const p = _propostaAtiva;
   if (!p || !p.valorDeal) return;
   p.valorDeal.status = 'aceito';
+
+  // Aceitar automaticamente todas as contrapartidas pendentes (proposta)
+  const pendentes = (p.contrapartidas || []).filter(c => c.status === 'proposta');
+  for (const cp of pendentes) {
+    cp.status = 'aceita';
+    if (p._supaId && !isDemoMode()) { await updateContrapartida(cp.id, { status: 'aceita' }); }
+  }
+
   _persistProp(p, { valor_deal_status: 'aceito' });
+  renderContrapartidas(p.contrapartidas);
   _renderValorDealM(p);
-  showToast('Valor aceito!', 'success');
+  showToast('Proposta aceita — valor e entregas confirmados! 🎉', 'success');
 }
 
 function contraproporValorDealMarca() {
