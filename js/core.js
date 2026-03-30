@@ -404,11 +404,17 @@ async function fetchNegociacoesMarca() {
 
 // ─── WRITE OPERATIONS (SDK-powered) ─────────────────────────
 
-async function _getWriteToken() {
+async function _getWriteToken(preferRole) {
   // SDK token (auto-refreshed) > legacy token
   const sdkToken = await getValidToken();
   if (sdkToken) return sdkToken;
-  const legacy = getSession('rightsholder') || getSession('brand');
+  let legacy;
+  if (preferRole) {
+    legacy = getSession(preferRole);
+  }
+  if (!legacy) {
+    legacy = getSession('rightsholder') || getSession('brand');
+  }
   return (legacy && legacy.access_token !== 'DEMO_TOKEN') ? legacy.access_token : null;
 }
 
@@ -464,10 +470,10 @@ async function updateContrapartida(cpId, fields) {
   } catch (err) { console.error('[updateContrapartida] Failed:', err); return false; }
 }
 
-async function createNegociacao(neg) {
+async function createNegociacao(neg, preferRole) {
   try {
-    const token = await _getWriteToken();
-    if (!token) return null;
+    const token = await _getWriteToken(preferRole || 'brand');
+    if (!token) { console.warn('[createNegociacao] No valid token for role:', preferRole || 'brand'); return null; }
     const res = await fetch(SUPABASE_URL + '/rest/v1/negociacoes', {
       method: 'POST', body: JSON.stringify(neg),
       headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'Prefer': 'return=representation' }

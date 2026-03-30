@@ -1764,11 +1764,19 @@ async function submitModal() {
 
   var mensagem = (document.getElementById('modal-message') || {}).value || '';
 
-  // Get user session
-  var session = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
-  var marcaId = session && session.user ? session.user.id : null;
+  // Get brand session specifically (RLS requires marca token)
+  var brandSession = typeof getSession === 'function' ? getSession('brand') : null;
+  var marcaId = brandSession && brandSession.user ? brandSession.user.id : null;
+
+  console.log('[submitModal] brandSession:', !!brandSession, 'marcaId:', marcaId, '_CURRENT_OPP:', !!_CURRENT_OPP);
 
   if (!_CURRENT_OPP || !marcaId) {
+    console.warn('[submitModal] Missing data — _CURRENT_OPP:', !!_CURRENT_OPP, 'marcaId:', marcaId);
+    if (!marcaId) {
+      if (typeof showToast === 'function') showToast('Faça login como marca para manifestar interesse.', 'error');
+      if (btn) btn.disabled = false;
+      return;
+    }
     // Fallback: show success anyway (demo mode)
     document.getElementById('modal-form-state').style.display = 'none';
     document.getElementById('modal-success').classList.add('show');
@@ -1786,11 +1794,22 @@ async function submitModal() {
     status: 'pendente'
   };
 
+  console.log('[submitModal] Creating negociacao:', JSON.stringify(neg));
+
   try {
-    var result = await createNegociacao(neg);
-    if (result && result.id && mensagem.trim()) {
+    var result = await createNegociacao(neg, 'brand');
+    console.log('[submitModal] createNegociacao result:', result);
+
+    if (!result) {
+      console.error('[submitModal] createNegociacao returned null — likely auth/RLS issue');
+      if (typeof showToast === 'function') showToast('Erro ao criar negociação. Verifique seu login.', 'error');
+      if (btn) btn.disabled = false;
+      return;
+    }
+
+    if (result.id && mensagem.trim()) {
       // Create initial message in the thread
-      var userName = (session.user.user_metadata || {}).nome || session.user.email || '';
+      var userName = (brandSession.user.user_metadata || {}).nome || brandSession.user.email || '';
       var msgPayload = {
         negociacao_id: result.id,
         autor_id: marcaId,
@@ -1798,7 +1817,7 @@ async function submitModal() {
         autor_nome: userName,
         texto: mensagem.trim()
       };
-      var token = typeof _getWriteToken === 'function' ? await _getWriteToken() : null;
+      var token = typeof _getWriteToken === 'function' ? await _getWriteToken('brand') : null;
       if (token) {
         await fetch(SUPABASE_URL + '/rest/v1/mensagens', {
           method: 'POST', body: JSON.stringify(msgPayload),
