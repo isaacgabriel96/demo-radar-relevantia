@@ -1290,14 +1290,26 @@ function getOpp() {
  * Fetch opportunity from Supabase with all related data.
  * Transforms DB row into the format renderPage() expects.
  */
-async function fetchOppFromSupabase(idOrSlug) {
+async function fetchOppFromSupabase(idOrPerfilSlug, oppSlug) {
   try {
-    var filter = (typeof idOrSlug === 'number') ? '&id=eq.' + idOrSlug : '&slug=eq.' + encodeURIComponent(idOrSlug);
+    var filter;
+    if (oppSlug) {
+      // Lookup by @perfil-slug/opp-slug — need to resolve perfil slug first
+      const pRes = await sbPublicFetch('/rest/v1/perfis?select=id&slug=eq.' + encodeURIComponent(idOrPerfilSlug));
+      if (!pRes.ok) return null;
+      const pRows = await pRes.json();
+      if (!pRows || pRows.length === 0) return null;
+      filter = '&detentor_id=eq.' + pRows[0].id + '&slug=eq.' + encodeURIComponent(oppSlug);
+    } else if (typeof idOrPerfilSlug === 'number') {
+      filter = '&id=eq.' + idOrPerfilSlug;
+    } else {
+      filter = '&slug=eq.' + encodeURIComponent(idOrPerfilSlug);
+    }
     const path = '/rest/v1/oportunidades?select=' +
       'id,slug,titulo,categoria,categoria_slug,descricao_curta,descricao_completa,localizacao,alcance,' +
       'preco_minimo,formato,bg_gradient,imagens,imagem_capa,tags,publico_descricao,' +
       'video_url,link_externo,redes_sociais,detalhes,datas_evento,cotas_data,cotas_habilitadas,' +
-      'perfis:detentor_id(nome,empresa,descricao,website),' +
+      'perfis:detentor_id(nome,empresa,descricao,website,slug),' +
       'oportunidade_fatos(icone,label,valor,tipo,ordem),' +
       'cotas(nome,preco,icone,ordem),' +
       'entregas(nome,formato,canal,descricao,ordem),' +
@@ -1381,6 +1393,7 @@ async function fetchOppFromSupabase(idOrSlug) {
     return {
       id: r.id,
       slug: r.slug || null,
+      perfilSlug: orgData.slug || null,
       title: r.titulo || '',
       org: orgName,
       orgInitials: orgName ? orgName.split(' ').filter(w=>w.length>2).slice(0,2).map(w=>w[0]).join('').toUpperCase() : '??',
@@ -1446,7 +1459,7 @@ var arrowSvg = '<svg width="12" height="12" viewBox="0 0 20 20" fill="currentCol
 function buildOppCard(o) {
   var cfg = CAT_CONFIG[o.category] || CAT_CONFIG['Cultura'];
   var grad = o.gradient || cfg.gradient;
-  var oppHref = o.slug ? 'oportunidade-detalhe.html?@' + o.slug : 'oportunidade-detalhe.html?id=' + o.id;
+  var oppHref = (o.perfilSlug && o.slug) ? 'oportunidade-detalhe.html?@' + o.perfilSlug + '/' + o.slug : 'oportunidade-detalhe.html?id=' + o.id;
   return '<a class="opp-card" href="' + oppHref + '">' +
     '<div class="opp-card-image" style="background:' + grad + '">' +
       catIcon(o.category) +
@@ -1780,15 +1793,30 @@ function updateFavBtnState(isFav) {
 /* ─── INIT ─── */
 (async function initDetail() {
   var params = new URLSearchParams(window.location.search);
-  var slug = params.get('slug') || params.keys().next().value;
-  // Support ?@nattan → key is "@nattan", strip the @
-  if (slug && slug.startsWith('@')) slug = slug.substring(1);
-  var id = !slug ? (parseInt(params.get('id')) || 1) : null;
+  var rawKey = params.keys().next().value;
+  var perfilSlug = null, oppSlug = null, id = null;
+
+  // Support ?@perfil-slug/opp-slug or ?@opp-slug (legacy)
+  if (rawKey && rawKey.startsWith('@')) {
+    var parts = rawKey.substring(1).split('/');
+    if (parts.length >= 2) {
+      perfilSlug = parts[0];
+      oppSlug = parts[1];
+    } else {
+      oppSlug = parts[0]; // legacy single slug fallback
+    }
+  } else {
+    id = parseInt(params.get('id')) || 1;
+  }
 
   // Try Supabase first
   var oppData = null;
   if (typeof fetchOppFromSupabase === 'function') {
-    oppData = await fetchOppFromSupabase(slug || id);
+    if (perfilSlug && oppSlug) {
+      oppData = await fetchOppFromSupabase(perfilSlug, oppSlug);
+    } else {
+      oppData = await fetchOppFromSupabase(oppSlug || id);
+    }
   }
 
   if (oppData) {
