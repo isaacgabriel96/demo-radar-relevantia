@@ -2917,6 +2917,7 @@ function proporValorDeal() {
   n.valorDeal.propostoPor = 'detentor';
   n.valorDeal.status      = 'aguardando_marca';
   _autoStatus(n);
+  _persistNeg(n, { valor_deal: val, valor_deal_proposto_por: 'detentor', valor_deal_status: 'aguardando_marca' });
   renderValorDeal();
   showToast('Valor de ' + _fmtValor(val) + ' proposto. Aguardando resposta da marca.', 'success');
 }
@@ -2926,6 +2927,7 @@ function aceitarValorDeal() {
   if (!n || !n.valorDeal) return;
   n.valorDeal.status = 'aceito';
   _autoStatus(n);
+  _persistNeg(n, { valor_deal_status: 'aceito' });
   renderValorDeal();
   showToast('Valor de ' + _fmtValor(n.valorDeal.proposto) + ' aceito! 🎉', 'success');
 }
@@ -2961,6 +2963,7 @@ function confirmarContraoferta() {
   n.valorDeal.propostoPor = 'detentor';
   n.valorDeal.status      = 'aguardando_marca';
   _autoStatus(n);
+  _persistNeg(n, { valor_deal: val, valor_deal_proposto_por: 'detentor', valor_deal_status: 'aguardando_marca' });
   // restaura onclick original
   const btnPropor = document.getElementById('mn-btn-propor-valor');
   if (btnPropor) btnPropor.onclick = function() { proporValorDeal(); };

@@ -371,8 +371,8 @@ function rowToNegociacao(row) {
     thread, contrapartidas: cps,
     valorDeal: {
       proposto: row.valor_deal ? parseFloat(row.valor_deal) : null,
-      propostoPor: null,
-      status: row.valor_deal ? 'aceito' : 'sem_proposta'
+      propostoPor: row.valor_deal_proposto_por || null,
+      status: row.valor_deal_status || (row.valor_deal ? 'aceito' : 'sem_proposta')
     },
     _supaId: row.id
   };
@@ -380,6 +380,7 @@ function rowToNegociacao(row) {
 
 // Shared query string for negociacoes with all joins
 var _negSelectQuery = 'id,oportunidade_id,marca_id,detentor_id,cota,assunto,valor_proposto,valor_deal,' +
+  'valor_deal_proposto_por,valor_deal_status,' +
   'status,status_label,status_hint,aceita_novas_propostas,created_at,' +
   'marca:marca_id(nome,empresa),' +
   'oportunidade:oportunidade_id(titulo,categoria),' +

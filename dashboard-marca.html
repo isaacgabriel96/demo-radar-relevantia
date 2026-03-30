@@ -2686,16 +2686,17 @@ function _renderValorDealM(p) {
   badge.className = 'valor-deal-badge-m ' + (vd.status || 'sem_proposta');
   badge.textContent = BADGE_LABEL[vd.status] || 'Sem proposta';
 
-  // Estado descritivo (entregas já visíveis na tabela abaixo)
+  // Estado descritivo
+  const fmtVal = vd.proposto ? 'R$ ' + Number(vd.proposto).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '';
   if (estadoEl) {
     if (vd.status === 'aguardando_detentor') {
-      estadoEl.innerHTML = `<span style="font-size:12px;color:var(--gray-400)">Você propôs <strong style="color:var(--text)">${vd.proposto}</strong> — aguardando resposta do organizador.</span>`;
+      estadoEl.innerHTML = `<span style="font-size:12px;color:var(--gray-400)">Você propôs <strong style="color:var(--text)">${fmtVal}</strong> — aguardando resposta do organizador.</span>`;
       estadoEl.style.display = 'block';
     } else if (vd.status === 'aguardando_marca') {
-      estadoEl.innerHTML = `<span style="font-size:12px;color:#1D4ED8">O organizador propôs <strong>${vd.proposto}</strong> — aceite ou contraproponha.</span>`;
+      estadoEl.innerHTML = `<span style="font-size:12px;color:#1D4ED8">O organizador propôs <strong>${fmtVal}</strong> — aceite ou contraproponha.</span>`;
       estadoEl.style.display = 'block';
     } else if (vd.status === 'aceito') {
-      estadoEl.innerHTML = `<span style="font-size:12px;color:#065F46;font-weight:600">✓ Valor acordado: ${vd.proposto}</span>`;
+      estadoEl.innerHTML = `<span style="font-size:12px;color:#065F46;font-weight:600">✓ Valor acordado: ${fmtVal}</span>`;
       estadoEl.style.display = 'block';
     } else {
       estadoEl.style.display = 'none';
@@ -2741,12 +2742,11 @@ function proporValorDealMarca() {
   const num = parseFloat(clean);
   if (isNaN(num) || num <= 0) { showToast('Valor inválido.', 'error'); return; }
 
-  const formatted = 'R$ ' + num.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
   if (!p.valorDeal) p.valorDeal = {};
-  p.valorDeal.proposto    = formatted;
+  p.valorDeal.proposto    = num;
   p.valorDeal.propostoPor = 'marca';
   p.valorDeal.status      = 'aguardando_detentor';
-  _persistProp(p);
+  _persistProp(p, { valor_deal: num, valor_deal_proposto_por: 'marca', valor_deal_status: 'aguardando_detentor' });
   _renderValorDealM(p);
   showToast('Valor proposto! Aguardando resposta do organizador.', 'success');
 }
@@ -2755,7 +2755,7 @@ function aceitarValorDealMarca() {
   const p = _propostaAtiva;
   if (!p || !p.valorDeal) return;
   p.valorDeal.status = 'aceito';
-  _persistProp(p);
+  _persistProp(p, { valor_deal_status: 'aceito' });
   _renderValorDealM(p);
   showToast('Valor aceito!', 'success');
 }
@@ -2766,7 +2766,7 @@ function contraproporValorDealMarca() {
   p.valorDeal.status = 'sem_proposta';
   p.valorDeal.proposto = null;
   p.valorDeal.propostoPor = null;
-  _persistProp(p);
+  _persistProp(p, { valor_deal: null, valor_deal_proposto_por: null, valor_deal_status: 'sem_proposta' });
   _renderValorDealM(p);
   const input = document.getElementById('mp-vd-input');
   if (input) { input.value = ''; input.focus(); }
