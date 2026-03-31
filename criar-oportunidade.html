@@ -465,6 +465,82 @@ textarea.form-control { resize: vertical; min-height: 90px; }
   pointer-events: none;
 }
 
+/* ── Focal Point Selector ── */
+.photo-focal-btn {
+  position: absolute; bottom: 5px; right: 5px;
+  background: rgba(26,18,0,0.55); color: var(--white);
+  border: none; border-radius: 50%; width: 24px; height: 24px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 13px; transition: all .15s;
+}
+.photo-focal-btn:hover { background: rgba(26,18,0,0.85); }
+.photo-focal-btn.has-focal { background: var(--gold-gradient); }
+.focal-overlay {
+  position: fixed; inset: 0; background: rgba(26,18,0,0.7);
+  z-index: 9000; display: flex; align-items: center; justify-content: center;
+  animation: fadeIn .2s;
+}
+.focal-editor {
+  background: var(--white); border-radius: var(--radius-lg);
+  padding: 24px; max-width: 520px; width: 92%;
+  box-shadow: 0 20px 60px rgba(26,18,0,0.35);
+}
+.focal-editor h4 {
+  font-family: var(--font-heading); font-size: 16px; font-weight: 600;
+  color: var(--text); margin: 0 0 4px;
+}
+.focal-editor p {
+  font-size: 12px; color: var(--gray-3); margin: 0 0 14px; line-height: 1.4;
+}
+.focal-image-wrap {
+  position: relative; cursor: crosshair;
+  border-radius: var(--radius-md); overflow: hidden; background: var(--gray-1);
+}
+.focal-image-wrap img { width: 100%; display: block; }
+.focal-marker {
+  position: absolute; width: 20px; height: 20px; border-radius: 50%;
+  background: var(--gold); border: 2.5px solid white;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.2), 0 2px 8px rgba(0,0,0,0.3);
+  transform: translate(-50%, -50%); pointer-events: none;
+  transition: left .1s, top .1s;
+}
+.focal-preview-row {
+  display: flex; gap: 12px; margin-top: 14px; align-items: flex-start;
+}
+.focal-preview-box {
+  flex: 0 0 auto; text-align: center;
+}
+.focal-preview-box span {
+  display: block; font-size: 10px; color: var(--gray-3);
+  margin-bottom: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px;
+}
+.focal-preview-card {
+  width: 120px; height: 68px; overflow: hidden;
+  border-radius: var(--radius-base); border: 1px solid var(--gray-2);
+}
+.focal-preview-card img { width: 100%; height: 100%; object-fit: cover; }
+.focal-preview-square {
+  width: 68px; height: 68px; overflow: hidden;
+  border-radius: var(--radius-base); border: 1px solid var(--gray-2);
+}
+.focal-preview-square img { width: 100%; height: 100%; object-fit: cover; }
+.focal-actions {
+  display: flex; gap: 10px; margin-top: 16px; justify-content: flex-end;
+}
+.focal-actions button {
+  padding: 8px 20px; border-radius: var(--radius-pill);
+  font-size: 13px; font-weight: 600; cursor: pointer; transition: all .15s;
+}
+.focal-cancel-btn {
+  background: var(--gray-1); border: 1px solid var(--gray-2);
+  color: var(--gray-4);
+}
+.focal-cancel-btn:hover { background: var(--gray-2); }
+.focal-confirm-btn {
+  background: var(--gold-gradient); border: none; color: var(--white);
+}
+.focal-confirm-btn:hover { opacity: .9; }
+
 /* ── Visibility Cards (Passo 5) ── */
 .visibility-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 28px; }
 .visibility-card {
@@ -2791,6 +2867,11 @@ function removeFile(type) {
 /* ══════════════════════════════════════════════
    UPLOAD — FOTOS
 ══════════════════════════════════════════════ */
+
+// Focal points em memória: { 0: {x:50,y:20}, 1: {x:50,y:20}, ... }
+let _focalPoints = {};
+let _focalEditorIndex = null;
+
 function previewPhotos(input) {
   const files = Array.from(input.files);
   const grid = document.getElementById('photosGrid');
@@ -2801,11 +2882,16 @@ function previewPhotos(input) {
   toAdd.forEach(file => {
     const reader = new FileReader();
     reader.onload = function(e) {
+      const idx = grid.querySelectorAll('.photo-thumb').length;
       const thumb = document.createElement('div');
       thumb.className = 'photo-thumb';
+      thumb.setAttribute('data-photo-index', idx);
       thumb.innerHTML = `<img src="${e.target.result}" alt="">
-        <button class="photo-remove" onclick="this.parentElement.remove(); updatePhotoSlot(); ensureCoverPhoto()">✕</button>
-        <button class="photo-cover-btn" onclick="setCoverPhoto(this.parentElement)">Capa</button>`;
+        <button class="photo-remove" onclick="removePhoto(this.parentElement)">✕</button>
+        <button class="photo-cover-btn" onclick="setCoverPhoto(this.parentElement)">Capa</button>
+        <button class="photo-focal-btn" onclick="openFocalEditor(${idx})" title="Ajustar ponto focal">⊕</button>`;
+      // Focal point padrão: center top
+      _focalPoints[idx] = { x: 50, y: 20 };
       // Primeira foto sem capa vira capa automaticamente
       if (!grid.querySelector('.photo-thumb.cover-photo')) thumb.classList.add('cover-photo');
       // Insert before add slot
@@ -2816,6 +2902,30 @@ function previewPhotos(input) {
     reader.readAsDataURL(file);
   });
   input.value = '';
+}
+
+function removePhoto(thumbEl) {
+  const idx = parseInt(thumbEl.getAttribute('data-photo-index'));
+  delete _focalPoints[idx];
+  thumbEl.remove();
+  updatePhotoSlot();
+  ensureCoverPhoto();
+  // Reindex focal points
+  reindexFocalPoints();
+}
+
+function reindexFocalPoints() {
+  const newMap = {};
+  const thumbs = document.querySelectorAll('#photosGrid .photo-thumb');
+  thumbs.forEach((t, i) => {
+    const oldIdx = parseInt(t.getAttribute('data-photo-index'));
+    newMap[i] = _focalPoints[oldIdx] || { x: 50, y: 20 };
+    t.setAttribute('data-photo-index', i);
+    // Update focal button onclick
+    const focalBtn = t.querySelector('.photo-focal-btn');
+    if (focalBtn) focalBtn.setAttribute('onclick', 'openFocalEditor(' + i + ')');
+  });
+  _focalPoints = newMap;
 }
 
 function updatePhotoSlot() {
@@ -2835,6 +2945,104 @@ function ensureCoverPhoto() {
   const thumbs = grid.querySelectorAll('.photo-thumb');
   if (!grid.querySelector('.photo-thumb.cover-photo') && thumbs.length > 0)
     thumbs[0].classList.add('cover-photo');
+}
+
+/* ══════════════════════════════════════════════
+   FOCAL POINT EDITOR
+══════════════════════════════════════════════ */
+function openFocalEditor(index) {
+  _focalEditorIndex = index;
+  const thumb = document.querySelector('#photosGrid .photo-thumb[data-photo-index="' + index + '"]');
+  if (!thumb) return;
+  const imgSrc = thumb.querySelector('img').src;
+  const fp = _focalPoints[index] || { x: 50, y: 20 };
+
+  const overlay = document.createElement('div');
+  overlay.className = 'focal-overlay';
+  overlay.id = 'focalOverlay';
+  overlay.innerHTML = `
+    <div class="focal-editor">
+      <h4>Ajustar ponto focal</h4>
+      <p>Clique na imagem para definir o centro de interesse. Esse ponto será usado como referência ao cortar a foto nos cards e na galeria.</p>
+      <div class="focal-image-wrap" id="focalImageWrap">
+        <img src="${imgSrc}" alt="" draggable="false">
+        <div class="focal-marker" id="focalMarker" style="left:${fp.x}%;top:${fp.y}%"></div>
+      </div>
+      <div class="focal-preview-row">
+        <div class="focal-preview-box">
+          <span>Card (16:9)</span>
+          <div class="focal-preview-card">
+            <img src="${imgSrc}" id="focalPreviewCard" style="object-position:${fp.x}% ${fp.y}%">
+          </div>
+        </div>
+        <div class="focal-preview-box">
+          <span>Thumb (1:1)</span>
+          <div class="focal-preview-square">
+            <img src="${imgSrc}" id="focalPreviewSquare" style="object-position:${fp.x}% ${fp.y}%">
+          </div>
+        </div>
+      </div>
+      <div class="focal-actions">
+        <button class="focal-cancel-btn" onclick="closeFocalEditor()">Cancelar</button>
+        <button class="focal-confirm-btn" onclick="confirmFocal()">Confirmar</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  // Click handler on image
+  const wrap = document.getElementById('focalImageWrap');
+  wrap.addEventListener('click', onFocalClick);
+
+  // Close on overlay background click
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) closeFocalEditor();
+  });
+}
+
+function onFocalClick(e) {
+  const wrap = document.getElementById('focalImageWrap');
+  const rect = wrap.getBoundingClientRect();
+  const x = Math.round(((e.clientX - rect.left) / rect.width) * 100);
+  const y = Math.round(((e.clientY - rect.top) / rect.height) * 100);
+  const clampX = Math.max(0, Math.min(100, x));
+  const clampY = Math.max(0, Math.min(100, y));
+
+  // Move marker
+  const marker = document.getElementById('focalMarker');
+  marker.style.left = clampX + '%';
+  marker.style.top = clampY + '%';
+
+  // Update previews
+  const pos = clampX + '% ' + clampY + '%';
+  document.getElementById('focalPreviewCard').style.objectPosition = pos;
+  document.getElementById('focalPreviewSquare').style.objectPosition = pos;
+
+  // Save in temp
+  _focalPoints[_focalEditorIndex] = { x: clampX, y: clampY };
+}
+
+function confirmFocal() {
+  const idx = _focalEditorIndex;
+  const fp = _focalPoints[idx];
+
+  // Update thumb preview with focal point
+  const thumb = document.querySelector('#photosGrid .photo-thumb[data-photo-index="' + idx + '"]');
+  if (thumb && fp) {
+    const img = thumb.querySelector('img');
+    img.style.objectPosition = fp.x + '% ' + fp.y + '%';
+    // Mark button as "set"
+    const btn = thumb.querySelector('.photo-focal-btn');
+    if (btn) btn.classList.add('has-focal');
+  }
+
+  closeFocalEditor();
+}
+
+function closeFocalEditor() {
+  const overlay = document.getElementById('focalOverlay');
+  if (overlay) overlay.remove();
+  _focalEditorIndex = null;
 }
 
 /* ══════════════════════════════════════════════
@@ -3154,26 +3362,26 @@ function collectOppData() {
  * Converts data URLs from preview thumbnails to blobs for upload.
  */
 async function uploadPhotos(oppId, token) {
-  const imgs = document.querySelectorAll('#photosGrid .photo-thumb img');
-  if (!imgs.length) return { imagens: [], imagem_capa: null };
+  const thumbs = document.querySelectorAll('#photosGrid .photo-thumb');
+  if (!thumbs.length) return { imagens: [], imagem_capa: null, imagens_focal: {} };
 
   const urls = [];
+  const indexToUrl = {};
   let capaUrl = null;
-  const coverImg = document.querySelector('#photosGrid .photo-thumb.cover-photo img');
+  const coverThumb = document.querySelector('#photosGrid .photo-thumb.cover-photo');
 
-  for (let i = 0; i < imgs.length; i++) {
-    const img = imgs[i];
+  for (let i = 0; i < thumbs.length; i++) {
+    const thumb = thumbs[i];
+    const img = thumb.querySelector('img');
     const src = img.src;
     if (!src || !src.startsWith('data:')) continue;
 
     try {
-      // Convert data URL to blob
       const res = await fetch(src);
       const blob = await res.blob();
       const ext = blob.type.split('/')[1] || 'jpg';
       const fileName = oppId + '/' + Date.now() + '-' + i + '.' + ext;
 
-      // Upload to Supabase Storage
       const uploadRes = await fetch(
         SUPABASE_URL + '/storage/v1/object/oportunidades/' + fileName,
         { method: 'POST', body: blob,
@@ -3184,14 +3392,21 @@ async function uploadPhotos(oppId, token) {
       if (uploadRes.ok) {
         const publicUrl = SUPABASE_URL + '/storage/v1/object/public/oportunidades/' + fileName;
         urls.push(publicUrl);
-        if (img === coverImg) capaUrl = publicUrl;
+        indexToUrl[i] = publicUrl;
+        if (thumb === coverThumb) capaUrl = publicUrl;
       }
     } catch (err) { console.warn('[Upload] Photo', i, 'failed:', err); }
   }
 
-  // Se não identificou capa, usa primeira
   if (!capaUrl && urls.length > 0) capaUrl = urls[0];
-  return { imagens: urls, imagem_capa: capaUrl };
+
+  // Build focal point map: URL → {x, y}
+  const focalMap = {};
+  for (const [idx, url] of Object.entries(indexToUrl)) {
+    focalMap[url] = _focalPoints[parseInt(idx)] || { x: 50, y: 20 };
+  }
+
+  return { imagens: urls, imagem_capa: capaUrl, imagens_focal: focalMap };
 }
 
 /**
@@ -3243,11 +3458,11 @@ async function saveDraft() {
       const rows = await res.json();
       const oppId = rows[0]?.id;
       if (oppId) {
-        const { imagens, imagem_capa } = await uploadPhotos(oppId, token);
+        const { imagens, imagem_capa, imagens_focal } = await uploadPhotos(oppId, token);
         const pdfUrl = await uploadPDF(oppId, token);
         if (imagens.length > 0 || pdfUrl) {
           const patch = {};
-          if (imagens.length > 0) { patch.imagens = imagens; patch.imagem_capa = imagem_capa; }
+          if (imagens.length > 0) { patch.imagens = imagens; patch.imagem_capa = imagem_capa; patch.imagens_focal = imagens_focal; }
           if (pdfUrl) patch.midia_kit_url = pdfUrl;
           await fetch(SUPABASE_URL + '/rest/v1/oportunidades?id=eq.' + oppId, {
             method: 'PATCH', body: JSON.stringify(patch),
@@ -3287,13 +3502,13 @@ async function publishOpportunity() {
 
     // 2. Upload photos and PDF
     if (oppId) {
-      const { imagens, imagem_capa } = await uploadPhotos(oppId, token);
+      const { imagens, imagem_capa, imagens_focal } = await uploadPhotos(oppId, token);
       const pdfUrl = await uploadPDF(oppId, token);
 
       // 3. Update opportunity with file URLs
       if (imagens.length > 0 || pdfUrl) {
         const patch = {};
-        if (imagens.length > 0) { patch.imagens = imagens; patch.imagem_capa = imagem_capa; }
+        if (imagens.length > 0) { patch.imagens = imagens; patch.imagem_capa = imagem_capa; patch.imagens_focal = imagens_focal; }
         if (pdfUrl) patch.midia_kit_url = pdfUrl;
         await fetch(SUPABASE_URL + '/rest/v1/oportunidades?id=eq.' + oppId, {
           method: 'PATCH', body: JSON.stringify(patch),

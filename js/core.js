@@ -314,13 +314,14 @@ function rowToCatalogItem(row) {
     org: orgNome, orgInitials: makeInitials(orgNome),
     desc: row.descricao_curta || '', price: parsePreco(row.preco_minimo),
     date: row.alcance || '', gradient: row.bg_gradient || 'linear-gradient(135deg, #1a1a2e, #16213e)',
-    imagem_capa: row.imagem_capa || null
+    imagem_capa: row.imagem_capa || null,
+    imagens_focal: row.imagens_focal || null
   };
 }
 
 async function fetchCatalog() {
   try {
-    const path = '/rest/v1/oportunidades?select=id,slug,titulo,categoria,localizacao,preco_minimo,descricao_curta,alcance,bg_gradient,imagem_capa,perfis:detentor_id(empresa,slug)&ativo=eq.true&order=id.asc';
+    const path = '/rest/v1/oportunidades?select=id,slug,titulo,categoria,localizacao,preco_minimo,descricao_curta,alcance,bg_gradient,imagem_capa,imagens_focal,perfis:detentor_id(empresa,slug)&ativo=eq.true&order=id.asc';
     const res = await sbPublicFetch(path);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const rows = await res.json();

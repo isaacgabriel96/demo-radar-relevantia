@@ -1561,7 +1561,9 @@ function mapDbOpp(row) {
     _alcance:    row.alcance,
     _price:      row.preco_minimo,
     _rating:     row.rating,
-    _tags:       row.tags || []
+    _tags:       row.tags || [],
+    _imagemCapa: row.imagem_capa || null,
+    _imagensFocal: row.imagens_focal || {}
   };
 }
 
@@ -1578,7 +1580,7 @@ function loadOpportunities(callback) {
   }
 
   // Produção: busca do Supabase
-  fetch(SUPABASE_URL + '/rest/v1/oportunidades?select=id,slug,titulo,categoria,localizacao,alcance,preco_minimo,icone,bg_gradient,imagens,imagem_capa,tags,descricao_curta,rating,perfis:detentor_id(slug)&ativo=eq.true&order=id.asc', {
+  fetch(SUPABASE_URL + '/rest/v1/oportunidades?select=id,slug,titulo,categoria,localizacao,alcance,preco_minimo,icone,bg_gradient,imagens,imagem_capa,imagens_focal,tags,descricao_curta,rating,perfis:detentor_id(slug)&ativo=eq.true&order=id.asc', {
     headers: {
       'apikey': SUPABASE_KEY,
       'Content-Type': 'application/json'
@@ -1918,11 +1920,15 @@ function renderOpportunities(opps) {
   }
   grid.innerHTML = opps.map(opp => {
     const imgs = opp.images || [];
+    const focalMap = opp._imagensFocal || {};
     const hasBg = !imgs.length && opp._bgGradient;
-    const slides = imgs.map(src => `
+    const slides = imgs.map(src => {
+      var fp = focalMap[src] || {x:50, y:20};
+      return `
       <div class="olc-hero-slide">
-        <img src="${src}" alt="${opp.title}" loading="lazy">
-      </div>`).join('');
+        <img src="${src}" alt="${opp.title}" loading="lazy" style="object-position:${fp.x}% ${fp.y}%">
+      </div>`;
+    }).join('');
     const dots = imgs.map((_, i) => `
       <button class="olc-hero-dot${i === 0 ? ' active' : ''}" onclick="heroSlide(event, this, ${i})"></button>`).join('');
     const total = imgs.length;
@@ -3123,8 +3129,9 @@ function renderPropostasTable() {
     const org = catalogItem ? catalogItem.org : p.opp;
     const orgInitials = catalogItem ? catalogItem.orgInitials : p.opp.substring(0, 2).toUpperCase();
 
+    const propFp = img && catalogItem && catalogItem._imagensFocal ? (catalogItem._imagensFocal[img] || {x:50,y:20}) : {x:50,y:20};
     const heroContent = img
-      ? `<div class="olc-hero-track"><div class="olc-hero-slide"><img src="${img}" alt="${p.opp}" loading="lazy" style="width:100%;height:100%;object-fit:cover;object-position:center top"></div></div>`
+      ? `<div class="olc-hero-track"><div class="olc-hero-slide"><img src="${img}" alt="${p.opp}" loading="lazy" style="width:100%;height:100%;object-fit:cover;object-position:${propFp.x}% ${propFp.y}%"></div></div>`
       : `<div style="width:100%;height:100%;background:${cat.bg};display:flex;align-items:center;justify-content:center">
            <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1" style="width:64px;height:64px"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
          </div>`;
