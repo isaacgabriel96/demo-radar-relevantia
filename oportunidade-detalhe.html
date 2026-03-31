@@ -198,7 +198,7 @@ a { text-decoration: none; color: inherit; }
 .action-btn.fav-active svg { color: #e11d48; fill: #e11d48; }
 
 /* ─── GALLERY ─── */
-.detail-gallery { display: grid; grid-template-columns: 1fr 280px; gap: 10px; margin-bottom: 28px; height: 340px; border-radius: var(--radius-lg); overflow: hidden; }
+.detail-gallery { display: grid; grid-template-columns: 1fr 280px; gap: 10px; margin-bottom: 28px; height: 300px; border-radius: var(--radius-lg); overflow: hidden; }
 .gallery-main { position: relative; border-radius: var(--radius-lg) 0 0 var(--radius-lg); overflow: hidden; }
 .gallery-main-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 80px; }
 .gallery-badge { position: absolute; bottom: 14px; left: 14px; background: rgba(0,0,0,0.65); backdrop-filter: blur(6px); color: var(--white); padding: 5px 12px; border-radius: var(--radius-pill); font-size: 11px; font-weight: 500; }
@@ -228,6 +228,8 @@ a { text-decoration: none; color: inherit; }
   border-radius: var(--radius-lg);
   overflow: hidden;
   display: flex; align-items: center; justify-content: center;
+  background-position: center top !important;
+  background-size: cover !important;
 }
 .gallery-strip-item .gallery-badge { left: 14px; bottom: 14px; }
 .gallery-strip-dots {
@@ -1510,9 +1512,9 @@ function renderPage(oppOverride) {
   document.getElementById('galleryBadge').textContent = opp.category;
   var imgs = opp.images || [];
   if (imgs.length > 0) {
-    document.getElementById('galleryMain').style.background = 'url(' + (opp.imagem_capa || imgs[0]) + ') center/cover no-repeat';
-    document.getElementById('galleryThumb1').style.background = imgs[1] ? 'url(' + imgs[1] + ') center/cover no-repeat' : (opp.gradient || '#1a1a2e');
-    document.getElementById('galleryThumb2').style.background = imgs[2] ? 'url(' + imgs[2] + ') center/cover no-repeat' : ((opp.thumbs && opp.thumbs[1]) || '#d0c8b8');
+    document.getElementById('galleryMain').style.background = 'url(' + (opp.imagem_capa || imgs[0]) + ') center top / cover no-repeat';
+    document.getElementById('galleryThumb1').style.background = imgs[1] ? 'url(' + imgs[1] + ') center top / cover no-repeat' : (opp.gradient || '#1a1a2e');
+    document.getElementById('galleryThumb2').style.background = imgs[2] ? 'url(' + imgs[2] + ') center top / cover no-repeat' : ((opp.thumbs && opp.thumbs[1]) || '#d0c8b8');
   } else {
     document.getElementById('galleryMain').style.background = opp.gradient || '#1a1a2e';
     document.getElementById('galleryThumb1').style.background = (opp.thumbs && opp.thumbs[0]) || '#e0d8cc';

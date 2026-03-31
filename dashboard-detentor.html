@@ -2334,7 +2334,7 @@ function renderPublicadas() {
     }
     const cardStyle = isFinalizada ? 'opacity:0.65;' : '';
     return `<div class="pub-opp-card" style="${cardStyle}">
-      <div class="pub-card-image" style="background:${o.imagem_capa ? 'url(' + o.imagem_capa + ') center/cover no-repeat' : (o.bg_gradient || cfg.gradient)}${isFinalizada ? ';filter:grayscale(0.5)' : ''}">
+      <div class="pub-card-image" style="background:${o.imagem_capa ? 'url(' + o.imagem_capa + ') center top / cover no-repeat' : (o.bg_gradient || cfg.gradient)}${isFinalizada ? ';filter:grayscale(0.5)' : ''}">
         ${o.imagem_capa ? '' : cfg.icon}
         <span class="pub-card-status-badge ${o.status}">${statusLabel[o.status] || o.status}</span>
       </div>

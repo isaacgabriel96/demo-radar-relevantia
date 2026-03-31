@@ -650,10 +650,10 @@ tbody tr:last-child td { border-bottom: none; }
 .opp-card:hover::before { opacity: 1; }
 
 /* Hero carrossel interno */
-.olc-hero { position: relative; width: 100%; height: 260px; overflow: hidden; flex-shrink: 0; }
+.olc-hero { position: relative; width: 100%; height: 220px; overflow: hidden; flex-shrink: 0; }
 .olc-hero-track { display: flex; height: 100%; transition: transform 0.42s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
 .olc-hero-slide { flex-shrink: 0; width: 100%; height: 100%; }
-.olc-hero-slide img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; user-select: none; }
+.olc-hero-slide img { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; pointer-events: none; user-select: none; }
 .olc-hero::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0) 50%, rgba(0,0,0,0.22) 100%); pointer-events: none; z-index: 1; }
 .olc-hero-nav { position: absolute; top: 50%; transform: translateY(-50%); z-index: 4; width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.88); backdrop-filter: blur(8px); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.18s, background 0.18s; pointer-events: none; }
 .olc-hero-nav svg { width: 12px; height: 12px; color: var(--black); }
@@ -3124,7 +3124,7 @@ function renderPropostasTable() {
     const orgInitials = catalogItem ? catalogItem.orgInitials : p.opp.substring(0, 2).toUpperCase();
 
     const heroContent = img
-      ? `<div class="olc-hero-track"><div class="olc-hero-slide"><img src="${img}" alt="${p.opp}" loading="lazy" style="width:100%;height:100%;object-fit:cover"></div></div>`
+      ? `<div class="olc-hero-track"><div class="olc-hero-slide"><img src="${img}" alt="${p.opp}" loading="lazy" style="width:100%;height:100%;object-fit:cover;object-position:center top"></div></div>`
       : `<div style="width:100%;height:100%;background:${cat.bg};display:flex;align-items:center;justify-content:center">
            <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1" style="width:64px;height:64px"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
          </div>`;

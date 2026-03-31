@@ -609,7 +609,7 @@ function renderCards() {
   grid.innerHTML = filtered.map(o => {
     const cfg = CAT_CONFIG[o.category] || CAT_CONFIG['Cultura'];
     const cardBg = o.imagem_capa
-      ? 'url(' + o.imagem_capa + ') center/cover no-repeat'
+      ? 'url(' + o.imagem_capa + ') center top / cover no-repeat'
       : (o.gradient || cfg.gradient);
     var oppHref = (o.perfilSlug && o.slug) ? 'oportunidade-detalhe.html?@' + o.perfilSlug + '/' + o.slug : 'oportunidade-detalhe.html?id=' + o.id;
     return '<a class="opp-card" href="' + oppHref + '">' +

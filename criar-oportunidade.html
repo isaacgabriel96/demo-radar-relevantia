@@ -341,7 +341,7 @@ textarea.form-control { resize: vertical; min-height: 90px; }
   aspect-ratio: 1; border-radius: var(--radius-md); overflow: hidden;
   background: var(--gray-1); border: 1.5px solid var(--gray-2); position: relative;
 }
-.photo-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.photo-thumb img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
 .photo-thumb .photo-remove {
   position: absolute; top: 5px; right: 5px; background: rgba(26,18,0,0.7);
   border: none; border-radius: 50%; width: 22px; height: 22px; display: flex;
@@ -487,7 +487,7 @@ textarea.form-control { resize: vertical; min-height: 90px; }
 /* ── Opportunity Preview Card ── */
 .opp-preview-card { border: 1.5px solid var(--gray-2); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 24px; }
 .opp-preview-cover { width: 100%; height: 200px; background: var(--gray-1); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
-.opp-preview-cover img { width: 100%; height: 100%; object-fit: cover; }
+.opp-preview-cover img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
 .opp-preview-cover-placeholder { display: flex; flex-direction: column; align-items: center; gap: 8px; color: var(--gray-3); }
 .opp-preview-cover-placeholder span { font-size: 12px; }
 .opp-preview-cover-badge { position: absolute; top: 12px; left: 12px; background: rgba(26,18,0,0.65); color: var(--white); border-radius: var(--radius-pill); padding: 4px 10px; font-size: 11px; font-weight: 700; letter-spacing: .3px; }
@@ -495,7 +495,7 @@ textarea.form-control { resize: vertical; min-height: 90px; }
 .opp-preview-name { font-family: var(--font-heading); font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 10px; }
 .opp-preview-photos { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
 .opp-preview-photo { width: 60px; height: 60px; border-radius: var(--radius-md); overflow: hidden; border: 1.5px solid var(--gray-2); flex-shrink: 0; }
-.opp-preview-photo img { width: 100%; height: 100%; object-fit: cover; }
+.opp-preview-photo img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
 .opp-preview-video { border: 1.5px solid var(--gray-2); border-radius: var(--radius-md); padding: 12px 14px; display: flex; align-items: center; gap: 10px; background: var(--gray-1); margin-top: 8px; }
 .opp-preview-video-icon { width: 36px; height: 36px; border-radius: 50%; background: var(--black); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .opp-preview-video-label { font-size: 13px; color: var(--gray-4); font-weight: 500; }
@@ -687,7 +687,7 @@ textarea.form-control { resize: vertical; min-height: 90px; }
   height: 200px; background: var(--gray-1); position: relative;
   display: flex; align-items: center; justify-content: center; overflow: hidden;
 }
-.pv-cover img { width: 100%; height: 100%; object-fit: cover; }
+.pv-cover img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
 .pv-cover-placeholder { display: flex; flex-direction: column; align-items: center; gap: 8px; color: var(--gray-3); font-size: 13px; }
 .pv-header-body { padding: 20px 24px; }
 .pv-category-badge {
@@ -712,7 +712,7 @@ textarea.form-control { resize: vertical; min-height: 90px; }
   width: 100px; height: 72px; border-radius: var(--radius-base); overflow: hidden;
   flex-shrink: 0; background: var(--gray-1);
 }
-.pv-gallery-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.pv-gallery-thumb img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
 
 /* Tabs */
 .pv-tabs {
