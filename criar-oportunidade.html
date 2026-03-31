@@ -3782,6 +3782,11 @@ function maybePreFillEdit() {
     if (linkEl) linkEl.value = opp.linkExterno;
   }
 
+  // --- Visibilidade ---
+  if (opp.visibilidade && opp.visibilidade !== 'publica') {
+    selectVisibility(opp.visibilidade);
+  }
+
   // --- Passo 3: Fotos existentes ---
   const existingImgs = opp.images || opp.imagens || [];
   const existingCapa = opp.imagem_capa || '';

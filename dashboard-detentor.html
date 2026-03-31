@@ -1028,6 +1028,39 @@ tbody tr:last-child td { border-bottom: none; }
   .kpi-grid { grid-template-columns: 1fr 1fr; }
   .pub-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
 }
+
+/* ─── SOLICITAÇÕES DE ACESSO ─── */
+.acesso-card {
+  display: flex; align-items: center; gap: 14px;
+  background: var(--white); border: 1px solid var(--gray-200); border-radius: 12px;
+  padding: 14px 16px; transition: border-color 0.15s;
+}
+.acesso-card:hover { border-color: var(--gray-300); }
+.acesso-avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--gold-gradient); display: flex; align-items: center; justify-content: center;
+  color: var(--white); font-weight: 700; font-size: 15px; font-family: var(--font-heading); flex-shrink: 0;
+}
+.acesso-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+.acesso-info { flex: 1; min-width: 0; }
+.acesso-marca { font-size: 14px; font-weight: 600; color: var(--black); }
+.acesso-opp { font-size: 12px; color: var(--gray-400); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.acesso-date { font-size: 11px; color: var(--gray-3); margin-top: 3px; }
+.acesso-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.acesso-btn {
+  padding: 6px 16px; border-radius: 100px; font-size: 12px; font-weight: 600;
+  font-family: var(--font-body); cursor: pointer; border: none; transition: all 0.15s;
+}
+.acesso-btn.aprovar { background: var(--green-bg); color: #16A34A; border: 1px solid var(--green-border); }
+.acesso-btn.aprovar:hover { background: #16A34A; color: white; }
+.acesso-btn.rejeitar { background: var(--red-bg); color: #DC2626; border: 1px solid var(--red-border); }
+.acesso-btn.rejeitar:hover { background: #DC2626; color: white; }
+.acesso-status-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: 100px; font-size: 11px; font-weight: 600;
+}
+.acesso-filter-pills { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+.acesso-filter-pills .neg-pill { /* reuses neg-pill styling */ }
 </style>
 </head>
 <body>
@@ -1275,6 +1308,10 @@ tbody tr:last-child td { border-bottom: none; }
           Deals Fechados
           <span class="sub-tab-badge" id="deals-badge-count">0</span>
         </button>
+        <button class="sub-tab" id="subtab-acessos" onclick="switchSubTab('acessos')">
+          Solicitações
+          <span class="sub-tab-badge" id="acessos-badge-count">0</span>
+        </button>
       </div>
 
       <!-- Painel: Publicadas -->
@@ -1368,6 +1405,20 @@ tbody tr:last-child td { border-bottom: none; }
           </div>
         </div>
 
+      </div>
+
+      <!-- Painel: Solicitações de Acesso -->
+      <div class="sub-panel" id="subpanel-acessos">
+        <div class="acesso-filter-pills">
+          <button class="neg-pill active" id="acessopill-pendente" onclick="filterAcessos('pendente')">Pendentes</button>
+          <button class="neg-pill" id="acessopill-aprovado" onclick="filterAcessos('aprovado')">Aprovados</button>
+          <button class="neg-pill" id="acessopill-rejeitado" onclick="filterAcessos('rejeitado')">Rejeitados</button>
+          <button class="neg-pill" id="acessopill-todos" onclick="filterAcessos('todos')">Todos</button>
+          <span class="neg-pills-count" id="acessos-pills-count"></span>
+        </div>
+        <div id="acessos-list" style="display:flex;flex-direction:column;gap:10px">
+          <p style="color:var(--gray-500);font-size:14px;text-align:center;padding:32px 0">Carregando solicitações...</p>
+        </div>
       </div>
 
     </div>
@@ -1722,6 +1773,9 @@ async function init() {
 
     // Load detentor's own opportunities from Supabase
     try { await loadMinhasOpps(); } catch (e) { console.error('[init] loadMinhasOpps failed:', e); }
+
+    // Load access requests (depends on MINHAS_OPPS)
+    try { await loadAcessos(); } catch (e) { console.error('[init] loadAcessos failed:', e); }
 
     // Render all views that depend on NEGOCIACOES + MINHAS_OPPS
     renderPublicadas();
@@ -2312,7 +2366,7 @@ async function loadMinhasOpps() {
   const userId = await getAuthUserId();
   if (!token || !userId) return;
   try {
-    const res = await fetch(SUPABASE_URL + '/rest/v1/oportunidades?select=id,slug,titulo,categoria,localizacao,alcance,status,ativo,bg_gradient,imagem_capa,imagens_focal,criado_em,perfis:detentor_id(slug)&detentor_id=eq.' + userId + '&order=criado_em.desc', {
+    const res = await fetch(SUPABASE_URL + '/rest/v1/oportunidades?select=id,slug,titulo,categoria,localizacao,alcance,status,ativo,bg_gradient,imagem_capa,imagens,imagens_focal,visibilidade,descricao,link_externo,abrangencia,criado_em,perfis:detentor_id(slug)&detentor_id=eq.' + userId + '&order=criado_em.desc', {
       headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }
     });
     if (!res.ok) return;
@@ -2329,7 +2383,12 @@ async function loadMinhasOpps() {
       interesses: 0,
       bg_gradient: r.bg_gradient,
       imagem_capa: r.imagem_capa || null,
-      imagens_focal: r.imagens_focal || {}
+      imagens: r.imagens || [],
+      imagens_focal: r.imagens_focal || {},
+      visibilidade: r.visibilidade || 'publica',
+      descricao: r.descricao || '',
+      linkExterno: r.link_externo || '',
+      abrangencia: r.abrangencia || ''
     }));
     // Count interesses (negociações) per oportunidade
     NEGOCIACOES.forEach(n => {
@@ -2477,6 +2536,8 @@ function switchSubTab(tab) {
   document.querySelectorAll('.sub-panel').forEach(p => p.classList.remove('active'));
   document.getElementById('subtab-' + tab).classList.add('active');
   document.getElementById('subpanel-' + tab).classList.add('active');
+  // Refresh acessos on tab switch
+  if (tab === 'acessos') { loadAcessos(); }
 }
 
 const chevronSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="neg-opp-chevron"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -3687,6 +3748,163 @@ function renderVozHistorico() {
 }
 function escapeHtml(str) {
   return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ═══════ SOLICITAÇÕES DE ACESSO ═══════
+var ACESSOS = [];
+var _acessoFilter = 'pendente';
+
+async function loadAcessos() {
+  if (isDemoMode()) return;
+  var token = await getValidToken();
+  var userId = await getAuthUserId();
+  if (!token || !userId) return;
+  try {
+    // Get all opp IDs owned by this detentor
+    var oppIds = MINHAS_OPPS.map(function(o) { return o.id; });
+    if (oppIds.length === 0) {
+      ACESSOS = [];
+      renderAcessos();
+      return;
+    }
+    // Fetch acessos for detentor's opps, with marca info
+    var url = SUPABASE_URL + '/rest/v1/acessos_oportunidade?select=id,oportunidade_id,marca_id,status,criado_em,perfis:marca_id(nome_marca,slug,foto_perfil)&oportunidade_id=in.(' + oppIds.join(',') + ')&order=criado_em.desc';
+    var res = await fetch(url, {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }
+    });
+    if (!res.ok) { console.warn('[Acessos] fetch failed:', res.status); return; }
+    var rows = await res.json();
+    ACESSOS = rows.map(function(r) {
+      var marca = r.perfis || {};
+      var opp = MINHAS_OPPS.find(function(o) { return o.id === r.oportunidade_id; });
+      return {
+        id: r.id,
+        opp_id: r.oportunidade_id,
+        opp_titulo: opp ? opp.titulo : 'Oportunidade #' + r.oportunidade_id,
+        marca_id: r.marca_id,
+        marca_nome: marca.nome_marca || 'Marca',
+        marca_slug: marca.slug || '',
+        marca_foto: marca.foto_perfil || '',
+        status: r.status || 'pendente',
+        criado_em: r.criado_em
+      };
+    });
+    console.log('[Acessos] Loaded', ACESSOS.length, 'access requests');
+    updateAcessosBadge();
+    renderAcessos();
+  } catch (err) {
+    console.error('[Acessos] Failed:', err);
+  }
+}
+
+function updateAcessosBadge() {
+  var badge = document.getElementById('acessos-badge-count');
+  var pendentes = ACESSOS.filter(function(a) { return a.status === 'pendente'; }).length;
+  if (badge) {
+    badge.textContent = pendentes;
+    badge.style.display = pendentes > 0 ? '' : 'none';
+  }
+}
+
+function filterAcessos(filter) {
+  _acessoFilter = filter;
+  document.querySelectorAll('.acesso-filter-pills .neg-pill').forEach(function(b) { b.classList.remove('active'); });
+  var btn = document.getElementById('acessopill-' + filter);
+  if (btn) btn.classList.add('active');
+  renderAcessos();
+}
+
+function renderAcessos() {
+  var container = document.getElementById('acessos-list');
+  if (!container) return;
+
+  var filtered = _acessoFilter === 'todos'
+    ? ACESSOS
+    : ACESSOS.filter(function(a) { return a.status === _acessoFilter; });
+
+  var countEl = document.getElementById('acessos-pills-count');
+  if (countEl) countEl.textContent = filtered.length + ' solicitaç' + (filtered.length === 1 ? 'ão' : 'ões');
+
+  if (filtered.length === 0) {
+    var msgs = {
+      pendente: 'Nenhuma solicitação pendente.',
+      aprovado: 'Nenhuma solicitação aprovada ainda.',
+      rejeitado: 'Nenhuma solicitação rejeitada.',
+      todos: 'Nenhuma solicitação de acesso recebida.'
+    };
+    container.innerHTML = '<div style="text-align:center;padding:40px 0"><div style="font-size:32px;margin-bottom:8px">🔒</div><div style="color:var(--gray-400);font-size:14px">' + (msgs[_acessoFilter] || msgs.todos) + '</div></div>';
+    return;
+  }
+
+  container.innerHTML = filtered.map(function(a) {
+    var initials = a.marca_nome.split(' ').slice(0,2).map(function(w) { return w[0]; }).join('').toUpperCase();
+    var avatarHtml = a.marca_foto
+      ? '<img src="' + a.marca_foto + '" alt="">'
+      : initials;
+    var dateStr = '';
+    if (a.criado_em) {
+      var d = new Date(a.criado_em);
+      dateStr = d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+    var actionsHtml = '';
+    if (a.status === 'pendente') {
+      actionsHtml = '<div class="acesso-actions">' +
+        '<button class="acesso-btn aprovar" onclick="aprovarAcesso(\'' + a.id + '\')">Aprovar</button>' +
+        '<button class="acesso-btn rejeitar" onclick="rejeitarAcesso(\'' + a.id + '\')">Rejeitar</button>' +
+      '</div>';
+    } else if (a.status === 'aprovado') {
+      actionsHtml = '<span class="acesso-status-badge" style="background:var(--green-bg);color:#16A34A"><span style="width:6px;height:6px;border-radius:50%;background:#16A34A"></span>Aprovado</span>';
+    } else if (a.status === 'rejeitado') {
+      actionsHtml = '<span class="acesso-status-badge" style="background:var(--red-bg);color:#DC2626"><span style="width:6px;height:6px;border-radius:50%;background:#DC2626"></span>Rejeitado</span>';
+    }
+    return '<div class="acesso-card">' +
+      '<div class="acesso-avatar">' + avatarHtml + '</div>' +
+      '<div class="acesso-info">' +
+        '<div class="acesso-marca">' + escapeHtml(a.marca_nome) + '</div>' +
+        '<div class="acesso-opp">Quer acessar: ' + escapeHtml(a.opp_titulo) + '</div>' +
+        (dateStr ? '<div class="acesso-date">' + dateStr + '</div>' : '') +
+      '</div>' +
+      actionsHtml +
+    '</div>';
+  }).join('');
+}
+
+async function aprovarAcesso(acessoId) {
+  await updateAcessoStatus(acessoId, 'aprovado');
+}
+
+async function rejeitarAcesso(acessoId) {
+  if (!confirm('Rejeitar esta solicitação de acesso?')) return;
+  await updateAcessoStatus(acessoId, 'rejeitado');
+}
+
+async function updateAcessoStatus(acessoId, newStatus) {
+  // Optimistic update
+  var acesso = ACESSOS.find(function(a) { return a.id === acessoId; });
+  if (!acesso) return;
+  var oldStatus = acesso.status;
+  acesso.status = newStatus;
+  updateAcessosBadge();
+  renderAcessos();
+
+  // Persist to Supabase
+  var token = await _getWriteToken();
+  if (!token) { acesso.status = oldStatus; renderAcessos(); return; }
+  try {
+    var res = await fetch(SUPABASE_URL + '/rest/v1/acessos_oportunidade?id=eq.' + acessoId, {
+      method: 'PATCH',
+      body: JSON.stringify({ status: newStatus, atualizado_em: new Date().toISOString() }),
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }
+    });
+    if (!res.ok) throw new Error('PATCH failed: ' + res.status);
+    showToast(newStatus === 'aprovado' ? 'Acesso aprovado com sucesso!' : 'Solicitação rejeitada.', newStatus === 'aprovado' ? 'success' : 'info');
+  } catch (err) {
+    console.error('[Acessos] Update failed:', err);
+    acesso.status = oldStatus;
+    updateAcessosBadge();
+    renderAcessos();
+    showToast('Erro ao atualizar solicitação. Tente novamente.', 'error');
+  }
 }
 </script>
 

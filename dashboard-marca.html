@@ -1527,7 +1527,8 @@ function mapDbOpp(row) {
     _rating:     row.rating,
     _tags:       row.tags || [],
     _imagemCapa: row.imagem_capa || null,
-    _imagensFocal: row.imagens_focal || {}
+    _imagensFocal: row.imagens_focal || {},
+    _visibilidade: row.visibilidade || 'publica'
   };
 }
 
@@ -1544,15 +1545,48 @@ function loadOpportunities(callback) {
   }
 
   // Produção: busca do Supabase
-  fetch(SUPABASE_URL + '/rest/v1/oportunidades?select=id,slug,titulo,categoria,localizacao,alcance,preco_minimo,icone,bg_gradient,imagens,imagem_capa,imagens_focal,tags,descricao_curta,rating,perfis:detentor_id(slug)&ativo=eq.true&order=id.asc', {
+  // Apenas oportunidades públicas (visibilidade='publica') ou com acesso aprovado para esta marca
+  fetch(SUPABASE_URL + '/rest/v1/oportunidades?select=id,slug,titulo,categoria,localizacao,alcance,preco_minimo,icone,bg_gradient,imagens,imagem_capa,imagens_focal,tags,descricao_curta,rating,visibilidade,perfis:detentor_id(slug)&ativo=eq.true&order=id.asc', {
     headers: {
       'apikey': SUPABASE_KEY,
       'Content-Type': 'application/json'
     }
   })
   .then(r => r.ok ? r.json() : Promise.reject(r.status))
-  .then(rows => {
-    MOCK_OPPORTUNITIES = rows.map(mapDbOpp);
+  .then(async rows => {
+    // Filtrar: públicas aparecem sempre; restritas só se marca tiver acesso aprovado
+    const userId = await getAuthUserId();
+    let visibleRows = rows.filter(r => !r.visibilidade || r.visibilidade === 'publica');
+    const restrictedRows = rows.filter(r => r.visibilidade === 'aprovacao' || r.visibilidade === 'convidadas');
+
+    if (userId && restrictedRows.length > 0) {
+      try {
+        const oppIds = restrictedRows.map(r => r.id).join(',');
+        const aRes = await fetch(SUPABASE_URL + '/rest/v1/acessos_oportunidade?select=oportunidade_id&marca_id=eq.' + userId + '&status=eq.aprovado&oportunidade_id=in.(' + oppIds + ')', {
+          headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' }
+        });
+        if (aRes.ok) {
+          const aprovados = await aRes.json();
+          const approvedIds = new Set(aprovados.map(a => a.oportunidade_id));
+          // Opps "por aprovação" aparecem no radar (com info limitada) mas marcadas
+          // Opps "convidadas" só aparecem se aprovadas
+          restrictedRows.forEach(r => {
+            if (r.visibilidade === 'aprovacao') {
+              visibleRows.push(r); // Aparece no radar (com badge)
+            } else if (approvedIds.has(r.id)) {
+              visibleRows.push(r); // Convidada aprovada
+            }
+          });
+        }
+      } catch (e) { console.warn('[Visibilidade] check failed:', e); }
+    } else {
+      // Sem login: ainda mostrar "por aprovação" (com info reduzida)
+      restrictedRows.forEach(r => {
+        if (r.visibilidade === 'aprovacao') visibleRows.push(r);
+      });
+    }
+
+    MOCK_OPPORTUNITIES = visibleRows.map(mapDbOpp);
     callback(MOCK_OPPORTUNITIES);
   })
   .catch(() => {

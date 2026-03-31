@@ -850,6 +850,29 @@ a { text-decoration: none; color: inherit; }
 <div class="main">
   <div class="main-inner">
 
+    <!-- Overlay: Acesso Restrito (visibilidade != publica) -->
+    <div id="accessGate" style="display:none">
+      <div style="max-width:520px;margin:60px auto;text-align:center;padding:40px 24px">
+        <div style="width:64px;height:64px;margin:0 auto 20px;border-radius:50%;background:var(--gray-1,#F5F0E8);display:flex;align-items:center;justify-content:center">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="7" y="13" width="14" height="10" rx="2" stroke="#A89880" stroke-width="1.5" fill="none"/><path d="M10 13v-3a4 4 0 0 1 8 0v3" stroke="#A89880" stroke-width="1.5" stroke-linecap="round"/><circle cx="14" cy="18" r="1.5" fill="#A89880"/></svg>
+        </div>
+        <h2 id="gateTitle" style="font-family:'Poppins',sans-serif;font-size:22px;font-weight:700;color:#1A1200;margin-bottom:8px">Acesso restrito</h2>
+        <p id="gateDesc" style="font-size:14px;color:#A89880;line-height:1.6;margin-bottom:24px">
+          Esta oportunidade requer aprovação do detentor para visualizar os detalhes completos.
+        </p>
+        <!-- Info básica visível -->
+        <div id="gateBasicInfo" style="text-align:left;background:#FAF8F5;border-radius:12px;padding:20px;margin-bottom:24px">
+          <div id="gateCategory" style="font-size:10px;font-weight:700;text-transform:uppercase;color:#B8860B;margin-bottom:6px"></div>
+          <div id="gateOppTitle" style="font-family:'Poppins',sans-serif;font-size:18px;font-weight:700;color:#1A1200;margin-bottom:8px"></div>
+          <div id="gateMeta" style="display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:#A89880"></div>
+        </div>
+        <button id="gateRequestBtn" onclick="requestAccess()" style="background:linear-gradient(135deg,#B8860B,#C8A84B);color:#fff;border:none;border-radius:100px;padding:12px 32px;font-size:14px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s;letter-spacing:.3px">
+          Solicitar acesso
+        </button>
+        <p id="gateStatus" style="display:none;font-size:13px;margin-top:16px;color:#A89880"></p>
+      </div>
+    </div>
+
     <!-- Detail content -->
     <div class="detail-wrap">
 
@@ -1338,7 +1361,7 @@ async function fetchOppFromSupabase(idOrPerfilSlug, oppSlug) {
     }
     const path = '/rest/v1/oportunidades?select=' +
       'id,slug,detentor_id,titulo,categoria,categoria_slug,descricao_curta,descricao_completa,localizacao,alcance,' +
-      'preco_minimo,formato,bg_gradient,imagens,imagem_capa,imagens_focal,tags,publico_descricao,' +
+      'preco_minimo,formato,bg_gradient,imagens,imagem_capa,imagens_focal,tags,publico_descricao,visibilidade,' +
       'video_url,link_externo,redes_sociais,detalhes,datas_evento,cotas_data,cotas_habilitadas,' +
       'perfis:detentor_id(nome,empresa,descricao,website,slug),' +
       'oportunidade_fatos(icone,label,valor,tipo,ordem),' +
@@ -1456,6 +1479,7 @@ async function fetchOppFromSupabase(idOrPerfilSlug, oppSlug) {
         formato: r.formato || '',
         participantes: r.alcance || ''
       },
+      visibilidade: r.visibilidade || 'publica',
       // Org data for owner section
       _orgData: orgData
     };
@@ -1970,6 +1994,132 @@ function updateFavBtnState(isFav) {
 }
 
 /* ─── INIT ─── */
+/* ─── VISIBILIDADE: ACESSO RESTRITO ─── */
+var _gateOppData = null;
+
+async function checkAccessGate(oppData) {
+  if (!oppData || !oppData.visibilidade || oppData.visibilidade === 'publica') return false; // sem bloqueio
+
+  // Detentor sempre pode ver sua própria opp
+  const userId = await getAuthUserId();
+  if (userId && oppData.detentor_id && userId === oppData.detentor_id) return false;
+
+  // Checar se marca tem acesso aprovado
+  if (userId) {
+    try {
+      const res = await sbPublicFetch('/rest/v1/acessos_oportunidade?select=status&oportunidade_id=eq.' + oppData.id + '&marca_id=eq.' + userId);
+      if (res.ok) {
+        const rows = await res.json();
+        if (rows.length > 0) {
+          if (rows[0].status === 'aprovado') return false; // Acesso concedido
+          if (rows[0].status === 'pendente') {
+            showAccessGate(oppData, 'pendente');
+            return true;
+          }
+          if (rows[0].status === 'rejeitado') {
+            showAccessGate(oppData, 'rejeitado');
+            return true;
+          }
+        }
+      }
+    } catch (e) { console.warn('[AccessGate] check failed:', e); }
+  }
+
+  // Sem acesso — mostrar gate
+  showAccessGate(oppData, 'none');
+  return true;
+}
+
+function showAccessGate(oppData, accessStatus) {
+  _gateOppData = oppData;
+  var gate = document.getElementById('accessGate');
+  var wrap = document.querySelector('.detail-wrap');
+  if (gate) gate.style.display = 'block';
+  if (wrap) wrap.style.display = 'none';
+
+  // Info básica
+  var cat = document.getElementById('gateCategory');
+  var title = document.getElementById('gateOppTitle');
+  var meta = document.getElementById('gateMeta');
+  if (cat) cat.textContent = oppData.category || '';
+  if (title) title.textContent = oppData.title || '';
+  if (meta) {
+    var metaParts = [];
+    if (oppData.city) metaParts.push('<span>📍 ' + oppData.city + '</span>');
+    if (oppData.date) metaParts.push('<span>📅 ' + oppData.date + '</span>');
+    meta.innerHTML = metaParts.join('');
+  }
+
+  // Status-specific messaging
+  var desc = document.getElementById('gateDesc');
+  var btn = document.getElementById('gateRequestBtn');
+  var status = document.getElementById('gateStatus');
+
+  if (oppData.visibilidade === 'convidadas') {
+    if (desc) desc.textContent = 'Esta oportunidade é exclusiva para marcas convidadas pelo detentor.';
+  }
+
+  if (accessStatus === 'pendente') {
+    if (btn) btn.style.display = 'none';
+    if (status) { status.style.display = 'block'; status.innerHTML = '⏳ <strong>Solicitação enviada.</strong> Aguardando aprovação do detentor.'; status.style.color = '#B8860B'; }
+  } else if (accessStatus === 'rejeitado') {
+    if (btn) btn.style.display = 'none';
+    if (status) { status.style.display = 'block'; status.textContent = 'Sua solicitação não foi aprovada para esta oportunidade.'; status.style.color = '#ef4444'; }
+  }
+}
+
+async function requestAccess() {
+  if (!_gateOppData) return;
+  var userId = await getAuthUserId();
+  if (!userId) {
+    showToast?.('Faça login para solicitar acesso.', 'error');
+    window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.href);
+    return;
+  }
+
+  var btn = document.getElementById('gateRequestBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Enviando...'; }
+
+  try {
+    var token = await _getWriteToken();
+    var res = await fetch(SUPABASE_URL + '/rest/v1/acessos_oportunidade', {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({
+        oportunidade_id: _gateOppData.id,
+        marca_id: userId,
+        status: 'pendente'
+      })
+    });
+
+    if (res.ok || res.status === 201) {
+      if (btn) btn.style.display = 'none';
+      var status = document.getElementById('gateStatus');
+      if (status) { status.style.display = 'block'; status.innerHTML = '✅ <strong>Solicitação enviada!</strong> O detentor será notificado e avaliará seu pedido.'; status.style.color = '#16a34a'; }
+    } else {
+      var err = await res.text();
+      // Conflict = já existe pedido
+      if (res.status === 409 || err.includes('duplicate')) {
+        if (btn) btn.style.display = 'none';
+        var status = document.getElementById('gateStatus');
+        if (status) { status.style.display = 'block'; status.innerHTML = '⏳ <strong>Solicitação já enviada.</strong> Aguardando aprovação do detentor.'; status.style.color = '#B8860B'; }
+      } else {
+        throw new Error(err);
+      }
+    }
+  } catch (e) {
+    console.error('[RequestAccess]', e);
+    if (btn) { btn.disabled = false; btn.textContent = 'Solicitar acesso'; }
+    showToast?.('Erro ao solicitar acesso. Tente novamente.', 'error');
+  }
+}
+
+/* ─── INIT ─── */
 (async function initDetail() {
   var params = new URLSearchParams(window.location.search);
   var rawKey = params.keys().next().value;
@@ -1998,7 +2148,18 @@ function updateFavBtnState(isFav) {
     }
   }
 
+  // Check visibility gate before rendering full page
   if (oppData) {
+    var blocked = await checkAccessGate(oppData);
+    if (blocked) {
+      // Hide loading screen even when blocked
+      setTimeout(function() {
+        var ls = document.getElementById('loadingScreen');
+        if (ls) { ls.style.opacity = '0'; ls.style.transition = 'opacity 0.3s'; setTimeout(function(){ ls.style.display = 'none'; }, 300); }
+      }, 400);
+      return; // Don't render full page
+    }
+
     console.log('[Detail] Loaded from Supabase:', oppData.title);
     renderPage(oppData);
   } else {
