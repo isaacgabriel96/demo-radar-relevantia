@@ -1214,21 +1214,21 @@ tbody tr:last-child td { border-bottom: none; }
           <div class="kpi-icon gold">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
           </div>
-          <div class="kpi-value">3</div>
+          <div class="kpi-value" id="kpi-publicadas">—</div>
           <div class="kpi-label">Oportunidades publicadas</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-icon green">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
           </div>
-          <div class="kpi-value">12</div>
+          <div class="kpi-value" id="kpi-interessadas">—</div>
           <div class="kpi-label">Marcas interessadas</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-icon blue">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
           </div>
-          <div class="kpi-value" style="font-size:18px;color:var(--green)">Ativa</div>
+          <div class="kpi-value" id="kpi-status-conta" style="font-size:18px;color:var(--green)">—</div>
           <div class="kpi-label">Status da conta</div>
         </div>
       </div>
@@ -1238,27 +1238,10 @@ tbody tr:last-child td { border-bottom: none; }
         <div class="card-header">
           <div class="card-title">Atividade recente</div>
         </div>
-        <div class="timeline">
-          <div class="tl-item">
-            <div class="tl-dot gold">✨</div>
-            <div class="tl-body">
-              <div class="tl-text"><strong>Maratona de São Paulo 2026</strong> recebeu 4 novos interesses</div>
-              <div class="tl-time">Há 2 horas</div>
-            </div>
-          </div>
-          <div class="tl-item">
-            <div class="tl-dot green">📄</div>
-            <div class="tl-body">
-              <div class="tl-text">Oportunidade <strong>Naming Rights — Arena Esportiva</strong> publicada</div>
-              <div class="tl-time">Ontem às 14:30</div>
-            </div>
-          </div>
-          <div class="tl-item">
-            <div class="tl-dot gold">👤</div>
-            <div class="tl-body">
-              <div class="tl-text">Perfil da empresa atualizado</div>
-              <div class="tl-time">20 mar 2026</div>
-            </div>
+        <div class="timeline" id="dashboard-timeline-detentor">
+          <div class="tl-item tl-skeleton">
+            <div class="tl-dot gold" style="background:var(--gray-100)"></div>
+            <div class="tl-body" style="opacity:0.4">Carregando...</div>
           </div>
         </div>
       </div>
@@ -1726,21 +1709,8 @@ async function init() {
     // Demo mode banner
     showDemoBannerIfActive();
 
-    // Tentar pegar dados da sessão se existir
-    const stored = localStorage.getItem('sb_detentor_session');
-    if (stored) {
-      try {
-        const session = JSON.parse(stored);
-        const meta = session.user?.user_metadata || {};
-        const nome = meta.nome || session.user?.email?.split('@')[0] || MOCK_USER.nome;
-        const email = session.user?.email || MOCK_USER.email;
-        setUserInfo(nome, email);
-      } catch {
-        setUserInfo(MOCK_USER.nome, MOCK_USER.email);
-      }
-    } else {
-      setUserInfo(MOCK_USER.nome, MOCK_USER.email);
-    }
+    // Carregar info do usuário via SDK (com fallback localStorage)
+    await loadUserInfoDetentor();
 
     // Load negotiations from Supabase (or fallback to SharedNeg)
     try {
@@ -1757,6 +1727,8 @@ async function init() {
     renderPublicadas();
     renderNegociacoes(NEGOCIACOES);
     renderDeals();
+    updateDashboardKPIsDetentor();
+    renderDashboardTimelineDetentor();
 
     // Check hash for deep linking
     const hash = window.location.hash.replace('#', '');
@@ -1784,6 +1756,147 @@ function setUserInfo(nome, email) {
   document.getElementById('sidebarEmail').textContent = email;
   document.getElementById('sidebarAvatar').textContent = initials;
   document.getElementById('topbarAvatar').textContent = initials;
+}
+
+// ─── LOAD USER INFO (SDK → localStorage → MOCK fallback) ───
+async function loadUserInfoDetentor() {
+  // 1. Tentar via SDK (mais confiável, tem refresh automático)
+  if (typeof restoreSessionToSDK !== 'undefined') {
+    try { await restoreSessionToSDK(); } catch (_) {}
+  }
+  if (typeof sb !== 'undefined' && sb) {
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      if (session?.user) {
+        const meta = session.user.user_metadata || {};
+        let nome = meta.nome || meta.name || session.user.email?.split('@')[0] || MOCK_USER.nome;
+        const email = session.user.email || MOCK_USER.email;
+        // Tentar buscar nome real na tabela perfis
+        try {
+          const token = session.access_token;
+          const res = await fetch(SUPABASE_URL + '/rest/v1/perfis?user_id=eq.' + session.user.id + '&select=nome,empresa_nome&limit=1', {
+            headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token }
+          });
+          if (res.ok) {
+            const rows = await res.json();
+            if (rows.length > 0) nome = rows[0].nome || rows[0].empresa_nome || nome;
+          }
+        } catch (_) {}
+        setUserInfo(nome, email);
+        return;
+      }
+    } catch (_) {}
+  }
+  // 2. Fallback: localStorage sb_detentor_session
+  const stored = localStorage.getItem('sb_detentor_session');
+  if (stored) {
+    try {
+      const session = JSON.parse(stored);
+      const meta = session.user?.user_metadata || {};
+      const nome = meta.nome || session.user?.email?.split('@')[0] || MOCK_USER.nome;
+      const email = session.user?.email || MOCK_USER.email;
+      setUserInfo(nome, email);
+      return;
+    } catch (_) {}
+  }
+  // 3. Mock fallback
+  setUserInfo(MOCK_USER.nome, MOCK_USER.email);
+}
+
+// ─── DASHBOARD KPIs (dados reais) ───
+function updateDashboardKPIsDetentor() {
+  // KPI 1: Oportunidades publicadas
+  const publicadas = MINHAS_OPPS.filter(o => o.status === 'publicada').length;
+  const elPub = document.getElementById('kpi-publicadas');
+  if (elPub) elPub.textContent = publicadas;
+
+  // KPI 2: Marcas interessadas (negociações únicas de marcas diferentes)
+  const marcasUnicas = new Set(NEGOCIACOES.map(n => n.marca_id || n.marcaId || n.marca)).size;
+  const totalNegs = NEGOCIACOES.length;
+  const elInt = document.getElementById('kpi-interessadas');
+  if (elInt) elInt.textContent = marcasUnicas > 0 ? marcasUnicas : totalNegs;
+
+  // KPI 3: Status da conta (sempre Ativa para usuário logado)
+  const elStatus = document.getElementById('kpi-status-conta');
+  if (elStatus) {
+    elStatus.textContent = 'Ativa';
+    elStatus.style.color = 'var(--green)';
+  }
+}
+
+// ─── DASHBOARD TIMELINE (dados reais) ───
+function renderDashboardTimelineDetentor() {
+  const el = document.getElementById('dashboard-timeline-detentor');
+  if (!el) return;
+
+  const items = [];
+
+  // Adiciona eventos baseados nas negociações mais recentes
+  const recentNegs = [...NEGOCIACOES]
+    .sort((a, b) => new Date(b.updatedAt || b.criado_em || 0) - new Date(a.updatedAt || a.criado_em || 0))
+    .slice(0, 3);
+
+  recentNegs.forEach(n => {
+    const opp = MINHAS_OPPS.find(o => o.id === n.opp_id) || { titulo: 'Oportunidade' };
+    const titulo = opp.titulo || 'Oportunidade';
+    const dt = n.updatedAt || n.criado_em || n.criadoEm;
+    const timeStr = dt ? formatRelTime(dt) : '';
+    let dot = 'gold', emoji = '📄', text = '';
+    if (n.status === 'aceita') {
+      dot = 'green'; emoji = '✓';
+      text = `Proposta de <strong>${n.marcaNome || 'marca'}</strong> para <strong>${titulo}</strong> aceita`;
+    } else if (n.status === 'recusada') {
+      dot = 'red'; emoji = '✕';
+      text = `Proposta de <strong>${n.marcaNome || 'marca'}</strong> para <strong>${titulo}</strong> recusada`;
+    } else {
+      text = `<strong>${n.marcaNome || 'Nova marca'}</strong> enviou proposta para <strong>${titulo}</strong>`;
+    }
+    items.push({ dot, emoji, text, time: timeStr });
+  });
+
+  // Se tem oportunidades publicadas, adiciona evento de publicação
+  const pubOpps = MINHAS_OPPS.filter(o => o.status === 'publicada')
+    .sort((a, b) => new Date(b.criado_em || 0) - new Date(a.criado_em || 0))
+    .slice(0, 1);
+  pubOpps.forEach(o => {
+    const dt = o.criado_em;
+    items.push({
+      dot: 'blue', emoji: '✨',
+      text: `Oportunidade <strong>${o.titulo}</strong> publicada`,
+      time: dt ? formatRelTime(dt) : ''
+    });
+  });
+
+  if (items.length === 0) {
+    el.innerHTML = '<div style="color:var(--gray-400);font-size:13px;padding:8px 0">Nenhuma atividade recente.</div>';
+    return;
+  }
+
+  el.innerHTML = items.slice(0, 4).map(item => `
+    <div class="tl-item">
+      <div class="tl-dot ${item.dot}">${item.emoji}</div>
+      <div class="tl-body">
+        <div class="tl-text">${item.text}</div>
+        ${item.time ? `<div class="tl-time">${item.time}</div>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+function formatRelTime(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  const now = new Date();
+  const diff = now - d;
+  const mins = Math.floor(diff / 60000);
+  const hrs = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+  if (mins < 2) return 'Agora';
+  if (mins < 60) return `Há ${mins} min`;
+  if (hrs < 24) return `Há ${hrs} hora${hrs > 1 ? 's' : ''}`;
+  if (days === 1) return 'Ontem';
+  if (days < 7) return `Há ${days} dias`;
+  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
 // ─── NAVIGATION ───
@@ -2142,11 +2255,14 @@ init();
 async function loadNegociacoes() {
   if (!isDemoMode()) {
     const real = await fetchNegociacoesDetentor();
-    if (real && real.length >= 0) {
+    if (real !== null) {
       NEGOCIACOES = real;
       console.log('[Neg] Loaded', real.length, 'negotiations from Supabase');
       return;
     }
+    // real mode but Supabase unavailable — empty, not mock
+    NEGOCIACOES = [];
+    return;
   }
   NEGOCIACOES = SharedNeg.all();
   console.log('[Neg] Using SharedNeg (demo/fallback),', NEGOCIACOES.length, 'negotiations');
