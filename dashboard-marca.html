@@ -2137,8 +2137,12 @@ function renderOpportunities(opps) {
       : `<div class="olc-arrow-btn">
            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
          </div>`;
+    var cardTag = isApproval ? 'div' : 'a';
+    var cardHref = isApproval ? '' : `href="oportunidade-detalhe.html?${(opp.perfilSlug && opp.slug) ? '@' + opp.perfilSlug + '/' + opp.slug : 'id=' + opp.id}"`;
+    var cardClick = isApproval ? `onclick="abrirModalAprovacaoById(this)"` : '';
+    var cardData = isApproval ? `data-opp-title="${(opp.title||'').replace(/"/g,'&quot;')}" data-opp-org="${(opp.org||'').replace(/"/g,'&quot;')}"` : '';
     return `
-    <a class="opp-card" href="oportunidade-detalhe.html?${(opp.perfilSlug && opp.slug) ? '@' + opp.perfilSlug + '/' + opp.slug : 'id=' + opp.id}" data-id="${opp.id}" data-category="${opp.category}" data-city="${opp.city}">
+    <${cardTag} class="opp-card" ${cardHref} ${cardClick} ${cardData} data-id="${opp.id}" data-category="${opp.category}" data-city="${opp.city}" style="${isApproval ? 'cursor:pointer' : ''}">
       <div class="olc-hero" data-idx="0" style="position:relative">
         ${heroInner}
         ${!hasBg ? `<div class="olc-hero-count">
@@ -2164,7 +2168,7 @@ function renderOpportunities(opps) {
           ${footerArrow}
         </div>
       </div>
-    </a>`;
+    </${cardTag}>`;
   }).join('');
 }
 
@@ -4114,6 +4118,148 @@ function renderMinhasSolicitacoes() {
 
   html += '</div>';
   container.innerHTML = html;
+}
+</script>
+
+<!-- ═══ MODAL: ACESSO POR APROVAÇÃO ═══ -->
+<div class="modal-overlay" id="modal-aprovacao" onclick="if(event.target===this)fecharModalAprovacao()">
+  <div class="modal-prop" style="max-width:480px">
+    <div class="modal-prop-header" style="padding:24px 24px 20px">
+      <div>
+        <div class="modal-prop-title" id="map-titulo" style="font-size:18px;font-weight:700;color:var(--black)"></div>
+        <div class="modal-prop-opp" id="map-org" style="font-size:13px;color:var(--gray-500);margin-top:2px"></div>
+      </div>
+      <button class="modal-prop-close" onclick="fecharModalAprovacao()">✕</button>
+    </div>
+    <div class="modal-prop-body" style="padding:0 24px 24px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:20px">
+      <!-- Ícone de cadeado -->
+      <div style="width:72px;height:72px;border-radius:50%;background:var(--gold-pale);display:flex;align-items:center;justify-content:center;margin-top:4px">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2"/>
+          <path d="M7 11V7a5 5 0 0110 0v4"/>
+        </svg>
+      </div>
+      <!-- Texto explicativo -->
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <p style="margin:0;font-size:14px;color:var(--gray-700);line-height:1.55">
+          Esta oportunidade é de <strong>acesso por aprovação</strong>.<br>
+          Solicite acesso para que o detentor possa analisar seu perfil.
+        </p>
+      </div>
+      <!-- Botão primário -->
+      <button id="map-btn-solicitar" class="btn btn-gold" style="width:100%;justify-content:center;padding:13px 20px;font-size:14px;border-radius:12px" onclick="handleModalSolicitarAcesso()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2"/>
+          <path d="M7 11V7a5 5 0 0110 0v4"/>
+        </svg>
+        Solicitar acesso
+      </button>
+      <!-- Link voltar -->
+      <button onclick="fecharModalAprovacao()" style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--gray-400);padding:0">
+        ← Voltar para o Radar
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── MODAL ACESSO POR APROVAÇÃO ───
+var _MAP_OPP = null; // opp atual no modal
+
+function abrirModalAprovacaoById(el) {
+  var card = el.closest ? el.closest('[data-id]') : el;
+  var opp = {
+    id: parseInt(card.dataset.id),
+    title: card.dataset.oppTitle || '',
+    org: card.dataset.oppOrg || ''
+  };
+  abrirModalAprovacao(opp);
+}
+
+function abrirModalAprovacao(opp) {
+  _MAP_OPP = opp;
+  document.getElementById('map-titulo').textContent = opp.title || opp.nome || '';
+  document.getElementById('map-org').textContent = 'por ' + (opp.org || '');
+
+  var btn = document.getElementById('map-btn-solicitar');
+  btn.disabled = false;
+  btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg> Solicitar acesso';
+  btn.style.opacity = '1';
+
+  document.getElementById('modal-aprovacao').classList.add('open');
+}
+
+function fecharModalAprovacao() {
+  document.getElementById('modal-aprovacao').classList.remove('open');
+  _MAP_OPP = null;
+}
+
+async function handleModalSolicitarAcesso() {
+  if (!_MAP_OPP) return;
+  var btn = document.getElementById('map-btn-solicitar');
+  btn.disabled = true;
+  btn.style.opacity = '0.7';
+  btn.textContent = 'Enviando...';
+
+  try {
+    // Pega sessão da marca
+    var session = null;
+    if (typeof sb !== 'undefined') {
+      var { data: { session: s } } = await sb.auth.getSession();
+      session = s;
+    }
+    var marcaId = session?.user?.id || localStorage.getItem('userId');
+    var token = session?.access_token;
+    if (!token && typeof getValidToken === 'function') token = await getValidToken();
+
+    if (!marcaId || !token) {
+      alert('Faça login para solicitar acesso.');
+      btn.disabled = false; btn.style.opacity = '1';
+      btn.textContent = 'Solicitar acesso';
+      return;
+    }
+
+    // Verifica se já existe request
+    var checkRes = await fetch(SUPABASE_URL + '/rest/v1/acessos_oportunidade?oportunidade_id=eq.' + _MAP_OPP.id + '&marca_id=eq.' + marcaId + '&select=id,status&limit=1', {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token }
+    });
+    var existing = await checkRes.json();
+
+    if (existing && existing.length > 0) {
+      var status = existing[0].status;
+      var msg = status === 'pendente' ? 'Você já solicitou acesso. Aguardando aprovação.' :
+                status === 'aprovado' ? 'Seu acesso já foi aprovado!' :
+                'Seu acesso foi recusado para esta oportunidade.';
+      btn.innerHTML = msg;
+      btn.style.opacity = '0.7';
+      return;
+    }
+
+    // Cria request
+    var res = await fetch(SUPABASE_URL + '/rest/v1/acessos_oportunidade', {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ oportunidade_id: _MAP_OPP.id, marca_id: marcaId, status: 'pendente' })
+    });
+
+    if (res.ok || res.status === 201) {
+      btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Solicitação enviada!';
+      btn.style.background = 'var(--green-gradient, #16A34A)';
+      // Invalida cache para atualizar "Minhas Solicitações"
+      _SOL_MARCA_LOADED = false;
+    } else {
+      throw new Error('status ' + res.status);
+    }
+  } catch(err) {
+    console.error('handleModalSolicitarAcesso:', err);
+    btn.disabled = false; btn.style.opacity = '1';
+    btn.textContent = 'Tentar novamente';
+  }
 }
 </script>
 
