@@ -3981,7 +3981,7 @@ async function loadMinhasSolicitacoes() {
     // 4. Busca dados das oportunidades correspondentes
     var oppIds = [...new Set(solRows.map(r => r.oportunidade_id))];
     var oppUrl = SUPABASE_URL + '/rest/v1/oportunidades'
-      + '?select=id,titulo,descricao_curta,segmento,regiao,valor_base,visibilidade,categoria,slug,tags,imagens,imagem_capa,bg_gradient,icone,imagens_focal'
+      + '?select=id,titulo,descricao_curta,segmento,regiao,categoria,slug,tags,imagens,imagem_capa,bg_gradient,icone'
       + '&id=in.(' + oppIds.join(',') + ')';
 
     var oppRes = await fetch(oppUrl, { headers: headers });
@@ -4072,7 +4072,6 @@ function renderMinhasSolicitacoes() {
     var link = oppLink(sol);
     var imgs = (o && o.imagens && o.imagens.length) ? o.imagens : [];
     var hasBg = !imgs.length && o && o.bg_gradient;
-    var focalMap = (o && o.imagens_focal) ? o.imagens_focal : {};
     var titulo = o ? (o.titulo || 'Oportunidade') : ('Oportunidade #' + sol.oportunidade_id);
     var categoria = o ? (o.categoria || '') : '';
     var desc = o ? (o.descricao_curta || (o.tags ? o.tags.slice(0,3).join(' · ') : '')) : '';
@@ -4080,8 +4079,7 @@ function renderMinhasSolicitacoes() {
     var regiao = o ? (o.regiao || '') : '';
 
     var slidesHtml = imgs.map(function(src) {
-      var fp = focalMap[src] || {x:50, y:20};
-      return '<div class="olc-hero-slide"><img src="' + src + '" alt="' + titulo + '" loading="lazy" style="object-position:' + fp.x + '% ' + fp.y + '%"></div>';
+      return '<div class="olc-hero-slide"><img src="' + src + '" alt="' + titulo + '" loading="lazy" style="object-position:50% 20%"></div>';
     }).join('');
 
     var heroInner = hasBg
