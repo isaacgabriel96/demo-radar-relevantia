@@ -4168,6 +4168,8 @@ var _MAP_OPP = null; // opp atual no modal
 
 function abrirModalAprovacaoById(el) {
   var card = el.closest ? el.closest('[data-id]') : el;
+  // Se já foi solicitado, não abre modal
+  if (card.dataset.solicitado === 'true') return;
   var opp = {
     id: parseInt(card.dataset.id),
     title: card.dataset.oppTitle || '',
@@ -4248,10 +4250,20 @@ async function handleModalSolicitarAcesso() {
     });
 
     if (res.ok || res.status === 201) {
+      // Botão vira dourado com checkmark
       btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Solicitação enviada!';
-      btn.style.background = 'var(--green-gradient, #16A34A)';
+      btn.style.background = 'var(--gold-gradient)';
+      btn.style.color = '#fff';
+      btn.style.opacity = '1';
+
       // Invalida cache para atualizar "Minhas Solicitações"
       _SOL_MARCA_LOADED = false;
+
+      // Marca o card com overlay de "Aguardando aprovação"
+      marcarCardSolicitado(_MAP_OPP.id);
+
+      // Fecha modal e volta para oportunidades após 2s
+      setTimeout(function() { fecharModalAprovacao(); }, 2000);
     } else {
       throw new Error('status ' + res.status);
     }
@@ -4259,6 +4271,26 @@ async function handleModalSolicitarAcesso() {
     console.error('handleModalSolicitarAcesso:', err);
     btn.disabled = false; btn.style.opacity = '1';
     btn.textContent = 'Tentar novamente';
+  }
+}
+
+function marcarCardSolicitado(oppId) {
+  var card = document.querySelector('[data-id="' + oppId + '"].opp-card');
+  if (!card) return;
+
+  // Bloqueia click futuro
+  card.setAttribute('data-solicitado', 'true');
+  card.onclick = null;
+  card.style.cursor = 'default';
+
+  // Adiciona overlay sobre a foto do card
+  var hero = card.querySelector('.olc-hero');
+  if (hero) {
+    var overlay = document.createElement('div');
+    overlay.style.cssText = 'position:absolute;inset:0;background:rgba(80,58,0,0.62);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;z-index:4;border-radius:inherit';
+    overlay.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
+      + '<span style="font-size:11px;font-weight:700;color:#fff;letter-spacing:0.03em">Aguardando aprovação</span>';
+    hero.appendChild(overlay);
   }
 }
 </script>
