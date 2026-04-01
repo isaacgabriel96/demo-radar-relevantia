@@ -4340,12 +4340,12 @@ function marcarCardSolicitado(oppId, status) {
     if (isAprovado) {
       // Verde: acesso aprovado, card é clicável
       overlay.style.cssText = 'position:absolute;inset:0;background:rgba(10,80,30,0.58);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;z-index:4;border-radius:inherit;pointer-events:none';
-      overlay.innerHTML = '<span style="font-size:22px;line-height:1">✅</span>'
+      overlay.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
         + '<span style="font-size:11px;font-weight:700;color:#fff;letter-spacing:0.03em">Acesso aprovado</span>';
     } else {
       // Marrom: aguardando
       overlay.style.cssText = 'position:absolute;inset:0;background:rgba(80,58,0,0.62);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;z-index:4;border-radius:inherit;pointer-events:none';
-      overlay.innerHTML = '<span style="font-size:22px;line-height:1">⏳</span>'
+      overlay.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>'
         + '<span style="font-size:11px;font-weight:700;color:#fff;letter-spacing:0.03em">Aguardando aprovação</span>';
     }
     hero.appendChild(overlay);
