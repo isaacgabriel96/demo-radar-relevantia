@@ -4260,7 +4260,7 @@ async function handleModalSolicitarAcesso() {
       _SOL_MARCA_LOADED = false;
 
       // Marca o card com overlay de "Aguardando aprovação"
-      marcarCardSolicitado(_MAP_OPP.id);
+      marcarCardSolicitado(_MAP_OPP.id, 'pendente');
 
       // Fecha modal e volta para oportunidades após 2s
       setTimeout(function() { fecharModalAprovacao(); }, 2000);
@@ -4294,7 +4294,7 @@ async function carregarEstadoAcessos() {
 
     acessos.forEach(function(a) {
       if (a.status === 'pendente' || a.status === 'aprovado') {
-        marcarCardSolicitado(a.oportunidade_id);
+        marcarCardSolicitado(a.oportunidade_id, a.status);
       }
     });
   } catch(e) {
@@ -4302,22 +4302,52 @@ async function carregarEstadoAcessos() {
   }
 }
 
-function marcarCardSolicitado(oppId) {
+function marcarCardSolicitado(oppId, status) {
   var card = document.querySelector('[data-id="' + oppId + '"].opp-card');
   if (!card) return;
 
-  // Bloqueia click futuro
-  card.setAttribute('data-solicitado', 'true');
-  card.onclick = null;
-  card.style.cursor = 'default';
+  // Remove overlay anterior se existir (evita duplicar)
+  var existing = card.querySelector('.acesso-overlay');
+  if (existing) existing.remove();
+
+  var isAprovado = (status === 'aprovado');
+
+  // Se aprovado: vira link clicável para a página de detalhe
+  if (isAprovado) {
+    var oppTitle = card.dataset.oppTitle || '';
+    // Tenta reconstruir href a partir do data-id — usa rota por id como fallback
+    var href = 'oportunidade-detalhe.html?id=' + oppId;
+    card.setAttribute('data-solicitado', 'aprovado');
+    card.onclick = null;
+    card.style.cursor = 'pointer';
+    // Se for div, transforma em link
+    if (card.tagName === 'DIV') {
+      card.onclick = function() { window.location.href = href; };
+    }
+  } else {
+    // Pendente: bloqueia click
+    card.setAttribute('data-solicitado', 'true');
+    card.onclick = null;
+    card.style.cursor = 'default';
+  }
 
   // Adiciona overlay sobre a foto do card
   var hero = card.querySelector('.olc-hero');
   if (hero) {
     var overlay = document.createElement('div');
-    overlay.style.cssText = 'position:absolute;inset:0;background:rgba(80,58,0,0.62);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;z-index:4;border-radius:inherit';
-    overlay.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
-      + '<span style="font-size:11px;font-weight:700;color:#fff;letter-spacing:0.03em">Aguardando aprovação</span>';
+    overlay.className = 'acesso-overlay';
+
+    if (isAprovado) {
+      // Verde: acesso aprovado, card é clicável
+      overlay.style.cssText = 'position:absolute;inset:0;background:rgba(10,80,30,0.58);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;z-index:4;border-radius:inherit;pointer-events:none';
+      overlay.innerHTML = '<span style="font-size:22px;line-height:1">✅</span>'
+        + '<span style="font-size:11px;font-weight:700;color:#fff;letter-spacing:0.03em">Acesso aprovado</span>';
+    } else {
+      // Marrom: aguardando
+      overlay.style.cssText = 'position:absolute;inset:0;background:rgba(80,58,0,0.62);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;z-index:4;border-radius:inherit;pointer-events:none';
+      overlay.innerHTML = '<span style="font-size:22px;line-height:1">⏳</span>'
+        + '<span style="font-size:11px;font-weight:700;color:#fff;letter-spacing:0.03em">Aguardando aprovação</span>';
+    }
     hero.appendChild(overlay);
   }
 }
