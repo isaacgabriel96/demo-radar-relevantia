@@ -3842,7 +3842,7 @@ async function loadAcessos() {
       return;
     }
     // Fetch acessos for detentor's opps, with marca info
-    var url = SUPABASE_URL + '/rest/v1/acessos_oportunidade?select=id,oportunidade_id,marca_id,status,criado_em,perfis:marca_id(nome_marca,slug,foto_perfil)&oportunidade_id=in.(' + oppIds.join(',') + ')&order=criado_em.desc';
+    var url = SUPABASE_URL + '/rest/v1/acessos_oportunidade?select=id,oportunidade_id,marca_id,status,criado_em,perfis:marca_id(nome,empresa,slug,avatar_url)&oportunidade_id=in.(' + oppIds.join(',') + ')&order=criado_em.desc';
     var res = await fetch(url, {
       headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }
     });
@@ -3856,9 +3856,9 @@ async function loadAcessos() {
         opp_id: r.oportunidade_id,
         opp_titulo: opp ? opp.titulo : 'Oportunidade #' + r.oportunidade_id,
         marca_id: r.marca_id,
-        marca_nome: marca.nome_marca || 'Marca',
+        marca_nome: marca.empresa || marca.nome || 'Marca',
         marca_slug: marca.slug || '',
-        marca_foto: marca.foto_perfil || '',
+        marca_foto: marca.avatar_url || '',
         status: r.status || 'pendente',
         criado_em: r.criado_em
       };
