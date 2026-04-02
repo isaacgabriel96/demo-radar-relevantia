@@ -783,8 +783,8 @@ a { text-decoration: none; color: inherit; }
       </svg>
       <img src="logos/5.png" alt="Radar Relevantia" style="width:100px;display:block">
     </div>
-    <div class="sidebar-portal-badge">
-      <span class="portal-badge-dot"></span> Portal Marca
+    <div class="sidebar-portal-badge" id="portal-badge">
+      <span class="portal-badge-dot"></span> <span id="portal-badge-label">Portal Marca</span>
     </div>
   </div>
 
@@ -2045,20 +2045,35 @@ async function handleSolicitarAcesso(btn) {
 }
 
 /* ─── MODAL ─── */
-// Dados do usuário logado — lê da sessão real
+// Dados do usuário logado — lê da sessão real (marca OU detentor)
+var LOGGED_USER_ROLE = 'marca';
 var LOGGED_USER = (function() {
-  var raw = localStorage.getItem('sb_marca_session');
+  var raw = localStorage.getItem('sb_marca_session') || localStorage.getItem('sb_detentor_session');
   if (raw) {
     try {
       var s = JSON.parse(raw);
       var meta = (s.user && s.user.user_metadata) ? s.user.user_metadata : {};
+      if (meta.tipo === 'detentor') LOGGED_USER_ROLE = 'detentor';
       var nome = meta.nome || (s.user && s.user.email ? s.user.email.split('@')[0] : 'Usuário');
       var empresa = meta.empresa || meta.marca_nome || '';
       var initials = nome.split(' ').filter(Boolean).map(function(w){ return w[0]; }).join('').substring(0,2).toUpperCase();
-      return { name: nome, company: empresa, email: s.user ? s.user.email : '', initials: initials || 'U' };
+      return { name: nome, company: empresa, email: s.user ? s.user.email : '', initials: initials || 'U', role: meta.tipo || 'marca' };
     } catch(e) {}
   }
-  return { name: 'Usuário', company: '', email: '', initials: 'U' };
+  return { name: 'Usuário', company: '', email: '', initials: 'U', role: 'marca' };
+})();
+
+// Adaptar sidebar para o role correto
+(function() {
+  var dashUrl = LOGGED_USER_ROLE === 'detentor' ? 'dashboard-detentor.html' : 'dashboard-marca.html';
+  var portalLabel = LOGGED_USER_ROLE === 'detentor' ? 'Portal Detentor' : 'Portal Marca';
+  var bl = document.getElementById('portal-badge-label');
+  if (bl) bl.textContent = portalLabel;
+  // Atualizar todos os links da sidebar e breadcrumb
+  document.querySelectorAll('a[href*="dashboard-marca.html"]').forEach(function(a) {
+    a.href = a.href.replace('dashboard-marca.html', dashUrl);
+    if (a.textContent.trim() === 'Portal Marca') a.textContent = portalLabel;
+  });
 })();
 
 // Preenche sidebar com dados reais
