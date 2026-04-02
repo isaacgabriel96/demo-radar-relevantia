@@ -1633,11 +1633,8 @@ function renderPage(oppOverride) {
   // Sidebar card
   document.getElementById('interestPrice').textContent = 'A partir de R$ ' + (opp.price/1000).toFixed(0) + 'k';
   var infoHtml = '';
-  infoHtml += '<div class="interest-row"><span class="interest-row-label">Evento</span><span class="interest-row-value">' + escapeHtml(opp.sidebar.evento) + '</span></div>';
-  infoHtml += '<div class="interest-row"><span class="interest-row-label">Prazo de proposta</span><span class="interest-row-value deadline">' + escapeHtml(opp.sidebar.prazo) + '</span></div>';
-  infoHtml += '<div class="interest-row"><span class="interest-row-label">Cotas disponíveis</span><span class="interest-row-value">' + escapeHtml(opp.sidebar.cotasQty) + '</span></div>';
-  infoHtml += '<div class="interest-row"><span class="interest-row-label">Formato</span><span class="interest-row-value">' + escapeHtml(opp.sidebar.formato) + '</span></div>';
-  infoHtml += '<div class="interest-row"><span class="interest-row-label">Participantes</span><span class="interest-row-value">' + escapeHtml(opp.sidebar.participantes) + '</span></div>';
+  infoHtml += '<div class="interest-row"><span class="interest-row-label">Tipo</span><span class="interest-row-value">' + escapeHtml(opp.category || '—') + '</span></div>';
+  infoHtml += '<div class="interest-row"><span class="interest-row-label">Prazo</span><span class="interest-row-value deadline">' + escapeHtml(opp.sidebar.prazo || 'Em aberto') + '</span></div>';
   document.getElementById('interestInfo').innerHTML = infoHtml;
 
   // Modal cota select — esconde o grupo inteiro se não houver cotas definidas
