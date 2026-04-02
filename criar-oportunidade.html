@@ -185,6 +185,9 @@ body { font-family: var(--font-body); background: var(--gray-body); color: var(-
 }
 .step.active .step-label { color: var(--brown-warm); }
 .step.done .step-label { color: var(--green); }
+.step-progress.edit-mode .step { cursor: pointer; }
+.step-progress.edit-mode .step:hover .step-circle { box-shadow: 0 0 0 3px rgba(184,134,11,0.18); }
+.step-progress.edit-mode .step:hover .step-label { color: var(--brown-warm); }
 .step-line {
   flex: 1; height: 2px; background: var(--gray-2); margin: 0 6px;
   margin-bottom: 18px; transition: background .25s; min-width: 20px;
@@ -4156,6 +4159,28 @@ function maybePreFillEdit() {
 
   // Limpa o sessionStorage após usar
   sessionStorage.removeItem('edit_opp');
+
+  // Ativa stepper clicável em modo edição
+  enableClickableStepper();
+}
+
+/**
+ * Em modo edição, permite clicar nos step-dots para navegar diretamente.
+ * Marca todas as etapas como "done" (já que a opp já foi publicada)
+ * e adiciona click handlers para ir a qualquer step.
+ */
+function enableClickableStepper() {
+  const stepper = document.querySelector('.step-progress');
+  if (!stepper) return;
+  stepper.classList.add('edit-mode');
+
+  for (let i = 0; i < TOTAL_STEPS; i++) {
+    const dot = document.getElementById('step-dot-' + i);
+    if (!dot) continue;
+    dot.addEventListener('click', function() {
+      nextStep(i);
+    });
+  }
 }
 
 /* ══════════════════════════════════════════════
