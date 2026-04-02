@@ -594,6 +594,35 @@ tbody tr:last-child td { border-bottom: none; }
 .modal-deal-det-financeiro-row .lbl { color: var(--gray-400); }
 .modal-deal-det-financeiro-row.total .lbl { color: var(--black); }
 
+/* ─── FORMALIZAÇÃO: Contrato + Pagamento ─── */
+.ddet-contrato-box { background: var(--gray-1); border-radius: 10px; padding: 16px; }
+.ddet-contrato-status { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-size: 13px; font-weight: 600; }
+.ddet-contrato-status .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.ddet-contrato-status .dot.pendente { background: #F59E0B; }
+.ddet-contrato-status .dot.enviado { background: #059669; }
+.ddet-contrato-upload-area { border: 2px dashed var(--gray-200); border-radius: 10px; padding: 24px; text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s; }
+.ddet-contrato-upload-area:hover { border-color: var(--gold); background: rgba(184,134,11,0.04); }
+.ddet-contrato-upload-area.dragging { border-color: var(--gold); background: rgba(184,134,11,0.08); }
+.ddet-contrato-upload-icon { font-size: 28px; margin-bottom: 6px; }
+.ddet-contrato-upload-text { font-size: 13px; color: var(--gray-400); }
+.ddet-contrato-upload-text strong { color: var(--black); }
+.ddet-contrato-file { display: flex; align-items: center; gap: 10px; background: var(--white); border: 1.5px solid var(--gray-200); border-radius: 10px; padding: 12px 14px; }
+.ddet-contrato-file-icon { font-size: 22px; flex-shrink: 0; }
+.ddet-contrato-file-info { flex: 1; min-width: 0; }
+.ddet-contrato-file-name { font-size: 13px; font-weight: 600; color: var(--black); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ddet-contrato-file-meta { font-size: 11px; color: var(--gray-400); margin-top: 2px; }
+.ddet-contrato-file-check { color: #059669; font-size: 18px; flex-shrink: 0; }
+.ddet-pagamento-box { background: var(--gray-1); border-radius: 10px; padding: 16px; text-align: center; }
+.ddet-pagamento-locked { color: var(--gray-400); font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 8px 0; }
+.ddet-pagamento-ready { font-size: 13px; color: var(--black); }
+.ddet-pagamento-ready .valor { font-family: var(--font-display); font-size: 22px; font-weight: 700; color: var(--black); margin: 8px 0; }
+.ddet-btn-pagar { display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #B8860B, #C8A84B); color: white; border: none; border-radius: 100px; padding: 12px 28px; font-family: var(--font-heading); font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity 0.2s, transform 0.15s; }
+.ddet-btn-pagar:hover { opacity: 0.9; transform: translateY(-1px); }
+.ddet-btn-pagar:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+.ddet-upload-progress { margin-top: 10px; }
+.ddet-upload-progress-bar { height: 4px; background: var(--gray-200); border-radius: 4px; overflow: hidden; }
+.ddet-upload-progress-fill { height: 100%; background: linear-gradient(135deg, #B8860B, #C8A84B); border-radius: 4px; transition: width 0.3s; }
+
 /* ─── FILTRO OPORTUNIDADE ─── */
 .neg-filter-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
 .neg-filter-label { font-size: 12px; font-weight: 600; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
@@ -1776,6 +1805,9 @@ async function init() {
     // Carregar info do usuário via SDK (com fallback localStorage)
     await loadUserInfoDetentor();
 
+    // Guardar user ID pra uso em uploads etc
+    try { _currentUserId = await getAuthUserId(); } catch(e) {}
+
     // Determina role na org (mostra nav Equipe se aplicável)
     try { await loadOrgRole(); } catch (e) { console.error('[init] loadOrgRole failed:', e); }
 
@@ -2318,6 +2350,7 @@ function showToast(message, type = 'success') {
 // NEGOCIACOES: loaded from Supabase (real) or SharedNeg (demo fallback).
 // Mutations call _persistNeg() which routes to Supabase API or SharedNeg.save().
 var NEGOCIACOES = [];
+var _currentUserId = null;
 
 // ─── START ───
 init();
@@ -3509,10 +3542,9 @@ function renderDeals() {
 
   container.innerHTML = Object.values(groups).map(g => {
     const cfg = _oppCfg(g.opp_id);
-    // total líquido do grupo
+    // total líquido do grupo (valor_deal é o valor total do pacote)
     const totalLiquido = g.items.reduce((sum, n) => {
-      const aceitos = (n.contrapartidas || []).filter(c => c.status === 'aceita');
-      const bruto = aceitos.reduce((s, c) => s + c.valor, 0);
+      const bruto = Number(n.valor_deal) || 0;
       return sum + (bruto - Math.round(bruto * PLATAFORMA_TAXA));
     }, 0);
 
@@ -3553,10 +3585,9 @@ function openDealOppDetail(oppId) {
   const subEl = document.getElementById('deals-detail-opp-sub');
   if (subEl) subEl.textContent = deals.length + ' deal' + (deals.length !== 1 ? 's' : '') + ' fechado' + (deals.length !== 1 ? 's' : '');
 
-  // Preenche total no header
+  // Preenche total no header (valor_deal = valor total do pacote)
   const totalLiquido = deals.reduce((sum, n) => {
-    const aceitos = (n.contrapartidas || []).filter(c => c.status === 'aceita');
-    const bruto = aceitos.reduce((s, c) => s + c.valor, 0);
+    const bruto = Number(n.valor_deal) || 0;
     return sum + (bruto - Math.round(bruto * PLATAFORMA_TAXA));
   }, 0);
   const totalEl = document.getElementById('deals-detail-total');
@@ -3590,7 +3621,7 @@ function renderDealCards() {
 
   container.innerHTML = deals.map(n => {
     const aceitos    = (n.contrapartidas || []).filter(c => c.status === 'aceita');
-    const totalBruto = aceitos.reduce((s, c) => s + c.valor, 0);
+    const totalBruto = Number(n.valor_deal) || 0;
     const taxa       = Math.round(totalBruto * PLATAFORMA_TAXA);
     const liquido    = totalBruto - taxa;
     const entregasLabel = aceitos.length + ' entrega' + (aceitos.length !== 1 ? 's' : '') + ' acordada' + (aceitos.length !== 1 ? 's' : '');
@@ -3617,26 +3648,176 @@ function openDealDetModal(negId) {
   const n = NEGOCIACOES.find(x => x.id === negId);
   if (!n) return;
   const fmt = v => 'R$ ' + v.toLocaleString('pt-BR');
-  const aceitos    = (n.contrapartidas || []).filter(c => c.status === 'aceita');
-  const totalBruto = aceitos.reduce((s, c) => s + c.valor, 0);
+  const entregas   = (n.contrapartidas || []).filter(c => c.status === 'aceita');
+  const totalBruto = Number(n.valor_deal) || 0;
   const taxa       = Math.round(totalBruto * PLATAFORMA_TAXA);
   const liquido    = totalBruto - taxa;
 
   document.getElementById('ddet-title').textContent = n.marca;
   document.getElementById('ddet-sub').textContent   = n.opp + ' · ' + n.cota;
 
-  document.getElementById('ddet-entregas').innerHTML = aceitos.length
-    ? aceitos.map(cp => `<div class="modal-deal-det-row">
+  document.getElementById('ddet-entregas').innerHTML = entregas.length
+    ? entregas.map(cp => `<div class="modal-deal-det-row">
         <span class="modal-deal-det-row-label">${cp.descricao}</span>
       </div>`).join('')
     : '<div style="font-size:13px;color:var(--gray-400);padding:8px 0">Nenhuma entrega registrada.</div>';
 
   document.getElementById('ddet-financeiro').innerHTML = `
-    <div class="modal-deal-det-financeiro-row"><span class="lbl">Valor bruto</span><span>${fmt(totalBruto)}</span></div>
+    <div class="modal-deal-det-financeiro-row"><span class="lbl">Valor do deal</span><span>${fmt(totalBruto)}</span></div>
     <div class="modal-deal-det-financeiro-row"><span class="lbl">Taxa Relevantia (${Math.round(PLATAFORMA_TAXA*100)}%)</span><span style="color:#DC2626">− ${fmt(taxa)}</span></div>
     <div class="modal-deal-det-financeiro-row total"><span class="lbl">Você recebe</span><span>${fmt(liquido)}</span></div>`;
 
+  // ══ CONTRATO ══
+  const contratoArea = document.getElementById('ddet-contrato-area');
+  if (n.contrato_url) {
+    // Contrato já enviado
+    const enviadoPor = n.contrato_enviado_por === _currentUserId ? 'Você' : n.marca;
+    const enviadoEm = n.contrato_enviado_em ? new Date(n.contrato_enviado_em).toLocaleDateString('pt-BR') : '';
+    contratoArea.innerHTML = `
+      <div class="ddet-contrato-box">
+        <div class="ddet-contrato-status"><span class="dot enviado"></span> Contrato enviado</div>
+        <div class="ddet-contrato-file">
+          <div class="ddet-contrato-file-icon">📄</div>
+          <div class="ddet-contrato-file-info">
+            <div class="ddet-contrato-file-name">Contrato assinado</div>
+            <div class="ddet-contrato-file-meta">Enviado por ${enviadoPor}${enviadoEm ? ' em ' + enviadoEm : ''}</div>
+          </div>
+          <div class="ddet-contrato-file-check">✓</div>
+        </div>
+        <div style="margin-top:10px;text-align:center">
+          <a href="${n.contrato_url}" target="_blank" style="font-size:12px;color:var(--gold);text-decoration:underline;cursor:pointer">Baixar contrato</a>
+        </div>
+      </div>`;
+  } else {
+    // Upload pendente
+    contratoArea.innerHTML = `
+      <div class="ddet-contrato-box">
+        <div class="ddet-contrato-status"><span class="dot pendente"></span> Pendente</div>
+        <div class="ddet-contrato-upload-area" id="ddet-upload-area"
+             ondragover="event.preventDefault();this.classList.add('dragging')"
+             ondragleave="this.classList.remove('dragging')"
+             ondrop="event.preventDefault();this.classList.remove('dragging');handleContratoUpload(event.dataTransfer.files[0],'${n.id}')"
+             onclick="document.getElementById('ddet-contrato-input').click()">
+          <div class="ddet-contrato-upload-icon">📤</div>
+          <div class="ddet-contrato-upload-text">
+            <strong>Clique ou arraste</strong> o contrato assinado<br>
+            <span style="font-size:11px;color:var(--gray-3)">PDF, JPG ou PNG · Máx 10MB</span>
+          </div>
+        </div>
+        <input type="file" id="ddet-contrato-input" accept=".pdf,.jpg,.jpeg,.png" style="display:none"
+               onchange="handleContratoUpload(this.files[0],'${n.id}')">
+        <div id="ddet-upload-status"></div>
+      </div>`;
+  }
+
+  // ══ PAGAMENTO ══
+  const pagArea = document.getElementById('ddet-pagamento-area');
+  if (!n.contrato_url) {
+    pagArea.innerHTML = `
+      <div class="ddet-pagamento-box">
+        <div class="ddet-pagamento-locked">
+          🔒 Envie o contrato assinado para liberar o pagamento
+        </div>
+      </div>`;
+  } else {
+    const valorDeal = totalBruto; // já é valor_deal
+    pagArea.innerHTML = `
+      <div class="ddet-pagamento-box">
+        <div class="ddet-pagamento-ready">
+          <div style="color:#059669;font-weight:600;margin-bottom:4px">✓ Pagamento liberado</div>
+          <div class="valor">${fmt(valorDeal)}</div>
+          <div style="font-size:12px;color:var(--gray-400);margin-bottom:14px">Valor total do deal</div>
+          <div style="font-size:11px;color:var(--gray-3);margin-top:8px">O pagamento será realizado pela marca.</div>
+        </div>
+      </div>`;
+  }
+
+  // Store current negociacao id for upload
+  window._ddetCurrentNeg = negId;
   document.getElementById('modal-deal-det').classList.add('open');
+}
+
+// ══ UPLOAD DE CONTRATO ══
+async function handleContratoUpload(file, negId) {
+  if (!file) return;
+
+  // Validar tipo
+  const allowed = ['application/pdf', 'image/jpeg', 'image/png'];
+  if (!allowed.includes(file.type)) {
+    showToast('Formato inválido. Envie PDF, JPG ou PNG.', 'error');
+    return;
+  }
+
+  // Validar tamanho (10MB)
+  if (file.size > 10 * 1024 * 1024) {
+    showToast('Arquivo muito grande. Máximo 10MB.', 'error');
+    return;
+  }
+
+  const statusEl = document.getElementById('ddet-upload-status');
+  const uploadArea = document.getElementById('ddet-upload-area');
+
+  // Mostrar progresso
+  statusEl.innerHTML = `
+    <div class="ddet-upload-progress">
+      <div style="font-size:12px;color:var(--gray-400);margin-bottom:6px">Enviando...</div>
+      <div class="ddet-upload-progress-bar"><div class="ddet-upload-progress-fill" style="width:30%"></div></div>
+    </div>`;
+
+  try {
+    const ext = file.name.split('.').pop();
+    const filePath = `${negId}/contrato.${ext}`;
+
+    // 1. Upload ao Storage
+    const { data: uploadData, error: uploadError } = await sb.storage
+      .from('contratos')
+      .upload(filePath, file, { upsert: true });
+
+    if (uploadError) throw uploadError;
+
+    // Progresso 60%
+    statusEl.querySelector('.ddet-upload-progress-fill').style.width = '60%';
+
+    // 2. Pegar URL assinada (privado)
+    const { data: urlData } = await sb.storage
+      .from('contratos')
+      .createSignedUrl(filePath, 60 * 60 * 24 * 365); // 1 ano
+
+    const contratoUrl = urlData?.signedUrl || filePath;
+
+    // 3. Atualizar negociação
+    const { error: updateError } = await sb
+      .from('negociacoes')
+      .update({
+        contrato_url: contratoUrl,
+        contrato_enviado_por: _currentUserId,
+        contrato_enviado_em: new Date().toISOString()
+      })
+      .eq('id', negId);
+
+    if (updateError) throw updateError;
+
+    // Progresso 100%
+    statusEl.querySelector('.ddet-upload-progress-fill').style.width = '100%';
+
+    // Atualizar no array local
+    const neg = NEGOCIACOES.find(x => x.id === negId);
+    if (neg) {
+      neg.contrato_url = contratoUrl;
+      neg.contrato_enviado_por = _currentUserId;
+      neg.contrato_enviado_em = new Date().toISOString();
+    }
+
+    showToast('Contrato enviado com sucesso!', 'success');
+
+    // Re-renderizar modal com contrato enviado
+    setTimeout(() => openDealDetModal(negId), 600);
+
+  } catch (err) {
+    console.error('Erro upload contrato:', err);
+    statusEl.innerHTML = `<div style="font-size:12px;color:#DC2626;margin-top:8px">Erro: ${err.message || 'Falha no envio'}</div>`;
+    showToast('Erro ao enviar contrato.', 'error');
+  }
 }
 
 function closeDealDetModal() {
@@ -4016,6 +4197,18 @@ async function removerMembro(userId) {
       <div class="modal-deal-det-section">
         <div class="modal-deal-det-section-title">Financeiro</div>
         <div class="modal-deal-det-financeiro" id="ddet-financeiro">—</div>
+      </div>
+
+      <!-- ══ FORMALIZAÇÃO: Contrato ══ -->
+      <div class="modal-deal-det-section" id="ddet-contrato-section">
+        <div class="modal-deal-det-section-title">Contrato</div>
+        <div id="ddet-contrato-area">—</div>
+      </div>
+
+      <!-- ══ FORMALIZAÇÃO: Pagamento ══ -->
+      <div class="modal-deal-det-section" id="ddet-pagamento-section">
+        <div class="modal-deal-det-section-title">Pagamento</div>
+        <div id="ddet-pagamento-area">—</div>
       </div>
     </div>
   </div>

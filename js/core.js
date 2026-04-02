@@ -328,6 +328,7 @@ function rowToNegociacao(row) {
   const oppCat    = (row.oportunidade && row.oportunidade.categoria) ? row.oportunidade.categoria : '';
   const cps = (row.contrapartidas || []).map(cp => ({
     id: cp.id, descricao: cp.descricao || '', categoria: cp.categoria || '',
+    valor: cp.valor ? parseFloat(cp.valor) : null,
     prazo: cp.prazo || '',
     status: cp.status || 'proposta', propostoPor: cp.proposto_por || 'marca'
   }));
@@ -347,11 +348,15 @@ function rowToNegociacao(row) {
     statusHint: row.status_hint || '',
     aceitaNovasPropostas: row.aceita_novas_propostas !== false,
     thread, contrapartidas: cps,
+    valor_deal: row.valor_deal ? parseFloat(row.valor_deal) : null,
     valorDeal: {
       proposto: row.valor_deal ? parseFloat(row.valor_deal) : null,
       propostoPor: row.valor_deal_proposto_por || null,
       status: row.valor_deal_status || (row.valor_deal ? 'aceito' : 'sem_proposta')
     },
+    contrato_url: row.contrato_url || null,
+    contrato_enviado_por: row.contrato_enviado_por || null,
+    contrato_enviado_em: row.contrato_enviado_em || null,
     _supaId: row.id
   };
 }
@@ -359,6 +364,7 @@ function rowToNegociacao(row) {
 // Shared query string for negociacoes with all joins
 var _negSelectQuery = 'id,oportunidade_id,marca_id,detentor_id,cota,assunto,valor_proposto,valor_deal,' +
   'valor_deal_proposto_por,valor_deal_status,' +
+  'contrato_url,contrato_enviado_por,contrato_enviado_em,' +
   'status,status_label,status_hint,aceita_novas_propostas,created_at,' +
   'marca:marca_id(nome,empresa),' +
   'oportunidade:oportunidade_id(titulo,categoria),' +
