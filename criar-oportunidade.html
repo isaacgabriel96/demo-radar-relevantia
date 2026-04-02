@@ -1845,7 +1845,7 @@ textarea.form-control { resize: vertical; min-height: 90px; }
               <div style="display:flex;gap:6px;align-items:center">
                 <input type="text" id="share-link-input" class="form-control" readonly
                   style="font-size:12px;padding:7px 10px;background:var(--gray-1)"
-                  value="https://radar.relevantia.com/oportunidade/convite/abc123">
+                  value="">
                 <button type="button" class="btn btn-ghost" style="padding:7px 14px;font-size:12px;flex-shrink:0"
                   onclick="copyShareLink(event)">Copiar</button>
               </div>
@@ -1894,7 +1894,11 @@ const formState = {
   selectedTemplate: null,
   selectedVisibility: 'publica',
   photoFiles: [],
-  editId: null
+  editId: null,
+  editSlug: null,
+  _pendingDetalhes: null,
+  _pendingCotas: null,
+  _pendingCotasHabilitadas: false
 };
 
 /* ══════════════════════════════════════════════
@@ -2195,6 +2199,107 @@ function renderTemplateFields(key) {
         });
       }
     }
+  }
+
+  // Aplica detalhes e cotas pendentes (modo edição)
+  _applyPendingDetalhes(key);
+}
+
+/**
+ * Aplica valores de `detalhes` e `cotas_data` salvos em formState._pending*
+ * quando o passo 4 é renderizado no modo edição.
+ */
+function _applyPendingDetalhes(tplKey) {
+  const detalhes = formState._pendingDetalhes;
+  const cotasData = formState._pendingCotas;
+  const cotasHabilitadas = formState._pendingCotasHabilitadas;
+
+  if (detalhes && Object.keys(detalhes).length > 0) {
+    const tpl = TEMPLATES[tplKey];
+    if (tpl && tpl.fields) {
+      tpl.fields.forEach(f => {
+        const val = detalhes[f.label];
+        if (!val) return;
+        if (f.type === 'select') {
+          const el = document.getElementById(f.id);
+          if (el) {
+            // Tenta match pelo texto do label ou pelo value
+            const opt = Array.from(el.options).find(o =>
+              o.text === val || o.value === val ||
+              o.text.toLowerCase() === String(val).toLowerCase()
+            );
+            if (opt) el.value = opt.value;
+          }
+        } else if (f.type === 'text') {
+          const el = document.getElementById(f.id);
+          if (el) el.value = val;
+        } else if (f.type === 'multiselect-pills') {
+          const valArr = Array.isArray(val) ? val : (typeof val === 'string' ? val.split(',').map(s => s.trim()) : []);
+          document.querySelectorAll('#' + f.id + ' .pill-opt').forEach(pill => {
+            if (valArr.some(v => v.toLowerCase() === pill.textContent.trim().toLowerCase())) {
+              pill.classList.add('selected');
+            }
+          });
+        } else if (f.type === 'event-dates') {
+          const valArr = Array.isArray(val) ? val : [];
+          const list = document.getElementById('event-entries-list');
+          if (list && valArr.length > 0) {
+            // Remove entradas default geradas pelo addEventEntry()
+            list.innerHTML = '';
+            valArr.forEach(entry => {
+              addEventEntry();
+              const entries = list.querySelectorAll('.event-entry');
+              const last = entries[entries.length - 1];
+              if (last) {
+                const inputs = last.querySelectorAll('input');
+                if (inputs[0] && entry.data) inputs[0].value = entry.data;
+                if (inputs[1] && entry.local) inputs[1].value = entry.local;
+              }
+            });
+          }
+        }
+      });
+    }
+    formState._pendingDetalhes = null;
+  }
+
+  // Cotas
+  if (cotasHabilitadas || (cotasData && cotasData.length > 0)) {
+    const toggle = document.getElementById('cotas-toggle-switch');
+    if (toggle && !toggle.classList.contains('active')) {
+      toggleCotasSection(); // ativa o toggle
+    }
+    if (cotasData && cotasData.length > 0) {
+      const list = document.getElementById('cotas-list');
+      if (list) {
+        list.innerHTML = ''; // Remove a cota default criada pelo toggleCotasSection
+        cotasData.forEach((cota, i) => {
+          addCota();
+          const cards = list.querySelectorAll('.cota-card');
+          const card = cards[cards.length - 1];
+          if (!card) return;
+          const nomeEl = card.querySelector('.cota-nome');
+          const valorEl = card.querySelector('.cota-valor');
+          const vagasEl = card.querySelector('.cota-vagas');
+          if (nomeEl) nomeEl.value = cota.nome || '';
+          if (valorEl) valorEl.value = cota.valor || '';
+          if (vagasEl) vagasEl.value = cota.vagas || '';
+          // Benefícios
+          const benefList = card.querySelector('.cota-beneficios-list');
+          if (benefList && Array.isArray(cota.beneficios) && cota.beneficios.length > 0) {
+            benefList.innerHTML = ''; // Remove o benefício default
+            cota.beneficios.forEach(bText => {
+              addBeneficio(benefList);
+              const inputs = benefList.querySelectorAll('input');
+              const lastInput = inputs[inputs.length - 1];
+              if (lastInput) lastInput.value = bText;
+            });
+          }
+        });
+      }
+    }
+    formState._pendingCotas = null;
+    formState._pendingCotasHabilitadas = false;
   }
 }
 
@@ -2967,7 +3072,34 @@ function selectVisibility(type) {
     document.getElementById('vis-' + t)?.classList.toggle('selected', t === type);
   });
   const panel = document.getElementById('share-link-panel');
-  if (panel) panel.style.display = type === 'convidadas' ? 'block' : 'none';
+  if (panel) {
+    panel.style.display = type === 'convidadas' ? 'block' : 'none';
+    if (type === 'convidadas') {
+      _updateShareLink();
+    }
+  }
+}
+
+/** Atualiza o input do link de convite com a URL real da oportunidade */
+function _updateShareLink() {
+  const input = document.getElementById('share-link-input');
+  if (!input) return;
+  // Em modo edição: usa o slug ou id da oportunidade
+  const oppSlug = formState.editSlug || null;
+  const oppId   = formState.editId   || null;
+  const base    = 'https://radar-relevantia.com/oportunidade-detalhe.html';
+  let link = '';
+  if (oppSlug) {
+    link = base + '?slug=' + encodeURIComponent(oppSlug);
+  } else if (oppId) {
+    link = base + '?id=' + encodeURIComponent(oppId);
+  } else {
+    // Ainda em criação (sem ID) — avisa que o link ficará disponível após salvar
+    input.placeholder = 'Disponível após salvar a oportunidade';
+    input.value = '';
+    return;
+  }
+  input.value = link;
 }
 
 /* ══════════════════════════════════════════════
@@ -3744,8 +3876,9 @@ function maybePreFillEdit() {
   let opp;
   try { opp = JSON.parse(raw); } catch(e) { return; }
 
-  // Guarda o ID para usar no PATCH ao salvar/publicar
-  if (opp.id) formState.editId = opp.id;
+  // Guarda o ID e slug para usar no PATCH ao salvar/publicar e no link de convite
+  if (opp.id)   formState.editId   = opp.id;
+  if (opp.slug) formState.editSlug = opp.slug;
 
   // Atualiza título da topbar
   const topbarTitle = document.querySelector('.topbar-title');
@@ -3774,15 +3907,19 @@ function maybePreFillEdit() {
   if (nomeEl && opp.titulo) { nomeEl.value = opp.titulo; }
 
   const descEl = document.getElementById('opp-desc');
-  if (descEl && opp.descricao) {
-    descEl.value = opp.descricao;
+  const descValue = opp.descricao || opp.descricao_curta || '';
+  if (descEl && descValue) {
+    descEl.value = descValue;
     updateChar(descEl, 'descCount', 300);
   }
 
-  // Cidade: tenta extrair estado e cidade de "Cidade, UF"
-  if (opp.cidade) {
-    const parts = opp.cidade.split(',').map(s => s.trim());
-    const cidade = parts[0] || '';
+  // Cidade: tenta extrair estado e cidade de "Cidade, UF — Brasil" ou "Cidade, UF"
+  const locStr = opp.localizacao || opp.cidade || '';
+  if (locStr) {
+    // Formato: "Cidade, UF — Brasil" ou "Cidade, UF"
+    const locClean = locStr.replace(/\s*—\s*Brasil/i, '').trim();
+    const parts = locClean.split(',').map(s => s.trim());
+    const cidadeNome = parts[0] || '';
     const uf = parts[1] || '';
     const estadoEl = document.getElementById('opp-estado');
     if (estadoEl && uf) {
@@ -3792,11 +3929,11 @@ function maybePreFillEdit() {
       // Aguarda renderização das opções e tenta setar a cidade
       setTimeout(() => {
         const cidadeEl = document.getElementById('opp-cidade');
-        if (cidadeEl && cidade) {
+        if (cidadeEl && cidadeNome) {
           // Procura opção que contenha o texto da cidade
           const opt = Array.from(cidadeEl.options).find(o =>
-            o.text.toLowerCase().includes(cidade.toLowerCase()) ||
-            o.value.toLowerCase().includes(cidade.toLowerCase())
+            o.text.toLowerCase().includes(cidadeNome.toLowerCase()) ||
+            o.value.toLowerCase().includes(cidadeNome.toLowerCase())
           );
           if (opt) cidadeEl.value = opt.value;
         }
@@ -3804,36 +3941,81 @@ function maybePreFillEdit() {
     }
   }
 
-  // Mapeamento de "data" (ex: "Abr 2026") → abrangência aproximada (não temos campo direto)
-  // Abrangência: se o opp tiver campo, usar
-  if (opp.abrangencia) {
+  // Abrangência
+  if (opp.abrangencia || opp.data) {
     const abr = document.getElementById('opp-abrangencia');
-    if (abr) abr.value = opp.abrangencia;
+    if (abr) {
+      const val = opp.abrangencia || opp.data || '';
+      const opt = Array.from(abr.options).find(o =>
+        o.text.toLowerCase().includes(val.toLowerCase()) ||
+        o.value.toLowerCase().includes(val.toLowerCase())
+      );
+      if (opt) abr.value = opt.value;
+    }
   }
 
   // Link externo
-  if (opp.linkExterno) {
+  if (opp.linkExterno || opp.link_externo) {
     const linkEl = document.getElementById('opp-link-externo');
-    if (linkEl) linkEl.value = opp.linkExterno;
+    if (linkEl) linkEl.value = opp.linkExterno || opp.link_externo || '';
+  }
+
+  // --- Vídeo ---
+  if (opp.video_url) {
+    const videoEl = document.getElementById('videoUrl');
+    if (videoEl) videoEl.value = opp.video_url;
+  }
+
+  // --- Redes sociais ---
+  const redesSociais = opp.redes_sociais || {};
+  if (Object.keys(redesSociais).length > 0) {
+    Object.entries(redesSociais).forEach(([network, values]) => {
+      const group = document.querySelector('.social-network-group[data-network="' + network + '"]');
+      if (!group) return;
+      const entriesContainer = group.querySelector('.social-entries');
+      if (!entriesContainer) return;
+      const prefix = group.dataset.prefix || '';
+      const valArr = Array.isArray(values) ? values : [values];
+      // Preenche entradas existentes e cria novas se necessário
+      valArr.forEach((val, i) => {
+        // Remove o prefix para exibir apenas o handle/path
+        const displayVal = val.startsWith(prefix) ? val.slice(prefix.length) : val;
+        let inputs = entriesContainer.querySelectorAll('.social-entry input');
+        if (i < inputs.length) {
+          inputs[i].value = displayVal;
+        } else {
+          // Adiciona nova entrada
+          addSocialEntry(group);
+          inputs = entriesContainer.querySelectorAll('.social-entry input');
+          if (inputs[i]) inputs[i].value = displayVal;
+        }
+      });
+    });
   }
 
   // --- Visibilidade ---
-  if (opp.visibilidade && opp.visibilidade !== 'publica') {
+  if (opp.visibilidade) {
     selectVisibility(opp.visibilidade);
   }
 
   // --- Passo 3: Fotos existentes ---
-  const existingImgs = opp.images || opp.imagens || [];
+  const existingImgs = opp.imagens || opp.images || [];
   const existingCapa = opp.imagem_capa || '';
   const existingFocal = opp.imagens_focal || {};
-  if (existingImgs.length > 0) {
+  if (existingImgs.length > 0 || existingCapa) {
     const grid = document.getElementById('photosGrid');
+    // Garante que a capa apareça, mesmo que não esteja em existingImgs
+    let allImgs = existingImgs.slice();
+    if (existingCapa && !allImgs.includes(existingCapa)) {
+      allImgs.unshift(existingCapa);
+    }
     // Reordenar: capa primeiro, depois o resto
     const orderedImgs = existingCapa
-      ? [existingCapa, ...existingImgs.filter(u => u !== existingCapa)]
-      : existingImgs;
+      ? [existingCapa, ...allImgs.filter(u => u !== existingCapa)]
+      : allImgs;
 
     orderedImgs.forEach((url, idx) => {
+      if (!url) return;
       const thumb = document.createElement('div');
       thumb.className = 'photo-thumb' + (url === existingCapa ? ' cover-photo' : '');
       thumb.setAttribute('data-photo-index', idx);
@@ -3852,9 +4034,27 @@ function maybePreFillEdit() {
     updatePhotoSlot();
   }
 
-  // --- Passo 7: Visibilidade ---
-  if (opp.visibilidade) {
-    selectVisibility(opp.visibilidade);
+  // --- Passo 5: Segmentos / tags ---
+  const tags = opp.tags || [];
+  if (tags.length > 0) {
+    document.querySelectorAll('#segmentPillGrid .segment-pill').forEach(pill => {
+      if (tags.some(t => t.toLowerCase() === pill.textContent.trim().toLowerCase())) {
+        pill.classList.add('selected');
+      }
+    });
+  }
+
+  // --- Passo 4: Detalhes específicos do template + Cotas ---
+  // Os campos do template são injetados ao mudar de step, então usamos um callback pós-render
+  const detalhes = opp.detalhes || {};
+  const cotasData = opp.cotas_data || null;
+  const cotasHabilitadas = opp.cotas_habilitadas || false;
+
+  if (Object.keys(detalhes).length > 0 || cotasData || cotasHabilitadas) {
+    // Armazena para aplicar quando o step 4 for renderizado
+    formState._pendingDetalhes = detalhes;
+    formState._pendingCotas = cotasData;
+    formState._pendingCotasHabilitadas = cotasHabilitadas;
   }
 
   // Limpa o sessionStorage após usar
