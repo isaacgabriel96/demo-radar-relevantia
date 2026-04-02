@@ -2765,10 +2765,10 @@ function renderNegThread(thread) {
     return;
   }
   el.innerHTML = thread.map(m => `
-    <div class="msg-bubble ${m.autor}">
-      <span class="msg-bubble-author">${m.nome}</span>
-      <div class="msg-bubble-text">${m.texto}</div>
-      <span class="msg-bubble-time">${m.data}</span>
+    <div class="msg-bubble ${escapeHtml(m.autor)}">
+      <span class="msg-bubble-author">${escapeHtml(m.nome)}</span>
+      <div class="msg-bubble-text">${escapeHtml(m.texto)}</div>
+      <span class="msg-bubble-time">${escapeHtml(m.data)}</span>
     </div>
   `).join('');
   el.scrollTop = el.scrollHeight;
@@ -3387,11 +3387,27 @@ function closeNegModal() {
   }
 }
 
-function saveNegStatus() {
+async function saveNegStatus() {
   const sel = document.getElementById('mn-status-select');
-  if (!sel) return;
-  if (_negAtiva) _negAtiva.status = sel.value;
-  showToast('Status atualizado para "' + sel.options[sel.selectedIndex].text + '"', 'success');
+  if (!sel || !_negAtiva) return;
+  const novoStatus = sel.value;
+  const statusMap = {
+    pendente: { label: 'Pendente', hint: 'Aguardando sua resposta' },
+    aceita:   { label: 'Aceita',   hint: 'Proposta aprovada. Entre em contato com a marca.' },
+    analise:  { label: 'Em análise', hint: 'O time da Relevantia está mediando' },
+    recusada: { label: 'Recusada', hint: 'Não foi possível avançar neste momento' }
+  };
+  const info = statusMap[novoStatus] || { label: sel.options[sel.selectedIndex].text, hint: '' };
+  _negAtiva.status = novoStatus;
+  _negAtiva.statusLabel = info.label;
+  _negAtiva.statusHint = info.hint;
+  const ref = _negAtiva;
+  await _persistNeg(ref, {
+    status: novoStatus,
+    status_label: info.label,
+    status_hint: info.hint
+  });
+  showToast('Status atualizado para "' + info.label + '"', 'success');
   closeNegModal();
 }
 
@@ -3964,7 +3980,8 @@ function renderVozHistorico() {
   }).join('') + '</div>';
 }
 function escapeHtml(str) {
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  if (typeof str !== 'string') return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
 // ─── EQUIPE ──────────────────────────────────────────────────

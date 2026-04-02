@@ -580,8 +580,19 @@ async function salvarNovaSenha() {
       showState('stateSuccess');
       setTimeout(() => { window.location.href = 'login.html'; }, 2500);
     } else {
-      const data = await res.json();
-      showToast('Erro ao salvar senha. Solicite um novo link.', 'error');
+      const data = await res.json().catch(() => ({}));
+      const msg = (data?.msg || data?.error_description || data?.message || '').toLowerCase();
+      let userMsg;
+      if (msg.includes('same') || msg.includes('different')) {
+        userMsg = 'A nova senha não pode ser igual à anterior. Escolha outra.';
+      } else if (msg.includes('at least') || msg.includes('characters') || msg.includes('short')) {
+        userMsg = 'A senha precisa ter pelo menos 6 caracteres.';
+      } else if (res.status === 401 || msg.includes('expired') || msg.includes('invalid')) {
+        userMsg = 'Link expirado. Solicite um novo link de recuperação.';
+      } else {
+        userMsg = 'Erro ao salvar senha. Tente novamente ou solicite um novo link.';
+      }
+      showToast(userMsg, 'error');
       btn.disabled = false;
       spinner.style.display = 'none';
       label.textContent = 'Salvar nova senha →';

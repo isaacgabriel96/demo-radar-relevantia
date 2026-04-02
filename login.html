@@ -490,7 +490,7 @@ body::before {
 
         <div class="form-footer">
           <p>
-            <a href="index.html" onclick="window.history.back();return false;">Cadastre-se no Radar Relevantia</a>
+            <a href="index.html">Cadastre-se no Radar Relevantia</a>
           </p>
           <p style="margin-top: 16px;">
             Dúvidas? Fale com <a href="mailto:hello@relevantia.com.br">hello@relevantia.com.br</a>
@@ -582,7 +582,16 @@ async function doLogin() {
     if (_sb) {
       const { data, error } = await _sb.auth.signInWithPassword({ email, password });
       if (error || !data.session) {
-        document.getElementById('errLogin').style.display = 'block';
+        const errEl = document.getElementById('errLogin');
+        const msg = error?.message || '';
+        if (msg.toLowerCase().includes('email not confirmed')) {
+          errEl.textContent = 'Email não confirmado. Verifique sua caixa de entrada.';
+        } else if (msg.toLowerCase().includes('after') && msg.toLowerCase().includes('seconds')) {
+          errEl.textContent = 'Muitas tentativas. Aguarde alguns segundos e tente novamente.';
+        } else {
+          errEl.textContent = 'Email ou senha incorretos.';
+        }
+        errEl.style.display = 'block';
         document.getElementById('inputPassword').classList.add('error');
         return;
       }
@@ -603,7 +612,16 @@ async function doLogin() {
       });
       const data = await res.json();
       if (!res.ok) {
-        document.getElementById('errLogin').style.display = 'block';
+        const errEl = document.getElementById('errLogin');
+        const msg = data?.error_description || data?.msg || '';
+        if (msg.toLowerCase().includes('email not confirmed')) {
+          errEl.textContent = 'Email não confirmado. Verifique sua caixa de entrada.';
+        } else if (msg.toLowerCase().includes('after') && msg.toLowerCase().includes('seconds')) {
+          errEl.textContent = 'Muitas tentativas. Aguarde alguns segundos e tente novamente.';
+        } else {
+          errEl.textContent = 'Email ou senha incorretos.';
+        }
+        errEl.style.display = 'block';
         document.getElementById('inputPassword').classList.add('error');
         return;
       }

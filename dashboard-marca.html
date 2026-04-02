@@ -2422,10 +2422,10 @@ function renderMsgThread(thread) {
     return;
   }
   el.innerHTML = thread.map(m => `
-    <div class="msg-bubble ${m.autor}">
-      <span class="msg-bubble-author">${m.nome}</span>
-      <div class="msg-bubble-text">${m.texto}</div>
-      <span class="msg-bubble-time">${m.data}</span>
+    <div class="msg-bubble ${escapeHtml(m.autor)}">
+      <span class="msg-bubble-author">${escapeHtml(m.nome)}</span>
+      <div class="msg-bubble-text">${escapeHtml(m.texto)}</div>
+      <span class="msg-bubble-time">${escapeHtml(m.data)}</span>
     </div>
   `).join('');
   // scroll to bottom
@@ -3282,7 +3282,8 @@ function renderVozHistorico() {
 }
 
 function escapeHtml(str) {
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  if (typeof str !== 'string') return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
 // ─── FILTER PILLS + TABELA PROPOSTAS ───

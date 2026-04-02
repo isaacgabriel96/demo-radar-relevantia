@@ -1106,7 +1106,7 @@
   const SUPABASE_URL = 'https://bzckerazidgrkbpgqqee.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ6Y2tlcmF6aWRncmticGdxcWVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2MjczODksImV4cCI6MjA4ODIwMzM4OX0.HIVnwcGvKiYNGfVFEnP0Ik9kfOeXPB4c4BFqDpqFCS4';
   async function sbInsert(table, data) {
-    await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -1116,6 +1116,10 @@
       },
       body: JSON.stringify(data)
     });
+    if (!res.ok) {
+      const errBody = await res.text().catch(() => '');
+      throw new Error(`Erro ao salvar (${res.status}): ${errBody}`);
+    }
   }
 
   async function submitForm() {
@@ -1139,7 +1143,9 @@
     const primeiro_nome = document.getElementById('firstName').value.trim();
     const sobrenome     = document.getElementById('lastName').value.trim();
     const email         = document.getElementById('email').value.trim();
-    const telefone      = document.getElementById('phone').value.trim();
+    const dialCode      = document.getElementById('phoneDial')?.textContent?.trim() || '+55';
+    const phoneRaw      = document.getElementById('phone').value.trim();
+    const telefone      = phoneRaw ? dialCode + ' ' + phoneRaw : '';
     const cargo         = document.getElementById('role').value;
 
     // Step 1 — empresa (modo create)
@@ -1161,7 +1167,7 @@
 
     // Step 3 — orçamento
     const orcEl = document.querySelector('#budget-options .budget-card.selected');
-    const orcamento = orcEl ? orcEl.querySelector('.budget-label')?.textContent.trim() || orcEl.textContent.trim() : '';
+    const orcamento = orcEl ? (orcEl.querySelector('.value')?.textContent.trim() || '') : '';
 
     // Step 4 — categorias de interesse
     const categorias = Array.from(catSel).map(c => c.textContent.trim());
@@ -1209,37 +1215,55 @@
     const codigo_valido = _codigoStatusMarca === true;
 
     // ─── Insere na marcas_waitlist ───
-    await sbInsert('marcas_waitlist', {
-      primeiro_nome,
-      sobrenome,
-      email,
-      telefone,
-      cargo,
-      empresa,
-      segmento,
-      website,
-      perfil_consumo,
-      objetivos,
-      orcamento,
-      categorias,
-      genero,
-      faixa_etaria,
-      indicacao: indicacao_nome || null,
-      codigo_indicacao: codigo_indicacao || null,
-      codigo_valido,
-      prioridade: codigo_valido,
-      status: 'pendente'
-    });
+    const submitBtn = document.querySelector('.btn-submit');
+    const btnOrigText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span style="opacity:.7">Enviando…</span>';
 
-    // ─── Mostra tela de sucesso ───
-    for (let i = 1; i <= 4; i++) document.getElementById('step-' + i).classList.remove('active');
-    for (let i = 1; i <= 4; i++) {
-      const nav = document.getElementById('nav-step-' + i);
-      nav.classList.remove('active');
-      nav.classList.add('completed');
+    try {
+      await sbInsert('marcas_waitlist', {
+        primeiro_nome,
+        sobrenome,
+        email,
+        telefone,
+        cargo,
+        empresa,
+        cnpj,
+        segmento,
+        website,
+        perfil_consumo,
+        objetivos,
+        orcamento,
+        categorias,
+        genero,
+        faixa_etaria,
+        indicacao: indicacao_nome || null,
+        codigo_indicacao: codigo_indicacao || null,
+        codigo_valido,
+        prioridade: codigo_valido,
+        status: 'pendente'
+      });
+
+      // ─── Mostra tela de sucesso ───
+      for (let i = 1; i <= 4; i++) document.getElementById('step-' + i).classList.remove('active');
+      for (let i = 1; i <= 4; i++) {
+        const nav = document.getElementById('nav-step-' + i);
+        nav.classList.remove('active');
+        nav.classList.add('completed');
+      }
+      document.getElementById('successScreen').classList.add('show');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (err) {
+      console.error('Erro ao enviar cadastro:', err);
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = btnOrigText;
+      // Mostra erro ao usuário
+      const toast = document.createElement('div');
+      toast.style.cssText = 'position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:#D32F2F;color:#fff;padding:14px 28px;border-radius:10px;font-size:14px;font-family:DM Sans,sans-serif;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.25);text-align:center;max-width:90vw;';
+      toast.textContent = 'Erro ao enviar cadastro. Verifique sua conexão e tente novamente.';
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 5000);
     }
-    document.getElementById('successScreen').classList.add('show');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   // ─── COMPANY SEARCH ───

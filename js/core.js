@@ -203,11 +203,20 @@ async function getValidToken() {
  * Get current user ID from SDK session.
  */
 async function getAuthUserId() {
-  if (!sb) return null;
-  try {
-    const { data } = await sb.auth.getUser();
-    return data?.user?.id || null;
-  } catch { return null; }
+  // 1. Tenta SDK (auto-refresh de token)
+  if (sb) {
+    try {
+      const { data } = await sb.auth.getUser();
+      if (data?.user?.id) return data.user.id;
+    } catch { /* SDK falhou, tenta fallback */ }
+  }
+  // 2. Fallback: legacy localStorage (sync — token ainda válido)
+  const legacy = getSession('rightsholder') || getSession('brand');
+  if (legacy?.user?.id) return legacy.user.id;
+  // 3. Fallback: legacy localStorage (async — tenta refresh do token expirado)
+  const legacyAsync = await getSessionAsync('rightsholder') || await getSessionAsync('brand');
+  if (legacyAsync?.user?.id) return legacyAsync.user.id;
+  return null;
 }
 
 /**
@@ -454,38 +463,39 @@ async function _getWriteToken(preferRole) {
 async function updateNegociacao(negId, fields, preferRole) {
   try {
     const token = await _getWriteToken(preferRole);
-    if (!token) { console.warn('[updateNegociacao] No valid token'); return false; }
+    if (!token) { console.warn('[updateNegociacao] No valid token'); if (typeof showToast === 'function') showToast('Sessão expirada. Faça login novamente.', 'error'); return false; }
     const res = await fetch(SUPABASE_URL + '/rest/v1/negociacoes?id=eq.' + negId, {
       method: 'PATCH', body: JSON.stringify(fields),
       headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }
     });
+    if (!res.ok && typeof showToast === 'function') showToast('Erro ao atualizar negociação. Tente novamente.', 'error');
     return res.ok;
-  } catch (err) { console.error('[updateNegociacao] Failed:', err); return false; }
+  } catch (err) { console.error('[updateNegociacao] Failed:', err); if (typeof showToast === 'function') showToast('Erro de conexão. Verifique sua internet.', 'error'); return false; }
 }
 
 async function sendMensagem(msg) {
   try {
     const token = await _getWriteToken();
-    if (!token) { console.warn('[sendMensagem] No valid token'); return null; }
+    if (!token) { console.warn('[sendMensagem] No valid token'); if (typeof showToast === 'function') showToast('Sessão expirada. Faça login novamente.', 'error'); return null; }
     const res = await fetch(SUPABASE_URL + '/rest/v1/mensagens', {
       method: 'POST', body: JSON.stringify(msg),
       headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'Prefer': 'return=representation' }
     });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
+    if (!res.ok) { if (typeof showToast === 'function') showToast('Erro ao enviar mensagem. Tente novamente.', 'error'); throw new Error('HTTP ' + res.status); }
     const rows = await res.json();
     return rows[0] || null;
-  } catch (err) { console.error('[sendMensagem] Failed:', err); return null; }
+  } catch (err) { console.error('[sendMensagem] Failed:', err); if (typeof showToast === 'function' && !err.message?.startsWith('HTTP')) showToast('Erro de conexão ao enviar mensagem.', 'error'); return null; }
 }
 
 async function createContrapartida(cp) {
   try {
     const token = await _getWriteToken();
-    if (!token) return null;
+    if (!token) { if (typeof showToast === 'function') showToast('Sessão expirada. Faça login novamente.', 'error'); return null; }
     const res = await fetch(SUPABASE_URL + '/rest/v1/contrapartidas', {
       method: 'POST', body: JSON.stringify(cp),
       headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'Prefer': 'return=representation' }
     });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
+    if (!res.ok) { if (typeof showToast === 'function') showToast('Erro ao criar contrapartida. Tente novamente.', 'error'); throw new Error('HTTP ' + res.status); }
     const rows = await res.json();
     return rows[0] || null;
   } catch (err) { console.error('[createContrapartida] Failed:', err); return null; }
@@ -494,13 +504,14 @@ async function createContrapartida(cp) {
 async function updateContrapartida(cpId, fields) {
   try {
     const token = await _getWriteToken();
-    if (!token) return false;
+    if (!token) { if (typeof showToast === 'function') showToast('Sessão expirada. Faça login novamente.', 'error'); return false; }
     const res = await fetch(SUPABASE_URL + '/rest/v1/contrapartidas?id=eq.' + cpId, {
       method: 'PATCH', body: JSON.stringify(fields),
       headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }
     });
+    if (!res.ok && typeof showToast === 'function') showToast('Erro ao atualizar contrapartida.', 'error');
     return res.ok;
-  } catch (err) { console.error('[updateContrapartida] Failed:', err); return false; }
+  } catch (err) { console.error('[updateContrapartida] Failed:', err); if (typeof showToast === 'function') showToast('Erro de conexão.', 'error'); return false; }
 }
 
 /**
@@ -534,12 +545,12 @@ async function fetchCotaBeneficios(oportunidadeId, cotaNome) {
 async function createRodada(rodada) {
   try {
     const token = await _getWriteToken();
-    if (!token) return null;
+    if (!token) { if (typeof showToast === 'function') showToast('Sessão expirada. Faça login novamente.', 'error'); return null; }
     const res = await fetch(SUPABASE_URL + '/rest/v1/rodadas_negociacao', {
       method: 'POST', body: JSON.stringify(rodada),
       headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'Prefer': 'return=representation' }
     });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
+    if (!res.ok) { if (typeof showToast === 'function') showToast('Erro ao registrar rodada.', 'error'); throw new Error('HTTP ' + res.status); }
     const rows = await res.json();
     return rows[0] || null;
   } catch (err) { console.error('[createRodada] Failed:', err); return null; }
@@ -586,24 +597,25 @@ function getNextRodadaNumero(rodadas) {
 async function deleteNegociacao(negId, preferRole) {
   try {
     const token = await _getWriteToken(preferRole);
-    if (!token) { console.warn('[deleteNegociacao] No valid token'); return false; }
+    if (!token) { console.warn('[deleteNegociacao] No valid token'); if (typeof showToast === 'function') showToast('Sessão expirada. Faça login novamente.', 'error'); return false; }
     const res = await fetch(SUPABASE_URL + '/rest/v1/negociacoes?id=eq.' + negId, {
       method: 'DELETE',
       headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token, 'Prefer': 'return=minimal' }
     });
+    if (!res.ok && typeof showToast === 'function') showToast('Erro ao excluir negociação.', 'error');
     return res.ok;
-  } catch (err) { console.error('[deleteNegociacao] Failed:', err); return false; }
+  } catch (err) { console.error('[deleteNegociacao] Failed:', err); if (typeof showToast === 'function') showToast('Erro de conexão.', 'error'); return false; }
 }
 
 async function createNegociacao(neg, preferRole) {
   try {
     const token = await _getWriteToken(preferRole || 'brand');
-    if (!token) { console.warn('[createNegociacao] No valid token for role:', preferRole || 'brand'); return null; }
+    if (!token) { console.warn('[createNegociacao] No valid token for role:', preferRole || 'brand'); if (typeof showToast === 'function') showToast('Sessão expirada. Faça login novamente.', 'error'); return null; }
     const res = await fetch(SUPABASE_URL + '/rest/v1/negociacoes', {
       method: 'POST', body: JSON.stringify(neg),
       headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'Prefer': 'return=representation' }
     });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
+    if (!res.ok) { if (typeof showToast === 'function') showToast('Erro ao criar negociação. Verifique seu login.', 'error'); throw new Error('HTTP ' + res.status); }
     const rows = await res.json();
     return rows[0] || null;
   } catch (err) { console.error('[createNegociacao] Failed:', err); return null; }

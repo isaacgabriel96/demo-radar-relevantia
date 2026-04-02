@@ -3726,22 +3726,36 @@ async function saveDraft() {
   const data = collectOppData();
   data.status = 'rascunho';
   data.ativo = false;
+
+  // ── Refresh token antes de salvar (Fix 8) ──
   const token = await _getWriteToken();
   const userId = await getAuthUserId();
-  if (token && userId) {
-    data.detentor_id = userId;
+  if (!token || !userId) {
+    showToast('Sessão expirada. Faça login novamente.', 'error');
+    window.location.href = 'login.html';
+    return;
+  }
 
+  // ── Desabilitar botões para evitar duplo clique (Fix 1) ──
+  const draftBtns = document.querySelectorAll('[onclick="saveDraft()"]');
+  const publishBtn = document.querySelector('.btn-publish');
+  draftBtns.forEach(b => { b.disabled = true; b.textContent = 'Salvando…'; });
+  if (publishBtn) publishBtn.disabled = true;
+
+  try {
+    data.detentor_id = userId;
     let oppId = formState.editId;
 
     if (oppId) {
       // Modo edição — PATCH na oportunidade existente
-      delete data.detentor_id; // não sobrescrever dono
+      const editData = { ...data };
+      delete editData.detentor_id; // não sobrescrever dono
       const res = await fetch(SUPABASE_URL + '/rest/v1/oportunidades?id=eq.' + oppId, {
-        method: 'PATCH', body: JSON.stringify(data),
+        method: 'PATCH', body: JSON.stringify(editData),
         headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token,
           'Content-Type': 'application/json', 'Prefer': 'return=minimal' }
       });
-      if (!res.ok) { const err = await res.text(); console.error('[SaveDraft PATCH]', err); }
+      if (!res.ok) { const err = await res.text(); console.error('[SaveDraft PATCH]', err); throw new Error(err); }
     } else {
       // Modo criação — POST novo registro
       const res = await fetch(SUPABASE_URL + '/rest/v1/oportunidades', {
@@ -3749,12 +3763,12 @@ async function saveDraft() {
         headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token,
           'Content-Type': 'application/json', 'Prefer': 'return=representation' }
       });
-      if (res.ok) {
-        const rows = await res.json();
-        oppId = rows[0]?.id;
-      }
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const rows = await res.json();
+      oppId = rows[0]?.id;
     }
 
+    // Upload de arquivos (Fix 3 — feedback se falhar)
     if (oppId) {
       const { imagens, imagem_capa, imagens_focal } = await uploadPhotos(oppId, token);
       const pdfUrl = await uploadPDF(oppId, token);
@@ -3771,8 +3785,14 @@ async function saveDraft() {
     }
 
     showToast('Rascunho salvo!', 'success');
+    setTimeout(() => { window.location.href = 'dashboard-detentor.html#oportunidades'; }, 1200);
+  } catch (err) {
+    console.error('[SaveDraft] Failed:', err);
+    showToast('Erro ao salvar rascunho. Tente novamente.', 'error');
+    // Reabilitar botões em caso de erro
+    draftBtns.forEach(b => { b.disabled = false; b.textContent = 'Salvar rascunho'; });
+    if (publishBtn) publishBtn.disabled = false;
   }
-  setTimeout(() => { window.location.href = 'dashboard-detentor.html#oportunidades'; }, 1200);
 }
 
 /* ══════════════════════════════════════════════
@@ -3780,11 +3800,28 @@ async function saveDraft() {
 ══════════════════════════════════════════════ */
 async function publishOpportunity() {
   const data = collectOppData();
+
+  // ── Validações obrigatórias (Fix 5) ──
   if (!data.titulo) { showToast('Preencha o nome da oportunidade.', 'error'); return; }
+  if (!data.localizacao) { showToast('Selecione o estado e cidade da oportunidade.', 'error'); return; }
+  const hasPhotos = document.querySelectorAll('#photosGrid .photo-thumb').length > 0;
+  if (!hasPhotos) { showToast('Adicione pelo menos uma foto.', 'error'); return; }
+  if (data.cotas_habilitadas && (!data.cotas_data || data.cotas_data.length === 0)) {
+    showToast('Adicione pelo menos uma cota ou desative as cotas.', 'error'); return;
+  }
+
+  // ── Refresh token antes de operação longa (Fix 8) ──
   const token = await _getWriteToken();
   const userId = await getAuthUserId();
-  if (!token || !userId) { showToast('Sessão expirada. Faça login novamente.', 'error'); return; }
+  if (!token || !userId) { showToast('Sessão expirada. Faça login novamente.', 'error'); window.location.href = 'login.html'; return; }
   data.detentor_id = userId;
+
+  // ── Desabilitar botões para evitar duplo clique (Fix 1) ──
+  const publishBtn = document.querySelector('.btn-publish');
+  const draftBtns = document.querySelectorAll('[onclick="saveDraft()"]');
+  const publishOrigText = publishBtn ? publishBtn.innerHTML : '';
+  if (publishBtn) { publishBtn.disabled = true; publishBtn.innerHTML = '<span style="opacity:.7">Publicando…</span>'; }
+  draftBtns.forEach(b => b.disabled = true);
 
   try {
     let oppId = formState.editId;
@@ -3813,21 +3850,33 @@ async function publishOpportunity() {
       console.log('[Publish] Opportunity created:', oppId);
     }
 
-    // Upload photos and PDF
+    // Upload photos and PDF (Fix 3 — feedback de erro nos uploads)
     if (oppId) {
+      let uploadErrors = [];
       const { imagens, imagem_capa, imagens_focal } = await uploadPhotos(oppId, token);
+      const expectedPhotos = document.querySelectorAll('#photosGrid .photo-thumb:not([data-existing-url])').length;
+      const newUploaded = imagens.filter(u => !document.querySelector('[data-existing-url="' + u + '"]')).length;
+      if (expectedPhotos > 0 && newUploaded === 0) uploadErrors.push('fotos');
+
       const pdfUrl = await uploadPDF(oppId, token);
+      const pdfInput = document.getElementById('pdfInput');
+      if (pdfInput && pdfInput.files && pdfInput.files.length > 0 && !pdfUrl) uploadErrors.push('mídia kit PDF');
 
       if (imagens.length > 0 || pdfUrl) {
         const patch = {};
         if (imagens.length > 0) { patch.imagens = imagens; patch.imagem_capa = imagem_capa; patch.imagens_focal = imagens_focal; }
         if (pdfUrl) patch.midia_kit_url = pdfUrl;
-        await fetch(SUPABASE_URL + '/rest/v1/oportunidades?id=eq.' + oppId, {
+        const patchRes = await fetch(SUPABASE_URL + '/rest/v1/oportunidades?id=eq.' + oppId, {
           method: 'PATCH', body: JSON.stringify(patch),
           headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token,
             'Content-Type': 'application/json', 'Prefer': 'return=minimal' }
         });
+        if (!patchRes.ok) uploadErrors.push('salvar arquivos');
         console.log('[Publish] Files uploaded:', imagens.length, 'photos', pdfUrl ? '+ PDF' : '');
+      }
+
+      if (uploadErrors.length > 0) {
+        showToast('Oportunidade publicada, mas falhou ao enviar: ' + uploadErrors.join(', ') + '. Edite para reenviar.', 'error');
       }
     }
 
@@ -3835,6 +3884,9 @@ async function publishOpportunity() {
   } catch (err) {
     console.error('[Publish] Failed:', err);
     showToast('Erro ao publicar. Tente novamente.', 'error');
+    // Reabilitar botões em caso de erro
+    if (publishBtn) { publishBtn.disabled = false; publishBtn.innerHTML = publishOrigText; }
+    draftBtns.forEach(b => b.disabled = false);
   }
 }
 
@@ -3845,11 +3897,50 @@ function publishSuccess() {
 /* ══════════════════════════════════════════════
    SESSÃO / AUTH
 ══════════════════════════════════════════════ */
-function initSession() {
-  const user = window.currentUser;
-  if (!user) return;
-  const name = user.user_metadata?.full_name || user.email || 'Usuário';
-  const initials = name.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+async function initSession() {
+  let user = window.currentUser;
+
+  // 1. Tenta SDK (token auto-refresh)
+  if (!user && sb) {
+    try {
+      await restoreSessionToSDK();
+      const { data } = await sb.auth.getUser();
+      if (data?.user) {
+        user = data.user;
+        window.currentUser = user;
+      }
+    } catch (e) { console.warn('initSession: SDK getUser failed', e); }
+  }
+
+  // 2. Fallback: pega dados do legacy localStorage se SDK falhou
+  if (!user) {
+    const legacy = getSession('rightsholder') || getSession('brand');
+    if (legacy && legacy.user) {
+      user = legacy.user;
+      window.currentUser = user;
+      console.log('[initSession] Using legacy session fallback');
+    }
+  }
+
+  // 3. Fallback assíncrono: tenta refresh do token expirado
+  if (!user) {
+    const legacyAsync = await getSessionAsync('rightsholder') || await getSessionAsync('brand');
+    if (legacyAsync && legacyAsync.user) {
+      user = legacyAsync.user;
+      window.currentUser = user;
+      console.log('[initSession] Using refreshed legacy session');
+    }
+  }
+
+  if (!user) {
+    // Nenhuma sessão encontrada — mostra estado padrão
+    const nameEl = document.getElementById('sidebarUserName');
+    if (nameEl) nameEl.textContent = 'Não conectado';
+    return;
+  }
+
+  const name = user.user_metadata?.full_name || user.user_metadata?.nome || user.email || 'Usuário';
+  const initials = name.split(' ').filter(w => w.length > 0).slice(0,2).map(w=>w[0]).join('').toUpperCase() || '??';
   const avatarEl = document.getElementById('avatarInitials');
   const nameEl   = document.getElementById('sidebarUserName');
   const emailEl  = document.getElementById('sidebarEmail');
@@ -4266,7 +4357,7 @@ async function init() {
   await window.initLang?.();
   window.applyTranslations?.();
   requireAuth('rightsholder', 'login.html');
-  initSession();
+  await initSession();
   maybePreFillEdit();
   loadMockData();
 }

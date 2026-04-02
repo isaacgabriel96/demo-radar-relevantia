@@ -486,8 +486,17 @@ async function enviarRecuperacao() {
       body: JSON.stringify({ email })
     });
 
-    // Sempre mostramos o estado de sucesso, mesmo se o email não existir
-    // (evita revelar quais emails estão cadastrados)
+    // Se server error (5xx), avisar o usuário
+    // Se 4xx (email não existe), mostramos sucesso por segurança
+    if (res.status >= 500) {
+      showToast('Erro no servidor. Tente novamente em alguns minutos.', 'error');
+      btn.disabled = false;
+      spinner.style.display = 'none';
+      label.textContent = 'Enviar link de recuperação →';
+      return;
+    }
+
+    // Sucesso ou 4xx — mostramos sucesso para não revelar quais emails existem
     document.getElementById('formCard').style.display = 'none';
     document.getElementById('successEmail').textContent = email;
     document.getElementById('successCard').style.display = 'block';
