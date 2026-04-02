@@ -977,7 +977,7 @@ a { text-decoration: none; color: inherit; }
         <div>
           <div class="interest-card">
             <div class="interest-price" id="interestPrice"></div>
-            <div class="interest-price-label">investimento mínimo estimado</div>
+            <div class="interest-price-label">valores sob consulta</div>
 
             <div class="interest-divider"></div>
 
@@ -988,7 +988,7 @@ a { text-decoration: none; color: inherit; }
               Manifestar interesse
             </button>
 
-            <div class="interest-disclaimer">Sem compromisso. Nossa equipe entrará em contato em até 24h.</div>
+            <div class="interest-disclaimer">Nossa equipe entrará em contato com as informações de investimento.</div>
 
             <div class="interest-curadoria">
               <strong>✦ Curadoria Relevantia</strong> — Este ativo foi analisado e aprovado pelo nosso time.
@@ -1704,7 +1704,7 @@ function renderPage(oppOverride) {
   document.getElementById('canaisGrid').innerHTML = canaisHtml;
 
   // Sidebar card
-  document.getElementById('interestPrice').textContent = 'A partir de R$ ' + (opp.price/1000).toFixed(0) + 'k';
+  document.getElementById('interestPrice').textContent = 'Entre em contato';
   var infoHtml = '';
   infoHtml += '<div class="interest-row"><span class="interest-row-label">Tipo</span><span class="interest-row-value">' + escapeHtml(opp.category || '—') + '</span></div>';
   infoHtml += '<div class="interest-row"><span class="interest-row-label">Prazo</span><span class="interest-row-value deadline">' + escapeHtml(opp.sidebar.prazo || 'Em aberto') + '</span></div>';
