@@ -999,7 +999,7 @@ a { text-decoration: none; color: inherit; }
       </div><!-- /detail-body -->
 
       <!-- DONO DA OPORTUNIDADE -->
-      <div class="owner-section">
+      <div class="owner-section" id="ownerOppsSection">
         <h2 class="owner-section-title">Sobre o organizador</h2>
         <div class="owner-card" id="ownerCard"></div>
         <div class="owner-opps-title" id="ownerOppsTitle"></div>
@@ -1007,7 +1007,7 @@ a { text-decoration: none; color: inherit; }
       </div>
 
       <!-- OPORTUNIDADES SIMILARES -->
-      <div class="similar-section">
+      <div class="similar-section" id="similarSection">
         <h2 class="similar-title">Oportunidades similares</h2>
         <div class="opp-cards-grid" id="similarGrid"></div>
       </div>
@@ -1113,6 +1113,7 @@ a { text-decoration: none; color: inherit; }
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/core.js"></script>
+<script src="js/sanitize.js"></script>
 <script>
 /* ═══════════════════════════════════════════
    MOCK DATA (fallback for opportunities not yet in Supabase detail)
@@ -1450,9 +1451,9 @@ async function fetchOppFromSupabase(idOrPerfilSlug, oppSlug) {
       ativacoes: ativacoes.length > 0 ? ativacoes : undefined,
       canais: canaisArr.length > 0 ? canaisArr : undefined,
       sidebar: {
-        evento: r.alcance || '',
-        prazo: '',
-        cotasQty: cotasArr.length > 0 ? cotasArr.length + ' modalidade' + (cotasArr.length > 1 ? 's' : '') : '',
+        evento: (r.datas_evento && r.datas_evento.length > 0) ? (r.datas_evento[0].data || r.alcance || '') : (r.alcance || ''),
+        prazo: r.cotas_data && r.cotas_data[0] && r.cotas_data[0].prazo ? r.cotas_data[0].prazo : 'Em aberto',
+        cotasQty: cotasArr.length > 0 ? cotasArr.length + ' modalidade' + (cotasArr.length > 1 ? 's' : '') : (r.cotas_habilitadas ? 'Disponível' : 'A definir'),
         formato: r.formato || '',
         participantes: r.alcance || ''
       },
@@ -1548,8 +1549,8 @@ function renderPage(oppOverride) {
 
   // Meta
   var metaHtml = '';
-  metaHtml += '<div class="detail-meta-item"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>' + opp.city + '</div>';
-  metaHtml += '<div class="detail-meta-item"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>' + opp.date + '</div>';
+  metaHtml += '<div class="detail-meta-item"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>' + escapeHtml(opp.city) + '</div>';
+  metaHtml += '<div class="detail-meta-item"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>' + escapeHtml(opp.date) + '</div>';
   metaHtml += '<div class="detail-meta-item"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>A partir de R$ ' + (opp.price/1000).toFixed(0) + 'k</div>';
   document.getElementById('detailMeta').innerHTML = metaHtml;
 
@@ -1614,7 +1615,7 @@ function renderPage(oppOverride) {
   }
   stripTrack.innerHTML = mobileSlides.map(function(s, i) {
     return '<div class="gallery-strip-item" style="background:' + s.bg + '">' +
-      (s.label ? '<div class="gallery-badge">' + s.label + '</div>' : '') +
+      (s.label ? '<div class="gallery-badge">' + escapeHtml(s.label) + '</div>' : '') +
     '</div>';
   }).join('');
   stripDots.innerHTML = mobileSlides.map(function(_, i) {
@@ -1630,14 +1631,14 @@ function renderPage(oppOverride) {
   // Facts
   var factsHtml = '';
   (opp.facts || []).forEach(function(f) {
-    factsHtml += '<div class="fact-item"><div class="fact-icon">' + f.icon + '</div><div><div class="fact-label">' + f.label + '</div><div class="fact-value">' + f.value + '</div></div></div>';
+    factsHtml += '<div class="fact-item"><div class="fact-icon">' + escapeHtml(f.icon) + '</div><div><div class="fact-label">' + escapeHtml(f.label) + '</div><div class="fact-value">' + escapeHtml(f.value) + '</div></div></div>';
   });
   document.getElementById('detailFacts').innerHTML = factsHtml;
 
   // Tags
   var tagsHtml = '';
   (opp.tags || []).forEach(function(t, i) {
-    tagsHtml += '<span class="tag' + (i === 0 ? ' tag-gold' : '') + '">' + t + '</span>';
+    tagsHtml += '<span class="tag' + (i === 0 ? ' tag-gold' : '') + '">' + escapeHtml(t) + '</span>';
   });
   document.getElementById('detailTags').innerHTML = tagsHtml;
 
@@ -1645,49 +1646,71 @@ function renderPage(oppOverride) {
   document.getElementById('publicoDesc').textContent = opp.publico;
   var pfHtml = '';
   (opp.publicoFacts || []).forEach(function(f) {
-    pfHtml += '<div class="fact-item"><div class="fact-icon">' + f.icon + '</div><div><div class="fact-label">' + f.label + '</div><div class="fact-value">' + f.value + '</div></div></div>';
+    pfHtml += '<div class="fact-item"><div class="fact-icon">' + escapeHtml(f.icon) + '</div><div><div class="fact-label">' + escapeHtml(f.label) + '</div><div class="fact-value">' + escapeHtml(f.value) + '</div></div></div>';
   });
   document.getElementById('publicoFacts').innerHTML = pfHtml;
 
+  var EMPTY_STATE_HTML = '<div style="padding:32px 16px;text-align:center;color:var(--gray-3);font-family:var(--font-body);font-size:14px;">Informações sendo preparadas pelo detentor.</div>';
+
   // Cotas
   var cotasHtml = '';
-  (opp.cotas || []).forEach(function(c, i) {
-    cotasHtml += '<div class="cota-card' + (i === 0 ? ' selected' : '') + '">';
-    cotasHtml += '<div class="cota-img">' + c.emoji + '</div>';
-    cotasHtml += '<div class="cota-body"><div class="cota-name">' + c.name + '</div><div class="cota-desc">' + c.desc + '</div><div class="cota-price">' + c.price + '</div></div>';
-    cotasHtml += '</div>';
-  });
+  if (opp.cotas && opp.cotas.length > 0) {
+    opp.cotas.forEach(function(c, i) {
+      cotasHtml += '<div class="cota-card' + (i === 0 ? ' selected' : '') + '">';
+      cotasHtml += '<div class="cota-img">' + escapeHtml(c.emoji) + '</div>';
+      cotasHtml += '<div class="cota-body"><div class="cota-name">' + escapeHtml(c.name) + '</div><div class="cota-desc">' + escapeHtml(c.desc) + '</div><div class="cota-price">' + escapeHtml(c.price) + '</div></div>';
+      cotasHtml += '</div>';
+    });
+  } else {
+    cotasHtml = EMPTY_STATE_HTML;
+  }
   document.getElementById('cotasGrid').innerHTML = cotasHtml;
 
   // Entregas
   var entHtml = '';
-  (opp.entregas || []).forEach(function(e) {
-    entHtml += '<tr><td>' + e[0] + '</td><td>' + e[1] + '</td><td>' + e[2] + '</td><td>' + e[3] + '</td></tr>';
-  });
-  document.getElementById('entregasBody').innerHTML = entHtml;
+  if (opp.entregas && opp.entregas.length > 0) {
+    opp.entregas.forEach(function(e) {
+      entHtml += '<tr><td>' + escapeHtml(e[0]) + '</td><td>' + escapeHtml(e[1]) + '</td><td>' + escapeHtml(e[2]) + '</td><td>' + escapeHtml(e[3]) + '</td></tr>';
+    });
+    document.getElementById('entregasBody').innerHTML = entHtml;
+  } else {
+    var entTable = document.getElementById('entregasBody');
+    if (entTable && entTable.closest('table')) {
+      entTable.closest('table').insertAdjacentHTML('afterend', EMPTY_STATE_HTML);
+      entTable.closest('table').style.display = 'none';
+    }
+  }
 
   // Ativacoes
   var ativHtml = '';
-  (opp.ativacoes || []).forEach(function(a) {
-    ativHtml += '<div class="ativacao-card"><div class="ativacao-img">' + a.emoji + '</div><div><div class="ativacao-name">' + a.name + '</div><div class="ativacao-desc">' + a.desc + '</div></div></div>';
-  });
+  if (opp.ativacoes && opp.ativacoes.length > 0) {
+    opp.ativacoes.forEach(function(a) {
+      ativHtml += '<div class="ativacao-card"><div class="ativacao-img">' + escapeHtml(a.emoji) + '</div><div><div class="ativacao-name">' + escapeHtml(a.name) + '</div><div class="ativacao-desc">' + escapeHtml(a.desc) + '</div></div></div>';
+    });
+  } else {
+    ativHtml = EMPTY_STATE_HTML;
+  }
   document.getElementById('ativacoesGrid').innerHTML = ativHtml;
 
   // Canais
   var canaisHtml = '';
-  (opp.canais || []).forEach(function(c) {
-    canaisHtml += '<div class="canal-item"><div class="canal-icon">' + c.icon + '</div><div><div class="canal-name">' + c.name + '</div><div class="canal-reach">' + c.reach + '</div></div></div>';
-  });
+  if (opp.canais && opp.canais.length > 0) {
+    opp.canais.forEach(function(c) {
+      canaisHtml += '<div class="canal-item"><div class="canal-icon">' + escapeHtml(c.icon) + '</div><div><div class="canal-name">' + escapeHtml(c.name) + '</div><div class="canal-reach">' + escapeHtml(c.reach) + '</div></div></div>';
+    });
+  } else {
+    canaisHtml = EMPTY_STATE_HTML;
+  }
   document.getElementById('canaisGrid').innerHTML = canaisHtml;
 
   // Sidebar card
   document.getElementById('interestPrice').textContent = 'A partir de R$ ' + (opp.price/1000).toFixed(0) + 'k';
   var infoHtml = '';
-  infoHtml += '<div class="interest-row"><span class="interest-row-label">Evento</span><span class="interest-row-value">' + opp.sidebar.evento + '</span></div>';
-  infoHtml += '<div class="interest-row"><span class="interest-row-label">Prazo de proposta</span><span class="interest-row-value deadline">' + opp.sidebar.prazo + '</span></div>';
-  infoHtml += '<div class="interest-row"><span class="interest-row-label">Cotas disponíveis</span><span class="interest-row-value">' + opp.sidebar.cotasQty + '</span></div>';
-  infoHtml += '<div class="interest-row"><span class="interest-row-label">Formato</span><span class="interest-row-value">' + opp.sidebar.formato + '</span></div>';
-  infoHtml += '<div class="interest-row"><span class="interest-row-label">Participantes</span><span class="interest-row-value">' + opp.sidebar.participantes + '</span></div>';
+  infoHtml += '<div class="interest-row"><span class="interest-row-label">Evento</span><span class="interest-row-value">' + escapeHtml(opp.sidebar.evento) + '</span></div>';
+  infoHtml += '<div class="interest-row"><span class="interest-row-label">Prazo de proposta</span><span class="interest-row-value deadline">' + escapeHtml(opp.sidebar.prazo) + '</span></div>';
+  infoHtml += '<div class="interest-row"><span class="interest-row-label">Cotas disponíveis</span><span class="interest-row-value">' + escapeHtml(opp.sidebar.cotasQty) + '</span></div>';
+  infoHtml += '<div class="interest-row"><span class="interest-row-label">Formato</span><span class="interest-row-value">' + escapeHtml(opp.sidebar.formato) + '</span></div>';
+  infoHtml += '<div class="interest-row"><span class="interest-row-label">Participantes</span><span class="interest-row-value">' + escapeHtml(opp.sidebar.participantes) + '</span></div>';
   document.getElementById('interestInfo').innerHTML = infoHtml;
 
   // Modal cota select — esconde o grupo inteiro se não houver cotas definidas
@@ -1695,7 +1718,7 @@ function renderPage(oppOverride) {
   if (opp.cotas && opp.cotas.length > 0) {
     var cotaSelectHtml = '<option value="">Selecione uma cota</option>';
     opp.cotas.forEach(function(c) {
-      cotaSelectHtml += '<option>' + c.name + ' — ' + c.price + '</option>';
+      cotaSelectHtml += '<option>' + escapeHtml(c.name) + ' — ' + escapeHtml(c.price) + '</option>';
     });
     document.getElementById('modalCotaSelect').innerHTML = cotaSelectHtml;
     if (cotaGroup) cotaGroup.style.display = '';
@@ -1711,38 +1734,57 @@ function renderPage(oppOverride) {
     });
   });
 
-  // Owner section
-  var orgId = opp.orgId || 'marathon-sp';
-  var org = ORGS[orgId] || ORGS['marathon-sp'];
+  // Owner section — usa _orgData do Supabase quando disponível, cai no mock apenas para dados de demo
+  var orgFromSupabase = opp._orgData || null;
+  var orgMock = (opp.orgId && ORGS[opp.orgId]) ? ORGS[opp.orgId] : null;
+  var ownerName = (orgFromSupabase && (orgFromSupabase.empresa || orgFromSupabase.nome)) ? (orgFromSupabase.empresa || orgFromSupabase.nome) : (orgMock ? orgMock.name : opp.org || '');
+  var ownerBio = (orgFromSupabase && orgFromSupabase.descricao) ? orgFromSupabase.descricao : (orgMock ? orgMock.bio : '');
+  var ownerInitials = ownerName ? ownerName.split(' ').filter(function(w){ return w.length > 1; }).slice(0,2).map(function(w){ return w[0]; }).join('').toUpperCase() : '?';
+  var ownerWebsite = (orgFromSupabase && orgFromSupabase.website) ? orgFromSupabase.website : (orgMock ? orgMock.website : '');
+  var ownerCategory = opp.category || (orgMock ? orgMock.category : '');
 
   document.getElementById('ownerCard').innerHTML =
-    '<div class="owner-avatar">' + org.initials + '</div>' +
+    '<div class="owner-avatar">' + escapeHtml(ownerInitials) + '</div>' +
     '<div class="owner-info">' +
-      '<div class="owner-name">' + org.name + '</div>' +
-      '<div class="owner-bio">' + org.bio + '</div>' +
+      '<div class="owner-name">' + escapeHtml(ownerName) + '</div>' +
+      (ownerBio ? '<div class="owner-bio">' + escapeHtml(ownerBio) + '</div>' : '') +
       '<div class="owner-stats">' +
-        '<div class="owner-stat"><div class="owner-stat-val">' + org.events + '</div><div class="owner-stat-label">Oportunidades</div></div>' +
-        '<div class="owner-stat-sep"></div>' +
-        '<div class="owner-stat"><div class="owner-stat-val">' + org.founded + '</div><div class="owner-stat-label">Desde</div></div>' +
-        '<div class="owner-stat-sep"></div>' +
-        '<div class="owner-stat"><div class="owner-stat-val">' + org.category + '</div><div class="owner-stat-label">Categoria</div></div>' +
-        '<div class="owner-stat-sep"></div>' +
-        '<div class="owner-stat"><div class="owner-stat-val">' + org.location + '</div><div class="owner-stat-label">Localização</div></div>' +
+        '<div class="owner-stat"><div class="owner-stat-val">' + escapeHtml(ownerCategory) + '</div><div class="owner-stat-label">Categoria</div></div>' +
+        (ownerWebsite ? '<div class="owner-stat-sep"></div><div class="owner-stat"><div class="owner-stat-val"><a href="' + escapeHtml(ownerWebsite) + '" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">Site</a></div><div class="owner-stat-label">Website</div></div>' : '') +
+        (opp.city ? '<div class="owner-stat-sep"></div><div class="owner-stat"><div class="owner-stat-val">' + escapeHtml(opp.city) + '</div><div class="owner-stat-label">Localização</div></div>' : '') +
       '</div>' +
     '</div>';
 
-  document.getElementById('ownerOppsTitle').textContent = 'Outras oportunidades de ' + org.name;
-  var ownerOppsHtml = '';
-  org.otherOpps.forEach(function(sid) { ownerOppsHtml += buildOppCard(getOppById(sid)); });
-  document.getElementById('ownerOppsGrid').innerHTML = ownerOppsHtml;
+  // "Outras oportunidades" do mesmo detentor — esconde seção quando não há dados reais
+  var ownerOppsSection = document.getElementById('ownerOppsSection');
+  var ownerOppsTitle = document.getElementById('ownerOppsTitle');
+  var ownerOppsGrid = document.getElementById('ownerOppsGrid');
+  var ownerOtherIds = orgMock ? (orgMock.otherOpps || []) : [];
+  if (ownerOtherIds.length > 0 && !opp._orgData) {
+    // Só mostra se for dado mock — para dados reais a seção seria populada via query separada
+    if (ownerOppsTitle) ownerOppsTitle.textContent = 'Outras oportunidades de ' + ownerName;
+    var ownerOppsHtml = '';
+    ownerOtherIds.forEach(function(sid) { ownerOppsHtml += buildOppCard(getOppById(sid)); });
+    if (ownerOppsGrid) ownerOppsGrid.innerHTML = ownerOppsHtml;
+  } else {
+    // Esconde seção quando dados vêm do Supabase (sem lista pre-populada)
+    if (ownerOppsSection) ownerOppsSection.style.display = 'none';
+  }
 
-  // Similar
-  var allIds = [];
-  for (var s = 1; s <= 10; s++) { if (s !== opp.id) allIds.push(s); }
-  allIds.sort(function() { return 0.5 - Math.random(); });
-  var simHtml = '';
-  allIds.slice(0, 3).forEach(function(sid) { simHtml += buildOppCard(getOppById(sid)); });
-  document.getElementById('similarGrid').innerHTML = simHtml;
+  // Similar — esconde quando dados reais do Supabase (não há query de similares real ainda)
+  var similarSection = document.getElementById('similarSection');
+  if (opp._orgData) {
+    // Dados reais: esconde seção de similares (mock aleatório seria enganoso)
+    if (similarSection) similarSection.style.display = 'none';
+  } else {
+    // Mock: mostra similares aleatórios como antes
+    var allIds = [];
+    for (var s = 1; s <= 10; s++) { if (s !== opp.id) allIds.push(s); }
+    allIds.sort(function() { return 0.5 - Math.random(); });
+    var simHtml = '';
+    allIds.slice(0, 3).forEach(function(sid) { simHtml += buildOppCard(getOppById(sid)); });
+    document.getElementById('similarGrid').innerHTML = simHtml;
+  }
 }
 
 /* ─── TABS ─── */
@@ -1924,11 +1966,11 @@ function renderApprovalGate(oppData, existingRequest) {
       '</svg>',
     '</div>',
     // Meta pill
-    category ? '<span style="display:inline-block;padding:4px 14px;border-radius:100px;background:#F5F0E8;color:#5C4C38;font-size:12px;font-weight:600;font-family:\'DM Sans\',sans-serif;margin-bottom:16px">' + category + '</span>' : '',
+    category ? '<span style="display:inline-block;padding:4px 14px;border-radius:100px;background:#F5F0E8;color:#5C4C38;font-size:12px;font-weight:600;font-family:\'DM Sans\',sans-serif;margin-bottom:16px">' + escapeHtml(category) + '</span>' : '',
     // Title
-    '<h2 style="font-family:\'Poppins\',sans-serif;font-size:22px;font-weight:700;color:#1A1200;margin:0 0 8px;line-height:1.3">' + title + '</h2>',
+    '<h2 style="font-family:\'Poppins\',sans-serif;font-size:22px;font-weight:700;color:#1A1200;margin:0 0 8px;line-height:1.3">' + escapeHtml(title) + '</h2>',
     // Org
-    org ? '<p style="font-family:\'DM Sans\',sans-serif;font-size:14px;color:#A89880;margin:0 0 24px">por ' + org + '</p>' : '<div style="margin-bottom:24px"></div>',
+    org ? '<p style="font-family:\'DM Sans\',sans-serif;font-size:14px;color:#A89880;margin:0 0 24px">por ' + escapeHtml(org) + '</p>' : '<div style="margin-bottom:24px"></div>',
     // Divider
     '<div style="width:40px;height:2px;background:linear-gradient(90deg,#B8860B,#C8A84B);border-radius:2px;margin:0 auto 24px"></div>',
     // Mensagem dinâmica
@@ -2301,7 +2343,16 @@ function updateFavBtnState(isFav) {
       oppSlug = parts[0]; // legacy single slug fallback
     }
   } else {
-    id = parseInt(params.get('id')) || 1;
+    var rawId = params.get('id');
+    id = rawId ? parseInt(rawId) : null;
+  }
+
+  if (!id && !oppSlug) {
+    // Sem parâmetro de URL — não exibir mock default, mostrar erro
+    var ls = document.getElementById('loadingScreen');
+    if (ls) { ls.style.opacity = '0'; ls.style.transition = 'opacity 0.3s'; setTimeout(function(){ ls.style.display = 'none'; }, 300); }
+    if (typeof showToast === 'function') showToast('Oportunidade não encontrada.', 'error');
+    return;
   }
 
   // Try Supabase first

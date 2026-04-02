@@ -1003,7 +1003,7 @@ a { text-decoration: none; color: inherit; }
       </div><!-- /detail-body -->
 
       <!-- DONO DA OPORTUNIDADE -->
-      <div class="owner-section">
+      <div class="owner-section" id="ownerOppsSection">
         <h2 class="owner-section-title">Sobre o organizador</h2>
         <div class="owner-card" id="ownerCard"></div>
         <div class="owner-opps-title" id="ownerOppsTitle"></div>
@@ -1011,7 +1011,7 @@ a { text-decoration: none; color: inherit; }
       </div>
 
       <!-- OPORTUNIDADES SIMILARES -->
-      <div class="similar-section">
+      <div class="similar-section" id="similarSection">
         <h2 class="similar-title">Oportunidades similares</h2>
         <div class="opp-cards-grid" id="similarGrid"></div>
       </div>
@@ -1378,9 +1378,9 @@ async function fetchOppFromSupabase(idOrPerfilSlug, oppSlug) {
       ativacoes: ativacoes.length > 0 ? ativacoes : undefined,
       canais: canaisArr.length > 0 ? canaisArr : undefined,
       sidebar: {
-        evento: r.alcance || '',
-        prazo: '',
-        cotasQty: cotasArr.length > 0 ? cotasArr.length + ' modalidade' + (cotasArr.length > 1 ? 's' : '') : '',
+        evento: (r.datas_evento && r.datas_evento.length > 0) ? (r.datas_evento[0].data || r.alcance || '') : (r.alcance || ''),
+        prazo: r.cotas_data && r.cotas_data[0] && r.cotas_data[0].prazo ? r.cotas_data[0].prazo : 'Em aberto',
+        cotasQty: cotasArr.length > 0 ? cotasArr.length + ' modalidade' + (cotasArr.length > 1 ? 's' : '') : (r.cotas_habilitadas ? 'Disponível' : 'A definir'),
         formato: r.formato || '',
         participantes: r.alcance || ''
       },
@@ -1577,36 +1577,58 @@ function renderPage(oppOverride) {
   });
   document.getElementById('publicoFacts').innerHTML = pfHtml;
 
+  var EMPTY_STATE_HTML = '<div style="padding:32px 16px;text-align:center;color:var(--gray-3);font-family:var(--font-body);font-size:14px;">Informações sendo preparadas pelo detentor.</div>';
+
   // Cotas
   var cotasHtml = '';
-  (opp.cotas || []).forEach(function(c, i) {
-    cotasHtml += '<div class="cota-card' + (i === 0 ? ' selected' : '') + '">';
-    cotasHtml += '<div class="cota-img">' + escapeHtml(c.emoji) + '</div>';
-    cotasHtml += '<div class="cota-body"><div class="cota-name">' + escapeHtml(c.name) + '</div><div class="cota-desc">' + escapeHtml(c.desc) + '</div><div class="cota-price">' + escapeHtml(c.price) + '</div></div>';
-    cotasHtml += '</div>';
-  });
+  if (opp.cotas && opp.cotas.length > 0) {
+    opp.cotas.forEach(function(c, i) {
+      cotasHtml += '<div class="cota-card' + (i === 0 ? ' selected' : '') + '">';
+      cotasHtml += '<div class="cota-img">' + escapeHtml(c.emoji) + '</div>';
+      cotasHtml += '<div class="cota-body"><div class="cota-name">' + escapeHtml(c.name) + '</div><div class="cota-desc">' + escapeHtml(c.desc) + '</div><div class="cota-price">' + escapeHtml(c.price) + '</div></div>';
+      cotasHtml += '</div>';
+    });
+  } else {
+    cotasHtml = EMPTY_STATE_HTML;
+  }
   document.getElementById('cotasGrid').innerHTML = cotasHtml;
 
   // Entregas
-  var entHtml = '';
-  (opp.entregas || []).forEach(function(e) {
-    entHtml += '<tr><td>' + escapeHtml(e[0]) + '</td><td>' + escapeHtml(e[1]) + '</td><td>' + escapeHtml(e[2]) + '</td><td>' + escapeHtml(e[3]) + '</td></tr>';
-  });
-  document.getElementById('entregasBody').innerHTML = entHtml;
+  if (opp.entregas && opp.entregas.length > 0) {
+    var entHtml = '';
+    opp.entregas.forEach(function(e) {
+      entHtml += '<tr><td>' + escapeHtml(e[0]) + '</td><td>' + escapeHtml(e[1]) + '</td><td>' + escapeHtml(e[2]) + '</td><td>' + escapeHtml(e[3]) + '</td></tr>';
+    });
+    document.getElementById('entregasBody').innerHTML = entHtml;
+  } else {
+    var entTable = document.getElementById('entregasBody');
+    if (entTable && entTable.closest('table')) {
+      entTable.closest('table').insertAdjacentHTML('afterend', EMPTY_STATE_HTML);
+      entTable.closest('table').style.display = 'none';
+    }
+  }
 
   // Ativacoes
-  var ativHtml = '';
-  (opp.ativacoes || []).forEach(function(a) {
-    ativHtml += '<div class="ativacao-card"><div class="ativacao-img">' + escapeHtml(a.emoji) + '</div><div><div class="ativacao-name">' + escapeHtml(a.name) + '</div><div class="ativacao-desc">' + escapeHtml(a.desc) + '</div></div></div>';
-  });
-  document.getElementById('ativacoesGrid').innerHTML = ativHtml;
+  if (opp.ativacoes && opp.ativacoes.length > 0) {
+    var ativHtml = '';
+    opp.ativacoes.forEach(function(a) {
+      ativHtml += '<div class="ativacao-card"><div class="ativacao-img">' + escapeHtml(a.emoji) + '</div><div><div class="ativacao-name">' + escapeHtml(a.name) + '</div><div class="ativacao-desc">' + escapeHtml(a.desc) + '</div></div></div>';
+    });
+    document.getElementById('ativacoesGrid').innerHTML = ativHtml;
+  } else {
+    document.getElementById('ativacoesGrid').innerHTML = EMPTY_STATE_HTML;
+  }
 
   // Canais
-  var canaisHtml = '';
-  (opp.canais || []).forEach(function(c) {
-    canaisHtml += '<div class="canal-item"><div class="canal-icon">' + escapeHtml(c.icon) + '</div><div><div class="canal-name">' + escapeHtml(c.name) + '</div><div class="canal-reach">' + escapeHtml(c.reach) + '</div></div></div>';
-  });
-  document.getElementById('canaisGrid').innerHTML = canaisHtml;
+  if (opp.canais && opp.canais.length > 0) {
+    var canaisHtml = '';
+    opp.canais.forEach(function(c) {
+      canaisHtml += '<div class="canal-item"><div class="canal-icon">' + escapeHtml(c.icon) + '</div><div><div class="canal-name">' + escapeHtml(c.name) + '</div><div class="canal-reach">' + escapeHtml(c.reach) + '</div></div></div>';
+    });
+    document.getElementById('canaisGrid').innerHTML = canaisHtml;
+  } else {
+    document.getElementById('canaisGrid').innerHTML = EMPTY_STATE_HTML;
+  }
 
   // Sidebar card
   document.getElementById('interestPrice').textContent = 'A partir de R$ ' + (opp.price/1000).toFixed(0) + 'k';
@@ -1640,37 +1662,51 @@ function renderPage(oppOverride) {
   });
 
   // Owner section
-  var orgId = opp.orgId || 'marathon-sp';
-  var org = ORGS[orgId] || ORGS['marathon-sp'];
+  var orgFromSupabase = opp._orgData || null;
+  var orgMock = (opp.orgId && ORGS[opp.orgId]) ? ORGS[opp.orgId] : null;
+  var ownerName = (orgFromSupabase && (orgFromSupabase.empresa || orgFromSupabase.nome)) ? (orgFromSupabase.empresa || orgFromSupabase.nome) : (orgMock ? orgMock.name : opp.org || '');
+  var ownerBio = (orgFromSupabase && orgFromSupabase.descricao) ? orgFromSupabase.descricao : (orgMock ? orgMock.bio : '');
+  var ownerInitials = ownerName ? ownerName.split(' ').filter(function(w){ return w.length > 1; }).slice(0,2).map(function(w){ return w[0]; }).join('').toUpperCase() : '?';
+  var ownerWebsite = (orgFromSupabase && orgFromSupabase.website) ? orgFromSupabase.website : (orgMock ? orgMock.website : '');
+  var ownerCategory = opp.category || (orgMock ? orgMock.category : '');
 
   document.getElementById('ownerCard').innerHTML =
-    '<div class="owner-avatar">' + escapeHtml(org.initials) + '</div>' +
+    '<div class="owner-avatar">' + escapeHtml(ownerInitials) + '</div>' +
     '<div class="owner-info">' +
-      '<div class="owner-name">' + escapeHtml(org.name) + '</div>' +
-      '<div class="owner-bio">' + escapeHtml(org.bio) + '</div>' +
+      '<div class="owner-name">' + escapeHtml(ownerName) + '</div>' +
+      (ownerBio ? '<div class="owner-bio">' + escapeHtml(ownerBio) + '</div>' : '') +
       '<div class="owner-stats">' +
-        '<div class="owner-stat"><div class="owner-stat-val">' + escapeHtml(org.events) + '</div><div class="owner-stat-label">Oportunidades</div></div>' +
-        '<div class="owner-stat-sep"></div>' +
-        '<div class="owner-stat"><div class="owner-stat-val">' + escapeHtml(org.founded) + '</div><div class="owner-stat-label">Desde</div></div>' +
-        '<div class="owner-stat-sep"></div>' +
-        '<div class="owner-stat"><div class="owner-stat-val">' + escapeHtml(org.category) + '</div><div class="owner-stat-label">Categoria</div></div>' +
-        '<div class="owner-stat-sep"></div>' +
-        '<div class="owner-stat"><div class="owner-stat-val">' + escapeHtml(org.location) + '</div><div class="owner-stat-label">Localização</div></div>' +
+        '<div class="owner-stat"><div class="owner-stat-val">' + escapeHtml(ownerCategory) + '</div><div class="owner-stat-label">Categoria</div></div>' +
+        (ownerWebsite ? '<div class="owner-stat-sep"></div><div class="owner-stat"><div class="owner-stat-val"><a href="' + escapeHtml(ownerWebsite) + '" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">Site</a></div><div class="owner-stat-label">Website</div></div>' : '') +
+        (opp.city ? '<div class="owner-stat-sep"></div><div class="owner-stat"><div class="owner-stat-val">' + escapeHtml(opp.city) + '</div><div class="owner-stat-label">Localização</div></div>' : '') +
       '</div>' +
     '</div>';
 
-  document.getElementById('ownerOppsTitle').textContent = 'Outras oportunidades de ' + org.name;
-  var ownerOppsHtml = '';
-  org.otherOpps.forEach(function(sid) { ownerOppsHtml += buildOppCard(getOppById(sid)); });
-  document.getElementById('ownerOppsGrid').innerHTML = ownerOppsHtml;
+  var ownerOppsSection = document.getElementById('ownerOppsSection');
+  var ownerOppsTitle = document.getElementById('ownerOppsTitle');
+  var ownerOppsGrid = document.getElementById('ownerOppsGrid');
+  var ownerOtherIds = orgMock ? (orgMock.otherOpps || []) : [];
+  if (ownerOtherIds.length > 0 && !opp._orgData) {
+    if (ownerOppsTitle) ownerOppsTitle.textContent = 'Outras oportunidades de ' + ownerName;
+    var ownerOppsHtml = '';
+    ownerOtherIds.forEach(function(sid) { ownerOppsHtml += buildOppCard(getOppById(sid)); });
+    if (ownerOppsGrid) ownerOppsGrid.innerHTML = ownerOppsHtml;
+  } else {
+    if (ownerOppsSection) ownerOppsSection.style.display = 'none';
+  }
 
   // Similar
-  var allIds = [];
-  for (var s = 1; s <= 10; s++) { if (s !== opp.id) allIds.push(s); }
-  allIds.sort(function() { return 0.5 - Math.random(); });
-  var simHtml = '';
-  allIds.slice(0, 3).forEach(function(sid) { simHtml += buildOppCard(getOppById(sid)); });
-  document.getElementById('similarGrid').innerHTML = simHtml;
+  var similarSection = document.getElementById('similarSection');
+  if (opp._orgData) {
+    if (similarSection) similarSection.style.display = 'none';
+  } else {
+    var allIds = [];
+    for (var s = 1; s <= 10; s++) { if (s !== opp.id) allIds.push(s); }
+    allIds.sort(function() { return 0.5 - Math.random(); });
+    var simHtml = '';
+    allIds.slice(0, 3).forEach(function(sid) { simHtml += buildOppCard(getOppById(sid)); });
+    document.getElementById('similarGrid').innerHTML = simHtml;
+  }
 }
 
 /* ─── TABS ─── */
