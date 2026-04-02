@@ -1068,6 +1068,7 @@ tbody tr:last-child td { border-bottom: none; }
   <button onclick="exitDemoMode()" style="margin-left:auto;background:#1A1200;color:#C8A84B;border:none;padding:6px 16px;border-radius:100px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">Sair do demo</button>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/sanitize.js"></script>
 <script src="js/core.js"></script>
 <script src="js/demo-data.js"></script>
 <script src="shared-state.js"></script>
@@ -1946,12 +1947,12 @@ function renderDashboardTimelineDetentor() {
     let dot = 'gold', emoji = '📄', text = '';
     if (n.status === 'aceita') {
       dot = 'green'; emoji = '✓';
-      text = `Proposta de <strong>${n.marcaNome || 'marca'}</strong> para <strong>${titulo}</strong> aceita`;
+      text = `Proposta de <strong>${escapeHtml(n.marcaNome || 'marca')}</strong> para <strong>${escapeHtml(titulo)}</strong> aceita`;
     } else if (n.status === 'recusada') {
       dot = 'red'; emoji = '✕';
-      text = `Proposta de <strong>${n.marcaNome || 'marca'}</strong> para <strong>${titulo}</strong> recusada`;
+      text = `Proposta de <strong>${escapeHtml(n.marcaNome || 'marca')}</strong> para <strong>${escapeHtml(titulo)}</strong> recusada`;
     } else {
-      text = `<strong>${n.marcaNome || 'Nova marca'}</strong> enviou proposta para <strong>${titulo}</strong>`;
+      text = `<strong>${escapeHtml(n.marcaNome || 'Nova marca')}</strong> enviou proposta para <strong>${escapeHtml(titulo)}</strong>`;
     }
     items.push({ dot, emoji, text, time: timeStr });
   });
@@ -1964,7 +1965,7 @@ function renderDashboardTimelineDetentor() {
     const dt = o.criado_em;
     items.push({
       dot: 'blue', emoji: '✨',
-      text: `Oportunidade <strong>${o.titulo}</strong> publicada`,
+      text: `Oportunidade <strong>${escapeHtml(o.titulo)}</strong> publicada`,
       time: dt ? formatRelTime(dt) : ''
     });
   });
@@ -1978,8 +1979,8 @@ function renderDashboardTimelineDetentor() {
     <div class="tl-item">
       <div class="tl-dot ${item.dot}">${item.emoji}</div>
       <div class="tl-body">
-        <div class="tl-text">${item.text}</div>
-        ${item.time ? `<div class="tl-time">${item.time}</div>` : ''}
+        <div class="tl-text">${escapeHtml(item.text)}</div>
+        ${item.time ? `<div class="tl-time">${escapeHtml(item.time)}</div>` : ''}
       </div>
     </div>
   `).join('');
@@ -2558,9 +2559,9 @@ function renderPublicadas() {
     if (isPublicada) {
       leftBtn   = `<button class="btn-encerrar" onclick="encerrarOportunidade(${o.id})">Encerrar</button>`;
       rightBtns = `<button class="btn btn-ghost btn-sm" onclick="editarOportunidade(${o.id})">Editar</button>
-                   <a href="oportunidade-detalhe.html?${(o.perfilSlug && o.slug) ? '@' + o.perfilSlug + '/' + o.slug : 'id=' + o.id}" class="btn btn-ghost btn-sm">Ver →</a>`;
+                   <a href="oportunidade-detalhe-detentor.html?${(o.perfilSlug && o.slug) ? '@' + o.perfilSlug + '/' + o.slug : 'id=' + o.id}" class="btn btn-ghost btn-sm">Ver →</a>`;
     } else if (isFinalizada) {
-      rightBtns = `<a href="oportunidade-detalhe.html?${(o.perfilSlug && o.slug) ? '@' + o.perfilSlug + '/' + o.slug : 'id=' + o.id}" class="btn btn-ghost btn-sm">Ver →</a>`;
+      rightBtns = `<a href="oportunidade-detalhe-detentor.html?${(o.perfilSlug && o.slug) ? '@' + o.perfilSlug + '/' + o.slug : 'id=' + o.id}" class="btn btn-ghost btn-sm">Ver →</a>`;
     } else {
       leftBtn   = `<button class="btn-excluir" onclick="excluirOportunidade(${o.id})">Excluir</button>`;
       rightBtns = `<button class="btn btn-ghost btn-sm" onclick="editarOportunidade(${o.id})">Editar</button>
@@ -2573,11 +2574,11 @@ function renderPublicadas() {
         <span class="pub-card-status-badge ${o.status}">${statusLabel[o.status] || o.status}</span>
       </div>
       <div class="pub-card-body">
-        <div class="pub-card-category">${o.categoria}</div>
-        <div class="pub-card-title">${o.titulo}</div>
+        <div class="pub-card-category">${escapeHtml(o.categoria)}</div>
+        <div class="pub-card-title">${escapeHtml(o.titulo)}</div>
         <div class="pub-card-meta">
-          <span class="pub-card-meta-item">${locSvgPub} ${o.cidade}</span>
-          <span class="pub-card-meta-item">${calSvgPub} ${o.data}</span>
+          <span class="pub-card-meta-item">${locSvgPub} ${escapeHtml(o.cidade)}</span>
+          <span class="pub-card-meta-item">${calSvgPub} ${escapeHtml(o.data)}</span>
           ${isPublicada ? `<span class="pub-card-meta-item" style="color:var(--gold);font-weight:600">${o.interesses} interesses</span>` : ''}
         </div>
         <div class="pub-card-footer">
@@ -3979,11 +3980,6 @@ function renderVozHistorico() {
     '</div>';
   }).join('') + '</div>';
 }
-function escapeHtml(str) {
-  if (typeof str !== 'string') return '';
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-}
-
 // ─── EQUIPE ──────────────────────────────────────────────────
 let CURRENT_ORG_ROLE = null; // 'owner' | 'admin' | 'editor' | null
 let CURRENT_ORG_ID   = null; // perfis.id do dono da org
