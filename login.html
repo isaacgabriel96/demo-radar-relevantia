@@ -534,11 +534,15 @@ function redirecionar(data) {
   const tipo = meta.tipo;
 
   if (tipo === 'detentor') {
+    localStorage.removeItem('sb_marca_session');
+    localStorage.removeItem('sb_admin_session');
     localStorage.setItem('sb_detentor_session', JSON.stringify(data));
     window.location.href = meta.senha_provisoria === true
       ? 'acesso-detentor.html'
       : 'dashboard-detentor.html';
   } else if (tipo === 'marca') {
+    localStorage.removeItem('sb_detentor_session');
+    localStorage.removeItem('sb_admin_session');
     localStorage.setItem('sb_marca_session', JSON.stringify(data));
     window.location.href = 'dashboard-marca.html';
   } else {

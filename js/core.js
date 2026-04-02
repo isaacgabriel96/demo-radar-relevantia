@@ -112,18 +112,29 @@ function clearSession(role) {
 }
 
 function getCurrentRole() {
-  if (getSession('brand'))        return 'brand';
-  if (getSession('rightsholder')) return 'rightsholder';
-  if (getSession('admin'))        return 'admin';
+  const roleMap = { brand: 'marca', rightsholder: 'detentor', admin: 'admin' };
+  for (const [role, tipo] of Object.entries(roleMap)) {
+    const s = getSession(role);
+    if (s && s.user?.user_metadata?.tipo === tipo) return role;
+  }
   return null;
 }
 
 function getCurrentUser() {
-  return getSession('brand') || getSession('rightsholder') || getSession('admin') || null;
+  const role = getCurrentRole();
+  return role ? getSession(role) : null;
 }
 
 function requireAuth(role, redirectTo = 'login.html') {
-  if (!getSession(role)) {
+  const session = getSession(role);
+  if (!session) {
+    window.location.href = redirectTo;
+    return;
+  }
+  // Validar que o tipo da sessao corresponde ao role esperado
+  const expectedTipo = { brand: 'marca', rightsholder: 'detentor', admin: 'admin' }[role];
+  if (session.user?.user_metadata?.tipo !== expectedTipo) {
+    clearSession(role);
     window.location.href = redirectTo;
   }
 }
