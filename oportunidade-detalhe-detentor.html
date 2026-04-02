@@ -331,23 +331,41 @@ a { text-decoration: none; color: inherit; }
   background: var(--white);
   border: 1px solid var(--gray-200);
   border-radius: var(--radius-lg);
-  padding: 24px;
+  overflow: hidden;
   position: sticky;
   top: 88px;
 }
+/* Header escuro do card */
+.interest-card-header {
+  background: var(--black);
+  padding: 22px 24px 20px;
+}
 .interest-price {
   font-family: var(--font-heading);
-  font-size: 28px;
-  font-weight: 600;
-  color: var(--black);
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--white);
   margin-bottom: 3px;
+  letter-spacing: -0.3px;
 }
-.interest-price-label { font-size: 12px; color: var(--gray-400); margin-bottom: 20px; }
-.interest-divider { height: 1px; background: var(--gray-200); margin: 18px 0; }
-.interest-info { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
-.interest-row { display: flex; justify-content: space-between; align-items: center; }
-.interest-row-label { font-size: 13px; color: var(--gray-400); }
-.interest-row-value { font-size: 13px; font-weight: 600; color: var(--text); text-align: right; }
+.interest-price-label {
+  font-size: 11px;
+  color: rgba(255,255,255,0.45);
+  font-family: var(--font-body);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+/* Corpo do card */
+.interest-card-body { padding: 20px 24px 24px; }
+.interest-info { display: flex; flex-direction: column; gap: 0; margin-bottom: 20px; }
+.interest-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--gray-100);
+}
+.interest-row:last-child { border-bottom: none; }
+.interest-row-label { font-size: 12px; color: var(--gray-400); font-family: var(--font-body); }
+.interest-row-value { font-size: 13px; font-weight: 600; color: var(--text); text-align: right; font-family: var(--font-body); }
 .interest-row-value.deadline { color: var(--orange); }
 .btn-interest {
   width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;
@@ -355,7 +373,7 @@ a { text-decoration: none; color: inherit; }
   border: none; border-radius: var(--radius-pill); font-family: inherit;
   font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s;
 }
-.btn-interest:hover { background: var(--black-2); }
+.btn-interest:hover { opacity: 0.85; }
 .btn-contact {
   width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;
   padding: 12px; background: transparent; color: var(--text);
@@ -364,13 +382,20 @@ a { text-decoration: none; color: inherit; }
   transition: all 0.15s; margin-top: 8px;
 }
 .btn-contact:hover { border-color: var(--gray-300); background: var(--gray-100); }
-.interest-disclaimer { text-align: center; font-size: 11px; color: var(--gray-400); margin-top: 13px; line-height: 1.6; }
+.interest-disclaimer {
+  font-size: 11px; color: var(--gray-300); margin-top: 12px;
+  line-height: 1.6; text-align: center;
+}
 .interest-curadoria {
-  background: var(--gold-pale); border: 1px solid rgba(184,134,11,0.25);
-  border-radius: var(--radius); padding: 13px; margin-top: 14px;
+  display: flex; align-items: flex-start; gap: 10px;
+  background: var(--gold-pale); border: 1px solid rgba(184,134,11,0.2);
+  border-radius: var(--radius-md); padding: 12px 14px; margin-top: 14px;
   font-size: 12px; color: var(--black); line-height: 1.55;
 }
-.interest-curadoria strong { color: var(--gold); }
+.interest-curadoria-icon {
+  color: var(--gold); font-size: 14px; flex-shrink: 0; margin-top: 1px;
+}
+.interest-curadoria strong { color: var(--gold-dark, #8B6508); font-weight: 600; }
 
 /* ─── OWNER SECTION ─── */
 .owner-section {
@@ -979,24 +1004,28 @@ a { text-decoration: none; color: inherit; }
         <!-- RIGHT: SIDEBAR CARD -->
         <div>
           <div class="interest-card">
-            <div class="interest-price" id="interestPrice"></div>
-            <div class="interest-price-label">valores sob consulta</div>
+            <!-- Header escuro -->
+            <div class="interest-card-header">
+              <div class="interest-price" id="interestPrice"></div>
+              <div class="interest-price-label">valores sob consulta</div>
+            </div>
 
-            <div class="interest-divider"></div>
+            <!-- Corpo -->
+            <div class="interest-card-body">
+              <div class="interest-info" id="interestInfo"></div>
 
-            <div class="interest-info" id="interestInfo"></div>
+              <button class="btn-interest" onclick="toggleEditMode()" id="sidebarEditBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Editar oportunidade
+              </button>
 
-            <button class="btn-interest" onclick="toggleEditMode()" id="sidebarEditBtn">
-              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-              Editar oportunidade
-            </button>
+              <a class="btn-interest" style="background:var(--white);color:var(--text);border:1px solid var(--gray-200);margin-top:8px;font-size:13px;" onclick="goToFullEdit()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                Abrir editor completo
+              </a>
 
-            <a class="btn-interest" style="background:var(--white);color:var(--text);border:1px solid var(--gray-200);margin-top:8px;font-size:13px;" onclick="goToFullEdit()">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-              Abrir editor completo
-            </a>
-
-            <div class="interest-disclaimer" id="editDisclaimer">Editando como detentor. Alterações são salvas automaticamente.</div>
+              <div class="interest-disclaimer" id="editDisclaimer">Editando como detentor. Alterações são salvas automaticamente.</div>
+            </div>
           </div>
         </div>
 
