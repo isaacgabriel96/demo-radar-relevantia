@@ -942,11 +942,13 @@ textarea.form-control { resize: vertical; min-height: 90px; }
 .pv-inline-editor {
   background: var(--white); border-radius: var(--radius-lg);
   width: 100%; max-width: 540px; box-shadow: var(--shadow-lg);
-  overflow: hidden;
+  overflow: visible;
+  max-height: 90vh; display: flex; flex-direction: column;
 }
 .pv-editor-header {
   display: flex; align-items: center; justify-content: space-between;
   padding: 16px 20px; border-bottom: 1px solid var(--gray-1);
+  flex-shrink: 0;
 }
 .pv-editor-title { font-size: 16px; font-weight: 600; color: var(--text); }
 .pv-editor-close {
@@ -956,7 +958,7 @@ textarea.form-control { resize: vertical; min-height: 90px; }
   transition: background 0.15s;
 }
 .pv-editor-close:hover { background: var(--gray-2); }
-.pv-editor-body { padding: 20px; }
+.pv-editor-body { padding: 20px; overflow-y: auto; flex: 1; }
 .pv-editor-body textarea, .pv-editor-body input {
   width: 100%; border: 1px solid var(--gray-2); border-radius: var(--radius-base);
   padding: 12px 14px; font-size: 14px; font-family: var(--font-body);
@@ -1039,6 +1041,32 @@ textarea.form-control { resize: vertical; min-height: 90px; }
   border-radius: 6px; border-left: 3px solid #c0392b;
 }
 .dp-error.show { display: block; }
+/* Opções prazo (contínua / sem fim) */
+.dp-option {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px; background: var(--gray-1);
+  border-radius: var(--radius-base); cursor: pointer;
+  user-select: none; margin-bottom: 10px;
+  border: 1.5px solid transparent; transition: border-color 0.15s;
+}
+.dp-option:hover { border-color: var(--gray-2); }
+.dp-option.checked { border-color: var(--gold); background: var(--gold-muted); }
+.dp-option input[type=checkbox] { display: none; }
+.dp-option-check {
+  width: 16px; height: 16px; border-radius: 4px; border: 1.5px solid var(--gray-3);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  background: var(--white); transition: all 0.15s;
+}
+.dp-option.checked .dp-option-check {
+  background: var(--gold-gradient); border-color: var(--gold);
+  color: var(--white); font-size: 10px;
+}
+.dp-option-label { font-size: 13px; color: var(--text); line-height: 1.4; }
+.dp-option-label small { display: block; font-size: 11px; color: var(--gray-3); margin-top: 1px; }
+.dp-fields-section { transition: opacity 0.2s; }
+.dp-fields-section.disabled { opacity: 0.35; pointer-events: none; }
+#dp-field-fim { transition: opacity 0.2s; }
+#dp-field-fim.disabled { opacity: 0.35; pointer-events: none; }
 .pv-editor-footer {
   display: flex; justify-content: flex-end; gap: 8px;
   padding: 14px 20px; border-top: 1px solid var(--gray-1);
@@ -2845,27 +2873,51 @@ function openInlineEditor(key) {
   if (key === 'prazo') {
     // Date picker customizado para prazo
     body.innerHTML = `
-      <div class="editor-field">
-        <label>Início das inscrições</label>
-        <div class="dp-wrap" id="dp-wrap-inicio">
-          <div class="dp-display" id="dp-display-inicio" onclick="dpToggle('inicio')">
-            <span id="dp-label-inicio" class="dp-placeholder">Selecionar data</span>
-            <span class="dp-arrow">▾</span>
-          </div>
-          <div class="dp-calendar" id="dp-cal-inicio"></div>
+      <!-- Opção: oportunidade contínua (sem datas) -->
+      <div class="dp-option" id="dp-opt-continua" onclick="dpToggleContinua()">
+        <input type="checkbox" id="dp-chk-continua">
+        <div class="dp-option-check" id="dp-chk-continua-icon">✓</div>
+        <div class="dp-option-label">
+          Oportunidade contínua
+          <small>Sem data de início nem de fim — aceita inscrições o tempo todo</small>
         </div>
-        <div class="dp-error" id="dp-error-inicio"></div>
       </div>
-      <div class="editor-field">
-        <label>Fim das inscrições <span style="font-weight:400;color:var(--gray-3)">(mín. 7 dias após início)</span></label>
-        <div class="dp-wrap" id="dp-wrap-fim">
-          <div class="dp-display" id="dp-display-fim" onclick="dpToggle('fim')">
-            <span id="dp-label-fim" class="dp-placeholder">Selecionar data</span>
-            <span class="dp-arrow">▾</span>
+
+      <!-- Campos de data (ocultados se contínua) -->
+      <div class="dp-fields-section" id="dp-fields-section">
+        <div class="editor-field">
+          <label>Início das inscrições</label>
+          <div class="dp-wrap" id="dp-wrap-inicio">
+            <div class="dp-display" id="dp-display-inicio" onclick="dpToggle('inicio')">
+              <span id="dp-label-inicio" class="dp-placeholder">Selecionar data</span>
+              <span class="dp-arrow">▾</span>
+            </div>
+            <div class="dp-calendar" id="dp-cal-inicio"></div>
           </div>
-          <div class="dp-calendar" id="dp-cal-fim"></div>
+          <div class="dp-error" id="dp-error-inicio"></div>
         </div>
-        <div class="dp-error" id="dp-error-fim"></div>
+
+        <!-- Opção: sem data de fim -->
+        <div class="dp-option" id="dp-opt-semfim" onclick="dpToggleSemFim()" style="margin-top:14px;margin-bottom:6px;">
+          <input type="checkbox" id="dp-chk-semfim">
+          <div class="dp-option-check" id="dp-chk-semfim-icon">✓</div>
+          <div class="dp-option-label">
+            Sem data de fim
+            <small>Tem data de início, mas as inscrições ficam abertas indefinidamente</small>
+          </div>
+        </div>
+
+        <div class="editor-field" id="dp-field-fim">
+          <label>Fim das inscrições <span style="font-weight:400;color:var(--gray-3)">(mín. 7 dias após início)</span></label>
+          <div class="dp-wrap" id="dp-wrap-fim">
+            <div class="dp-display" id="dp-display-fim" onclick="dpToggle('fim')">
+              <span id="dp-label-fim" class="dp-placeholder">Selecionar data</span>
+              <span class="dp-arrow">▾</span>
+            </div>
+            <div class="dp-calendar" id="dp-cal-fim"></div>
+          </div>
+          <div class="dp-error" id="dp-error-fim"></div>
+        </div>
       </div>
     `;
     dpInit();
@@ -2968,8 +3020,10 @@ function dpFmtShort(iso) {
 
 function dpInit() {
   const today = dpToday();
-  _dp.inicio.value = previewEditData.prazo_inicio || null;
-  _dp.fim.value    = previewEditData.prazo_fim    || null;
+  _dp.inicio.value   = previewEditData.prazo_inicio   || null;
+  _dp.fim.value      = previewEditData.prazo_fim      || null;
+  _dp.continua       = previewEditData.prazo_continua || false;
+  _dp.semFim         = previewEditData.prazo_sem_fim  || false;
   const minIni = dpAddDays(today, 7);
   for (const which of ['inicio', 'fim']) {
     const val = _dp[which].value;
@@ -2980,6 +3034,9 @@ function dpInit() {
   }
   dpUpdateDisplay('inicio');
   dpUpdateDisplay('fim');
+  // Restaurar estado dos checkboxes
+  if (_dp.continua) dpToggleContinua(true);
+  if (_dp.semFim)   dpToggleSemFim(true);
 }
 
 function dpUpdateDisplay(which) {
@@ -3099,12 +3156,60 @@ function dpSelectDay(which, iso) {
   }
 }
 
+function dpToggleContinua(force) {
+  const opt    = document.getElementById('dp-opt-continua');
+  const icon   = document.getElementById('dp-chk-continua-icon');
+  const section = document.getElementById('dp-fields-section');
+  if (!opt) return;
+  const isChecked = force === true ? true : (force === false ? false : !_dp.continua);
+  _dp.continua = isChecked;
+  opt.classList.toggle('checked', isChecked);
+  icon.textContent = isChecked ? '✓' : '';
+  if (section) section.classList.toggle('disabled', isChecked);
+  if (isChecked) {
+    // fechar qualquer calendário aberto
+    ['inicio','fim'].forEach(w => {
+      document.getElementById('dp-cal-' + w)?.classList.remove('show');
+      document.getElementById('dp-display-' + w)?.classList.remove('open');
+    });
+  }
+}
+
+function dpToggleSemFim(force) {
+  const opt    = document.getElementById('dp-opt-semfim');
+  const icon   = document.getElementById('dp-chk-semfim-icon');
+  const fieldFim = document.getElementById('dp-field-fim');
+  if (!opt) return;
+  const isChecked = force === true ? true : (force === false ? false : !_dp.semFim);
+  _dp.semFim = isChecked;
+  opt.classList.toggle('checked', isChecked);
+  icon.textContent = isChecked ? '✓' : '';
+  if (fieldFim) fieldFim.classList.toggle('disabled', isChecked);
+  if (isChecked) {
+    _dp.fim.value = null;
+    dpUpdateDisplay('fim');
+    document.getElementById('dp-cal-fim')?.classList.remove('show');
+    document.getElementById('dp-display-fim')?.classList.remove('open');
+  }
+}
+
 function dpValidateAndSave() {
-  const ini     = _dp.inicio.value;
-  const fim     = _dp.fim.value;
-  const today   = dpToday();
-  const minIni  = dpAddDays(today, 7);
+  // Oportunidade contínua: sem datas
+  if (_dp.continua) {
+    previewEditData.prazo_continua  = true;
+    delete previewEditData.prazo_inicio;
+    delete previewEditData.prazo_fim;
+    delete previewEditData.prazo_sem_fim;
+    return true;
+  }
+  delete previewEditData.prazo_continua;
+
+  const ini    = _dp.inicio.value;
+  const fim    = _dp.fim.value;
+  const today  = dpToday();
+  const minIni = dpAddDays(today, 7);
   let ok = true;
+
   const errIni = document.getElementById('dp-error-inicio');
   if (!ini) {
     errIni.textContent = 'Selecione a data de início.';
@@ -3113,6 +3218,17 @@ function dpValidateAndSave() {
     errIni.textContent = `Início deve ser a partir de ${dpFmtShort(minIni)} (mín. 7 dias a partir de hoje).`;
     errIni.classList.add('show'); ok = false;
   } else { errIni.classList.remove('show'); }
+
+  // Sem data de fim: só valida início
+  if (_dp.semFim) {
+    if (!ok) return false;
+    previewEditData.prazo_inicio  = ini;
+    previewEditData.prazo_sem_fim = true;
+    delete previewEditData.prazo_fim;
+    return true;
+  }
+  delete previewEditData.prazo_sem_fim;
+
   const errFim = document.getElementById('dp-error-fim');
   if (!fim) {
     errFim.textContent = 'Selecione a data de fim.';
@@ -3121,6 +3237,7 @@ function dpValidateAndSave() {
     errFim.textContent = `Fim deve ser ao menos 7 dias após o início (a partir de ${dpFmtShort(dpAddDays(ini, 7))}).`;
     errFim.classList.add('show'); ok = false;
   } else { errFim.classList.remove('show'); }
+
   if (!ok) return false;
   previewEditData.prazo_inicio = ini;
   previewEditData.prazo_fim    = fim;
@@ -3130,13 +3247,23 @@ function dpValidateAndSave() {
 function renderPrazoDisplay() {
   const pvPrazo = document.getElementById('pvPrazo');
   if (!pvPrazo) return;
-  const ini = previewEditData.prazo_inicio;
-  const fim = previewEditData.prazo_fim;
-  if (ini || fim) {
-    let txt = '';
-    if (ini && fim) txt = `${dpFmtShort(ini)} → ${dpFmtShort(fim)}`;
-    else if (ini)   txt = `A partir de ${dpFmtShort(ini)}`;
-    else            txt = `Até ${dpFmtShort(fim)}`;
+  const ini      = previewEditData.prazo_inicio;
+  const fim      = previewEditData.prazo_fim;
+  const continua = previewEditData.prazo_continua;
+  const semFim   = previewEditData.prazo_sem_fim;
+
+  let txt = null;
+  if (continua) {
+    txt = 'Oportunidade contínua — sem prazo';
+  } else if (ini && fim) {
+    txt = `${dpFmtShort(ini)} → ${dpFmtShort(fim)}`;
+  } else if (ini && semFim) {
+    txt = `A partir de ${dpFmtShort(ini)} · Sem data de fim`;
+  } else if (ini) {
+    txt = `A partir de ${dpFmtShort(ini)}`;
+  }
+
+  if (txt) {
     pvPrazo.className = 'editable-placeholder filled';
     pvPrazo.innerHTML = `<span class="ep-text">${txt}</span>`;
   } else {
