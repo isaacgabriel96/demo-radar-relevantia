@@ -968,6 +968,77 @@ textarea.form-control { resize: vertical; min-height: 90px; }
 }
 .pv-editor-body label { display: block; font-size: 13px; font-weight: 500; color: var(--gray-4); margin-bottom: 6px; }
 .pv-editor-body .editor-field + .editor-field { margin-top: 14px; }
+
+/* ── Date Picker customizado (prazo) ── */
+.dp-wrap { position: relative; }
+.dp-display {
+  width: 100%; border: 1px solid var(--gray-2); border-radius: var(--radius-base);
+  padding: 11px 14px; font-size: 14px; font-family: var(--font-body);
+  color: var(--text); cursor: pointer; background: var(--white);
+  display: flex; align-items: center; justify-content: space-between;
+  transition: border-color 0.15s; user-select: none;
+}
+.dp-display:hover { border-color: var(--gold); }
+.dp-display.open { border-color: var(--gold); box-shadow: var(--shadow-focus); }
+.dp-display .dp-placeholder { color: var(--gray-3); }
+.dp-display .dp-arrow { color: var(--gray-3); font-size: 12px; transition: transform 0.15s; }
+.dp-display.open .dp-arrow { transform: rotate(180deg); }
+.dp-calendar {
+  position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+  background: var(--white); border: 1px solid var(--gray-2);
+  border-radius: var(--radius-md); box-shadow: 0 8px 24px rgba(30,22,0,0.12);
+  z-index: 100; padding: 12px; display: none;
+}
+.dp-calendar.show { display: block; }
+.dp-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 8px; gap: 6px;
+}
+.dp-nav-btn {
+  width: 28px; height: 28px; border: none; border-radius: 6px;
+  background: var(--gray-1); color: var(--gray-4); cursor: pointer;
+  font-size: 14px; display: flex; align-items: center; justify-content: center;
+  transition: background 0.12s; flex-shrink: 0;
+}
+.dp-nav-btn:hover { background: var(--gray-2); }
+.dp-selects { display: flex; gap: 6px; flex: 1; }
+.dp-select {
+  flex: 1; border: 1px solid var(--gray-2); border-radius: 6px;
+  padding: 4px 6px; font-size: 13px; font-family: var(--font-body);
+  color: var(--text); background: var(--white); cursor: pointer;
+  appearance: auto;
+}
+.dp-select:focus { outline: none; border-color: var(--gold); }
+.dp-weekdays {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 4px;
+}
+.dp-weekday {
+  text-align: center; font-size: 11px; font-weight: 600;
+  color: var(--gray-3); padding: 4px 0;
+}
+.dp-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.dp-day {
+  text-align: center; padding: 6px 2px; font-size: 13px; border-radius: 6px;
+  cursor: pointer; transition: background 0.1s, color 0.1s; color: var(--text);
+}
+.dp-day:hover:not(.dp-day-disabled):not(.dp-day-empty) { background: var(--gray-1); }
+.dp-day-disabled { color: var(--gray-2); cursor: not-allowed; pointer-events: none; }
+.dp-day-empty { pointer-events: none; }
+.dp-day-today { font-weight: 700; color: var(--gold); }
+.dp-day-selected {
+  background: var(--gold-gradient) !important;
+  color: var(--white) !important; font-weight: 600; border-radius: 6px;
+}
+.dp-day-in-range { background: var(--gray-1); border-radius: 0; }
+.dp-day-range-start { border-radius: 6px 0 0 6px; }
+.dp-day-range-end   { border-radius: 0 6px 6px 0; }
+.dp-error {
+  font-size: 12px; color: #c0392b; margin-top: 6px;
+  display: none; padding: 6px 10px; background: #fdf0ef;
+  border-radius: 6px; border-left: 3px solid #c0392b;
+}
+.dp-error.show { display: block; }
 .pv-editor-footer {
   display: flex; justify-content: flex-end; gap: 8px;
   padding: 14px 20px; border-top: 1px solid var(--gray-1);
@@ -2641,26 +2712,8 @@ function renderPreview() {
     factsEl.innerHTML = `<div class="pv-fact-empty" style="color:var(--gray-3);font-size:13px;font-style:italic">Nenhum destaque adicionado</div>`;
   }
 
-  // Prazo
-  const pvPrazo = document.getElementById('pvPrazo');
-  const _fmtDatePrazo = iso => {
-    if (!iso) return null;
-    const d = new Date(iso + 'T12:00:00');
-    return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
-  };
-  const _ini = previewEditData.prazo_inicio;
-  const _fim = previewEditData.prazo_fim;
-  if (_ini || _fim) {
-    let _txt = '';
-    if (_ini && _fim) _txt = `${_fmtDatePrazo(_ini)} → ${_fmtDatePrazo(_fim)}`;
-    else if (_ini)    _txt = `A partir de ${_fmtDatePrazo(_ini)}`;
-    else              _txt = `Até ${_fmtDatePrazo(_fim)}`;
-    pvPrazo.className = 'editable-placeholder filled';
-    pvPrazo.innerHTML = `<span class="ep-text">${_txt}</span>`;
-  } else {
-    pvPrazo.className = 'editable-placeholder';
-    pvPrazo.innerHTML = `<span class="ep-icon">+</span><span class="ep-text">Clique para definir o prazo de inscrição</span>`;
-  }
+  // Prazo (renderização via função compartilhada)
+  renderPrazoDisplay();
 
   // Tags / Segmentos
   const tagsEl = document.getElementById('pvTags');
@@ -2787,49 +2840,77 @@ function openInlineEditor(key) {
   currentEditorKey = key;
   document.getElementById('pvEditorTitle').textContent = config.title;
 
-  // Calcula mínimo de 7 dias a partir de hoje (para campos de prazo)
-  const _minDate7 = (() => {
-    const d = new Date(); d.setDate(d.getDate() + 7);
-    return d.toISOString().split('T')[0];
-  })();
-
   const body = document.getElementById('pvEditorBody');
-  body.innerHTML = config.fields.map(f => {
-    const currentVal = previewEditData[f.key] || '';
-    if (f.type === 'textarea') {
-      return `<div class="editor-field"><label>${f.label}</label><textarea id="editor-${f.key}" placeholder="${f.placeholder}">${currentVal}</textarea></div>`;
-    } else if (f.type === 'date') {
-      const minAttr = key === 'prazo' ? ` min="${_minDate7}"` : '';
-      return `<div class="editor-field"><label>${f.label}</label><input type="date" id="editor-${f.key}"${minAttr} value="${currentVal}"></div>`;
-    } else {
-      return `<div class="editor-field"><label>${f.label}</label><input type="text" id="editor-${f.key}" placeholder="${f.placeholder}" value="${currentVal}"></div>`;
-    }
-  }).join('');
+
+  if (key === 'prazo') {
+    // Date picker customizado para prazo
+    body.innerHTML = `
+      <div class="editor-field">
+        <label>Início das inscrições</label>
+        <div class="dp-wrap" id="dp-wrap-inicio">
+          <div class="dp-display" id="dp-display-inicio" onclick="dpToggle('inicio')">
+            <span id="dp-label-inicio" class="dp-placeholder">Selecionar data</span>
+            <span class="dp-arrow">▾</span>
+          </div>
+          <div class="dp-calendar" id="dp-cal-inicio"></div>
+        </div>
+        <div class="dp-error" id="dp-error-inicio"></div>
+      </div>
+      <div class="editor-field">
+        <label>Fim das inscrições <span style="font-weight:400;color:var(--gray-3)">(mín. 7 dias após início)</span></label>
+        <div class="dp-wrap" id="dp-wrap-fim">
+          <div class="dp-display" id="dp-display-fim" onclick="dpToggle('fim')">
+            <span id="dp-label-fim" class="dp-placeholder">Selecionar data</span>
+            <span class="dp-arrow">▾</span>
+          </div>
+          <div class="dp-calendar" id="dp-cal-fim"></div>
+        </div>
+        <div class="dp-error" id="dp-error-fim"></div>
+      </div>
+    `;
+    dpInit();
+  } else {
+    body.innerHTML = config.fields.map(f => {
+      const currentVal = previewEditData[f.key] || '';
+      if (f.type === 'textarea') {
+        return `<div class="editor-field"><label>${f.label}</label><textarea id="editor-${f.key}" placeholder="${f.placeholder}">${currentVal}</textarea></div>`;
+      } else {
+        return `<div class="editor-field"><label>${f.label}</label><input type="text" id="editor-${f.key}" placeholder="${f.placeholder}" value="${currentVal}"></div>`;
+      }
+    }).join('');
+  }
 
   document.getElementById('pvEditorOverlay').style.display = 'flex';
 
   // Focus first field
   setTimeout(() => {
-    const firstInput = body.querySelector('textarea, input');
-    if (firstInput) firstInput.focus();
-  }, 100);
+    if (key === 'prazo') {
+      dpToggle('inicio'); // abre o calendário de início automaticamente
+    } else {
+      const firstInput = body.querySelector('textarea, input');
+      if (firstInput) firstInput.focus();
+    }
+  }, 80);
 }
 
 function saveInlineEdit() {
   const config = EDITOR_CONFIG[currentEditorKey];
   if (!config) return;
 
-  config.fields.forEach(f => {
-    const el = document.getElementById('editor-' + f.key);
-    if (el) {
-      const val = el.value.trim();
-      if (val) {
-        previewEditData[f.key] = val;
-      } else {
-        delete previewEditData[f.key];
+  // Prazo usa date picker customizado — lógica própria em dpValidateAndSave
+  if (currentEditorKey !== 'prazo') {
+    config.fields.forEach(f => {
+      const el = document.getElementById('editor-' + f.key);
+      if (el) {
+        const val = el.value.trim();
+        if (val) {
+          previewEditData[f.key] = val;
+        } else {
+          delete previewEditData[f.key];
+        }
       }
-    }
-  });
+    });
+  }
 
   closeInlineEditor();
 
@@ -2847,31 +2928,221 @@ function saveInlineEdit() {
     }
     renderEditableField('pvMetricas', 'metricas', 'Clique para adicionar métricas de audiência (alcance médio, engajamento, etc.)');
   } else if (currentEditorKey === 'prazo') {
-    const pvPrazo = document.getElementById('pvPrazo');
-    const fmtDate = iso => {
-      if (!iso) return null;
-      const d = new Date(iso + 'T12:00:00');
-      return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
-    };
-    const ini = previewEditData.prazo_inicio;
-    const fim = previewEditData.prazo_fim;
-    if (ini || fim) {
-      let txt = '';
-      if (ini && fim) txt = `${fmtDate(ini)} → ${fmtDate(fim)}`;
-      else if (ini)   txt = `A partir de ${fmtDate(ini)}`;
-      else            txt = `Até ${fmtDate(fim)}`;
-      pvPrazo.className = 'editable-placeholder filled';
-      pvPrazo.innerHTML = `<span class="ep-text">${txt}</span>`;
-    } else {
-      pvPrazo.className = 'editable-placeholder';
-      pvPrazo.innerHTML = `<span class="ep-icon">+</span><span class="ep-text">Clique para definir o prazo de inscrição</span>`;
-    }
+    if (!dpValidateAndSave()) return; // não fecha se inválido
+    renderPrazoDisplay();
   } else {
     renderEditableField('pv' + currentEditorKey.charAt(0).toUpperCase() + currentEditorKey.slice(1), currentEditorKey,
       EDITOR_CONFIG[currentEditorKey]?.fields[0]?.placeholder || '');
   }
 
   updateCompleteness();
+}
+
+/* ══════════════════════════════════════════════
+   DATE PICKER CUSTOMIZADO — Prazo de inscrição
+   Regras:
+   - início ≥ hoje + 7 dias
+   - fim ≥ início + 7 dias
+   ══════════════════════════════════════════════ */
+const _dp = {
+  inicio: { value: null, year: null, month: null },
+  fim:    { value: null, year: null, month: null }
+};
+
+function dpAddDays(iso, n) {
+  const d = new Date(iso + 'T12:00:00');
+  d.setDate(d.getDate() + n);
+  return d.toISOString().split('T')[0];
+}
+function dpToday() { return new Date().toISOString().split('T')[0]; }
+function dpFmtLabel(iso) {
+  if (!iso) return null;
+  const d = new Date(iso + 'T12:00:00');
+  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+}
+function dpFmtShort(iso) {
+  if (!iso) return null;
+  const d = new Date(iso + 'T12:00:00');
+  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+function dpInit() {
+  const today = dpToday();
+  _dp.inicio.value = previewEditData.prazo_inicio || null;
+  _dp.fim.value    = previewEditData.prazo_fim    || null;
+  const minIni = dpAddDays(today, 7);
+  for (const which of ['inicio', 'fim']) {
+    const val = _dp[which].value;
+    const ref = val || (which === 'inicio' ? minIni : (_dp.inicio.value ? dpAddDays(_dp.inicio.value, 7) : dpAddDays(minIni, 7)));
+    const d = new Date(ref + 'T12:00:00');
+    _dp[which].year  = d.getFullYear();
+    _dp[which].month = d.getMonth();
+  }
+  dpUpdateDisplay('inicio');
+  dpUpdateDisplay('fim');
+}
+
+function dpUpdateDisplay(which) {
+  const labelEl   = document.getElementById('dp-label-'   + which);
+  const displayEl = document.getElementById('dp-display-' + which);
+  if (!labelEl || !displayEl) return;
+  const val = _dp[which].value;
+  if (val) {
+    labelEl.textContent = dpFmtLabel(val);
+    labelEl.classList.remove('dp-placeholder');
+  } else {
+    labelEl.textContent = 'Selecionar data';
+    labelEl.classList.add('dp-placeholder');
+  }
+}
+
+function dpToggle(which) {
+  const other = which === 'inicio' ? 'fim' : 'inicio';
+  document.getElementById('dp-cal-'     + other)?.classList.remove('show');
+  document.getElementById('dp-display-' + other)?.classList.remove('open');
+  const cal  = document.getElementById('dp-cal-'     + which);
+  const disp = document.getElementById('dp-display-' + which);
+  if (!cal || !disp) return;
+  const isOpen = cal.classList.contains('show');
+  if (isOpen) {
+    cal.classList.remove('show');
+    disp.classList.remove('open');
+  } else {
+    dpRenderCal(which);
+    cal.classList.add('show');
+    disp.classList.add('open');
+  }
+}
+
+function dpRenderCal(which) {
+  const cal = document.getElementById('dp-cal-' + which);
+  if (!cal) return;
+  const today   = dpToday();
+  const minIni  = dpAddDays(today, 7);
+  const minFim  = _dp.inicio.value ? dpAddDays(_dp.inicio.value, 7) : dpAddDays(minIni, 7);
+  const minDate = which === 'inicio' ? minIni : minFim;
+  const year  = _dp[which].year;
+  const month = _dp[which].month;
+  const months = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho',
+                  'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  const curYear  = new Date().getFullYear();
+  const years    = Array.from({length: 5}, (_, i) => curYear + i);
+  const monthOpts = months.map((m, i) => `<option value="${i}" ${i === month ? 'selected' : ''}>${m}</option>`).join('');
+  const yearOpts  = years.map(y => `<option value="${y}" ${y === year ? 'selected' : ''}>${y}</option>`).join('');
+  const firstDay    = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const blanks = Array(firstDay).fill('<div class="dp-day dp-day-empty"></div>').join('');
+  const ini = _dp.inicio.value;
+  const fim = _dp.fim.value;
+  const dayDivs = Array.from({length: daysInMonth}, (_, i) => {
+    const day = i + 1;
+    const iso = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const isDisabled = iso < minDate;
+    const isSelected = _dp[which].value === iso;
+    const isToday    = iso === today;
+    const inRange = ini && fim && iso > ini && iso < fim;
+    const isStart = iso === ini;
+    const isEnd   = iso === fim;
+    let cls = 'dp-day';
+    if (isDisabled) cls += ' dp-day-disabled';
+    if (isToday && !isDisabled) cls += ' dp-day-today';
+    if (isSelected) cls += ' dp-day-selected';
+    if (inRange)  cls += ' dp-day-in-range';
+    if (isStart && fim) cls += ' dp-day-range-start';
+    if (isEnd   && ini) cls += ' dp-day-range-end';
+    const click = isDisabled ? '' : `onclick="dpSelectDay('${which}','${iso}')"`;
+    return `<div class="${cls}" ${click}>${day}</div>`;
+  }).join('');
+  cal.innerHTML = `
+    <div class="dp-nav">
+      <button class="dp-nav-btn" onclick="dpShiftMonth('${which}',-1)">‹</button>
+      <div class="dp-selects">
+        <select class="dp-select" onchange="dpSetMonth('${which}',this.value)">${monthOpts}</select>
+        <select class="dp-select" onchange="dpSetYear('${which}',this.value)">${yearOpts}</select>
+      </div>
+      <button class="dp-nav-btn" onclick="dpShiftMonth('${which}',1)">›</button>
+    </div>
+    <div class="dp-weekdays">
+      ${['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'].map(d=>`<div class="dp-weekday">${d}</div>`).join('')}
+    </div>
+    <div class="dp-days">${blanks}${dayDivs}</div>
+  `;
+}
+
+function dpShiftMonth(which, delta) {
+  _dp[which].month += delta;
+  if (_dp[which].month < 0)  { _dp[which].month = 11; _dp[which].year--; }
+  if (_dp[which].month > 11) { _dp[which].month = 0;  _dp[which].year++; }
+  dpRenderCal(which);
+}
+function dpSetMonth(which, val) { _dp[which].month = parseInt(val); dpRenderCal(which); }
+function dpSetYear(which, val)  { _dp[which].year  = parseInt(val); dpRenderCal(which); }
+
+function dpSelectDay(which, iso) {
+  _dp[which].value = iso;
+  dpUpdateDisplay(which);
+  document.getElementById('dp-cal-'     + which)?.classList.remove('show');
+  document.getElementById('dp-display-' + which)?.classList.remove('open');
+  const errEl = document.getElementById('dp-error-' + which);
+  if (errEl) { errEl.textContent = ''; errEl.classList.remove('show'); }
+  // Se selecionou início, valida e abre calendário do fim automaticamente
+  if (which === 'inicio') {
+    const minFim = dpAddDays(iso, 7);
+    if (!_dp.fim.value || _dp.fim.value < minFim) {
+      _dp.fim.value = null;
+      dpUpdateDisplay('fim');
+    }
+    const d = new Date(minFim + 'T12:00:00');
+    _dp.fim.year  = d.getFullYear();
+    _dp.fim.month = d.getMonth();
+    setTimeout(() => dpToggle('fim'), 150);
+  }
+}
+
+function dpValidateAndSave() {
+  const ini     = _dp.inicio.value;
+  const fim     = _dp.fim.value;
+  const today   = dpToday();
+  const minIni  = dpAddDays(today, 7);
+  let ok = true;
+  const errIni = document.getElementById('dp-error-inicio');
+  if (!ini) {
+    errIni.textContent = 'Selecione a data de início.';
+    errIni.classList.add('show'); ok = false;
+  } else if (ini < minIni) {
+    errIni.textContent = `Início deve ser a partir de ${dpFmtShort(minIni)} (mín. 7 dias a partir de hoje).`;
+    errIni.classList.add('show'); ok = false;
+  } else { errIni.classList.remove('show'); }
+  const errFim = document.getElementById('dp-error-fim');
+  if (!fim) {
+    errFim.textContent = 'Selecione a data de fim.';
+    errFim.classList.add('show'); ok = false;
+  } else if (ini && fim < dpAddDays(ini, 7)) {
+    errFim.textContent = `Fim deve ser ao menos 7 dias após o início (a partir de ${dpFmtShort(dpAddDays(ini, 7))}).`;
+    errFim.classList.add('show'); ok = false;
+  } else { errFim.classList.remove('show'); }
+  if (!ok) return false;
+  previewEditData.prazo_inicio = ini;
+  previewEditData.prazo_fim    = fim;
+  return true;
+}
+
+function renderPrazoDisplay() {
+  const pvPrazo = document.getElementById('pvPrazo');
+  if (!pvPrazo) return;
+  const ini = previewEditData.prazo_inicio;
+  const fim = previewEditData.prazo_fim;
+  if (ini || fim) {
+    let txt = '';
+    if (ini && fim) txt = `${dpFmtShort(ini)} → ${dpFmtShort(fim)}`;
+    else if (ini)   txt = `A partir de ${dpFmtShort(ini)}`;
+    else            txt = `Até ${dpFmtShort(fim)}`;
+    pvPrazo.className = 'editable-placeholder filled';
+    pvPrazo.innerHTML = `<span class="ep-text">${txt}</span>`;
+  } else {
+    pvPrazo.className = 'editable-placeholder';
+    pvPrazo.innerHTML = `<span class="ep-icon">+</span><span class="ep-text">Clique para definir o prazo de inscrição</span>`;
+  }
 }
 
 function closeInlineEditor(event) {
