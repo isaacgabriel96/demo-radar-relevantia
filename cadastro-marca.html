@@ -836,43 +836,6 @@
       <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:95%"></div></div>
 
       <div class="section-label" style="display:flex;align-items:center;gap:6px;">
-        Divisão por gênero <span class="req">*</span>
-        <span class="field-error" id="generoError" style="margin:0 0 0 auto;font-size:11px;">Ajuste a divisão de gênero.</span>
-      </div>
-      <div class="gender-split-wrap" id="gender-wrap" style="margin-bottom:28px;">
-        <div class="gender-split-labels">
-          <span class="gender-label masc">👨 Masculino <strong id="pct-masc">50%</strong></span>
-          <span class="gender-label fem">👩 Feminino <strong id="pct-fem">50%</strong></span>
-        </div>
-        <div class="gender-split-bar" id="gender-bar">
-          <div class="gender-fill masc-fill" id="masc-fill" style="width:50%"></div>
-          <div class="gender-fill fem-fill" id="fem-fill" style="width:50%"></div>
-        </div>
-        <input type="range" class="geo-slider gender-slider" id="gender-slider"
-               min="0" max="100" value="50" oninput="updateGender(this.value)">
-        <p class="input-hint" style="margin-top:6px;">Arraste para ajustar a proporção. 50/50 = público equilibrado.</p>
-      </div>
-
-      <div class="section-label" style="display:flex;align-items:center;gap:6px;">
-        Faixa etária <span class="req">*</span>
-        <span style="font-size:11px;font-weight:400;color:var(--gray-light);margin-left:4px;">(% por faixa — deve somar 100%)</span>
-        <span class="field-error" id="idadeError" style="margin:0 0 0 auto;font-size:11px;">A faixa etária deve somar 100%.</span>
-      </div>
-      <div class="age-sliders-wrap" style="margin-bottom:28px;">
-        <div class="age-row"><span class="age-label">13–17 anos</span><input type="range" class="geo-slider age-slider" data-age="1317" min="0" max="100" value="0" oninput="updateAge(this)"><span class="geo-pct-label age-pct" id="pct-age-1317">0%</span></div>
-        <div class="age-row"><span class="age-label">18–24 anos</span><input type="range" class="geo-slider age-slider" data-age="1824" min="0" max="100" value="0" oninput="updateAge(this)"><span class="geo-pct-label age-pct" id="pct-age-1824">0%</span></div>
-        <div class="age-row"><span class="age-label">25–34 anos</span><input type="range" class="geo-slider age-slider" data-age="2534" min="0" max="100" value="0" oninput="updateAge(this)"><span class="geo-pct-label age-pct" id="pct-age-2534">0%</span></div>
-        <div class="age-row"><span class="age-label">35–44 anos</span><input type="range" class="geo-slider age-slider" data-age="3544" min="0" max="100" value="0" oninput="updateAge(this)"><span class="geo-pct-label age-pct" id="pct-age-3544">0%</span></div>
-        <div class="age-row"><span class="age-label">45–54 anos</span><input type="range" class="geo-slider age-slider" data-age="4554" min="0" max="100" value="0" oninput="updateAge(this)"><span class="geo-pct-label age-pct" id="pct-age-4554">0%</span></div>
-        <div class="age-row"><span class="age-label">55+ anos</span><input type="range" class="geo-slider age-slider" data-age="55p" min="0" max="100" value="0" oninput="updateAge(this)"><span class="geo-pct-label age-pct" id="pct-age-55p">0%</span></div>
-        <div class="geo-total-wrap" style="margin-top:10px;">
-          <span class="geo-total-label">Total:</span>
-          <span class="geo-total-value" id="age-total">0%</span>
-          <span class="geo-total-hint" id="age-total-hint">Distribua 100% entre as faixas</span>
-        </div>
-      </div>
-
-      <div class="section-label" style="display:flex;align-items:center;gap:6px;">
         Categorias de interesse <span class="req">*</span>
         <span class="field-error" id="categoriaError" style="margin:0 0 0 auto;font-size:11px;">Selecione ao menos 1 categoria.</span>
       </div>
@@ -951,6 +914,9 @@
   </main>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/sanitize.js"></script>
+<script src="js/core.js"></script>
 <script>
   let currentStep = 1;
 
@@ -1103,8 +1069,7 @@
   }
 
   // ─── SUPABASE ───
-  const SUPABASE_URL = 'https://bzckerazidgrkbpgqqee.supabase.co';
-  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ6Y2tlcmF6aWRncmticGdxcWVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2MjczODksImV4cCI6MjA4ODIwMzM4OX0.HIVnwcGvKiYNGfVFEnP0Ik9kfOeXPB4c4BFqDpqFCS4';
+  // Credenciais importadas de core.js (SUPABASE_URL, SUPABASE_KEY)
   async function sbInsert(table, data) {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
       method: 'POST',
@@ -1172,43 +1137,6 @@
     // Step 4 — categorias de interesse
     const categorias = Array.from(catSel).map(c => c.textContent.trim());
 
-    // Step 4 — gênero (obrigatório: slider deve ter sido movido, i.e., não está em 50 sem interação — mas sempre tem valor; validamos apenas que o campo existe)
-    const genderSlider = document.getElementById('gender-slider');
-    const generoVal = genderSlider ? parseInt(genderSlider.value) : null;
-    const generoMoved = genderSlider?.dataset.moved === '1';
-    const generoErr = document.getElementById('generoError');
-    const genderWrap = document.getElementById('gender-wrap');
-    if (!generoMoved) {
-      generoErr.classList.add('show');
-      genderWrap.classList.add('error');
-      genderWrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      return;
-    } else {
-      generoErr.classList.remove('show');
-      genderWrap.classList.remove('error');
-    }
-    const genero = generoVal + '%';
-
-    // Step 4 — faixa etária (obrigatório: deve somar 100%)
-    const faixa_etaria = {};
-    let totalIdade = 0;
-    document.querySelectorAll('.age-slider').forEach(s => {
-      const v = parseInt(s.value) || 0;
-      faixa_etaria[s.getAttribute('data-age')] = v;
-      totalIdade += v;
-    });
-    const idadeErr = document.getElementById('idadeError');
-    const ageWrap = document.querySelector('.age-sliders-wrap');
-    if (totalIdade !== 100) {
-      idadeErr.classList.add('show');
-      ageWrap.classList.add('error');
-      ageWrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      return;
-    } else {
-      idadeErr.classList.remove('show');
-      ageWrap.classList.remove('error');
-    }
-
     // ─── Indicação & Código ───
     const indicacao_nome = document.getElementById('referredBy').value.trim();
     const codigo_indicacao = (document.getElementById('accessCode')?.value || '').trim().toUpperCase();
@@ -1235,8 +1163,6 @@
         objetivos,
         orcamento,
         categorias,
-        genero,
-        faixa_etaria,
         indicacao: indicacao_nome || null,
         codigo_indicacao: codigo_indicacao || null,
         codigo_valido,
@@ -1388,6 +1314,19 @@
         ok = false;
       } else {
         markInputError('companySector', false);
+      }
+
+      // CNPJ — opcional, mas se preenchido deve ser válido (checksum)
+      const cnpjVal = (document.getElementById('cnpj')?.value || '').trim();
+      if (cnpjVal && typeof validateCNPJ === 'function' && !validateCNPJ(cnpjVal)) {
+        markInputError('cnpj', true);
+        const cnpjInput = document.getElementById('cnpj');
+        if (cnpjInput) { cnpjInput.style.borderColor = 'var(--red)'; }
+        ok = false;
+        // Mostra toast informativo
+        if (typeof showToast === 'function') showToast('CNPJ inválido. Verifique os dígitos.', 'error');
+      } else {
+        markInputError('cnpj', false);
       }
 
       if (!ok) {
