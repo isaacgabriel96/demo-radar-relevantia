@@ -973,7 +973,7 @@ textarea.form-control { resize: vertical; min-height: 90px; }
 .dp-wrap { position: relative; }
 .dp-display {
   width: 100%; border: 1px solid var(--gray-2); border-radius: var(--radius-base);
-  padding: 11px 14px; font-size: 14px; font-family: var(--font-body);
+  padding: 8px 12px; font-size: 13px; font-family: var(--font-body);
   color: var(--text); cursor: pointer; background: var(--white);
   display: flex; align-items: center; justify-content: space-between;
   transition: border-color 0.15s; user-select: none;
@@ -984,42 +984,42 @@ textarea.form-control { resize: vertical; min-height: 90px; }
 .dp-display .dp-arrow { color: var(--gray-3); font-size: 12px; transition: transform 0.15s; }
 .dp-display.open .dp-arrow { transform: rotate(180deg); }
 .dp-calendar {
-  position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+  position: absolute; top: calc(100% + 4px); left: 0; right: 0;
   background: var(--white); border: 1px solid var(--gray-2);
   border-radius: var(--radius-md); box-shadow: 0 8px 24px rgba(30,22,0,0.12);
-  z-index: 100; padding: 12px; display: none;
+  z-index: 100; padding: 8px; display: none;
 }
 .dp-calendar.show { display: block; }
 .dp-nav {
   display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 8px; gap: 6px;
+  margin-bottom: 6px; gap: 4px;
 }
 .dp-nav-btn {
-  width: 28px; height: 28px; border: none; border-radius: 6px;
+  width: 22px; height: 22px; border: none; border-radius: 5px;
   background: var(--gray-1); color: var(--gray-4); cursor: pointer;
-  font-size: 14px; display: flex; align-items: center; justify-content: center;
+  font-size: 11px; display: flex; align-items: center; justify-content: center;
   transition: background 0.12s; flex-shrink: 0;
 }
 .dp-nav-btn:hover { background: var(--gray-2); }
-.dp-selects { display: flex; gap: 6px; flex: 1; }
+.dp-selects { display: flex; gap: 4px; flex: 1; }
 .dp-select {
-  flex: 1; border: 1px solid var(--gray-2); border-radius: 6px;
-  padding: 4px 6px; font-size: 13px; font-family: var(--font-body);
+  flex: 1; border: 1px solid var(--gray-2); border-radius: 5px;
+  padding: 2px 4px; font-size: 12px; font-family: var(--font-body);
   color: var(--text); background: var(--white); cursor: pointer;
   appearance: auto;
 }
 .dp-select:focus { outline: none; border-color: var(--gold); }
 .dp-weekdays {
   display: grid; grid-template-columns: repeat(7, 1fr);
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 .dp-weekday {
-  text-align: center; font-size: 11px; font-weight: 600;
-  color: var(--gray-3); padding: 4px 0;
+  text-align: center; font-size: 10px; font-weight: 600;
+  color: var(--gray-3); padding: 2px 0;
 }
-.dp-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.dp-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; }
 .dp-day {
-  text-align: center; padding: 6px 2px; font-size: 13px; border-radius: 6px;
+  text-align: center; padding: 4px 1px; font-size: 12px; border-radius: 5px;
   cursor: pointer; transition: background 0.1s, color 0.1s; color: var(--text);
 }
 .dp-day:hover:not(.dp-day-disabled):not(.dp-day-empty) { background: var(--gray-1); }
