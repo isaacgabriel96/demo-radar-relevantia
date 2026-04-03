@@ -1060,7 +1060,7 @@ tbody td { padding: 13px 16px; font-size: 13px; color: var(--text); vertical-ali
           <p class="page-sub">Acesse os dashboards com dados fictícios para apresentações de onboarding</p>
         </div>
 
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:680px;margin-top:8px">
+        <div style="display:none;grid-template-columns:1fr 1fr;gap:20px;max-width:680px;margin-top:8px">
           <!-- Demo como Marca -->
           <div style="background:#fff;border:1px solid var(--gray-2);border-radius:16px;padding:28px 24px;text-align:center">
             <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#B8860B,#C8A84B);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:24px">🏷️</div>
@@ -1168,6 +1168,7 @@ tbody td { padding: 13px 16px; font-size: 13px; color: var(--text); vertical-ali
      JAVASCRIPT
      ========================================================= -->
 <script src="js/demo-data.js"></script>
+<script src="js/sanitize.js"></script>
 <script>
 const SUPABASE_URL = 'https://bzckerazidgrkbpgqqee.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ6Y2tlcmF6aWRncmticGdxcWVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2MjczODksImV4cCI6MjA4ODIwMzM4OX0.HIVnwcGvKiYNGfVFEnP0Ik9kfOeXPB4c4BFqDpqFCS4';
@@ -1180,35 +1181,36 @@ let allEmbaixadores = [];
 
 // ── Demo Mode (for onboarding presentations) ────────────────
 function startDemo(role) {
-  // role: 'brand' or 'rightsholder'
-  const tipo = role === 'brand' ? 'marca' : 'detentor';
-  const demoData = (window.DEMO && tipo === 'marca') ? window.DEMO.marca : (window.DEMO ? window.DEMO.detentor : {});
-  const user = demoData.user || {};
-
-  const fakeSession = {
-    access_token: 'DEMO_TOKEN',
-    expires_at: Math.floor(Date.now() / 1000) + 86400 * 365,
-    user: {
-      id: 'demo-' + tipo + '-001',
-      email: user.email || 'demo@radar.com',
-      user_metadata: { tipo: tipo, nome: user.nome || 'Demo User', _demo: true }
-    }
-  };
-
-  const key = role === 'brand' ? 'sb_marca_session' : 'sb_detentor_session';
-  localStorage.setItem(key, JSON.stringify(fakeSession));
-  localStorage.setItem('rr_demo_mode', tipo);
-
-  const target = role === 'brand' ? 'dashboard-marca.html' : 'dashboard-detentor.html';
-  window.location.href = target;
+  console.warn('[startDemo] Demo mode desativado permanentemente.');
+  return;
 }
 
 // ── Session helpers ──────────────────────────────────────────
 async function getSession() {
   const stored = localStorage.getItem('sb_admin_session');
   if (!stored) return null;
+  let session;
+  try { session = JSON.parse(stored); } catch { return null; }
+  if (!session) return null;
+
+  // Checa se o access_token está expirado (com 60s de margem)
+  const expiresAt = session.expires_at; // unix timestamp em segundos
+  const nowSec = Math.floor(Date.now() / 1000);
+  if (expiresAt && nowSec < expiresAt - 60) return session;
+
+  // Tenta renovar via refresh_token
+  if (!session.refresh_token) return null;
   try {
-    return JSON.parse(stored);
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh_token: session.refresh_token })
+    });
+    if (!res.ok) { localStorage.removeItem('sb_admin_session'); return null; }
+    const data = await res.json();
+    localStorage.setItem('sb_admin_session', JSON.stringify(data));
+    currentSession = data;
+    return data;
   } catch { return null; }
 }
 
@@ -1255,6 +1257,21 @@ async function doLogin() {
       return;
     }
 
+    // Verificar se usuário é admin
+    const userTipo = data.user?.user_metadata?.tipo;
+    if (userTipo !== 'admin') {
+      localStorage.removeItem('sb_admin_session');
+      currentSession = null;
+      errEl.textContent = 'Acesso restrito a administradores.';
+      errEl.classList.add('show');
+      btn.disabled = false; btn.textContent = 'Entrar no painel';
+      return;
+    }
+
+    // Adiciona expires_at para facilitar verificação de expiração
+    if (data.expires_in && !data.expires_at) {
+      data.expires_at = Math.floor(Date.now() / 1000) + data.expires_in;
+    }
     localStorage.setItem('sb_admin_session', JSON.stringify(data));
     currentSession = data;
     showDashboard(data);
@@ -1304,6 +1321,11 @@ document.addEventListener('DOMContentLoaded', () => {
       // Check expiry
       const exp = session.expires_at || (session.expires_in ? Date.now()/1000 + session.expires_in : 0);
       if (exp && Date.now()/1000 < exp) {
+        // Verificar se sessão cacheada é de admin
+        if (session.user?.user_metadata?.tipo !== 'admin') {
+          localStorage.removeItem('sb_admin_session');
+          return;
+        }
         currentSession = session;
         showDashboard(session);
         return;
@@ -1402,8 +1424,8 @@ async function loadRecentActivity() {
             ${events.map(e => `
               <tr>
                 <td><span class="badge ${e.tipo==='Marca'?'badge-blue':'badge-gold'}">${e.tipo}</span></td>
-                <td class="td-name">${escHtml(e.nome||'—')}</td>
-                <td class="td-muted">${escHtml(e.empresa||'—')}</td>
+                <td class="td-name">${escapeHtml(e.nome||'—')}</td>
+                <td class="td-muted">${escapeHtml(e.empresa||'—')}</td>
                 <td>${statusBadge(e.status)}</td>
                 <td class="td-muted">${fmtDate(e.ts)}</td>
               </tr>`).join('')}
@@ -1434,11 +1456,11 @@ async function loadEmbaixadores() {
 
     tbody.innerHTML = allEmbaixadores.map(emb => `
       <tr id="row-emb-${emb.id}">
-        <td class="td-name">${escHtml(emb.nome)}</td>
-        <td class="td-muted">${escHtml(emb.email)}</td>
+        <td class="td-name">${escapeHtml(emb.nome)}</td>
+        <td class="td-muted">${escapeHtml(emb.email)}</td>
         <td>
-          <span class="td-mono">${escHtml(emb.codigo_acesso)}</span>
-          <button class="btn btn-sm btn-copy" onclick="copyCodigo('${escHtml(emb.codigo_acesso)}', this)" title="Copiar código">⎘</button>
+          <span class="td-mono">${escapeHtml(emb.codigo_acesso)}</span>
+          <button class="btn btn-sm btn-copy" onclick="copyCodigo('${escapeHtml(emb.codigo_acesso)}', this)" title="Copiar código">⎘</button>
         </td>
         <td><span class="badge badge-gold" style="font-size:12px;">${emb.comissao_percent != null ? emb.comissao_percent + '%' : '—'}</span></td>
         <td>${emb.total_indicacoes || 0}</td>
@@ -1451,7 +1473,7 @@ async function loadEmbaixadores() {
         <td class="td-muted">${fmtDate(emb.created_at)}</td>
         <td>
           <div class="action-group">
-            <button class="btn btn-sm btn-reject" onclick="deleteEmbaixador('${emb.id}', '${escHtml(emb.nome)}')">Excluir</button>
+            <button class="btn btn-sm btn-reject" onclick="deleteEmbaixador('${emb.id}', '${escapeHtml(emb.nome)}')">Excluir</button>
           </div>
         </td>
       </tr>`).join('');
@@ -1599,11 +1621,11 @@ async function loadMarcas() {
 
     tbody.innerHTML = rows.map(m => `
       <tr id="row-marca-${m.id}" style="cursor:pointer;" onclick="openPerfilMarca(window._marcasData['${m.id}'])">
-        <td class="td-name">${escHtml((m.primeiro_nome || '') + ' ' + (m.sobrenome || '')).trim() || '—'}</td>
-        <td>${escHtml(m.empresa || '—')}</td>
-        <td class="td-muted">${escHtml(m.segmento || '—')}</td>
-        <td class="td-muted">${escHtml(m.email || '—')}</td>
-        <td class="td-muted">${(m.codigo_indicacao || m.indicacao) ? `<span class="badge badge-gold" style="font-size:10px;gap:3px;">🔑 ${escHtml(m.codigo_indicacao || m.indicacao)}</span>` : '—'}</td>
+        <td class="td-name">${escapeHtml((m.primeiro_nome || '') + ' ' + (m.sobrenome || '')).trim() || '—'}</td>
+        <td>${escapeHtml(m.empresa || '—')}</td>
+        <td class="td-muted">${escapeHtml(m.segmento || '—')}</td>
+        <td class="td-muted">${escapeHtml(m.email || '—')}</td>
+        <td class="td-muted">${(m.codigo_indicacao || m.indicacao) ? `<span class="badge badge-gold" style="font-size:10px;gap:3px;">🔑 ${escapeHtml(m.codigo_indicacao || m.indicacao)}</span>` : '—'}</td>
         <td class="td-muted">${fmtDate(m.created_at)}</td>
         <td>${statusBadge(m.status)}</td>
         <td onclick="event.stopPropagation()">
@@ -1652,12 +1674,12 @@ async function loadDetentores() {
 
     tbody.innerHTML = rows.map(d => `
       <tr id="row-det-${d.id}" style="cursor:pointer;" onclick="openPerfilDetentor(window._detentoresData['${d.id}'])">
-        <td class="td-name">${escHtml(d.nome || '—')}</td>
-        <td>${escHtml(d.empresa || '—')}</td>
-        <td class="td-muted">${escHtml(d.segmento || '—')}</td>
-        <td class="td-muted">${escHtml(d.email || '—')}</td>
-        <td class="td-muted">${escHtml([d.cidade, d.estado].filter(Boolean).join(', ') || '—')}</td>
-        <td class="td-muted">${(d.codigo_convite || d.indicacao) ? `<span class="badge badge-gold" style="font-size:10px;gap:3px;">🔑 ${escHtml(d.codigo_convite || d.indicacao)}</span>` : '—'}</td>
+        <td class="td-name">${escapeHtml(d.nome || '—')}</td>
+        <td>${escapeHtml(d.empresa || '—')}</td>
+        <td class="td-muted">${escapeHtml(d.segmento || '—')}</td>
+        <td class="td-muted">${escapeHtml(d.email || '—')}</td>
+        <td class="td-muted">${escapeHtml([d.cidade, d.estado].filter(Boolean).join(', ') || '—')}</td>
+        <td class="td-muted">${(d.codigo_convite || d.indicacao) ? `<span class="badge badge-gold" style="font-size:10px;gap:3px;">🔑 ${escapeHtml(d.codigo_convite || d.indicacao)}</span>` : '—'}</td>
         <td class="td-muted">${fmtDate(d.created_at)}</td>
         <td>${statusBadge(d.status)}</td>
         <td onclick="event.stopPropagation()">
@@ -1739,10 +1761,7 @@ async function criarContaEEnviarAcesso(table, id) {
 }
 
 // ── Utilities ─────────────────────────────────────────────────
-function escHtml(str) {
-  if (!str) return '';
-  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+// escHtml removido — usar escapeHtml de sanitize.js
 
 function fmtDate(iso) {
   if (!iso) return '—';
@@ -1793,13 +1812,13 @@ function closeModalPerfil() {
 }
 
 function field(label, value, cls) {
-  const v = value ? escHtml(String(value)) : '<span class="modal-field-value empty">—</span>';
+  const v = value ? escapeHtml(String(value)) : '<span class="modal-field-value empty">—</span>';
   const valHtml = value ? `<span class="modal-field-value${cls ? ' '+cls : ''}">${v}</span>` : v;
   return `<div class="modal-field"><span class="modal-field-label">${label}</span>${valHtml}</div>`;
 }
 
 function fieldFull(label, value, cls) {
-  const v = value ? escHtml(String(value)) : '<span class="modal-field-value empty">—</span>';
+  const v = value ? escapeHtml(String(value)) : '<span class="modal-field-value empty">—</span>';
   const valHtml = value ? `<span class="modal-field-value${cls ? ' '+cls : ''}">${v}</span>` : v;
   return `<div class="modal-field full"><span class="modal-field-label">${label}</span>${valHtml}</div>`;
 }
@@ -1959,11 +1978,11 @@ function renderDeals(filter, btnEl) {
 
     return `
       <tr style="cursor:pointer" onclick="openDealModal('${d.id}')">
-        <td class="td-name">${escHtml(opp.titulo || '—')}</td>
-        <td class="td-muted">${escHtml(marca.empresa || marca.nome || '—')}</td>
-        <td class="td-muted">${escHtml(det.empresa || det.nome || '—')}</td>
+        <td class="td-name">${escapeHtml(opp.titulo || '—')}</td>
+        <td class="td-muted">${escapeHtml(marca.empresa || marca.nome || '—')}</td>
+        <td class="td-muted">${escapeHtml(det.empresa || det.nome || '—')}</td>
         <td><strong>${fmt(val)}</strong></td>
-        <td><a href="${escHtml(d.contrato_url)}" target="_blank" onclick="event.stopPropagation()" style="color:var(--gold);font-weight:600;text-decoration:underline">📄 Ver</a></td>
+        <td><a href="${escapeHtml(d.contrato_url)}" target="_blank" onclick="event.stopPropagation()" style="color:var(--gold);font-weight:600;text-decoration:underline">📄 Ver</a></td>
         <td>${validated
           ? '<span class="badge badge-green" style="font-size:11px">✓ Validado</span>'
           : '<span class="badge badge-orange" style="font-size:11px">⏳ Pendente</span>'}</td>
@@ -1994,11 +2013,11 @@ function openDealModal(negId) {
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px 20px;margin-bottom:20px">
       <div>
         <div style="font-size:11px;color:var(--gray-3);margin-bottom:2px">Marca</div>
-        <div style="font-weight:600">${escHtml(marca.empresa || marca.nome || '—')}</div>
+        <div style="font-weight:600">${escapeHtml(marca.empresa || marca.nome || '—')}</div>
       </div>
       <div>
         <div style="font-size:11px;color:var(--gray-3);margin-bottom:2px">Detentor</div>
-        <div style="font-weight:600">${escHtml(det.empresa || det.nome || '—')}</div>
+        <div style="font-weight:600">${escapeHtml(det.empresa || det.nome || '—')}</div>
       </div>
       <div>
         <div style="font-size:11px;color:var(--gray-3);margin-bottom:2px">Valor Deal</div>
@@ -2010,7 +2029,7 @@ function openDealModal(negId) {
       </div>
       <div>
         <div style="font-size:11px;color:var(--gray-3);margin-bottom:2px">Categoria</div>
-        <div>${escHtml(opp.categoria || '—')}</div>
+        <div>${escapeHtml(opp.categoria || '—')}</div>
       </div>
       <div>
         <div style="font-size:11px;color:var(--gray-3);margin-bottom:2px">Contrato enviado em</div>
@@ -2024,7 +2043,7 @@ function openDealModal(negId) {
       <div style="display:flex;flex-direction:column;gap:6px">
         ${cps.map(c => `
           <div style="background:var(--gray-1);border-radius:8px;padding:8px 12px;font-size:12px;display:flex;justify-content:space-between;align-items:center">
-            <span>${escHtml(c.descricao || c.categoria || '—')}</span>
+            <span>${escapeHtml(c.descricao || c.categoria || '—')}</span>
             <span style="font-weight:600">${c.valor ? fmt(c.valor) : '—'}</span>
           </div>`).join('')}
       </div>
@@ -2032,7 +2051,7 @@ function openDealModal(negId) {
 
     <div style="background:var(--gray-1);border-radius:12px;padding:16px;text-align:center">
       <div style="font-size:12px;color:var(--gray-3);margin-bottom:8px">Contrato</div>
-      <a href="${escHtml(d.contrato_url)}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:var(--white);border:1px solid var(--gray-2);border-radius:100px;padding:8px 20px;font-size:13px;font-weight:600;color:var(--text);text-decoration:none">
+      <a href="${escapeHtml(d.contrato_url)}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:var(--white);border:1px solid var(--gray-2);border-radius:100px;padding:8px 20px;font-size:13px;font-weight:600;color:var(--text);text-decoration:none">
         📄 Abrir contrato
       </a>
       ${d.contrato_validado
@@ -2042,8 +2061,8 @@ function openDealModal(negId) {
 
     <div style="margin-top:20px">
       <div style="font-size:12px;font-weight:600;margin-bottom:6px;color:var(--text)">Comentário Admin</div>
-      ${d.admin_comentario ? `<div style="background:#FEF3C7;border:1px solid #FDE68A;border-radius:8px;padding:10px 12px;font-size:12px;color:#92400E;margin-bottom:8px;white-space:pre-wrap">${escHtml(d.admin_comentario)}</div>` : ''}
-      <textarea id="dealComentarioInput" rows="3" placeholder="Escreva um comentário, motivo de rejeição ou observação..." style="width:100%;border:1px solid var(--gray-2);border-radius:8px;padding:10px 12px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box">${d.admin_comentario ? escHtml(d.admin_comentario) : ''}</textarea>
+      ${d.admin_comentario ? `<div style="background:#FEF3C7;border:1px solid #FDE68A;border-radius:8px;padding:10px 12px;font-size:12px;color:#92400E;margin-bottom:8px;white-space:pre-wrap">${escapeHtml(d.admin_comentario)}</div>` : ''}
+      <textarea id="dealComentarioInput" rows="3" placeholder="Escreva um comentário, motivo de rejeição ou observação..." style="width:100%;border:1px solid var(--gray-2);border-radius:8px;padding:10px 12px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box">${d.admin_comentario ? escapeHtml(d.admin_comentario) : ''}</textarea>
       <button class="btn btn-outline" style="margin-top:6px;font-size:11px;padding:4px 14px" onclick="salvarComentario('${d.id}')">Salvar comentário</button>
     </div>`;
 
