@@ -1154,7 +1154,7 @@ tbody tr:last-child td { border-bottom: none; }
     <a class="nav-item" data-section="oportunidades" onclick="showSection('oportunidades')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
       Minhas Oportunidades
-      <span class="nav-badge" id="navBadgeOps">3</span>
+      <span class="nav-badge" id="navBadgeOps">0</span>
     </a>
 
     <div class="nav-section-label">Minha Conta</div>
@@ -2583,6 +2583,8 @@ function renderPublicadas() {
     countEl.textContent = total > 0 ? `${total} oportunidade${total !== 1 ? 's' : ''}` : '';
   }
   if (pubBadge) pubBadge.textContent = MINHAS_OPPS.length;
+  const navBadge = document.getElementById('navBadgeOps');
+  if (navBadge) navBadge.textContent = MINHAS_OPPS.length;
 
   if (filtered.length === 0) {
     const labels = { publicada:'publicadas', rascunho:'em rascunho', finalizada:'encerradas', todos:'' };
