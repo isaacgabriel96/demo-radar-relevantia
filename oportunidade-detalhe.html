@@ -837,7 +837,7 @@ a { text-decoration: none; color: inherit; }
       <strong id="topbarOppTitle">Carregando...</strong>
     </div>
     <div class="topbar-right">
-      <div class="topbar-avatar">NB</div>
+      <div class="topbar-avatar" id="topbarAvatar">U</div>
     </div>
   </div>
 </header>
@@ -2018,9 +2018,11 @@ var LOGGED_USER = (function() {
   var a = document.getElementById('sb-avatar');
   var n = document.getElementById('sb-name');
   var e = document.getElementById('sb-email');
+  var t = document.getElementById('topbarAvatar');
   if (a) a.textContent = LOGGED_USER.initials;
   if (n) n.textContent = LOGGED_USER.company || LOGGED_USER.name;
   if (e) e.textContent = LOGGED_USER.email;
+  if (t) t.textContent = LOGGED_USER.initials;
 })();
 
 // Assuntos para oportunidades COM cota definida
@@ -2040,7 +2042,7 @@ var SUBJECTS_NO_COTAS = [
 ];
 
 function openModal() {
-  var opp = getOpp();
+  var opp = _CURRENT_OPP || getOpp();
   var hasCotas = opp.cotas && opp.cotas.length > 0;
 
   // preenche nome da oportunidade no subtítulo
