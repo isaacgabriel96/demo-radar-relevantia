@@ -1295,7 +1295,7 @@ tbody tr:last-child td { border-bottom: none; }
       <div class="sub-tabs">
         <button class="sub-tab active" id="subtab-publicadas" onclick="switchSubTab('publicadas')">
           Publicadas
-          <span class="sub-tab-badge">3</span>
+          <span class="sub-tab-badge" id="pub-badge-count">0</span>
         </button>
         <button class="sub-tab" id="subtab-negociacoes" onclick="switchSubTab('negociacoes')">
           Negociações
@@ -1786,7 +1786,11 @@ function showSectionTab(sectionId, subTab) {
   // Aguarda o DOM atualizar antes de trocar a sub-tab
   setTimeout(() => {
     if (typeof switchSubTab === 'function') switchSubTab(subTab);
-  }, 50);
+    // Atualiza breadcrumb/topbar para refletir o sub-tab ativo
+    const subTitles = { negociacoes: 'Negociações', deals: 'Deals Fechados', solicitacoes: 'Solicitações', publicadas: 'Minhas Oportunidades' };
+    const topbar = document.getElementById('topbarSection');
+    if (topbar && subTitles[subTab] !== undefined) topbar.textContent = subTitles[subTab];
+  }, 55);
   // Marca o botão correto no bottom nav (sobrescreve o que showSection fez)
   setTimeout(() => {
     document.querySelectorAll('.bottom-nav-item').forEach(b => b.classList.remove('active'));
@@ -2571,16 +2575,19 @@ function renderPublicadas() {
     ? MINHAS_OPPS
     : MINHAS_OPPS.filter(o => o.status === _pubFilterAtivo);
 
-  // atualiza contagem
+  // atualiza contagem e badge da aba
   const countEl = document.getElementById('pub-pills-count');
+  const pubBadge = document.getElementById('pub-badge-count');
   if (countEl) {
     const total = filtered.length;
     countEl.textContent = total > 0 ? `${total} oportunidade${total !== 1 ? 's' : ''}` : '';
   }
+  if (pubBadge) pubBadge.textContent = MINHAS_OPPS.length;
 
   if (filtered.length === 0) {
-    const labels = { publicada:'publicadas', rascunho:'em rascunho', finalizada:'encerradas', todos:'oportunidades' };
-    container.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px 0;color:var(--gray-3);font-size:14px">Nenhuma oportunidade ${labels[_pubFilterAtivo] || ''} encontrada.</div>`;
+    const labels = { publicada:'publicadas', rascunho:'em rascunho', finalizada:'encerradas', todos:'' };
+    const labelStr = labels[_pubFilterAtivo] !== undefined ? labels[_pubFilterAtivo] : '';
+    container.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px 0;color:var(--gray-3);font-size:14px">Nenhuma oportunidade${labelStr ? ' ' + labelStr : ''} encontrada.</div>`;
     return;
   }
 
@@ -2630,6 +2637,10 @@ function switchSubTab(tab) {
   document.querySelectorAll('.sub-panel').forEach(p => p.classList.remove('active'));
   document.getElementById('subtab-' + tab).classList.add('active');
   document.getElementById('subpanel-' + tab).classList.add('active');
+  // Atualiza topbar/breadcrumb para refletir a sub-aba ativa
+  const subTitles = { negociacoes: 'Negociações', deals: 'Deals Fechados', solicitacoes: 'Solicitações', publicadas: 'Minhas Oportunidades' };
+  const topbar = document.getElementById('topbarSection');
+  if (topbar && subTitles[tab] !== undefined) topbar.textContent = subTitles[tab];
 }
 
 const chevronSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="neg-opp-chevron"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
