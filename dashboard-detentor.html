@@ -1885,10 +1885,21 @@ function populateDetenorFields(p) {
 
 // ─── LOAD USER INFO (SDK → localStorage → MOCK fallback) ───
 async function loadUserInfoDetentor() {
-  // 1. Tentar via SDK (mais confiável, tem refresh automático)
-  if (typeof restoreSessionToSDK !== 'undefined') {
-    try { await restoreSessionToSDK(); } catch (_) {}
+  // 1. PRIORITY: Forçar SDK a usar sessão do detentor
+  //    (evita contaminação por sessão de marca/admin ainda no SDK)
+  const stored = localStorage.getItem('sb_detentor_session');
+  if (stored && typeof sb !== 'undefined' && sb) {
+    try {
+      const detentorSession = JSON.parse(stored);
+      if (detentorSession.access_token && detentorSession.access_token !== 'DEMO_TOKEN') {
+        await sb.auth.setSession({
+          access_token: detentorSession.access_token,
+          refresh_token: detentorSession.refresh_token || ''
+        });
+      }
+    } catch (_) {}
   }
+  // 2. Tentar via SDK (agora com sessão correta)
   if (typeof sb !== 'undefined' && sb) {
     try {
       const { data: { session } } = await sb.auth.getSession();
@@ -1915,8 +1926,7 @@ async function loadUserInfoDetentor() {
       }
     } catch (_) {}
   }
-  // 2. Fallback: localStorage sb_detentor_session
-  const stored = localStorage.getItem('sb_detentor_session');
+  // 3. Fallback: metadata do localStorage sb_detentor_session
   if (stored) {
     try {
       const session = JSON.parse(stored);
@@ -1927,7 +1937,7 @@ async function loadUserInfoDetentor() {
       return;
     } catch (_) {}
   }
-  // 3. Mock fallback
+  // 4. Mock fallback
   setUserInfo(MOCK_USER.nome, MOCK_USER.email);
 }
 
