@@ -1590,8 +1590,6 @@ tbody tr:last-child td { border-bottom: none; }
    ═══════════════════════════════════════ */
 
 // ─── DATA ───
-const MOCK_USER = (window.DEMO && window.DEMO.marca) ? window.DEMO.marca.user : { nome: 'Marca', email: 'marca@radar.com' };
-
 // Catálogo carregado do Supabase (real) ou do CATALOG demo como fallback
 let MOCK_OPPORTUNITIES = [];
 
@@ -1727,8 +1725,8 @@ async function loadUserInfo() {
       if (session?.user) {
         const user = session.user;
         const meta = user.user_metadata || {};
-        const nome = meta.nome || meta.full_name || user.email?.split('@')[0] || MOCK_USER.nome;
-        const email = user.email || MOCK_USER.email;
+        const nome = meta.nome || meta.full_name || user.email?.split('@')[0] || 'Usuário';
+        const email = user.email || '';
         setUserInfo(nome, email);
         // Also fetch perfil for empresa info
         try {
@@ -1756,13 +1754,13 @@ async function loadUserInfo() {
     try {
       const session = JSON.parse(stored);
       const meta = session.user?.user_metadata || {};
-      const nome = meta.nome || session.user?.email?.split('@')[0] || MOCK_USER.nome;
-      const email = session.user?.email || MOCK_USER.email;
+      const nome = meta.nome || meta.full_name || session.user?.email?.split('@')[0] || 'Usuário';
+      const email = session.user?.email || '';
       setUserInfo(nome, email);
       return;
     } catch (_) {}
   }
-  setUserInfo(MOCK_USER.nome, MOCK_USER.email);
+  setUserInfo('Usuário', '');
 }
 
 function loadInteressesCount() {

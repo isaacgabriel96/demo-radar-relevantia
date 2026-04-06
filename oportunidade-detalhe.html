@@ -2289,8 +2289,15 @@ function updateFavBtnState(isFav) {
     // ─────────────────────────────────────────────────────────────────────────
 
   } else {
-    console.log('[Detail] Using mock data for id:', id);
-    renderPage();
+    // Supabase não retornou dados — mostrar erro em vez de mock silencioso
+    var ls = document.getElementById('loadingScreen');
+    if (ls) { ls.style.opacity = '0'; ls.style.transition = 'opacity 0.3s'; setTimeout(function(){ ls.style.display = 'none'; }, 300); }
+    if (typeof showToast === 'function') showToast('Oportunidade não encontrada ou indisponível.', 'error');
+    // Redirecionar ao dashboard após 2s
+    setTimeout(function() {
+      var ref = document.referrer;
+      window.location.href = (ref && ref.includes('dashboard')) ? ref : 'dashboard-marca.html';
+    }, 2000);
   }
 
   // Favorito state
