@@ -2403,23 +2403,13 @@ init();
 var PROPOSTAS = [];
 
 async function loadPropostas() {
-  if (!isDemoMode()) {
-    const real = await fetchNegociacoesMarca();
-    if (real !== null) {
-      PROPOSTAS = real;
-      console.log('[Prop] Loaded', real.length, 'proposals from Supabase');
-      return;
-    }
+  const real = await fetchNegociacoesMarca();
+  if (real !== null) {
+    PROPOSTAS = real;
+    return;
   }
-  // Demo mode: use SharedNeg for the authenticated demo user
-  if (isDemoMode()) {
-    PROPOSTAS = SharedNeg.byMarca('nike-brasil');
-    console.log('[Prop] Demo mode — using SharedNeg,', PROPOSTAS.length, 'proposals');
-  } else {
-    // Real mode but Supabase unavailable — show empty, not fake data
-    PROPOSTAS = [];
-    console.log('[Prop] Supabase unavailable, showing empty state');
-  }
+  // Supabase unavailable — show empty state, not fake data
+  PROPOSTAS = [];
 }
 
 async function _persistProp(p, fields) {
@@ -4263,7 +4253,7 @@ async function handleModalSolicitarAcesso() {
     if (!token && typeof getValidToken === 'function') token = await getValidToken();
 
     if (!marcaId || !token) {
-      alert('Faça login para solicitar acesso.');
+      showToast('Faça login para solicitar acesso.', 'error');
       btn.disabled = false; btn.style.opacity = '1';
       btn.textContent = 'Solicitar acesso';
       return;
