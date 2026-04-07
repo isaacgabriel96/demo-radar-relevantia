@@ -959,6 +959,11 @@ a { text-decoration: none; color: inherit; }
                 <h3 class="detail-section-title">O que buscamos em uma marca parceira</h3>
                 <p class="detail-text" id="detailObjetivos"></p>
               </div>
+              <!-- Entregas ao patrocinador (exibido só se preenchido no preview) -->
+              <div class="detail-section" id="detailEntregasSection" style="display:none">
+                <h3 class="detail-section-title">Entregas ao patrocinador</h3>
+                <p class="detail-text" id="detailEntregas" style="white-space:pre-line"></p>
+              </div>
               <!-- Vídeo (exibido só se tiver video_url) -->
               <div class="detail-section" id="detailVideoSection" style="display:none">
                 <h3 class="detail-section-title">Vídeo</h3>
@@ -1247,18 +1252,44 @@ async function fetchOppFromSupabase(idOrPerfilSlug, oppSlug) {
     // Complementar generalFacts com dados do campo detalhes (JSONB)
     // Sempre incluído — cobre campos de template como Formato, Transmissão, etc.
     const DETALHE_ICONS = {
+      // Template fields
       'Formato': '🎯', 'Transmissão prevista': '📡', 'Transmissão': '📡',
       'Plataformas': '💻', 'Capacidade': '👥', 'Público esperado': '👥',
       'Local': '📍', 'Cidade': '📍', 'Modalidade': '🎫',
-      'Formatos comerciais disponíveis': '📢', 'Formatos comerciais': '📢'
+      'Formatos comerciais disponíveis': '📢', 'Formatos comerciais': '📢',
+      // Preview fields (chaves técnicas lowercase)
+      'demografico': '📊', 'entregas': '🤝',
+      'metricas_alcance': '📈', 'metricas_engajamento': '💬', 'metricas_impressoes': '👁️',
+      'prazo_inicio': '📅', 'prazo_fim': '⏰', 'prazo_continua': '🔄'
+    };
+    // Labels legíveis para chaves técnicas
+    const DETALHE_LABELS = {
+      'demografico': 'Perfil demográfico',
+      'entregas': 'Entregas ao patrocinador',
+      'metricas_alcance': 'Alcance médio',
+      'metricas_engajamento': 'Taxa de engajamento',
+      'metricas_impressoes': 'Impressões mensais',
+      'prazo_inicio': 'Início das inscrições',
+      'prazo_fim': 'Fim das inscrições',
+      'prazo_continua': 'Prazo'
     };
     // Labels já presentes nos generalFacts da tabela (para evitar duplicata)
     const existingLabels = new Set(generalFacts.map(f => f.label));
     if (r.detalhes) {
-      Object.entries(r.detalhes).forEach(([label, value]) => {
+      Object.entries(r.detalhes).forEach(([key, value]) => {
+        // Ignora chaves internas de métricas combinadas
+        if (key === 'metricas') return;
+        if (key === 'entregas') return; // tem seção dedicada com white-space:pre-line
+        const label = DETALHE_LABELS[key] || key;
         if (existingLabels.has(label)) return; // já tem na tabela
-        const icon = DETALHE_ICONS[label] || '📋';
+        const icon = DETALHE_ICONS[key] || DETALHE_ICONS[label] || '📋';
+        // prazo_continua é booleano — converter para texto
+        if (key === 'prazo_continua') {
+          if (value) generalFacts.push({ icon, label: 'Prazo', value: 'Oportunidade contínua' });
+          return;
+        }
         if (typeof value === 'string' && value) generalFacts.push({ icon, label, value });
+        else if (typeof value === 'boolean' && value) generalFacts.push({ icon, label, value: 'Sim' });
         else if (Array.isArray(value) && value.length > 0) {
           const str = value.map(v => typeof v === 'object' ? ((v.data || '') + (v.local ? ' — ' + v.local : '')) : String(v)).filter(Boolean).join(', ');
           if (str) generalFacts.push({ icon, label, value: str });
@@ -1327,6 +1358,8 @@ async function fetchOppFromSupabase(idOrPerfilSlug, oppSlug) {
       imagem_capa: r.imagem_capa || null,
       imagens_focal: r.imagens_focal || {},
       facts: generalFacts.length > 0 ? generalFacts : undefined,
+      // Entregas ao patrocinador — vem de detalhes.entregas (preenchido no preview)
+      entregas: (r.detalhes && r.detalhes.entregas) || null,
       tags: r.tags || [],
       publico: r.publico_descricao || '',
       publicoFacts: publicoFacts.length > 0 ? publicoFacts : undefined,
@@ -1439,6 +1472,14 @@ function renderPage(oppOverride) {
   if (objSection && objEl && opp.objetivos) {
     objEl.textContent = opp.objetivos;
     objSection.style.display = '';
+  }
+
+  // Entregas ao patrocinador (preenchido no Step 6 do preview)
+  var entregasSection = document.getElementById('detailEntregasSection');
+  var entregasEl = document.getElementById('detailEntregas');
+  if (entregasSection && entregasEl && opp.entregas) {
+    entregasEl.textContent = opp.entregas;
+    entregasSection.style.display = '';
   }
 
   // Meta removido do header — campos não são universais entre templates

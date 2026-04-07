@@ -5312,7 +5312,7 @@ async function uploadPhotos(oppId, token) {
    SALVAR RASCUNHO
 ══════════════════════════════════════════════ */
 async function saveDraft() {
-  const data = collectOppData();
+  const data = mergePreviewData(collectOppData());
   data.status = 'rascunho';
   data.ativo = false;
 
@@ -5384,8 +5384,44 @@ async function saveDraft() {
 /* ══════════════════════════════════════════════
    PUBLICAR
 ══════════════════════════════════════════════ */
+/**
+ * Mescla os dados preenchidos no Step 6 (preview) no objeto de dados da oportunidade.
+ * - publico            → publico_descricao (coluna dedicada)
+ * - demografico        → detalhes.demografico (JSONB)
+ * - entregas           → detalhes.entregas (JSONB)
+ * - metricas_alcance   → detalhes.metricas_alcance (JSONB)
+ * - metricas_engajamento → detalhes.metricas_engajamento (JSONB)
+ * - metricas_impressoes  → detalhes.metricas_impressoes (JSONB)
+ * - prazo_inicio/fim   → detalhes.prazo_inicio / prazo_fim (JSONB)
+ * - prazo_continua     → detalhes.prazo_continua (JSONB)
+ */
+function mergePreviewData(data) {
+  if (!previewEditData || Object.keys(previewEditData).length === 0) return data;
+
+  // publico_descricao — coluna própria
+  if (previewEditData.publico) data.publico_descricao = previewEditData.publico;
+
+  // Campos extras → dentro de detalhes JSONB (não sobrescreve chaves existentes do template)
+  const extraDetalhes = {};
+  const detalheKeys = [
+    'demografico', 'entregas',
+    'metricas_alcance', 'metricas_engajamento', 'metricas_impressoes',
+    'prazo_inicio', 'prazo_fim', 'prazo_continua', 'prazo_sem_fim'
+  ];
+  detalheKeys.forEach(k => {
+    if (previewEditData[k] != null && previewEditData[k] !== '') {
+      extraDetalhes[k] = previewEditData[k];
+    }
+  });
+  if (Object.keys(extraDetalhes).length > 0) {
+    data.detalhes = Object.assign({}, data.detalhes || {}, extraDetalhes);
+  }
+
+  return data;
+}
+
 async function publishOpportunity() {
-  const data = collectOppData();
+  const data = mergePreviewData(collectOppData());
 
   // ── Validações obrigatórias (Fix 5) ──
   if (!data.titulo) { showToast('Preencha o nome da oportunidade.', 'error'); return; }
@@ -5727,6 +5763,25 @@ function maybePreFillEdit() {
     formState._pendingDetalhes = detalhes;
     formState._pendingCotas = cotasData;
     formState._pendingCotasHabilitadas = cotasHabilitadas;
+  }
+
+  // --- Campos do preview (previewEditData) — restaurar de publico_descricao e detalhes ---
+  if (opp.publico_descricao) previewEditData.publico = opp.publico_descricao;
+  const previewDetalheKeys = [
+    'demografico', 'entregas',
+    'metricas_alcance', 'metricas_engajamento', 'metricas_impressoes',
+    'prazo_inicio', 'prazo_fim', 'prazo_continua', 'prazo_sem_fim'
+  ];
+  previewDetalheKeys.forEach(k => {
+    if (detalhes[k] != null && detalhes[k] !== '') previewEditData[k] = detalhes[k];
+  });
+  // Reconstruir metricas combinado
+  if (previewEditData.metricas_alcance || previewEditData.metricas_engajamento || previewEditData.metricas_impressoes) {
+    const parts = [];
+    if (previewEditData.metricas_alcance)     parts.push('Alcance: ' + previewEditData.metricas_alcance);
+    if (previewEditData.metricas_engajamento) parts.push('Engajamento: ' + previewEditData.metricas_engajamento);
+    if (previewEditData.metricas_impressoes)  parts.push('Impressões: ' + previewEditData.metricas_impressoes);
+    if (parts.length > 0) previewEditData.metricas = parts.join('\n');
   }
 
   // Limpa o sessionStorage após usar
