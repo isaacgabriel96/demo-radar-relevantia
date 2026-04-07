@@ -445,13 +445,26 @@ textarea.form-control { resize: vertical; min-height: 90px; }
 }
 
 /* ── Gender pie chart ── */
-.gender-section { display: flex; align-items: flex-start; gap: 12px; }
-.gender-inputs { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.gender-section { display: flex; flex-direction: column; gap: 14px; }
+.gender-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .gender-pie-wrap {
-  flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 4px;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
 }
-.gender-pie-svg { width: 64px; height: 64px; overflow: visible; }
-.gender-pie-legend { font-size: 10px; font-weight: 600; color: var(--gray-4); text-align: center; white-space: nowrap; }
+.gender-pie-svg { width: 120px; height: 120px; overflow: visible; }
+.gender-pie-legend {
+  display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;
+}
+.gender-pie-legend-item {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 12px; font-weight: 600; color: var(--gray-4); white-space: nowrap;
+}
+.gender-pie-legend-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+.gender-pie-pct-label {
+  font-size: 11px; font-weight: 700; fill: var(--gray-4);
+  font-family: var(--font-body);
+}
 
 /* ── Period date-range ── */
 .period-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 6px; }
@@ -1789,6 +1802,20 @@ input[type=number] { -moz-appearance: textfield; }
                   <div>
                     <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:8px">Gênero</label>
                     <div class="gender-section">
+                      <div class="gender-pie-wrap">
+                        <svg class="gender-pie-svg" id="gender-pie-instagram" viewBox="0 0 120 120">
+                          <circle cx="60" cy="60" r="42" fill="var(--gray-2)"/>
+                          <circle cx="60" cy="60" r="42" fill="none" stroke="#4A90D9" stroke-width="20" stroke-dasharray="263.9 263.9" stroke-dashoffset="-0.1" id="gender-pie-m-instagram" style="transform-origin:center;transform:rotate(-90deg)"/>
+                          <circle cx="60" cy="60" r="42" fill="none" stroke="#E1306C" stroke-width="20" stroke-dasharray="0 263.9" stroke-dashoffset="0" id="gender-pie-f-instagram" style="transform-origin:center;transform:rotate(-90deg)"/>
+                          <circle cx="60" cy="60" r="32" fill="var(--white)"/>
+                          <text x="60" y="56" text-anchor="middle" font-size="11" font-weight="700" fill="#E1306C" font-family="var(--font-body)" id="gender-pie-txt-f-instagram">—</text>
+                          <text x="60" y="70" text-anchor="middle" font-size="11" font-weight="700" fill="#4A90D9" font-family="var(--font-body)" id="gender-pie-txt-m-instagram"></text>
+                        </svg>
+                        <div class="gender-pie-legend" id="gender-pie-lbl-instagram">
+                          <span class="gender-pie-legend-item"><span class="gender-pie-legend-dot" style="background:#E1306C"></span>♀ Feminino</span>
+                          <span class="gender-pie-legend-item"><span class="gender-pie-legend-dot" style="background:#4A90D9"></span>♂ Masculino</span>
+                        </div>
+                      </div>
                       <div class="gender-inputs">
                         <div class="form-group" style="margin-bottom:0">
                           <label style="font-size:12px;color:var(--gray-4);display:block;margin-bottom:5px">♀ Feminino (%)</label>
@@ -1798,14 +1825,6 @@ input[type=number] { -moz-appearance: textfield; }
                           <label style="font-size:12px;color:var(--gray-4);display:block;margin-bottom:5px">♂ Masculino (%)</label>
                           <input type="number" class="form-control" id="aud-instagram-genero-m" placeholder="Ex: 40" min="0" max="100" oninput="updateGenderPie('instagram')">
                         </div>
-                      </div>
-                      <div class="gender-pie-wrap">
-                        <svg class="gender-pie-svg" id="gender-pie-instagram" viewBox="0 0 64 64">
-                          <circle cx="32" cy="32" r="28" fill="var(--gray-2)"/>
-                          <circle cx="32" cy="32" r="28" fill="none" stroke="#E1306C" stroke-width="28" stroke-dasharray="0 175.9" stroke-dashoffset="44" id="gender-pie-f-instagram" style="transform-origin:center;transform:rotate(-90deg)"/>
-                          <circle cx="32" cy="32" r="14" fill="var(--white)"/>
-                        </svg>
-                        <div class="gender-pie-legend" id="gender-pie-lbl-instagram">—</div>
                       </div>
                     </div>
                   </div>
@@ -1905,6 +1924,20 @@ input[type=number] { -moz-appearance: textfield; }
                   <div>
                     <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:8px">Gênero</label>
                     <div class="gender-section">
+                      <div class="gender-pie-wrap">
+                        <svg class="gender-pie-svg" id="gender-pie-tiktok" viewBox="0 0 120 120">
+                          <circle cx="60" cy="60" r="42" fill="var(--gray-2)"/>
+                          <circle cx="60" cy="60" r="42" fill="none" stroke="#4A90D9" stroke-width="20" stroke-dasharray="263.9 263.9" stroke-dashoffset="-0.1" id="gender-pie-m-tiktok" style="transform-origin:center;transform:rotate(-90deg)"/>
+                          <circle cx="60" cy="60" r="42" fill="none" stroke="#E1306C" stroke-width="20" stroke-dasharray="0 263.9" stroke-dashoffset="0" id="gender-pie-f-tiktok" style="transform-origin:center;transform:rotate(-90deg)"/>
+                          <circle cx="60" cy="60" r="32" fill="var(--white)"/>
+                          <text x="60" y="56" text-anchor="middle" font-size="11" font-weight="700" fill="#E1306C" font-family="var(--font-body)" id="gender-pie-txt-f-tiktok">—</text>
+                          <text x="60" y="70" text-anchor="middle" font-size="11" font-weight="700" fill="#4A90D9" font-family="var(--font-body)" id="gender-pie-txt-m-tiktok"></text>
+                        </svg>
+                        <div class="gender-pie-legend" id="gender-pie-lbl-tiktok">
+                          <span class="gender-pie-legend-item"><span class="gender-pie-legend-dot" style="background:#E1306C"></span>♀ Feminino</span>
+                          <span class="gender-pie-legend-item"><span class="gender-pie-legend-dot" style="background:#4A90D9"></span>♂ Masculino</span>
+                        </div>
+                      </div>
                       <div class="gender-inputs">
                         <div class="form-group" style="margin-bottom:0">
                           <label style="font-size:12px;color:var(--gray-4);display:block;margin-bottom:5px">♀ Feminino (%)</label>
@@ -1914,14 +1947,6 @@ input[type=number] { -moz-appearance: textfield; }
                           <label style="font-size:12px;color:var(--gray-4);display:block;margin-bottom:5px">♂ Masculino (%)</label>
                           <input type="number" class="form-control" id="aud-tiktok-genero-m" placeholder="Ex: 45" min="0" max="100" oninput="updateGenderPie('tiktok')">
                         </div>
-                      </div>
-                      <div class="gender-pie-wrap">
-                        <svg class="gender-pie-svg" id="gender-pie-tiktok" viewBox="0 0 64 64">
-                          <circle cx="32" cy="32" r="28" fill="var(--gray-2)"/>
-                          <circle cx="32" cy="32" r="28" fill="none" stroke="#E1306C" stroke-width="28" stroke-dasharray="0 175.9" stroke-dashoffset="44" id="gender-pie-f-tiktok" style="transform-origin:center;transform:rotate(-90deg)"/>
-                          <circle cx="32" cy="32" r="14" fill="var(--white)"/>
-                        </svg>
-                        <div class="gender-pie-legend" id="gender-pie-lbl-tiktok">—</div>
                       </div>
                     </div>
                   </div>
@@ -2017,6 +2042,20 @@ input[type=number] { -moz-appearance: textfield; }
                   <div>
                     <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:8px">Gênero</label>
                     <div class="gender-section">
+                      <div class="gender-pie-wrap">
+                        <svg class="gender-pie-svg" id="gender-pie-youtube" viewBox="0 0 120 120">
+                          <circle cx="60" cy="60" r="42" fill="var(--gray-2)"/>
+                          <circle cx="60" cy="60" r="42" fill="none" stroke="#4A90D9" stroke-width="20" stroke-dasharray="263.9 263.9" stroke-dashoffset="-0.1" id="gender-pie-m-youtube" style="transform-origin:center;transform:rotate(-90deg)"/>
+                          <circle cx="60" cy="60" r="42" fill="none" stroke="#E1306C" stroke-width="20" stroke-dasharray="0 263.9" stroke-dashoffset="0" id="gender-pie-f-youtube" style="transform-origin:center;transform:rotate(-90deg)"/>
+                          <circle cx="60" cy="60" r="32" fill="var(--white)"/>
+                          <text x="60" y="56" text-anchor="middle" font-size="11" font-weight="700" fill="#E1306C" font-family="var(--font-body)" id="gender-pie-txt-f-youtube">—</text>
+                          <text x="60" y="70" text-anchor="middle" font-size="11" font-weight="700" fill="#4A90D9" font-family="var(--font-body)" id="gender-pie-txt-m-youtube"></text>
+                        </svg>
+                        <div class="gender-pie-legend" id="gender-pie-lbl-youtube">
+                          <span class="gender-pie-legend-item"><span class="gender-pie-legend-dot" style="background:#E1306C"></span>♀ Feminino</span>
+                          <span class="gender-pie-legend-item"><span class="gender-pie-legend-dot" style="background:#4A90D9"></span>♂ Masculino</span>
+                        </div>
+                      </div>
                       <div class="gender-inputs">
                         <div class="form-group" style="margin-bottom:0">
                           <label style="font-size:12px;color:var(--gray-4);display:block;margin-bottom:5px">♀ Feminino (%)</label>
@@ -2026,14 +2065,6 @@ input[type=number] { -moz-appearance: textfield; }
                           <label style="font-size:12px;color:var(--gray-4);display:block;margin-bottom:5px">♂ Masculino (%)</label>
                           <input type="number" class="form-control" id="aud-youtube-genero-m" placeholder="Ex: 55" min="0" max="100" oninput="updateGenderPie('youtube')">
                         </div>
-                      </div>
-                      <div class="gender-pie-wrap">
-                        <svg class="gender-pie-svg" id="gender-pie-youtube" viewBox="0 0 64 64">
-                          <circle cx="32" cy="32" r="28" fill="var(--gray-2)"/>
-                          <circle cx="32" cy="32" r="28" fill="none" stroke="#E1306C" stroke-width="28" stroke-dasharray="0 175.9" stroke-dashoffset="44" id="gender-pie-f-youtube" style="transform-origin:center;transform:rotate(-90deg)"/>
-                          <circle cx="32" cy="32" r="14" fill="var(--white)"/>
-                        </svg>
-                        <div class="gender-pie-legend" id="gender-pie-lbl-youtube">—</div>
                       </div>
                     </div>
                   </div>
@@ -2129,6 +2160,20 @@ input[type=number] { -moz-appearance: textfield; }
                   <div>
                     <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:8px">Gênero</label>
                     <div class="gender-section">
+                      <div class="gender-pie-wrap">
+                        <svg class="gender-pie-svg" id="gender-pie-linkedin" viewBox="0 0 120 120">
+                          <circle cx="60" cy="60" r="42" fill="var(--gray-2)"/>
+                          <circle cx="60" cy="60" r="42" fill="none" stroke="#4A90D9" stroke-width="20" stroke-dasharray="263.9 263.9" stroke-dashoffset="-0.1" id="gender-pie-m-linkedin" style="transform-origin:center;transform:rotate(-90deg)"/>
+                          <circle cx="60" cy="60" r="42" fill="none" stroke="#E1306C" stroke-width="20" stroke-dasharray="0 263.9" stroke-dashoffset="0" id="gender-pie-f-linkedin" style="transform-origin:center;transform:rotate(-90deg)"/>
+                          <circle cx="60" cy="60" r="32" fill="var(--white)"/>
+                          <text x="60" y="56" text-anchor="middle" font-size="11" font-weight="700" fill="#E1306C" font-family="var(--font-body)" id="gender-pie-txt-f-linkedin">—</text>
+                          <text x="60" y="70" text-anchor="middle" font-size="11" font-weight="700" fill="#4A90D9" font-family="var(--font-body)" id="gender-pie-txt-m-linkedin"></text>
+                        </svg>
+                        <div class="gender-pie-legend" id="gender-pie-lbl-linkedin">
+                          <span class="gender-pie-legend-item"><span class="gender-pie-legend-dot" style="background:#E1306C"></span>♀ Feminino</span>
+                          <span class="gender-pie-legend-item"><span class="gender-pie-legend-dot" style="background:#4A90D9"></span>♂ Masculino</span>
+                        </div>
+                      </div>
                       <div class="gender-inputs">
                         <div class="form-group" style="margin-bottom:0">
                           <label style="font-size:12px;color:var(--gray-4);display:block;margin-bottom:5px">♀ Feminino (%)</label>
@@ -2138,14 +2183,6 @@ input[type=number] { -moz-appearance: textfield; }
                           <label style="font-size:12px;color:var(--gray-4);display:block;margin-bottom:5px">♂ Masculino (%)</label>
                           <input type="number" class="form-control" id="aud-linkedin-genero-m" placeholder="Ex: 60" min="0" max="100" oninput="updateGenderPie('linkedin')">
                         </div>
-                      </div>
-                      <div class="gender-pie-wrap">
-                        <svg class="gender-pie-svg" id="gender-pie-linkedin" viewBox="0 0 64 64">
-                          <circle cx="32" cy="32" r="28" fill="var(--gray-2)"/>
-                          <circle cx="32" cy="32" r="28" fill="none" stroke="#E1306C" stroke-width="28" stroke-dasharray="0 175.9" stroke-dashoffset="44" id="gender-pie-f-linkedin" style="transform-origin:center;transform:rotate(-90deg)"/>
-                          <circle cx="32" cy="32" r="14" fill="var(--white)"/>
-                        </svg>
-                        <div class="gender-pie-legend" id="gender-pie-lbl-linkedin">—</div>
                       </div>
                     </div>
                   </div>
@@ -2241,6 +2278,20 @@ input[type=number] { -moz-appearance: textfield; }
                   <div>
                     <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:8px">Gênero</label>
                     <div class="gender-section">
+                      <div class="gender-pie-wrap">
+                        <svg class="gender-pie-svg" id="gender-pie-twitch" viewBox="0 0 120 120">
+                          <circle cx="60" cy="60" r="42" fill="var(--gray-2)"/>
+                          <circle cx="60" cy="60" r="42" fill="none" stroke="#4A90D9" stroke-width="20" stroke-dasharray="263.9 263.9" stroke-dashoffset="-0.1" id="gender-pie-m-twitch" style="transform-origin:center;transform:rotate(-90deg)"/>
+                          <circle cx="60" cy="60" r="42" fill="none" stroke="#E1306C" stroke-width="20" stroke-dasharray="0 263.9" stroke-dashoffset="0" id="gender-pie-f-twitch" style="transform-origin:center;transform:rotate(-90deg)"/>
+                          <circle cx="60" cy="60" r="32" fill="var(--white)"/>
+                          <text x="60" y="56" text-anchor="middle" font-size="11" font-weight="700" fill="#E1306C" font-family="var(--font-body)" id="gender-pie-txt-f-twitch">—</text>
+                          <text x="60" y="70" text-anchor="middle" font-size="11" font-weight="700" fill="#4A90D9" font-family="var(--font-body)" id="gender-pie-txt-m-twitch"></text>
+                        </svg>
+                        <div class="gender-pie-legend" id="gender-pie-lbl-twitch">
+                          <span class="gender-pie-legend-item"><span class="gender-pie-legend-dot" style="background:#E1306C"></span>♀ Feminino</span>
+                          <span class="gender-pie-legend-item"><span class="gender-pie-legend-dot" style="background:#4A90D9"></span>♂ Masculino</span>
+                        </div>
+                      </div>
                       <div class="gender-inputs">
                         <div class="form-group" style="margin-bottom:0">
                           <label style="font-size:12px;color:var(--gray-4);display:block;margin-bottom:5px">♀ Feminino (%)</label>
@@ -2250,14 +2301,6 @@ input[type=number] { -moz-appearance: textfield; }
                           <label style="font-size:12px;color:var(--gray-4);display:block;margin-bottom:5px">♂ Masculino (%)</label>
                           <input type="number" class="form-control" id="aud-twitch-genero-m" placeholder="Ex: 65" min="0" max="100" oninput="updateGenderPie('twitch')">
                         </div>
-                      </div>
-                      <div class="gender-pie-wrap">
-                        <svg class="gender-pie-svg" id="gender-pie-twitch" viewBox="0 0 64 64">
-                          <circle cx="32" cy="32" r="28" fill="var(--gray-2)"/>
-                          <circle cx="32" cy="32" r="28" fill="none" stroke="#E1306C" stroke-width="28" stroke-dasharray="0 175.9" stroke-dashoffset="44" id="gender-pie-f-twitch" style="transform-origin:center;transform:rotate(-90deg)"/>
-                          <circle cx="32" cy="32" r="14" fill="var(--white)"/>
-                        </svg>
-                        <div class="gender-pie-legend" id="gender-pie-lbl-twitch">—</div>
                       </div>
                     </div>
                   </div>
@@ -2352,6 +2395,20 @@ input[type=number] { -moz-appearance: textfield; }
                   <div>
                     <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:8px">Gênero</label>
                     <div class="gender-section">
+                      <div class="gender-pie-wrap">
+                        <svg class="gender-pie-svg" id="gender-pie-kwai" viewBox="0 0 120 120">
+                          <circle cx="60" cy="60" r="42" fill="var(--gray-2)"/>
+                          <circle cx="60" cy="60" r="42" fill="none" stroke="#4A90D9" stroke-width="20" stroke-dasharray="263.9 263.9" stroke-dashoffset="-0.1" id="gender-pie-m-kwai" style="transform-origin:center;transform:rotate(-90deg)"/>
+                          <circle cx="60" cy="60" r="42" fill="none" stroke="#E1306C" stroke-width="20" stroke-dasharray="0 263.9" stroke-dashoffset="0" id="gender-pie-f-kwai" style="transform-origin:center;transform:rotate(-90deg)"/>
+                          <circle cx="60" cy="60" r="32" fill="var(--white)"/>
+                          <text x="60" y="56" text-anchor="middle" font-size="11" font-weight="700" fill="#E1306C" font-family="var(--font-body)" id="gender-pie-txt-f-kwai">—</text>
+                          <text x="60" y="70" text-anchor="middle" font-size="11" font-weight="700" fill="#4A90D9" font-family="var(--font-body)" id="gender-pie-txt-m-kwai"></text>
+                        </svg>
+                        <div class="gender-pie-legend" id="gender-pie-lbl-kwai">
+                          <span class="gender-pie-legend-item"><span class="gender-pie-legend-dot" style="background:#E1306C"></span>♀ Feminino</span>
+                          <span class="gender-pie-legend-item"><span class="gender-pie-legend-dot" style="background:#4A90D9"></span>♂ Masculino</span>
+                        </div>
+                      </div>
                       <div class="gender-inputs">
                         <div class="form-group" style="margin-bottom:0">
                           <label style="font-size:12px;color:var(--gray-4);display:block;margin-bottom:5px">♀ Feminino (%)</label>
@@ -2361,14 +2418,6 @@ input[type=number] { -moz-appearance: textfield; }
                           <label style="font-size:12px;color:var(--gray-4);display:block;margin-bottom:5px">♂ Masculino (%)</label>
                           <input type="number" class="form-control" id="aud-kwai-genero-m" placeholder="Ex: 45" min="0" max="100" oninput="updateGenderPie('kwai')">
                         </div>
-                      </div>
-                      <div class="gender-pie-wrap">
-                        <svg class="gender-pie-svg" id="gender-pie-kwai" viewBox="0 0 64 64">
-                          <circle cx="32" cy="32" r="28" fill="var(--gray-2)"/>
-                          <circle cx="32" cy="32" r="28" fill="none" stroke="#E1306C" stroke-width="28" stroke-dasharray="0 175.9" stroke-dashoffset="44" id="gender-pie-f-kwai" style="transform-origin:center;transform:rotate(-90deg)"/>
-                          <circle cx="32" cy="32" r="14" fill="var(--white)"/>
-                        </svg>
-                        <div class="gender-pie-legend" id="gender-pie-lbl-kwai">—</div>
                       </div>
                     </div>
                   </div>
@@ -2462,6 +2511,20 @@ input[type=number] { -moz-appearance: textfield; }
                   <div>
                     <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:8px">Gênero</label>
                     <div class="gender-section">
+                      <div class="gender-pie-wrap">
+                        <svg class="gender-pie-svg" id="gender-pie-kick" viewBox="0 0 120 120">
+                          <circle cx="60" cy="60" r="42" fill="var(--gray-2)"/>
+                          <circle cx="60" cy="60" r="42" fill="none" stroke="#4A90D9" stroke-width="20" stroke-dasharray="263.9 263.9" stroke-dashoffset="-0.1" id="gender-pie-m-kick" style="transform-origin:center;transform:rotate(-90deg)"/>
+                          <circle cx="60" cy="60" r="42" fill="none" stroke="#E1306C" stroke-width="20" stroke-dasharray="0 263.9" stroke-dashoffset="0" id="gender-pie-f-kick" style="transform-origin:center;transform:rotate(-90deg)"/>
+                          <circle cx="60" cy="60" r="32" fill="var(--white)"/>
+                          <text x="60" y="56" text-anchor="middle" font-size="11" font-weight="700" fill="#E1306C" font-family="var(--font-body)" id="gender-pie-txt-f-kick">—</text>
+                          <text x="60" y="70" text-anchor="middle" font-size="11" font-weight="700" fill="#4A90D9" font-family="var(--font-body)" id="gender-pie-txt-m-kick"></text>
+                        </svg>
+                        <div class="gender-pie-legend" id="gender-pie-lbl-kick">
+                          <span class="gender-pie-legend-item"><span class="gender-pie-legend-dot" style="background:#E1306C"></span>♀ Feminino</span>
+                          <span class="gender-pie-legend-item"><span class="gender-pie-legend-dot" style="background:#4A90D9"></span>♂ Masculino</span>
+                        </div>
+                      </div>
                       <div class="gender-inputs">
                         <div class="form-group" style="margin-bottom:0">
                           <label style="font-size:12px;color:var(--gray-4);display:block;margin-bottom:5px">♀ Feminino (%)</label>
@@ -2471,14 +2534,6 @@ input[type=number] { -moz-appearance: textfield; }
                           <label style="font-size:12px;color:var(--gray-4);display:block;margin-bottom:5px">♂ Masculino (%)</label>
                           <input type="number" class="form-control" id="aud-kick-genero-m" placeholder="Ex: 70" min="0" max="100" oninput="updateGenderPie('kick')">
                         </div>
-                      </div>
-                      <div class="gender-pie-wrap">
-                        <svg class="gender-pie-svg" id="gender-pie-kick" viewBox="0 0 64 64">
-                          <circle cx="32" cy="32" r="28" fill="var(--gray-2)"/>
-                          <circle cx="32" cy="32" r="28" fill="none" stroke="#E1306C" stroke-width="28" stroke-dasharray="0 175.9" stroke-dashoffset="44" id="gender-pie-f-kick" style="transform-origin:center;transform:rotate(-90deg)"/>
-                          <circle cx="32" cy="32" r="14" fill="var(--white)"/>
-                        </svg>
-                        <div class="gender-pie-legend" id="gender-pie-lbl-kick">—</div>
                       </div>
                     </div>
                   </div>
@@ -4392,7 +4447,7 @@ function updateAgeBars(network) {
   const indicator = document.getElementById('aud-' + network + '-age-sum');
   if (!indicator) return;
   const rounded = Math.round(total * 10) / 10;
-  indicator.textContent = rounded + '%';
+  indicator.textContent = 'Total: ' + rounded + '%';
   indicator.className = 'age-sum-indicator ' + (rounded === 100 ? 'ok' : rounded > 100 ? 'over' : 'under');
 }
 
@@ -4421,30 +4476,49 @@ function parseFollowers(str) {
   return isNaN(n) ? null : n;
 }
 
-/** Chamado a cada keypress no campo seguidores — aplica máscara K/M preservando cursor */
+/** Chamado a cada keypress no campo seguidores.
+ *  Enquanto digita: formata com pontos como separador de milhar (padrão pt-BR): 2.350.000
+ *  Preserva posição do cursor corretamente.
+ */
 function onSeguidoresInput(el, network) {
-  // Armazena posição do cursor antes de alterar
-  const raw = el.value.replace(/[^0-9kKmM.,]/g, '');
-  // Só aplica formatação se terminar em número (não enquanto digita "k"/"M")
-  const num = parseFollowers(raw);
-  if (num && num >= 1000 && !/[kKmM]/.test(raw)) {
-    el.value = formatFollowers(num);
+  // Salva posição do cursor antes de reformatar
+  const selStart = el.selectionStart;
+  const prevLen  = el.value.length;
+
+  // Remove tudo que não for dígito
+  const digits = el.value.replace(/\D/g, '');
+
+  if (!digits) {
+    el.value = '';
+    return;
   }
-  // Atualiza barra de visualização se existir
-  updateAgeBars(network); // re-valida nada; só para consistência futura
+
+  // Formata com pontos a cada 3 dígitos (pt-BR: 2.350.000)
+  const formatted = digits.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  el.value = formatted;
+
+  // Reposiciona cursor levando em conta pontos inseridos/removidos
+  const newLen   = el.value.length;
+  const cursorAdj = newLen - prevLen;
+  const newCursor = Math.max(0, selStart + cursorAdj);
+  try { el.setSelectionRange(newCursor, newCursor); } catch(e) {}
 }
 
 /* ── Pie chart de gênero ── */
 
 /** Atualiza o donut SVG conforme F% e M% são digitados.
  *  Valida que F + M ≤ 100 — caso ultrapasse, clampa o campo atual e destaca em vermelho.
+ *  SVG: viewBox 120×120, cx/cy=60, r=42, stroke-width=20, circumference≈263.9
+ *  Dois arcos: feminino (rosa #E1306C) e masculino (azul #4A90D9)
  */
 function updateGenderPie(network) {
-  const fEl = document.getElementById('aud-' + network + '-genero-f');
-  const mEl = document.getElementById('aud-' + network + '-genero-m');
-  const arc = document.getElementById('gender-pie-f-' + network);
-  const lbl = document.getElementById('gender-pie-lbl-' + network);
-  if (!arc || !fEl || !mEl) return;
+  const fEl   = document.getElementById('aud-' + network + '-genero-f');
+  const mEl   = document.getElementById('aud-' + network + '-genero-m');
+  const arcF  = document.getElementById('gender-pie-f-' + network);
+  const arcM  = document.getElementById('gender-pie-m-' + network);
+  const txtF  = document.getElementById('gender-pie-txt-f-' + network);
+  const txtM  = document.getElementById('gender-pie-txt-m-' + network);
+  if (!arcF || !fEl || !mEl) return;
 
   let f = parseFloat(fEl.value) || 0;
   let m = parseFloat(mEl.value) || 0;
@@ -4453,67 +4527,125 @@ function updateGenderPie(network) {
   f = Math.min(Math.max(f, 0), 100);
   m = Math.min(Math.max(m, 0), 100);
 
-  // Valida soma ≤ 100 — se ultrapassar, clampa o campo que acabou de ser editado
+  // Valida soma ≤ 100 — clampa o campo ativo
   if (f + m > 100) {
-    // Descobre qual campo foi alterado por último comparando com value parseado
-    if (parseFloat(fEl.value) + (parseFloat(mEl.value) || 0) > 100 &&
-        document.activeElement === fEl) {
-      f = 100 - m;
-      if (f < 0) f = 0;
+    if (document.activeElement === fEl) {
+      f = Math.max(0, 100 - m);
       fEl.value = f;
     } else {
-      m = 100 - f;
-      if (m < 0) m = 0;
+      m = Math.max(0, 100 - f);
       mEl.value = m;
     }
-    // Destaca erro brevemente
     fEl.style.borderColor = '#c0392b';
     mEl.style.borderColor = '#c0392b';
-    setTimeout(() => {
-      fEl.style.borderColor = '';
-      mEl.style.borderColor = '';
-    }, 900);
+    setTimeout(() => { fEl.style.borderColor = ''; mEl.style.borderColor = ''; }, 900);
   } else {
     fEl.style.borderColor = '';
     mEl.style.borderColor = '';
   }
 
-  const circumference = 2 * Math.PI * 28; // r=28 → ≈175.93
-  const pctF = (f + m > 0) ? f / (f + m) : 0;
-  arc.setAttribute('stroke-dasharray', (pctF * circumference).toFixed(2) + ' ' + circumference.toFixed(2));
-  if (lbl) lbl.textContent = (f || m) ? f + '% ♀  /  ' + m + '% ♂' : '—';
+  const C = 2 * Math.PI * 42; // r=42 → ≈263.89
+  const hasData = (f > 0 || m > 0);
+
+  if (!hasData) {
+    // Estado vazio: arco feminino cobre tudo em cinza (já é o fundo)
+    arcF.setAttribute('stroke-dasharray', '0 ' + C.toFixed(2));
+    if (arcM) arcM.setAttribute('stroke-dasharray', C.toFixed(2) + ' ' + C.toFixed(2));
+    if (txtF) { txtF.textContent = '—'; txtF.setAttribute('fill', '#A89880'); }
+    if (txtM) txtM.textContent = '';
+    return;
+  }
+
+  // Arco feminino: f% da circunferência, começa em -90°
+  const dashF = (f / 100) * C;
+  arcF.setAttribute('stroke-dasharray', dashF.toFixed(2) + ' ' + C.toFixed(2));
+  arcF.setAttribute('stroke-dashoffset', '0');
+
+  // Arco masculino: m% da circunferência, começa onde feminino termina
+  if (arcM) {
+    const dashM = (m / 100) * C;
+    const offsetM = -(dashF);   // negativo desloca no sentido horário
+    arcM.setAttribute('stroke-dasharray', dashM.toFixed(2) + ' ' + C.toFixed(2));
+    arcM.setAttribute('stroke-dashoffset', offsetM.toFixed(2));
+  }
+
+  // Textos centrais
+  if (txtF) {
+    txtF.textContent = f > 0 ? f + '% ♀' : '';
+    txtF.setAttribute('fill', '#E1306C');
+  }
+  if (txtM) {
+    txtM.textContent = m > 0 ? m + '% ♂' : '';
+  }
 }
 
 /* ── Slider de faixa etária ── */
 
-/** Sincroniza o slider com o input numérico correspondente e atualiza as barras */
-function syncSlider(network, range, value) {
-  const input = document.getElementById('aud-' + network + '-age-' + range);
-  if (input) {
-    input.value = value;
-    updateAgeBars(network);
-  }
+const AGE_RANGES = ['1317', '1824', '2534', '3544', '45p'];
+
+/** Calcula a soma de todas as faixas exceto a indicada */
+function _ageOtherSum(network, excludeRange) {
+  let sum = 0;
+  AGE_RANGES.forEach(r => {
+    if (r === excludeRange) return;
+    const inp = document.getElementById('aud-' + network + '-age-' + r);
+    sum += parseFloat(inp?.value) || 0;
+  });
+  return sum;
 }
 
-/** Sincroniza o input numérico → slider (bidirecional) */
+/** Sincroniza o slider → input numérico, clamping para que total não passe de 100 */
+function syncSlider(network, range, value) {
+  const input  = document.getElementById('aud-' + network + '-age-' + range);
+  const slider = document.getElementById('slider-' + network + '-' + range);
+  if (!input) return;
+
+  const otherSum = _ageOtherSum(network, range);
+  const maxVal   = Math.max(0, 100 - otherSum);
+  const clamped  = Math.min(parseFloat(value) || 0, maxVal);
+
+  input.value = clamped;
+  if (slider && parseFloat(slider.value) !== clamped) slider.value = clamped;
+  updateAgeBars(network);
+}
+
+/** Sincroniza o input numérico → slider (bidirecional), clamping para total ≤ 100 */
 function syncInputToSlider(network, range, value) {
   const slider = document.getElementById('slider-' + network + '-' + range);
-  if (slider) slider.value = Math.min(Math.max(parseFloat(value) || 0, 0), 100);
+  const input  = document.getElementById('aud-' + network + '-age-' + range);
+  if (!slider) return;
+
+  const otherSum = _ageOtherSum(network, range);
+  const maxVal   = Math.max(0, 100 - otherSum);
+  const clamped  = Math.min(Math.max(parseFloat(value) || 0, 0), maxVal);
+
+  slider.value = clamped;
+  if (input && parseFloat(input.value) > clamped) input.value = clamped;
 }
 
 /* ══════════════════════════════════════════════
    ADICIONAR / REMOVER CANAIS DINAMICAMENTE
 ══════════════════════════════════════════════ */
 
-/** Metadados de cada rede (nome legível + emoji/ícone de texto) */
+/** Metadados de cada rede (nome legível + SVG ícone inline) */
+const CANAL_SVG = {
+  instagram: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="4.5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>`,
+  tiktok:    `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.87a8.18 8.18 0 004.78 1.52V7.02a4.85 4.85 0 01-1.01-.33z"/></svg>`,
+  youtube:   `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 00-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 001.46 6.42 29 29 0 001 12a29 29 0 00.46 5.58 2.78 2.78 0 001.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 001.95-1.96A29 29 0 0023 12a29 29 0 00-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="currentColor" stroke="none"/></svg>`,
+  linkedin:  `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>`,
+  twitch:    `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2H3v16h5v4l4-4h5l4-4V2z"/><line x1="11" y1="7" x2="11" y2="11"/><line x1="16" y1="7" x2="16" y2="11"/></svg>`,
+  kwai:      `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><polygon points="9,8 17,12 9,16" fill="currentColor" stroke="none"/></svg>`,
+  kick:      `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 8v8M9 12l3-4h3M9 12l3 4h3" stroke-linecap="round"/></svg>`,
+};
+
 const CANAL_META = {
-  instagram: { label: 'Instagram',  icon: '📸' },
-  tiktok:    { label: 'TikTok',     icon: '🎵' },
-  youtube:   { label: 'YouTube',    icon: '▶️'  },
-  linkedin:  { label: 'LinkedIn',   icon: '💼' },
-  twitch:    { label: 'Twitch',     icon: '🎮' },
-  kwai:      { label: 'Kwai',       icon: '🎬' },
-  kick:      { label: 'Kick',       icon: '🟢' },
+  instagram: { label: 'Instagram',  icon: CANAL_SVG.instagram },
+  tiktok:    { label: 'TikTok',     icon: CANAL_SVG.tiktok    },
+  youtube:   { label: 'YouTube',    icon: CANAL_SVG.youtube   },
+  linkedin:  { label: 'LinkedIn',   icon: CANAL_SVG.linkedin  },
+  twitch:    { label: 'Twitch',     icon: CANAL_SVG.twitch    },
+  kwai:      { label: 'Kwai',       icon: CANAL_SVG.kwai      },
+  kick:      { label: 'Kick',       icon: CANAL_SVG.kick      },
 };
 
 /** Estado: quais redes já foram adicionadas */
@@ -4538,7 +4670,7 @@ function openCanalPicker() {
       const btn  = document.createElement('button');
       btn.type   = 'button';
       btn.style.cssText = 'display:flex;align-items:center;gap:9px;width:100%;padding:8px 10px;border:none;border-radius:8px;background:none;cursor:pointer;font-size:13px;font-weight:500;color:var(--text);font-family:var(--font-body);text-align:left;transition:background .12s';
-      btn.innerHTML = `<span style="font-size:15px;line-height:1">${meta.icon}</span><span>${meta.label}</span>`;
+      btn.innerHTML = `<span style="display:flex;align-items:center;color:var(--gray-4);flex-shrink:0">${meta.icon}</span><span>${meta.label}</span>`;
       btn.onmouseover = () => btn.style.background = 'var(--gray-1)';
       btn.onmouseout  = () => btn.style.background = 'none';
       btn.onclick     = () => addCanal(net);
