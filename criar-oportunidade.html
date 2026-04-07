@@ -579,23 +579,41 @@ textarea.form-control { resize: vertical; min-height: 90px; }
   transition: border-color .15s, box-shadow .15s; outline: none;
 }
 .canal-card-username-input:focus { border-color: var(--gold); box-shadow: var(--shadow-focus); }
+/* Badge "✓ Salvo" — aparece ao salvar, some após 2.5s via JS */
 .canal-card-saved-badge {
   display: none; align-items: center; gap: 4px; font-size: 11px; font-weight: 600;
   color: #16a34a; background: #f0fdf4; border: 1.5px solid #22c55e55;
   border-radius: 100px; padding: 3px 9px; flex-shrink: 0; white-space: nowrap;
+  opacity: 1; transition: opacity .5s ease;
 }
-.canal-card.saved .canal-card-saved-badge { display: flex; }
+.canal-card-saved-badge.fading { opacity: 0; }
+
+/* Ícone lápis no header — sempre visível, abre painel para editar */
+.canal-card-edit-icon {
+  background: none; border: none; cursor: pointer;
+  color: var(--gray-3); padding: 4px 5px; flex-shrink: 0;
+  border-radius: 6px; display: flex; align-items: center;
+  transition: color .15s, background .15s;
+}
+.canal-card-edit-icon:hover { color: var(--brown-warm); background: var(--gold-muted); }
+
+/* X para remover */
 .canal-card-remove-btn {
   background: none; border: none; cursor: pointer; color: var(--gray-3);
   font-size: 16px; line-height: 1; padding: 4px 6px; flex-shrink: 0;
-  transition: color .15s; border-radius: 6px;
+  transition: color .15s, background .15s; border-radius: 6px; display: flex; align-items: center;
 }
 .canal-card-remove-btn:hover { color: #c0392b; background: #fdf2f2; }
+
+/* Footer — some quando salvo */
 .canal-card-footer {
   display: flex; align-items: center; justify-content: flex-end;
   padding: 10px 14px; gap: 8px; border-top: 1.5px solid var(--gray-2);
-  background: var(--gray-1);
+  background: var(--gray-1); transition: all .2s;
 }
+.canal-card.saved .canal-card-footer { display: none; }
+
+/* Botão Salvar canal — estilo default preto */
 .btn-save-canal {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 8px 18px; border-radius: 100px; border: 1.5px solid var(--black); cursor: pointer;
@@ -605,27 +623,35 @@ textarea.form-control { resize: vertical; min-height: 90px; }
 }
 .btn-save-canal:hover { background: var(--gray-4); border-color: var(--gray-4); }
 .btn-save-canal:active { transform: scale(.97); }
-.canal-card.saved .btn-save-canal { display: none; }
-.btn-edit-canal {
-  display: none; align-items: center; gap: 5px;
-  padding: 7px 14px; border-radius: 100px;
-  border: 1.5px solid var(--gray-2); background: var(--white);
-  cursor: pointer; font-size: 12px; font-weight: 600;
-  font-family: var(--font-body); color: var(--gray-4);
-  transition: border-color .15s, color .15s;
+
+/* ── Confirm remove banner inline ── */
+.canal-remove-confirm {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 14px; background: #fff8f8;
+  border-bottom: 1.5px solid #fecaca;
+  animation: confirmSlideIn .15s ease;
 }
-.btn-edit-canal:hover { border-color: var(--gold); color: var(--brown-warm); }
-.canal-card.saved .btn-edit-canal { display: inline-flex; }
-.btn-remove-canal {
-  display: none; align-items: center; gap: 5px;
-  padding: 7px 14px; border-radius: 100px;
-  border: 1.5px solid #fecaca; background: var(--white);
-  cursor: pointer; font-size: 12px; font-weight: 600;
-  font-family: var(--font-body); color: #dc2626;
+@keyframes confirmSlideIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.canal-remove-confirm-text {
+  font-size: 12px; font-weight: 600; color: #7f1d1d; flex: 1;
+}
+.canal-remove-confirm-yes {
+  padding: 5px 13px; border-radius: 100px; border: none; cursor: pointer;
+  font-size: 11.5px; font-weight: 700; font-family: var(--font-body);
+  background: #dc2626; color: #fff;
+  transition: background .15s;
+}
+.canal-remove-confirm-yes:hover { background: #b91c1c; }
+.canal-remove-confirm-no {
+  padding: 5px 13px; border-radius: 100px; cursor: pointer;
+  font-size: 11.5px; font-weight: 600; font-family: var(--font-body);
+  background: none; border: 1.5px solid #fecaca; color: #7f1d1d;
   transition: border-color .15s, background .15s;
 }
-.btn-remove-canal:hover { background: #fef2f2; border-color: #dc2626; }
-.canal-card.saved .btn-remove-canal { display: inline-flex; }
+.canal-remove-confirm-no:hover { background: #fef2f2; border-color: #dc2626; }
 
 /* ── Gender sum indicator ── */
 .gender-sum-indicator {
@@ -4151,7 +4177,10 @@ function addCanal(network) {
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
       Salvo
     </span>
-    <button type="button" class="canal-card-remove-btn" onclick="removeCanal('${profileId}')" title="Remover canal">
+    <button type="button" class="canal-card-edit-icon" onclick="editCanal('${profileId}')" title="Editar canal">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+    </button>
+    <button type="button" class="canal-card-remove-btn" onclick="confirmRemoveCanal('${profileId}')" title="Remover canal">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
     </button>
   </div>
@@ -4285,16 +4314,8 @@ function addCanal(network) {
     </div><!-- /audience-panel-body -->
   </div><!-- /audience-panel -->
 
-  <!-- ── Footer com botão Salvar ── -->
+  <!-- ── Footer com botão Salvar (some quando salvo) ── -->
   <div class="canal-card-footer" id="canal-card-footer-${profileId}">
-    <button type="button" class="btn-remove-canal" id="btn-remove-${profileId}" onclick="removeCanal('${profileId}')">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-      Excluir
-    </button>
-    <button type="button" class="btn-edit-canal" id="btn-edit-${profileId}" onclick="editCanal('${profileId}')">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-      Editar
-    </button>
     <button type="button" class="btn-save-canal" id="btn-save-${profileId}" onclick="saveCanal('${profileId}')">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
       Salvar canal
@@ -4442,37 +4463,80 @@ function saveCanal(profileId) {
     return;
   }
 
-  // ✅ Tudo válido — fecha painel e marca APENAS o header como salvo
+  // ✅ Tudo válido — fecha painel e marca card como salvo
   if (panel && panel.classList.contains('open')) toggleAudiencePanel(profileId);
 
-  const header = document.getElementById('canal-card-header-' + profileId);
-  const card   = document.getElementById('canal-card-' + profileId);
-  if (header) header.classList.add('saved');
-  if (card)   card.classList.add('saved'); // necessário para badge + btn-edit via CSS
+  const card = document.getElementById('canal-card-' + profileId);
+  if (card) card.classList.add('saved'); // footer some via CSS
+
+  // Badge verde: aparece, depois faz fade e some após 2.5s
+  const badge = document.getElementById('canal-saved-badge-' + profileId);
+  if (badge) {
+    badge.style.display = 'flex';
+    badge.classList.remove('fading');
+    clearTimeout(badge._fadeTimer);
+    badge._fadeTimer = setTimeout(() => {
+      badge.classList.add('fading');
+      setTimeout(() => { badge.style.display = 'none'; badge.classList.remove('fading'); }, 500);
+    }, 2500);
+  }
 
   showToast('Canal salvo com sucesso!', 'success');
 }
 
-/** Reabre o painel para edição, remove estado salvo do header */
+/** Reabre o painel para edição, remove estado salvo */
 function editCanal(profileId) {
-  const card   = document.getElementById('canal-card-' + profileId);
-  const header = document.getElementById('canal-card-header-' + profileId);
-  if (card)   card.classList.remove('saved');
-  if (header) header.classList.remove('saved');
+  const card  = document.getElementById('canal-card-' + profileId);
+  const badge = document.getElementById('canal-saved-badge-' + profileId);
+
+  if (card) card.classList.remove('saved');
+
+  // Garante que badge some imediatamente ao editar
+  if (badge) {
+    clearTimeout(badge._fadeTimer);
+    badge.style.display = 'none';
+    badge.classList.remove('fading');
+  }
 
   // Abre painel se fechado
   const panel = document.getElementById('aud-panel-' + profileId);
   if (panel && !panel.classList.contains('open')) toggleAudiencePanel(profileId);
 }
 
+/** Pede confirmação inline antes de remover o canal */
+function confirmRemoveCanal(profileId) {
+  const card = document.getElementById('canal-card-' + profileId);
+  if (!card) return;
+
+  // Se já existe um confirm aberto neste card, ignora
+  if (card.querySelector('.canal-remove-confirm')) return;
+
+  const header = document.getElementById('canal-card-header-' + profileId);
+
+  // Cria banner de confirmação inline abaixo do header
+  const confirm = document.createElement('div');
+  confirm.className = 'canal-remove-confirm';
+  confirm.innerHTML = `
+    <span class="canal-remove-confirm-text">Remover este canal?</span>
+    <button type="button" class="canal-remove-confirm-yes" onclick="removeCanal('${profileId}')">Sim, remover</button>
+    <button type="button" class="canal-remove-confirm-no" onclick="this.closest('.canal-remove-confirm').remove()">Cancelar</button>
+  `;
+
+  // Insere logo após o header
+  header.insertAdjacentElement('afterend', confirm);
+
+  // Auto-fecha após 6s se não interagir
+  confirm._autoClose = setTimeout(() => confirm.remove(), 6000);
+}
+
 /** Remove o card do canal do DOM */
 function removeCanal(profileId) {
   const card = document.getElementById('canal-card-' + profileId);
   if (card) {
-    card.style.transition = 'opacity .2s, transform .2s';
+    card.style.transition = 'opacity .22s, transform .22s';
     card.style.opacity = '0';
     card.style.transform = 'scale(.97)';
-    setTimeout(() => card.remove(), 220);
+    setTimeout(() => card.remove(), 230);
   }
 }
 
