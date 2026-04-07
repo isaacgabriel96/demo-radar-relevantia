@@ -3562,8 +3562,11 @@ async function sendNegMsg() {
                now.getHours().toString().padStart(2,'0') + ':' +
                now.getMinutes().toString().padStart(2,'0');
 
+  // Resolve o nome real do detentor (sidebar populado pelo init)
+  const _detentorNomeReal = document.getElementById('sidebarName')?.textContent?.trim() || _negAtiva.opp;
+
   // Add to local thread immediately (optimistic)
-  _negAtiva.thread.push({ autor:'detentor', nome: _negAtiva.opp, texto: text, data });
+  _negAtiva.thread.push({ autor:'detentor', nome: _detentorNomeReal, texto: text, data });
   _autoStatus(_negAtiva);
   renderNegThread(_negAtiva.thread);
   ta.value = '';
@@ -3576,7 +3579,7 @@ async function sendNegMsg() {
       negociacao_id: _negAtiva._supaId,
       autor_id: userId || _negAtiva.detentor_id,
       autor_role: 'detentor',
-      autor_nome: _negAtiva.opp,
+      autor_nome: _detentorNomeReal,
       texto: text
     });
   } else {

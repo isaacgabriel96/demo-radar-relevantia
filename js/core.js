@@ -423,13 +423,24 @@ async function fetchNegociacoesDetentor() {
   }
 }
 
+// rowToNegociacao para o lado da marca — lê detentor em vez de marca
+function rowToNegociacaoMarca(row) {
+  // O nome exibido para a marca é o nome/empresa do detentor (organizador)
+  const detentorNome = (row.detentor && row.detentor.empresa) ? row.detentor.empresa
+    : (row.detentor && row.detentor.nome) ? row.detentor.nome : '';
+  // Reutiliza rowToNegociacao e sobrescreve apenas o campo marca
+  const neg = rowToNegociacao(row);
+  neg.marca = detentorNome;   // na visão da marca, "marca" aponta pro detentor (organizador)
+  return neg;
+}
+
 async function fetchNegociacoesMarca() {
   if (isDemoMode()) return null;
   try {
     if (sb) {
       const token = await getValidToken();
       if (token) {
-        // For marca, join detentor instead of marca
+        // Para marca, faz join no detentor (organizador) em vez da marca
         const marcaSelect = _negSelectQuery.replace('marca:marca_id(nome,empresa),', 'detentor:detentor_id(nome,empresa),');
         const res = await fetch(SUPABASE_URL + '/rest/v1/negociacoes?select=' + marcaSelect +
           '&order=created_at.desc&mensagens.order=created_at.asc', {
@@ -437,8 +448,19 @@ async function fetchNegociacoesMarca() {
         });
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const rows = await res.json();
-        return rows.map(rowToNegociacao);
+        // Usa rowToNegociacaoMarca para ler o campo detentor corretamente
+        return rows.map(rowToNegociacaoMarca);
       }
+    }
+    // Fallback: tenta sessão legada da marca
+    const session = await getSessionAsync('brand');
+    if (session?.access_token && session.access_token !== 'DEMO_TOKEN') {
+      const marcaSelect = _negSelectQuery.replace('marca:marca_id(nome,empresa),', 'detentor:detentor_id(nome,empresa),');
+      const res = await sbFetch('/rest/v1/negociacoes?select=' + marcaSelect +
+        '&order=created_at.desc&mensagens.order=created_at.asc', session.access_token);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const rows = await res.json();
+      return rows.map(rowToNegociacaoMarca);
     }
     return null;
   } catch (err) {

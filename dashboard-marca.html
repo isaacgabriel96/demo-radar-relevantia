@@ -3143,7 +3143,10 @@ async function sendPropostaMsg() {
                now.getHours().toString().padStart(2,'0') + ':' +
                now.getMinutes().toString().padStart(2,'0');
 
-  _propostaAtiva.thread.push({ autor: 'marca', nome: _propostaAtiva.marca || 'Marca', texto: text, data });
+  // Resolve o nome real da marca (sidebar populado pelo init)
+  const _marcaNomeReal = document.getElementById('sidebarName')?.textContent?.trim() || 'Marca';
+
+  _propostaAtiva.thread.push({ autor: 'marca', nome: _marcaNomeReal, texto: text, data });
   renderMsgThread(_propostaAtiva.thread);
 
   if (_propostaAtiva._supaId && !isDemoMode()) {
@@ -3152,7 +3155,7 @@ async function sendPropostaMsg() {
       negociacao_id: _propostaAtiva._supaId,
       autor_id: userId || _propostaAtiva.marca_id,
       autor_role: 'marca',
-      autor_nome: _propostaAtiva.marca || 'Marca',
+      autor_nome: _marcaNomeReal,
       texto: text
     });
   } else { SharedNeg.save(); }

@@ -4128,6 +4128,7 @@ async function publishOpportunity() {
 
   // ── Validações obrigatórias (Fix 5) ──
   if (!data.titulo) { showToast('Preencha o nome da oportunidade.', 'error'); return; }
+  if (!data.descricao_curta) { showToast('Preencha a descrição da oportunidade.', 'error'); return; }
   if (!data.localizacao) { showToast('Selecione o estado e cidade da oportunidade.', 'error'); return; }
   const hasPhotos = document.querySelectorAll('#photosGrid .photo-thumb').length > 0;
   if (!hasPhotos) { showToast('Adicione pelo menos uma foto.', 'error'); return; }
