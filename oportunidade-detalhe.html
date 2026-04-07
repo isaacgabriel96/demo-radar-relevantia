@@ -1031,7 +1031,7 @@ a { text-decoration: none; color: inherit; }
             <!-- Header escuro -->
             <div class="interest-card-header">
               <div class="interest-price" id="interestPrice"></div>
-              <div class="interest-price-label">valores sob consulta</div>
+              <div class="interest-price-label" id="interestPriceLabel">valores sob consulta</div>
             </div>
 
             <!-- Corpo -->
@@ -1307,7 +1307,18 @@ async function fetchOppFromSupabase(idOrPerfilSlug, oppSlug) {
       city: city,
       region: r.localizacao || '',
       date: r.alcance || '',
-      price: parsePreco(r.preco_minimo),
+      // Preço: derivado das cotas (mínimo), ou preco_minimo, ou null
+      price: (function() {
+        // Prioridade 1: mínimo das cotas_data
+        if (r.cotas_data && r.cotas_data.length > 0) {
+          var vals = r.cotas_data.map(function(c) { return Number(c.valor); }).filter(function(v) { return v > 0; });
+          if (vals.length > 0) return Math.min.apply(null, vals);
+        }
+        // Prioridade 2: preco_minimo direto (campo legado)
+        if (r.preco_minimo) return Number(r.preco_minimo);
+        return null;
+      })(),
+      cotasHabilitadas: !!r.cotas_habilitadas,
       desc: r.descricao_curta || '',
       objetivos: r.descricao_completa || null,
       gradient: r.bg_gradient || 'linear-gradient(135deg, #1a1a2e, #16213e)',
@@ -1837,8 +1848,22 @@ function renderPage(oppOverride) {
   }
   document.getElementById('canaisGrid').innerHTML = canaisHtml;
 
-  // Sidebar card
-  document.getElementById('interestPrice').textContent = 'Entre em contato';
+  // Sidebar card — preço dinâmico
+  (function renderPrice() {
+    var priceEl = document.getElementById('interestPrice');
+    var labelEl = document.getElementById('interestPriceLabel');
+    if (!priceEl) return;
+    if (opp.price && opp.price > 0) {
+      priceEl.textContent = 'A partir de R$ ' + opp.price.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+      if (labelEl) labelEl.textContent = 'por cota de patrocínio';
+    } else if (opp.cotasHabilitadas) {
+      priceEl.textContent = 'Cotas disponíveis';
+      if (labelEl) labelEl.textContent = 'consulte os valores';
+    } else {
+      priceEl.textContent = 'Entre em contato';
+      if (labelEl) labelEl.textContent = 'valores sob consulta';
+    }
+  })();
   var infoHtml = '';
   infoHtml += '<div class="interest-row"><span class="interest-row-label">Tipo</span><span class="interest-row-value">' + escapeHtml(opp.category || '—') + '</span></div>';
   infoHtml += '<div class="interest-row"><span class="interest-row-label">Prazo</span><span class="interest-row-value deadline">' + escapeHtml(opp.sidebar.prazo || 'Em aberto') + '</span></div>';
