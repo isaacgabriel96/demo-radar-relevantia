@@ -450,8 +450,8 @@ textarea.form-control { resize: vertical; min-height: 90px; }
 .gender-pie-wrap {
   flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 4px;
 }
-.gender-pie-svg { width: 64px; height: 64px; }
-.gender-pie-legend { font-size: 10px; font-weight: 600; color: var(--gray-4); text-align: center; }
+.gender-pie-svg { width: 64px; height: 64px; overflow: visible; }
+.gender-pie-legend { font-size: 10px; font-weight: 600; color: var(--gray-4); text-align: center; white-space: nowrap; }
 
 /* ── Period date-range ── */
 .period-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 6px; }
@@ -1723,15 +1723,36 @@ input[type=number] { -moz-appearance: textfield; }
         <!-- Redes Sociais -->
         <div class="form-group">
           <label style="margin-bottom:14px">Redes sociais <span style="font-size:11px;font-weight:400;color:var(--gray-3)">(opcional)</span></label>
+
+          <!-- Botão Adicionar canal -->
+          <div id="add-canal-area" style="margin-bottom:14px">
+            <button type="button" id="add-canal-btn" onclick="openCanalPicker()"
+              style="display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border:2px dashed var(--gray-2);border-radius:var(--radius-base);background:none;cursor:pointer;color:var(--gray-3);font-size:13px;font-weight:600;font-family:var(--font-body);transition:border-color .15s,color .15s"
+              onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--brown-warm)'" onmouseout="this.style.borderColor='var(--gray-2)';this.style.color='var(--gray-3)'">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Adicionar canal
+            </button>
+            <!-- Picker dropdown -->
+            <div id="canal-picker" style="display:none;position:relative;margin-top:8px;background:var(--white);border:1.5px solid var(--gray-2);border-radius:var(--radius-md);box-shadow:0 4px 20px rgba(30,22,0,.1);padding:8px;max-width:320px;z-index:10">
+              <div style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);padding:4px 6px 8px">Selecione a rede</div>
+              <div id="canal-picker-list" style="display:flex;flex-direction:column;gap:2px"></div>
+            </div>
+          </div>
+
           <div id="social-networks-container" style="display:flex;flex-direction:column;gap:14px">
 
-            <!-- Instagram -->
-            <div class="social-network-group" data-network="instagram" data-prefix="instagram.com/">
+            <!-- Instagram (hidden initially, shown when added) -->
+            <div class="social-network-group" data-network="instagram" data-prefix="instagram.com/" style="display:none">
               <div class="social-network-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
                 <span style="font-size:12px;font-weight:600;color:var(--gray-4)">Instagram</span>
-                <button type="button" class="social-add-btn" onclick="addSocialEntry(this.closest('.social-network-group'))"
-                  style="background:none;border:none;cursor:pointer;color:var(--gray-3);font-size:12px;font-weight:600;padding:2px 6px;transition:color .15s"
-                  onmouseover="this.style.color='var(--brown-warm)'" onmouseout="this.style.color='var(--gray-3)'">+ perfil</button>
+                <div style="display:flex;gap:8px;align-items:center">
+                  <button type="button" class="social-add-btn" onclick="addSocialEntry(this.closest('.social-network-group'))"
+                    style="background:none;border:none;cursor:pointer;color:var(--gray-3);font-size:12px;font-weight:600;padding:2px 6px;transition:color .15s"
+                    onmouseover="this.style.color='var(--brown-warm)'" onmouseout="this.style.color='var(--gray-3)'">+ perfil</button>
+                  <button type="button" onclick="removeCanal('instagram')"
+                    style="background:none;border:none;cursor:pointer;color:var(--gray-3);font-size:14px;line-height:1;padding:2px 4px;transition:color .15s"
+                    onmouseover="this.style.color='#c0392b'" onmouseout="this.style.color='var(--gray-3)'" title="Remover canal">×</button>
+                </div>
               </div>
               <div class="social-entries" style="display:flex;flex-direction:column;gap:8px">
                 <div class="social-entry" style="display:flex;gap:8px;align-items:center">
@@ -1792,11 +1813,11 @@ input[type=number] { -moz-appearance: textfield; }
                   <div>
                     <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:8px">Faixa etária <span style="font-weight:400;text-transform:none;letter-spacing:0">(deve somar 100%)</span></label>
                     <div class="age-ranges-grid">
-                      <div class="age-range-row"><span class="age-range-label">13–17</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-instagram-age-1317" min="0" max="100" placeholder="0" oninput="updateAgeBars('instagram')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-instagram-1317" min="0" max="100" value="0" oninput="syncSlider('instagram','1317',this.value)"><div class="age-bar-preview"><div class="age-bar-preview-fill" id="agebar-instagram-1317" style="width:0%"></div></div></div>
-                      <div class="age-range-row"><span class="age-range-label">18–24</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-instagram-age-1824" min="0" max="100" placeholder="0" oninput="updateAgeBars('instagram')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-instagram-1824" min="0" max="100" value="0" oninput="syncSlider('instagram','1824',this.value)"><div class="age-bar-preview"><div class="age-bar-preview-fill" id="agebar-instagram-1824" style="width:0%"></div></div></div>
-                      <div class="age-range-row"><span class="age-range-label">25–34</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-instagram-age-2534" min="0" max="100" placeholder="0" oninput="updateAgeBars('instagram')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-instagram-2534" min="0" max="100" value="0" oninput="syncSlider('instagram','2534',this.value)"><div class="age-bar-preview"><div class="age-bar-preview-fill" id="agebar-instagram-2534" style="width:0%"></div></div></div>
-                      <div class="age-range-row"><span class="age-range-label">35–44</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-instagram-age-3544" min="0" max="100" placeholder="0" oninput="updateAgeBars('instagram')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-instagram-3544" min="0" max="100" value="0" oninput="syncSlider('instagram','3544',this.value)"><div class="age-bar-preview"><div class="age-bar-preview-fill" id="agebar-instagram-3544" style="width:0%"></div></div></div>
-                      <div class="age-range-row"><span class="age-range-label">45+</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-instagram-age-45p" min="0" max="100" placeholder="0" oninput="updateAgeBars('instagram')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-instagram-45p" min="0" max="100" value="0" oninput="syncSlider('instagram','45p',this.value)"><div class="age-bar-preview"><div class="age-bar-preview-fill" id="agebar-instagram-45p" style="width:0%"></div></div></div>
+                      <div class="age-range-row"><span class="age-range-label">13–17</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-instagram-age-1317" min="0" max="100" placeholder="0" oninput="syncInputToSlider('instagram','1317',this.value);updateAgeBars('instagram')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-instagram-1317" min="0" max="100" value="0" oninput="syncSlider('instagram','1317',this.value)"></div>
+                      <div class="age-range-row"><span class="age-range-label">18–24</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-instagram-age-1824" min="0" max="100" placeholder="0" oninput="syncInputToSlider('instagram','1824',this.value);updateAgeBars('instagram')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-instagram-1824" min="0" max="100" value="0" oninput="syncSlider('instagram','1824',this.value)"></div>
+                      <div class="age-range-row"><span class="age-range-label">25–34</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-instagram-age-2534" min="0" max="100" placeholder="0" oninput="syncInputToSlider('instagram','2534',this.value);updateAgeBars('instagram')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-instagram-2534" min="0" max="100" value="0" oninput="syncSlider('instagram','2534',this.value)"></div>
+                      <div class="age-range-row"><span class="age-range-label">35–44</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-instagram-age-3544" min="0" max="100" placeholder="0" oninput="syncInputToSlider('instagram','3544',this.value);updateAgeBars('instagram')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-instagram-3544" min="0" max="100" value="0" oninput="syncSlider('instagram','3544',this.value)"></div>
+                      <div class="age-range-row"><span class="age-range-label">45+</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-instagram-age-45p" min="0" max="100" placeholder="0" oninput="syncInputToSlider('instagram','45p',this.value);updateAgeBars('instagram')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-instagram-45p" min="0" max="100" value="0" oninput="syncSlider('instagram','45p',this.value)"></div>
                     </div>
                     <div class="age-sum-indicator under" id="aud-instagram-age-sum">Total: 0%</div>
                   </div>
@@ -1840,12 +1861,17 @@ input[type=number] { -moz-appearance: textfield; }
             </div>
 
             <!-- TikTok -->
-            <div class="social-network-group" data-network="tiktok" data-prefix="tiktok.com/@">
+            <div class="social-network-group" data-network="tiktok" data-prefix="tiktok.com/@" style="display:none">
               <div class="social-network-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
                 <span style="font-size:12px;font-weight:600;color:var(--gray-4)">TikTok</span>
-                <button type="button" class="social-add-btn" onclick="addSocialEntry(this.closest('.social-network-group'))"
-                  style="background:none;border:none;cursor:pointer;color:var(--gray-3);font-size:12px;font-weight:600;padding:2px 6px;transition:color .15s"
-                  onmouseover="this.style.color='var(--brown-warm)'" onmouseout="this.style.color='var(--gray-3)'">+ perfil</button>
+                <div style="display:flex;gap:8px;align-items:center">
+                  <button type="button" class="social-add-btn" onclick="addSocialEntry(this.closest('.social-network-group'))"
+                    style="background:none;border:none;cursor:pointer;color:var(--gray-3);font-size:12px;font-weight:600;padding:2px 6px;transition:color .15s"
+                    onmouseover="this.style.color='var(--brown-warm)'" onmouseout="this.style.color='var(--gray-3)'">+ perfil</button>
+                  <button type="button" onclick="removeCanal('tiktok')"
+                    style="background:none;border:none;cursor:pointer;color:var(--gray-3);font-size:14px;line-height:1;padding:2px 4px;transition:color .15s"
+                    onmouseover="this.style.color='#c0392b'" onmouseout="this.style.color='var(--gray-3)'" title="Remover canal">×</button>
+                </div>
               </div>
               <div class="social-entries" style="display:flex;flex-direction:column;gap:8px">
                 <div class="social-entry" style="display:flex;gap:8px;align-items:center">
@@ -1902,11 +1928,11 @@ input[type=number] { -moz-appearance: textfield; }
                   <div>
                     <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:8px">Faixa etária <span style="font-weight:400;text-transform:none;letter-spacing:0">(deve somar 100%)</span></label>
                     <div class="age-ranges-grid">
-                      <div class="age-range-row"><span class="age-range-label">13–17</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-tiktok-age-1317" min="0" max="100" placeholder="0" oninput="updateAgeBars('tiktok')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-tiktok-1317" min="0" max="100" value="0" oninput="syncSlider('tiktok','1317',this.value)"><div class="age-bar-preview"><div class="age-bar-preview-fill" id="agebar-tiktok-1317" style="width:0%"></div></div></div>
-                      <div class="age-range-row"><span class="age-range-label">18–24</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-tiktok-age-1824" min="0" max="100" placeholder="0" oninput="updateAgeBars('tiktok')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-tiktok-1824" min="0" max="100" value="0" oninput="syncSlider('tiktok','1824',this.value)"><div class="age-bar-preview"><div class="age-bar-preview-fill" id="agebar-tiktok-1824" style="width:0%"></div></div></div>
-                      <div class="age-range-row"><span class="age-range-label">25–34</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-tiktok-age-2534" min="0" max="100" placeholder="0" oninput="updateAgeBars('tiktok')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-tiktok-2534" min="0" max="100" value="0" oninput="syncSlider('tiktok','2534',this.value)"><div class="age-bar-preview"><div class="age-bar-preview-fill" id="agebar-tiktok-2534" style="width:0%"></div></div></div>
-                      <div class="age-range-row"><span class="age-range-label">35–44</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-tiktok-age-3544" min="0" max="100" placeholder="0" oninput="updateAgeBars('tiktok')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-tiktok-3544" min="0" max="100" value="0" oninput="syncSlider('tiktok','3544',this.value)"><div class="age-bar-preview"><div class="age-bar-preview-fill" id="agebar-tiktok-3544" style="width:0%"></div></div></div>
-                      <div class="age-range-row"><span class="age-range-label">45+</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-tiktok-age-45p" min="0" max="100" placeholder="0" oninput="updateAgeBars('tiktok')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-tiktok-45p" min="0" max="100" value="0" oninput="syncSlider('tiktok','45p',this.value)"><div class="age-bar-preview"><div class="age-bar-preview-fill" id="agebar-tiktok-45p" style="width:0%"></div></div></div>
+                      <div class="age-range-row"><span class="age-range-label">13–17</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-tiktok-age-1317" min="0" max="100" placeholder="0" oninput="syncInputToSlider('tiktok','1317',this.value);updateAgeBars('tiktok')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-tiktok-1317" min="0" max="100" value="0" oninput="syncSlider('tiktok','1317',this.value)"></div>
+                      <div class="age-range-row"><span class="age-range-label">18–24</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-tiktok-age-1824" min="0" max="100" placeholder="0" oninput="syncInputToSlider('tiktok','1824',this.value);updateAgeBars('tiktok')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-tiktok-1824" min="0" max="100" value="0" oninput="syncSlider('tiktok','1824',this.value)"></div>
+                      <div class="age-range-row"><span class="age-range-label">25–34</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-tiktok-age-2534" min="0" max="100" placeholder="0" oninput="syncInputToSlider('tiktok','2534',this.value);updateAgeBars('tiktok')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-tiktok-2534" min="0" max="100" value="0" oninput="syncSlider('tiktok','2534',this.value)"></div>
+                      <div class="age-range-row"><span class="age-range-label">35–44</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-tiktok-age-3544" min="0" max="100" placeholder="0" oninput="syncInputToSlider('tiktok','3544',this.value);updateAgeBars('tiktok')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-tiktok-3544" min="0" max="100" value="0" oninput="syncSlider('tiktok','3544',this.value)"></div>
+                      <div class="age-range-row"><span class="age-range-label">45+</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-tiktok-age-45p" min="0" max="100" placeholder="0" oninput="syncInputToSlider('tiktok','45p',this.value);updateAgeBars('tiktok')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-tiktok-45p" min="0" max="100" value="0" oninput="syncSlider('tiktok','45p',this.value)"></div>
                     </div>
                     <div class="age-sum-indicator under" id="aud-tiktok-age-sum">Total: 0%</div>
                   </div>
@@ -1947,12 +1973,17 @@ input[type=number] { -moz-appearance: textfield; }
             </div>
 
             <!-- YouTube -->
-            <div class="social-network-group" data-network="youtube" data-prefix="youtube.com/">
+            <div class="social-network-group" data-network="youtube" data-prefix="youtube.com/" style="display:none">
               <div class="social-network-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
                 <span style="font-size:12px;font-weight:600;color:var(--gray-4)">YouTube</span>
-                <button type="button" class="social-add-btn" onclick="addSocialEntry(this.closest('.social-network-group'))"
-                  style="background:none;border:none;cursor:pointer;color:var(--gray-3);font-size:12px;font-weight:600;padding:2px 6px;transition:color .15s"
-                  onmouseover="this.style.color='var(--brown-warm)'" onmouseout="this.style.color='var(--gray-3)'">+ perfil</button>
+                <div style="display:flex;gap:8px;align-items:center">
+                  <button type="button" class="social-add-btn" onclick="addSocialEntry(this.closest('.social-network-group'))"
+                    style="background:none;border:none;cursor:pointer;color:var(--gray-3);font-size:12px;font-weight:600;padding:2px 6px;transition:color .15s"
+                    onmouseover="this.style.color='var(--brown-warm)'" onmouseout="this.style.color='var(--gray-3)'">+ perfil</button>
+                  <button type="button" onclick="removeCanal('youtube')"
+                    style="background:none;border:none;cursor:pointer;color:var(--gray-3);font-size:14px;line-height:1;padding:2px 4px;transition:color .15s"
+                    onmouseover="this.style.color='#c0392b'" onmouseout="this.style.color='var(--gray-3)'" title="Remover canal">×</button>
+                </div>
               </div>
               <div class="social-entries" style="display:flex;flex-direction:column;gap:8px">
                 <div class="social-entry" style="display:flex;gap:8px;align-items:center">
@@ -2009,11 +2040,11 @@ input[type=number] { -moz-appearance: textfield; }
                   <div>
                     <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:8px">Faixa etária <span style="font-weight:400;text-transform:none;letter-spacing:0">(deve somar 100%)</span></label>
                     <div class="age-ranges-grid">
-                      <div class="age-range-row"><span class="age-range-label">13–17</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-youtube-age-1317" min="0" max="100" placeholder="0" oninput="updateAgeBars('youtube')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-youtube-1317" min="0" max="100" value="0" oninput="syncSlider('youtube','1317',this.value)"><div class="age-bar-preview"><div class="age-bar-preview-fill" id="agebar-youtube-1317" style="width:0%"></div></div></div>
-                      <div class="age-range-row"><span class="age-range-label">18–24</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-youtube-age-1824" min="0" max="100" placeholder="0" oninput="updateAgeBars('youtube')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-youtube-1824" min="0" max="100" value="0" oninput="syncSlider('youtube','1824',this.value)"><div class="age-bar-preview"><div class="age-bar-preview-fill" id="agebar-youtube-1824" style="width:0%"></div></div></div>
-                      <div class="age-range-row"><span class="age-range-label">25–34</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-youtube-age-2534" min="0" max="100" placeholder="0" oninput="updateAgeBars('youtube')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-youtube-2534" min="0" max="100" value="0" oninput="syncSlider('youtube','2534',this.value)"><div class="age-bar-preview"><div class="age-bar-preview-fill" id="agebar-youtube-2534" style="width:0%"></div></div></div>
-                      <div class="age-range-row"><span class="age-range-label">35–44</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-youtube-age-3544" min="0" max="100" placeholder="0" oninput="updateAgeBars('youtube')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-youtube-3544" min="0" max="100" value="0" oninput="syncSlider('youtube','3544',this.value)"><div class="age-bar-preview"><div class="age-bar-preview-fill" id="agebar-youtube-3544" style="width:0%"></div></div></div>
-                      <div class="age-range-row"><span class="age-range-label">45+</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-youtube-age-45p" min="0" max="100" placeholder="0" oninput="updateAgeBars('youtube')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-youtube-45p" min="0" max="100" value="0" oninput="syncSlider('youtube','45p',this.value)"><div class="age-bar-preview"><div class="age-bar-preview-fill" id="agebar-youtube-45p" style="width:0%"></div></div></div>
+                      <div class="age-range-row"><span class="age-range-label">13–17</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-youtube-age-1317" min="0" max="100" placeholder="0" oninput="syncInputToSlider('youtube','1317',this.value);updateAgeBars('youtube')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-youtube-1317" min="0" max="100" value="0" oninput="syncSlider('youtube','1317',this.value)"></div>
+                      <div class="age-range-row"><span class="age-range-label">18–24</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-youtube-age-1824" min="0" max="100" placeholder="0" oninput="syncInputToSlider('youtube','1824',this.value);updateAgeBars('youtube')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-youtube-1824" min="0" max="100" value="0" oninput="syncSlider('youtube','1824',this.value)"></div>
+                      <div class="age-range-row"><span class="age-range-label">25–34</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-youtube-age-2534" min="0" max="100" placeholder="0" oninput="syncInputToSlider('youtube','2534',this.value);updateAgeBars('youtube')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-youtube-2534" min="0" max="100" value="0" oninput="syncSlider('youtube','2534',this.value)"></div>
+                      <div class="age-range-row"><span class="age-range-label">35–44</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-youtube-age-3544" min="0" max="100" placeholder="0" oninput="syncInputToSlider('youtube','3544',this.value);updateAgeBars('youtube')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-youtube-3544" min="0" max="100" value="0" oninput="syncSlider('youtube','3544',this.value)"></div>
+                      <div class="age-range-row"><span class="age-range-label">45+</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-youtube-age-45p" min="0" max="100" placeholder="0" oninput="syncInputToSlider('youtube','45p',this.value);updateAgeBars('youtube')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-youtube-45p" min="0" max="100" value="0" oninput="syncSlider('youtube','45p',this.value)"></div>
                     </div>
                     <div class="age-sum-indicator under" id="aud-youtube-age-sum">Total: 0%</div>
                   </div>
@@ -2054,12 +2085,17 @@ input[type=number] { -moz-appearance: textfield; }
             </div>
 
             <!-- LinkedIn -->
-            <div class="social-network-group" data-network="linkedin" data-prefix="linkedin.com/in/">
+            <div class="social-network-group" data-network="linkedin" data-prefix="linkedin.com/in/" style="display:none">
               <div class="social-network-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
                 <span style="font-size:12px;font-weight:600;color:var(--gray-4)">LinkedIn</span>
-                <button type="button" class="social-add-btn" onclick="addSocialEntry(this.closest('.social-network-group'))"
-                  style="background:none;border:none;cursor:pointer;color:var(--gray-3);font-size:12px;font-weight:600;padding:2px 6px;transition:color .15s"
-                  onmouseover="this.style.color='var(--brown-warm)'" onmouseout="this.style.color='var(--gray-3)'">+ perfil</button>
+                <div style="display:flex;gap:8px;align-items:center">
+                  <button type="button" class="social-add-btn" onclick="addSocialEntry(this.closest('.social-network-group'))"
+                    style="background:none;border:none;cursor:pointer;color:var(--gray-3);font-size:12px;font-weight:600;padding:2px 6px;transition:color .15s"
+                    onmouseover="this.style.color='var(--brown-warm)'" onmouseout="this.style.color='var(--gray-3)'">+ perfil</button>
+                  <button type="button" onclick="removeCanal('linkedin')"
+                    style="background:none;border:none;cursor:pointer;color:var(--gray-3);font-size:14px;line-height:1;padding:2px 4px;transition:color .15s"
+                    onmouseover="this.style.color='#c0392b'" onmouseout="this.style.color='var(--gray-3)'" title="Remover canal">×</button>
+                </div>
               </div>
               <div class="social-entries" style="display:flex;flex-direction:column;gap:8px">
                 <div class="social-entry" style="display:flex;gap:8px;align-items:center">
@@ -2116,11 +2152,11 @@ input[type=number] { -moz-appearance: textfield; }
                   <div>
                     <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:8px">Faixa etária <span style="font-weight:400;text-transform:none;letter-spacing:0">(deve somar 100%)</span></label>
                     <div class="age-ranges-grid">
-                      <div class="age-range-row"><span class="age-range-label">13–17</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-linkedin-age-1317" min="0" max="100" placeholder="0" oninput="updateAgeBars('linkedin')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-linkedin-1317" min="0" max="100" value="0" oninput="syncSlider('linkedin','1317',this.value)"><div class="age-bar-preview"><div class="age-bar-preview-fill" id="agebar-linkedin-1317" style="width:0%"></div></div></div>
-                      <div class="age-range-row"><span class="age-range-label">18–24</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-linkedin-age-1824" min="0" max="100" placeholder="0" oninput="updateAgeBars('linkedin')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-linkedin-1824" min="0" max="100" value="0" oninput="syncSlider('linkedin','1824',this.value)"><div class="age-bar-preview"><div class="age-bar-preview-fill" id="agebar-linkedin-1824" style="width:0%"></div></div></div>
-                      <div class="age-range-row"><span class="age-range-label">25–34</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-linkedin-age-2534" min="0" max="100" placeholder="0" oninput="updateAgeBars('linkedin')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-linkedin-2534" min="0" max="100" value="0" oninput="syncSlider('linkedin','2534',this.value)"><div class="age-bar-preview"><div class="age-bar-preview-fill" id="agebar-linkedin-2534" style="width:0%"></div></div></div>
-                      <div class="age-range-row"><span class="age-range-label">35–44</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-linkedin-age-3544" min="0" max="100" placeholder="0" oninput="updateAgeBars('linkedin')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-linkedin-3544" min="0" max="100" value="0" oninput="syncSlider('linkedin','3544',this.value)"><div class="age-bar-preview"><div class="age-bar-preview-fill" id="agebar-linkedin-3544" style="width:0%"></div></div></div>
-                      <div class="age-range-row"><span class="age-range-label">45+</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-linkedin-age-45p" min="0" max="100" placeholder="0" oninput="updateAgeBars('linkedin')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-linkedin-45p" min="0" max="100" value="0" oninput="syncSlider('linkedin','45p',this.value)"><div class="age-bar-preview"><div class="age-bar-preview-fill" id="agebar-linkedin-45p" style="width:0%"></div></div></div>
+                      <div class="age-range-row"><span class="age-range-label">13–17</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-linkedin-age-1317" min="0" max="100" placeholder="0" oninput="syncInputToSlider('linkedin','1317',this.value);updateAgeBars('linkedin')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-linkedin-1317" min="0" max="100" value="0" oninput="syncSlider('linkedin','1317',this.value)"></div>
+                      <div class="age-range-row"><span class="age-range-label">18–24</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-linkedin-age-1824" min="0" max="100" placeholder="0" oninput="syncInputToSlider('linkedin','1824',this.value);updateAgeBars('linkedin')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-linkedin-1824" min="0" max="100" value="0" oninput="syncSlider('linkedin','1824',this.value)"></div>
+                      <div class="age-range-row"><span class="age-range-label">25–34</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-linkedin-age-2534" min="0" max="100" placeholder="0" oninput="syncInputToSlider('linkedin','2534',this.value);updateAgeBars('linkedin')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-linkedin-2534" min="0" max="100" value="0" oninput="syncSlider('linkedin','2534',this.value)"></div>
+                      <div class="age-range-row"><span class="age-range-label">35–44</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-linkedin-age-3544" min="0" max="100" placeholder="0" oninput="syncInputToSlider('linkedin','3544',this.value);updateAgeBars('linkedin')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-linkedin-3544" min="0" max="100" value="0" oninput="syncSlider('linkedin','3544',this.value)"></div>
+                      <div class="age-range-row"><span class="age-range-label">45+</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-linkedin-age-45p" min="0" max="100" placeholder="0" oninput="syncInputToSlider('linkedin','45p',this.value);updateAgeBars('linkedin')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-linkedin-45p" min="0" max="100" value="0" oninput="syncSlider('linkedin','45p',this.value)"></div>
                     </div>
                     <div class="age-sum-indicator under" id="aud-linkedin-age-sum">Total: 0%</div>
                   </div>
@@ -2161,12 +2197,17 @@ input[type=number] { -moz-appearance: textfield; }
             </div>
 
             <!-- Twitch -->
-            <div class="social-network-group" data-network="twitch" data-prefix="twitch.tv/">
+            <div class="social-network-group" data-network="twitch" data-prefix="twitch.tv/" style="display:none">
               <div class="social-network-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
                 <span style="font-size:12px;font-weight:600;color:var(--gray-4)">Twitch</span>
-                <button type="button" class="social-add-btn" onclick="addSocialEntry(this.closest('.social-network-group'))"
-                  style="background:none;border:none;cursor:pointer;color:var(--gray-3);font-size:12px;font-weight:600;padding:2px 6px;transition:color .15s"
-                  onmouseover="this.style.color='var(--brown-warm)'" onmouseout="this.style.color='var(--gray-3)'">+ perfil</button>
+                <div style="display:flex;gap:8px;align-items:center">
+                  <button type="button" class="social-add-btn" onclick="addSocialEntry(this.closest('.social-network-group'))"
+                    style="background:none;border:none;cursor:pointer;color:var(--gray-3);font-size:12px;font-weight:600;padding:2px 6px;transition:color .15s"
+                    onmouseover="this.style.color='var(--brown-warm)'" onmouseout="this.style.color='var(--gray-3)'">+ perfil</button>
+                  <button type="button" onclick="removeCanal('twitch')"
+                    style="background:none;border:none;cursor:pointer;color:var(--gray-3);font-size:14px;line-height:1;padding:2px 4px;transition:color .15s"
+                    onmouseover="this.style.color='#c0392b'" onmouseout="this.style.color='var(--gray-3)'" title="Remover canal">×</button>
+                </div>
               </div>
               <div class="social-entries" style="display:flex;flex-direction:column;gap:8px">
                 <div class="social-entry" style="display:flex;gap:8px;align-items:center">
@@ -2223,11 +2264,11 @@ input[type=number] { -moz-appearance: textfield; }
                   <div>
                     <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:8px">Faixa etária <span style="font-weight:400;text-transform:none;letter-spacing:0">(deve somar 100%)</span></label>
                     <div class="age-ranges-grid">
-                      <div class="age-range-row"><span class="age-range-label">13–17</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-twitch-age-1317" min="0" max="100" placeholder="0" oninput="updateAgeBars('twitch')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-twitch-1317" min="0" max="100" value="0" oninput="syncSlider('twitch','1317',this.value)"><div class="age-bar-preview"><div class="age-bar-preview-fill" id="agebar-twitch-1317" style="width:0%"></div></div></div>
-                      <div class="age-range-row"><span class="age-range-label">18–24</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-twitch-age-1824" min="0" max="100" placeholder="0" oninput="updateAgeBars('twitch')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-twitch-1824" min="0" max="100" value="0" oninput="syncSlider('twitch','1824',this.value)"><div class="age-bar-preview"><div class="age-bar-preview-fill" id="agebar-twitch-1824" style="width:0%"></div></div></div>
-                      <div class="age-range-row"><span class="age-range-label">25–34</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-twitch-age-2534" min="0" max="100" placeholder="0" oninput="updateAgeBars('twitch')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-twitch-2534" min="0" max="100" value="0" oninput="syncSlider('twitch','2534',this.value)"><div class="age-bar-preview"><div class="age-bar-preview-fill" id="agebar-twitch-2534" style="width:0%"></div></div></div>
-                      <div class="age-range-row"><span class="age-range-label">35–44</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-twitch-age-3544" min="0" max="100" placeholder="0" oninput="updateAgeBars('twitch')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-twitch-3544" min="0" max="100" value="0" oninput="syncSlider('twitch','3544',this.value)"><div class="age-bar-preview"><div class="age-bar-preview-fill" id="agebar-twitch-3544" style="width:0%"></div></div></div>
-                      <div class="age-range-row"><span class="age-range-label">45+</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-twitch-age-45p" min="0" max="100" placeholder="0" oninput="updateAgeBars('twitch')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-twitch-45p" min="0" max="100" value="0" oninput="syncSlider('twitch','45p',this.value)"><div class="age-bar-preview"><div class="age-bar-preview-fill" id="agebar-twitch-45p" style="width:0%"></div></div></div>
+                      <div class="age-range-row"><span class="age-range-label">13–17</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-twitch-age-1317" min="0" max="100" placeholder="0" oninput="syncInputToSlider('twitch','1317',this.value);updateAgeBars('twitch')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-twitch-1317" min="0" max="100" value="0" oninput="syncSlider('twitch','1317',this.value)"></div>
+                      <div class="age-range-row"><span class="age-range-label">18–24</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-twitch-age-1824" min="0" max="100" placeholder="0" oninput="syncInputToSlider('twitch','1824',this.value);updateAgeBars('twitch')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-twitch-1824" min="0" max="100" value="0" oninput="syncSlider('twitch','1824',this.value)"></div>
+                      <div class="age-range-row"><span class="age-range-label">25–34</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-twitch-age-2534" min="0" max="100" placeholder="0" oninput="syncInputToSlider('twitch','2534',this.value);updateAgeBars('twitch')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-twitch-2534" min="0" max="100" value="0" oninput="syncSlider('twitch','2534',this.value)"></div>
+                      <div class="age-range-row"><span class="age-range-label">35–44</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-twitch-age-3544" min="0" max="100" placeholder="0" oninput="syncInputToSlider('twitch','3544',this.value);updateAgeBars('twitch')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-twitch-3544" min="0" max="100" value="0" oninput="syncSlider('twitch','3544',this.value)"></div>
+                      <div class="age-range-row"><span class="age-range-label">45+</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-twitch-age-45p" min="0" max="100" placeholder="0" oninput="syncInputToSlider('twitch','45p',this.value);updateAgeBars('twitch')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-twitch-45p" min="0" max="100" value="0" oninput="syncSlider('twitch','45p',this.value)"></div>
                     </div>
                     <div class="age-sum-indicator under" id="aud-twitch-age-sum">Total: 0%</div>
                   </div>
@@ -2267,12 +2308,17 @@ input[type=number] { -moz-appearance: textfield; }
             </div>
 
             <!-- Kwai -->
-            <div class="social-network-group" data-network="kwai" data-prefix="kwai.com/">
+            <div class="social-network-group" data-network="kwai" data-prefix="kwai.com/" style="display:none">
               <div class="social-network-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
                 <span style="font-size:12px;font-weight:600;color:var(--gray-4)">Kwai</span>
-                <button type="button" class="social-add-btn" onclick="addSocialEntry(this.closest('.social-network-group'))"
-                  style="background:none;border:none;cursor:pointer;color:var(--gray-3);font-size:12px;font-weight:600;padding:2px 6px;transition:color .15s"
-                  onmouseover="this.style.color='var(--brown-warm)'" onmouseout="this.style.color='var(--gray-3)'">+ perfil</button>
+                <div style="display:flex;gap:8px;align-items:center">
+                  <button type="button" class="social-add-btn" onclick="addSocialEntry(this.closest('.social-network-group'))"
+                    style="background:none;border:none;cursor:pointer;color:var(--gray-3);font-size:12px;font-weight:600;padding:2px 6px;transition:color .15s"
+                    onmouseover="this.style.color='var(--brown-warm)'" onmouseout="this.style.color='var(--gray-3)'">+ perfil</button>
+                  <button type="button" onclick="removeCanal('kwai')"
+                    style="background:none;border:none;cursor:pointer;color:var(--gray-3);font-size:14px;line-height:1;padding:2px 4px;transition:color .15s"
+                    onmouseover="this.style.color='#c0392b'" onmouseout="this.style.color='var(--gray-3)'" title="Remover canal">×</button>
+                </div>
               </div>
               <div class="social-entries" style="display:flex;flex-direction:column;gap:8px">
                 <div class="social-entry" style="display:flex;gap:8px;align-items:center">
@@ -2329,11 +2375,11 @@ input[type=number] { -moz-appearance: textfield; }
                   <div>
                     <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:8px">Faixa etária <span style="font-weight:400;text-transform:none;letter-spacing:0">(deve somar 100%)</span></label>
                     <div class="age-ranges-grid">
-                      <div class="age-range-row"><span class="age-range-label">13–17</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-kwai-age-1317" min="0" max="100" placeholder="0" oninput="updateAgeBars('kwai')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-kwai-1317" min="0" max="100" value="0" oninput="syncSlider('kwai','1317',this.value)"><div class="age-bar-preview"><div class="age-bar-preview-fill" id="agebar-kwai-1317" style="width:0%"></div></div></div>
-                      <div class="age-range-row"><span class="age-range-label">18–24</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-kwai-age-1824" min="0" max="100" placeholder="0" oninput="updateAgeBars('kwai')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-kwai-1824" min="0" max="100" value="0" oninput="syncSlider('kwai','1824',this.value)"><div class="age-bar-preview"><div class="age-bar-preview-fill" id="agebar-kwai-1824" style="width:0%"></div></div></div>
-                      <div class="age-range-row"><span class="age-range-label">25–34</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-kwai-age-2534" min="0" max="100" placeholder="0" oninput="updateAgeBars('kwai')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-kwai-2534" min="0" max="100" value="0" oninput="syncSlider('kwai','2534',this.value)"><div class="age-bar-preview"><div class="age-bar-preview-fill" id="agebar-kwai-2534" style="width:0%"></div></div></div>
-                      <div class="age-range-row"><span class="age-range-label">35–44</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-kwai-age-3544" min="0" max="100" placeholder="0" oninput="updateAgeBars('kwai')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-kwai-3544" min="0" max="100" value="0" oninput="syncSlider('kwai','3544',this.value)"><div class="age-bar-preview"><div class="age-bar-preview-fill" id="agebar-kwai-3544" style="width:0%"></div></div></div>
-                      <div class="age-range-row"><span class="age-range-label">45+</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-kwai-age-45p" min="0" max="100" placeholder="0" oninput="updateAgeBars('kwai')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-kwai-45p" min="0" max="100" value="0" oninput="syncSlider('kwai','45p',this.value)"><div class="age-bar-preview"><div class="age-bar-preview-fill" id="agebar-kwai-45p" style="width:0%"></div></div></div>
+                      <div class="age-range-row"><span class="age-range-label">13–17</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-kwai-age-1317" min="0" max="100" placeholder="0" oninput="syncInputToSlider('kwai','1317',this.value);updateAgeBars('kwai')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-kwai-1317" min="0" max="100" value="0" oninput="syncSlider('kwai','1317',this.value)"></div>
+                      <div class="age-range-row"><span class="age-range-label">18–24</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-kwai-age-1824" min="0" max="100" placeholder="0" oninput="syncInputToSlider('kwai','1824',this.value);updateAgeBars('kwai')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-kwai-1824" min="0" max="100" value="0" oninput="syncSlider('kwai','1824',this.value)"></div>
+                      <div class="age-range-row"><span class="age-range-label">25–34</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-kwai-age-2534" min="0" max="100" placeholder="0" oninput="syncInputToSlider('kwai','2534',this.value);updateAgeBars('kwai')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-kwai-2534" min="0" max="100" value="0" oninput="syncSlider('kwai','2534',this.value)"></div>
+                      <div class="age-range-row"><span class="age-range-label">35–44</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-kwai-age-3544" min="0" max="100" placeholder="0" oninput="syncInputToSlider('kwai','3544',this.value);updateAgeBars('kwai')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-kwai-3544" min="0" max="100" value="0" oninput="syncSlider('kwai','3544',this.value)"></div>
+                      <div class="age-range-row"><span class="age-range-label">45+</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-kwai-age-45p" min="0" max="100" placeholder="0" oninput="syncInputToSlider('kwai','45p',this.value);updateAgeBars('kwai')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-kwai-45p" min="0" max="100" value="0" oninput="syncSlider('kwai','45p',this.value)"></div>
                     </div>
                     <div class="age-sum-indicator under" id="aud-kwai-age-sum">Total: 0%</div>
                   </div>
@@ -2372,12 +2418,17 @@ input[type=number] { -moz-appearance: textfield; }
             </div>
 
             <!-- Kick -->
-            <div class="social-network-group" data-network="kick" data-prefix="kick.com/">
+            <div class="social-network-group" data-network="kick" data-prefix="kick.com/" style="display:none">
               <div class="social-network-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
                 <span style="font-size:12px;font-weight:600;color:var(--gray-4)">Kick</span>
-                <button type="button" class="social-add-btn" onclick="addSocialEntry(this.closest('.social-network-group'))"
-                  style="background:none;border:none;cursor:pointer;color:var(--gray-3);font-size:12px;font-weight:600;padding:2px 6px;transition:color .15s"
-                  onmouseover="this.style.color='var(--brown-warm)'" onmouseout="this.style.color='var(--gray-3)'">+ perfil</button>
+                <div style="display:flex;gap:8px;align-items:center">
+                  <button type="button" class="social-add-btn" onclick="addSocialEntry(this.closest('.social-network-group'))"
+                    style="background:none;border:none;cursor:pointer;color:var(--gray-3);font-size:12px;font-weight:600;padding:2px 6px;transition:color .15s"
+                    onmouseover="this.style.color='var(--brown-warm)'" onmouseout="this.style.color='var(--gray-3)'">+ perfil</button>
+                  <button type="button" onclick="removeCanal('kick')"
+                    style="background:none;border:none;cursor:pointer;color:var(--gray-3);font-size:14px;line-height:1;padding:2px 4px;transition:color .15s"
+                    onmouseover="this.style.color='#c0392b'" onmouseout="this.style.color='var(--gray-3)'" title="Remover canal">×</button>
+                </div>
               </div>
               <div class="social-entries" style="display:flex;flex-direction:column;gap:8px">
                 <div class="social-entry" style="display:flex;gap:8px;align-items:center">
@@ -2434,11 +2485,11 @@ input[type=number] { -moz-appearance: textfield; }
                   <div>
                     <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:8px">Faixa etária <span style="font-weight:400;text-transform:none;letter-spacing:0">(deve somar 100%)</span></label>
                     <div class="age-ranges-grid">
-                      <div class="age-range-row"><span class="age-range-label">13–17</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-kick-age-1317" min="0" max="100" placeholder="0" oninput="updateAgeBars('kick')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-kick-1317" min="0" max="100" value="0" oninput="syncSlider('kick','1317',this.value)"><div class="age-bar-preview"><div class="age-bar-preview-fill" id="agebar-kick-1317" style="width:0%"></div></div></div>
-                      <div class="age-range-row"><span class="age-range-label">18–24</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-kick-age-1824" min="0" max="100" placeholder="0" oninput="updateAgeBars('kick')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-kick-1824" min="0" max="100" value="0" oninput="syncSlider('kick','1824',this.value)"><div class="age-bar-preview"><div class="age-bar-preview-fill" id="agebar-kick-1824" style="width:0%"></div></div></div>
-                      <div class="age-range-row"><span class="age-range-label">25–34</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-kick-age-2534" min="0" max="100" placeholder="0" oninput="updateAgeBars('kick')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-kick-2534" min="0" max="100" value="0" oninput="syncSlider('kick','2534',this.value)"><div class="age-bar-preview"><div class="age-bar-preview-fill" id="agebar-kick-2534" style="width:0%"></div></div></div>
-                      <div class="age-range-row"><span class="age-range-label">35–44</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-kick-age-3544" min="0" max="100" placeholder="0" oninput="updateAgeBars('kick')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-kick-3544" min="0" max="100" value="0" oninput="syncSlider('kick','3544',this.value)"><div class="age-bar-preview"><div class="age-bar-preview-fill" id="agebar-kick-3544" style="width:0%"></div></div></div>
-                      <div class="age-range-row"><span class="age-range-label">45+</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-kick-age-45p" min="0" max="100" placeholder="0" oninput="updateAgeBars('kick')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-kick-45p" min="0" max="100" value="0" oninput="syncSlider('kick','45p',this.value)"><div class="age-bar-preview"><div class="age-bar-preview-fill" id="agebar-kick-45p" style="width:0%"></div></div></div>
+                      <div class="age-range-row"><span class="age-range-label">13–17</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-kick-age-1317" min="0" max="100" placeholder="0" oninput="syncInputToSlider('kick','1317',this.value);updateAgeBars('kick')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-kick-1317" min="0" max="100" value="0" oninput="syncSlider('kick','1317',this.value)"></div>
+                      <div class="age-range-row"><span class="age-range-label">18–24</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-kick-age-1824" min="0" max="100" placeholder="0" oninput="syncInputToSlider('kick','1824',this.value);updateAgeBars('kick')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-kick-1824" min="0" max="100" value="0" oninput="syncSlider('kick','1824',this.value)"></div>
+                      <div class="age-range-row"><span class="age-range-label">25–34</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-kick-age-2534" min="0" max="100" placeholder="0" oninput="syncInputToSlider('kick','2534',this.value);updateAgeBars('kick')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-kick-2534" min="0" max="100" value="0" oninput="syncSlider('kick','2534',this.value)"></div>
+                      <div class="age-range-row"><span class="age-range-label">35–44</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-kick-age-3544" min="0" max="100" placeholder="0" oninput="syncInputToSlider('kick','3544',this.value);updateAgeBars('kick')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-kick-3544" min="0" max="100" value="0" oninput="syncSlider('kick','3544',this.value)"></div>
+                      <div class="age-range-row"><span class="age-range-label">45+</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-kick-age-45p" min="0" max="100" placeholder="0" oninput="syncInputToSlider('kick','45p',this.value);updateAgeBars('kick')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-kick-45p" min="0" max="100" value="0" oninput="syncSlider('kick','45p',this.value)"></div>
                     </div>
                     <div class="age-sum-indicator under" id="aud-kick-age-sum">Total: 0%</div>
                   </div>
@@ -4385,18 +4436,52 @@ function onSeguidoresInput(el, network) {
 
 /* ── Pie chart de gênero ── */
 
-/** Atualiza o donut SVG conforme F% e M% são digitados */
+/** Atualiza o donut SVG conforme F% e M% são digitados.
+ *  Valida que F + M ≤ 100 — caso ultrapasse, clampa o campo atual e destaca em vermelho.
+ */
 function updateGenderPie(network) {
-  const f   = parseFloat(document.getElementById('aud-' + network + '-genero-f')?.value) || 0;
-  const m   = parseFloat(document.getElementById('aud-' + network + '-genero-m')?.value) || 0;
+  const fEl = document.getElementById('aud-' + network + '-genero-f');
+  const mEl = document.getElementById('aud-' + network + '-genero-m');
   const arc = document.getElementById('gender-pie-f-' + network);
   const lbl = document.getElementById('gender-pie-lbl-' + network);
-  if (!arc) return;
-  const total       = f + m || 100;
-  const pctF        = f / total;
+  if (!arc || !fEl || !mEl) return;
+
+  let f = parseFloat(fEl.value) || 0;
+  let m = parseFloat(mEl.value) || 0;
+
+  // Garante que cada valor não exceda 100 individualmente
+  f = Math.min(Math.max(f, 0), 100);
+  m = Math.min(Math.max(m, 0), 100);
+
+  // Valida soma ≤ 100 — se ultrapassar, clampa o campo que acabou de ser editado
+  if (f + m > 100) {
+    // Descobre qual campo foi alterado por último comparando com value parseado
+    if (parseFloat(fEl.value) + (parseFloat(mEl.value) || 0) > 100 &&
+        document.activeElement === fEl) {
+      f = 100 - m;
+      if (f < 0) f = 0;
+      fEl.value = f;
+    } else {
+      m = 100 - f;
+      if (m < 0) m = 0;
+      mEl.value = m;
+    }
+    // Destaca erro brevemente
+    fEl.style.borderColor = '#c0392b';
+    mEl.style.borderColor = '#c0392b';
+    setTimeout(() => {
+      fEl.style.borderColor = '';
+      mEl.style.borderColor = '';
+    }, 900);
+  } else {
+    fEl.style.borderColor = '';
+    mEl.style.borderColor = '';
+  }
+
   const circumference = 2 * Math.PI * 28; // r=28 → ≈175.93
+  const pctF = (f + m > 0) ? f / (f + m) : 0;
   arc.setAttribute('stroke-dasharray', (pctF * circumference).toFixed(2) + ' ' + circumference.toFixed(2));
-  if (lbl) lbl.textContent = (f || m) ? f + '% ♀ / ' + m + '% ♂' : '—';
+  if (lbl) lbl.textContent = (f || m) ? f + '% ♀  /  ' + m + '% ♂' : '—';
 }
 
 /* ── Slider de faixa etária ── */
@@ -4408,6 +4493,99 @@ function syncSlider(network, range, value) {
     input.value = value;
     updateAgeBars(network);
   }
+}
+
+/** Sincroniza o input numérico → slider (bidirecional) */
+function syncInputToSlider(network, range, value) {
+  const slider = document.getElementById('slider-' + network + '-' + range);
+  if (slider) slider.value = Math.min(Math.max(parseFloat(value) || 0, 0), 100);
+}
+
+/* ══════════════════════════════════════════════
+   ADICIONAR / REMOVER CANAIS DINAMICAMENTE
+══════════════════════════════════════════════ */
+
+/** Metadados de cada rede (nome legível + emoji/ícone de texto) */
+const CANAL_META = {
+  instagram: { label: 'Instagram',  icon: '📸' },
+  tiktok:    { label: 'TikTok',     icon: '🎵' },
+  youtube:   { label: 'YouTube',    icon: '▶️'  },
+  linkedin:  { label: 'LinkedIn',   icon: '💼' },
+  twitch:    { label: 'Twitch',     icon: '🎮' },
+  kwai:      { label: 'Kwai',       icon: '🎬' },
+  kick:      { label: 'Kick',       icon: '🟢' },
+};
+
+/** Estado: quais redes já foram adicionadas */
+const _addedCanais = new Set();
+
+/** Abre/fecha o picker de canais e popula a lista com redes ainda não adicionadas */
+function openCanalPicker() {
+  const picker = document.getElementById('canal-picker');
+  if (!picker) return;
+  const isOpen = picker.style.display !== 'none';
+  if (isOpen) { picker.style.display = 'none'; return; }
+
+  // Popula lista com canais disponíveis (não adicionados)
+  const list = document.getElementById('canal-picker-list');
+  list.innerHTML = '';
+  const available = Object.keys(CANAL_META).filter(n => !_addedCanais.has(n));
+  if (available.length === 0) {
+    list.innerHTML = '<div style="padding:8px 6px;font-size:13px;color:var(--gray-3)">Todos os canais já foram adicionados.</div>';
+  } else {
+    available.forEach(net => {
+      const meta = CANAL_META[net];
+      const btn  = document.createElement('button');
+      btn.type   = 'button';
+      btn.style.cssText = 'display:flex;align-items:center;gap:9px;width:100%;padding:8px 10px;border:none;border-radius:8px;background:none;cursor:pointer;font-size:13px;font-weight:500;color:var(--text);font-family:var(--font-body);text-align:left;transition:background .12s';
+      btn.innerHTML = `<span style="font-size:15px;line-height:1">${meta.icon}</span><span>${meta.label}</span>`;
+      btn.onmouseover = () => btn.style.background = 'var(--gray-1)';
+      btn.onmouseout  = () => btn.style.background = 'none';
+      btn.onclick     = () => addCanal(net);
+      list.appendChild(btn);
+    });
+  }
+  picker.style.display = 'block';
+
+  // Fecha ao clicar fora
+  setTimeout(() => {
+    function outsideClick(e) {
+      const area = document.getElementById('add-canal-area');
+      if (area && !area.contains(e.target)) {
+        picker.style.display = 'none';
+        document.removeEventListener('click', outsideClick);
+      }
+    }
+    document.addEventListener('click', outsideClick);
+  }, 0);
+}
+
+/** Adiciona (exibe) o grupo de um canal e marca como adicionado */
+function addCanal(network) {
+  const group = document.querySelector('.social-network-group[data-network="' + network + '"]');
+  if (group) group.style.display = 'block';
+  _addedCanais.add(network);
+
+  // Fecha picker
+  const picker = document.getElementById('canal-picker');
+  if (picker) picker.style.display = 'none';
+
+  // Se todos os canais foram adicionados, esconde o botão "Adicionar canal"
+  if (_addedCanais.size >= Object.keys(CANAL_META).length) {
+    const btn = document.getElementById('add-canal-btn');
+    if (btn) btn.style.display = 'none';
+  }
+}
+
+/** Remove (oculta) o grupo de um canal e o torna disponível novamente no picker */
+function removeCanal(network) {
+  const group = document.querySelector('.social-network-group[data-network="' + network + '"]');
+  if (group) group.style.display = 'none';
+  _addedCanais.delete(network);
+
+  // Garante que o botão "Adicionar canal" está visível
+  const btn = document.getElementById('add-canal-btn');
+  if (btn) btn.style.display = '';
 }
 
 /* ── Chips de período de referência ── */
