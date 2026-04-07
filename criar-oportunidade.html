@@ -242,11 +242,20 @@ body { font-family: var(--font-body); background: var(--gray-body); color: var(-
 
 /* ── Form fields ── */
 .form-group { margin-bottom: 20px; }
-.form-group label {
+.form-group label, .form-label {
   display: block; font-size: 13px; font-weight: 600;
   color: var(--gray-4); margin-bottom: 7px; letter-spacing: .1px;
 }
 .form-group label .required { color: var(--red); margin-left: 2px; }
+/* .form-input is an alias for .form-control for use inside dynamic card templates */
+.form-input {
+  width: 100%; padding: 8px 12px; border: 1.5px solid var(--gray-2);
+  border-radius: var(--radius-base); font-family: var(--font-body); font-size: 13px;
+  color: var(--text); background: var(--white); outline: none; transition: border-color .15s, box-shadow .15s;
+  appearance: none; box-sizing: border-box;
+}
+.form-input:focus { border-color: var(--gold); box-shadow: var(--shadow-focus); }
+.form-input::placeholder { color: var(--gray-3); }
 .form-control {
   width: 100%; padding: 10px 14px; border: 1.5px solid var(--gray-2);
   border-radius: var(--radius-base); font-family: var(--font-body); font-size: 14px;
@@ -305,6 +314,13 @@ textarea.form-control { resize: vertical; min-height: 90px; }
   background: var(--gray-1);
   overflow: hidden;
   transition: border-color .2s;
+}
+/* Inside a canal-card, audience-panel is seamlessly embedded (no extra margin/border) */
+.canal-card > .audience-panel {
+  margin-top: 0;
+  border: none;
+  border-radius: 0;
+  border-top: 1.5px solid var(--gray-2);
 }
 .audience-panel-toggle {
   display: flex; align-items: center; justify-content: space-between;
@@ -443,6 +459,176 @@ textarea.form-control { resize: vertical; min-height: 90px; }
   background: var(--gold); cursor: pointer;
   box-shadow: 0 1px 3px rgba(30,22,0,.25);
 }
+
+/* ── Aliases / extras para canal cards dinâmicos ── */
+.format-pills-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* Estimate toggle (seguidores reais/estimativa) */
+.estimate-toggle {
+  display: inline-flex; align-items: center;
+  width: 34px; height: 18px; border-radius: 100px;
+  background: var(--gray-2); cursor: pointer; position: relative;
+  transition: background .2s; flex-shrink: 0;
+}
+.estimate-toggle.is-real { background: var(--gold); }
+.estimate-toggle-knob {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--white); position: absolute; left: 2px;
+  transition: left .2s;
+  box-shadow: 0 1px 3px rgba(30,22,0,.25);
+}
+.estimate-toggle.is-real .estimate-toggle-knob { left: 18px; }
+.estimate-badge {
+  font-size: 11px; font-weight: 600;
+  padding: 2px 8px; border-radius: 100px;
+  border: 1.5px solid var(--gray-2); color: var(--gray-3);
+  background: var(--gray-1);
+}
+.estimate-badge.is-real { border-color: var(--gold); color: var(--brown-warm); background: #fdf6e3; }
+
+/* Age rows (faixa etária) */
+.age-row {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 6px;
+}
+.age-label {
+  font-size: 12px; font-weight: 600; color: var(--gray-4);
+  white-space: nowrap; min-width: 80px; flex-shrink: 0;
+}
+.age-bar-track {
+  flex: 1; height: 6px; border-radius: 100px;
+  background: var(--gray-2); overflow: hidden;
+}
+.age-bar-fill {
+  height: 100%; border-radius: 100px;
+  background: var(--gold-gradient); width: 0%;
+  transition: width .25s ease;
+}
+.age-controls { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.age-slider {
+  width: 64px; -webkit-appearance: none; appearance: none;
+  height: 4px; border-radius: 100px; background: var(--gray-2); outline: none;
+  cursor: pointer;
+}
+.age-slider::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--gold); cursor: pointer;
+  box-shadow: 0 1px 3px rgba(30,22,0,.25);
+}
+.age-slider::-moz-range-thumb {
+  width: 14px; height: 14px; border-radius: 50%; border: none;
+  background: var(--gold); cursor: pointer;
+}
+.age-input-wrap { display: flex; align-items: center; gap: 2px; }
+.age-input {
+  width: 44px; border: 1.5px solid var(--gray-2); border-radius: var(--radius-base);
+  font-size: 12px; font-family: var(--font-ui); text-align: right;
+  padding: 4px 6px; outline: none; transition: border-color .15s;
+}
+.age-input:focus { border-color: var(--gold); }
+.age-pct-label { font-size: 11px; color: var(--gray-3); font-weight: 600; }
+
+/* Gender chart layout */
+.gender-chart-layout {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.gender-side {
+  display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1;
+}
+.gender-legend-item {
+  display: flex; align-items: center; gap: 5px;
+}
+.gender-legend-dot {
+  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+}
+.gender-legend-label { font-size: 11.5px; font-weight: 600; color: var(--gray-4); }
+.gender-input-wrap { display: flex; align-items: center; gap: 4px; }
+.gender-input {
+  width: 52px; border: 1.5px solid var(--gray-2); border-radius: var(--radius-base);
+  font-size: 14px; font-family: var(--font-display); font-weight: 600;
+  text-align: center; padding: 6px 6px; outline: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+.gender-input:focus { border-color: var(--gold); box-shadow: var(--shadow-focus); }
+.gender-pct { font-size: 13px; color: var(--gray-3); font-weight: 600; }
+
+/* ── Canal card dinâmico ── */
+.canal-card {
+  background: var(--white); border: 1.5px solid var(--gray-2);
+  border-radius: var(--radius-md); overflow: hidden;
+  transition: border-color .2s;
+}
+.canal-card.saved { border-color: #22c55e33; }
+.canal-card-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px;
+  background: var(--gray-1);
+  border-bottom: 1.5px solid var(--gray-2);
+}
+.canal-card-header.saved { background: #f0fdf4; border-bottom-color: #22c55e33; }
+.canal-card-icon { display: flex; align-items: center; color: var(--gray-4); flex-shrink: 0; }
+.canal-card-label { font-size: 12px; font-weight: 700; color: var(--gray-4); flex-shrink: 0; }
+.canal-card-username-wrap { flex: 1; position: relative; display: flex; }
+.canal-card-username-prefix {
+  position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+  font-size: 11.5px; color: var(--gray-3); font-weight: 500; pointer-events: none; white-space: nowrap;
+}
+.canal-card-username-input {
+  width: 100%; border: 1.5px solid var(--gray-2); border-radius: var(--radius-base);
+  font-size: 13px; font-family: var(--font-body); color: var(--text);
+  background: var(--white); padding: 7px 10px 7px 10px;
+  transition: border-color .15s, box-shadow .15s; outline: none;
+}
+.canal-card-username-input:focus { border-color: var(--gold); box-shadow: var(--shadow-focus); }
+.canal-card-saved-badge {
+  display: none; align-items: center; gap: 4px; font-size: 11px; font-weight: 600;
+  color: #16a34a; background: #f0fdf4; border: 1.5px solid #22c55e55;
+  border-radius: 100px; padding: 3px 9px; flex-shrink: 0; white-space: nowrap;
+}
+.canal-card.saved .canal-card-saved-badge { display: flex; }
+.canal-card-remove-btn {
+  background: none; border: none; cursor: pointer; color: var(--gray-3);
+  font-size: 16px; line-height: 1; padding: 4px 6px; flex-shrink: 0;
+  transition: color .15s; border-radius: 6px;
+}
+.canal-card-remove-btn:hover { color: #c0392b; background: #fdf2f2; }
+.canal-card-footer {
+  display: flex; align-items: center; justify-content: flex-end;
+  padding: 10px 14px; gap: 8px; border-top: 1.5px solid var(--gray-2);
+  background: var(--gray-1);
+}
+.canal-card-footer.saved { background: #f0fdf4; border-top-color: #22c55e33; }
+.btn-save-canal {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 18px; border-radius: 100px; border: none; cursor: pointer;
+  font-size: 12.5px; font-weight: 700; font-family: var(--font-body);
+  background: var(--gold-gradient); color: var(--white);
+  transition: opacity .15s, transform .1s;
+}
+.btn-save-canal:hover { opacity: .88; }
+.btn-save-canal:active { transform: scale(.97); }
+.canal-card.saved .btn-save-canal {
+  background: #dcfce7; color: #16a34a; border: 1.5px solid #22c55e55;
+}
+.btn-edit-canal {
+  display: none; align-items: center; gap: 5px;
+  padding: 7px 14px; border-radius: 100px;
+  border: 1.5px solid var(--gray-2); background: var(--white);
+  cursor: pointer; font-size: 12px; font-weight: 600;
+  font-family: var(--font-body); color: var(--gray-4);
+  transition: border-color .15s, color .15s;
+}
+.btn-edit-canal:hover { border-color: var(--gold); color: var(--brown-warm); }
+.canal-card.saved .btn-edit-canal { display: inline-flex; }
+
+/* ── Gender sum indicator ── */
+.gender-sum-indicator {
+  font-size: 11px; font-weight: 700; text-align: right;
+  margin-top: 4px; transition: color .2s;
+}
+.gender-sum-indicator.ok { color: #3a7d44; }
+.gender-sum-indicator.over { color: #c0392b; }
+.gender-sum-indicator.under { color: var(--gray-3); }
 
 /* ── Gender pie chart ── */
 .gender-section { display: flex; flex-direction: column; gap: 14px; }
@@ -1754,833 +1940,9 @@ input[type=number] { -moz-appearance: textfield; }
 
           <div id="social-networks-container" style="display:flex;flex-direction:column;gap:14px">
 
-            <!-- Instagram (hidden initially, shown when added) -->
-            <div class="social-network-group" data-network="instagram" data-prefix="instagram.com/" style="display:none">
-              <div class="social-network-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-                <span style="font-size:12px;font-weight:600;color:var(--gray-4)">Instagram</span>
-                <div style="display:flex;gap:8px;align-items:center">
-                  <button type="button" class="social-add-btn" onclick="addSocialEntry(this.closest('.social-network-group'))"
-                    style="background:none;border:none;cursor:pointer;color:var(--gray-3);font-size:12px;font-weight:600;padding:2px 6px;transition:color .15s"
-                    onmouseover="this.style.color='var(--brown-warm)'" onmouseout="this.style.color='var(--gray-3)'">+ perfil</button>
-                  <button type="button" onclick="removeCanal('instagram')"
-                    style="background:none;border:none;cursor:pointer;color:var(--gray-3);font-size:14px;line-height:1;padding:2px 4px;transition:color .15s"
-                    onmouseover="this.style.color='#c0392b'" onmouseout="this.style.color='var(--gray-3)'" title="Remover canal">×</button>
-                </div>
-              </div>
-              <div class="social-entries" style="display:flex;flex-direction:column;gap:8px">
-                <div class="social-entry" style="display:flex;gap:8px;align-items:center">
-                  <div class="social-input-wrapper" style="flex:1">
-                    <span class="social-input-prefix">instagram.com/</span>
-                    <input type="text" class="form-control" id="social-instagram" placeholder="seuusuario" style="padding-left:110px">
-                  </div>
-                </div>
-              </div>
-              <!-- Audience data panel for Instagram -->
-              <div class="audience-panel" id="aud-panel-instagram">
-                <div class="audience-panel-toggle" onclick="toggleAudiencePanel('instagram')">
-                  <span class="audience-panel-toggle-label">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
-                    Dados do público <span style="color:var(--gray-3);font-weight:400">(opcional)</span>
-                  </span>
-                  <span class="audience-panel-arrow">▾</span>
-                </div>
-                <div class="audience-panel-body">
-                  <!-- Estimativa toggle -->
-                  <div class="est-toggle-row">
-                    <span class="est-toggle-label">Tipo de dado</span>
-                    <span class="est-badge" id="est-badge-instagram">Estimativa</span>
-                    <div class="est-toggle-switch" id="est-toggle-instagram" onclick="toggleEstimate('instagram')" title="Estimativa / Dado real">
-                      <div class="est-toggle-knob"></div>
-                    </div>
-                  </div>
-                  <!-- Seguidores -->
-                  <div class="form-group" style="margin-bottom:0">
-                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:6px">Seguidores</label>
-                    <input type="text" class="form-control" id="aud-instagram-seguidores" placeholder="Ex: 50k" inputmode="numeric" oninput="onSeguidoresInput(this,'instagram')">
-                  </div>
-                  <!-- Gênero + Pie chart -->
-                  <div>
-                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:8px">Gênero</label>
-                    <div class="gender-section">
-                      <div class="gender-pie-wrap">
-                        <svg class="gender-pie-svg" id="gender-pie-instagram" viewBox="0 0 120 120">
-                          <circle cx="60" cy="60" r="42" fill="var(--gray-2)"/>
-                          <circle cx="60" cy="60" r="42" fill="none" stroke="#4A90D9" stroke-width="20" stroke-dasharray="263.9 263.9" stroke-dashoffset="-0.1" id="gender-pie-m-instagram" style="transform-origin:center;transform:rotate(-90deg)"/>
-                          <circle cx="60" cy="60" r="42" fill="none" stroke="#E1306C" stroke-width="20" stroke-dasharray="0 263.9" stroke-dashoffset="0" id="gender-pie-f-instagram" style="transform-origin:center;transform:rotate(-90deg)"/>
-                          <circle cx="60" cy="60" r="32" fill="var(--white)"/>
-                          <text x="60" y="56" text-anchor="middle" font-size="11" font-weight="700" fill="#E1306C" font-family="var(--font-body)" id="gender-pie-txt-f-instagram">—</text>
-                          <text x="60" y="70" text-anchor="middle" font-size="11" font-weight="700" fill="#4A90D9" font-family="var(--font-body)" id="gender-pie-txt-m-instagram"></text>
-                        </svg>
-                        <div class="gender-pie-legend" id="gender-pie-lbl-instagram">
-                          <span class="gender-pie-legend-item"><span class="gender-pie-legend-dot" style="background:#4A90D9"></span>♂ Masculino</span>
-                          <span class="gender-pie-legend-item"><span class="gender-pie-legend-dot" style="background:#E1306C"></span>♀ Feminino</span>
-                        </div>
-                      </div>
-                      <div class="gender-inputs">
-                        <div class="form-group" style="margin-bottom:0">
-                          <label style="font-size:12px;color:var(--gray-4);display:block;margin-bottom:5px">♂ Masculino (%)</label>
-                          <input type="number" class="form-control" id="aud-instagram-genero-m" placeholder="Ex: 40" min="0" max="100" oninput="updateGenderPie('instagram')">
-                        </div>
-                        <div class="form-group" style="margin-bottom:0">
-                          <label style="font-size:12px;color:var(--gray-4);display:block;margin-bottom:5px">♀ Feminino (%)</label>
-                          <input type="number" class="form-control" id="aud-instagram-genero-f" placeholder="Ex: 60" min="0" max="100" oninput="updateGenderPie('instagram')">
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <!-- Faixa etária -->
-                  <div>
-                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:8px">Faixa etária <span style="font-weight:400;text-transform:none;letter-spacing:0">(deve somar 100%)</span></label>
-                    <div class="age-ranges-grid">
-                      <div class="age-range-row"><span class="age-range-label">13–17</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-instagram-age-1317" min="0" max="100" placeholder="0" oninput="syncInputToSlider('instagram','1317',this.value);updateAgeBars('instagram')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-instagram-1317" min="0" max="100" value="0" oninput="syncSlider('instagram','1317',this.value)"></div>
-                      <div class="age-range-row"><span class="age-range-label">18–24</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-instagram-age-1824" min="0" max="100" placeholder="0" oninput="syncInputToSlider('instagram','1824',this.value);updateAgeBars('instagram')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-instagram-1824" min="0" max="100" value="0" oninput="syncSlider('instagram','1824',this.value)"></div>
-                      <div class="age-range-row"><span class="age-range-label">25–34</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-instagram-age-2534" min="0" max="100" placeholder="0" oninput="syncInputToSlider('instagram','2534',this.value);updateAgeBars('instagram')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-instagram-2534" min="0" max="100" value="0" oninput="syncSlider('instagram','2534',this.value)"></div>
-                      <div class="age-range-row"><span class="age-range-label">35–44</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-instagram-age-3544" min="0" max="100" placeholder="0" oninput="syncInputToSlider('instagram','3544',this.value);updateAgeBars('instagram')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-instagram-3544" min="0" max="100" value="0" oninput="syncSlider('instagram','3544',this.value)"></div>
-                      <div class="age-range-row"><span class="age-range-label">45+</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-instagram-age-45p" min="0" max="100" placeholder="0" oninput="syncInputToSlider('instagram','45p',this.value);updateAgeBars('instagram')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-instagram-45p" min="0" max="100" value="0" oninput="syncSlider('instagram','45p',this.value)"></div>
-                    </div>
-                    <div class="age-sum-indicator under" id="aud-instagram-age-sum">Total: 0%</div>
-                  </div>
-                  <!-- Formatos que mais performam -->
-                  <div>
-                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:8px">Formatos que mais performam</label>
-                    <div class="format-pills-grid" id="fmt-instagram">
-                      <div class="format-pill" onclick="toggleFormatPill(this)">Reels</div>
-                      <div class="format-pill" onclick="toggleFormatPill(this)">Stories</div>
-                      <div class="format-pill" onclick="toggleFormatPill(this)">Post carrossel</div>
-                      <div class="format-pill" onclick="toggleFormatPill(this)">Post estático</div>
-                      <div class="format-pill" onclick="toggleFormatPill(this)">Live</div>
-                    </div>
-                  </div>
-                  <!-- Contexto -->
-                  <div class="form-group" style="margin-bottom:0">
-                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:6px">Contexto adicional <span style="font-weight:400;text-transform:none;letter-spacing:0">(opcional)</span></label>
-                    <textarea class="form-control" id="aud-instagram-contexto" rows="2" placeholder="Ex: Melhor desempenho em Reels com conteúdo educativo sobre surf, média de 80k views..."></textarea>
-                  </div>
-                  <!-- Período de referência -->
-                  <div class="form-group" style="margin-bottom:0">
-                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:6px">Período de referência</label>
-                    <div class="period-chips" id="period-chips-instagram">
-                      <span class="period-chip" data-days="30" onclick="selectPeriodChip('instagram',this)">Últimos 30 dias</span>
-                      <span class="period-chip" data-days="90" onclick="selectPeriodChip('instagram',this)">Últimos 90 dias</span>
-                      <span class="period-chip" data-days="180" onclick="selectPeriodChip('instagram',this)">Últimos 6 meses</span>
-                      <span class="period-chip" data-days="365" onclick="selectPeriodChip('instagram',this)">Últimos 12 meses</span>
-                      <span class="period-chip" data-days="custom" onclick="selectPeriodChip('instagram',this)">Personalizado</span>
-                    </div>
-                    <div class="period-custom-row" id="period-custom-instagram">
-                      <label>Datas do período</label>
-                      <div class="period-dates-row">
-                        <div><span style="font-size:11px;color:var(--gray-3);display:block;margin-bottom:3px">De</span><input type="date" id="aud-instagram-periodo-inicio"></div>
-                        <div><span style="font-size:11px;color:var(--gray-3);display:block;margin-bottom:3px">Até</span><input type="date" id="aud-instagram-periodo-fim"></div>
-                      </div>
-                    </div>
-                    <input type="hidden" id="aud-instagram-periodo" value="">
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- TikTok -->
-            <div class="social-network-group" data-network="tiktok" data-prefix="tiktok.com/@" style="display:none">
-              <div class="social-network-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-                <span style="font-size:12px;font-weight:600;color:var(--gray-4)">TikTok</span>
-                <div style="display:flex;gap:8px;align-items:center">
-                  <button type="button" class="social-add-btn" onclick="addSocialEntry(this.closest('.social-network-group'))"
-                    style="background:none;border:none;cursor:pointer;color:var(--gray-3);font-size:12px;font-weight:600;padding:2px 6px;transition:color .15s"
-                    onmouseover="this.style.color='var(--brown-warm)'" onmouseout="this.style.color='var(--gray-3)'">+ perfil</button>
-                  <button type="button" onclick="removeCanal('tiktok')"
-                    style="background:none;border:none;cursor:pointer;color:var(--gray-3);font-size:14px;line-height:1;padding:2px 4px;transition:color .15s"
-                    onmouseover="this.style.color='#c0392b'" onmouseout="this.style.color='var(--gray-3)'" title="Remover canal">×</button>
-                </div>
-              </div>
-              <div class="social-entries" style="display:flex;flex-direction:column;gap:8px">
-                <div class="social-entry" style="display:flex;gap:8px;align-items:center">
-                  <div class="social-input-wrapper" style="flex:1">
-                    <span class="social-input-prefix">tiktok.com/@</span>
-                    <input type="text" class="form-control" id="social-tiktok" placeholder="seuusuario" style="padding-left:100px">
-                  </div>
-                </div>
-              </div>
-              <!-- Audience data panel for TikTok -->
-              <div class="audience-panel" id="aud-panel-tiktok">
-                <div class="audience-panel-toggle" onclick="toggleAudiencePanel('tiktok')">
-                  <span class="audience-panel-toggle-label">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
-                    Dados do público <span style="color:var(--gray-3);font-weight:400">(opcional)</span>
-                  </span>
-                  <span class="audience-panel-arrow">▾</span>
-                </div>
-                <div class="audience-panel-body">
-                  <div class="est-toggle-row">
-                    <span class="est-toggle-label">Tipo de dado</span>
-                    <span class="est-badge" id="est-badge-tiktok">Estimativa</span>
-                    <div class="est-toggle-switch" id="est-toggle-tiktok" onclick="toggleEstimate('tiktok')" title="Estimativa / Dado real">
-                      <div class="est-toggle-knob"></div>
-                    </div>
-                  </div>
-                  <div class="form-group" style="margin-bottom:0">
-                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:6px">Seguidores</label>
-                    <input type="text" class="form-control" id="aud-tiktok-seguidores" placeholder="Ex: 30k" inputmode="numeric" oninput="onSeguidoresInput(this,'tiktok')">
-                  </div>
-                  <div>
-                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:8px">Gênero</label>
-                    <div class="gender-section">
-                      <div class="gender-pie-wrap">
-                        <svg class="gender-pie-svg" id="gender-pie-tiktok" viewBox="0 0 120 120">
-                          <circle cx="60" cy="60" r="42" fill="var(--gray-2)"/>
-                          <circle cx="60" cy="60" r="42" fill="none" stroke="#4A90D9" stroke-width="20" stroke-dasharray="263.9 263.9" stroke-dashoffset="-0.1" id="gender-pie-m-tiktok" style="transform-origin:center;transform:rotate(-90deg)"/>
-                          <circle cx="60" cy="60" r="42" fill="none" stroke="#E1306C" stroke-width="20" stroke-dasharray="0 263.9" stroke-dashoffset="0" id="gender-pie-f-tiktok" style="transform-origin:center;transform:rotate(-90deg)"/>
-                          <circle cx="60" cy="60" r="32" fill="var(--white)"/>
-                          <text x="60" y="56" text-anchor="middle" font-size="11" font-weight="700" fill="#E1306C" font-family="var(--font-body)" id="gender-pie-txt-f-tiktok">—</text>
-                          <text x="60" y="70" text-anchor="middle" font-size="11" font-weight="700" fill="#4A90D9" font-family="var(--font-body)" id="gender-pie-txt-m-tiktok"></text>
-                        </svg>
-                        <div class="gender-pie-legend" id="gender-pie-lbl-tiktok">
-                          <span class="gender-pie-legend-item"><span class="gender-pie-legend-dot" style="background:#4A90D9"></span>♂ Masculino</span>
-                          <span class="gender-pie-legend-item"><span class="gender-pie-legend-dot" style="background:#E1306C"></span>♀ Feminino</span>
-                        </div>
-                      </div>
-                      <div class="gender-inputs">
-                        <div class="form-group" style="margin-bottom:0">
-                          <label style="font-size:12px;color:var(--gray-4);display:block;margin-bottom:5px">♂ Masculino (%)</label>
-                          <input type="number" class="form-control" id="aud-tiktok-genero-m" placeholder="Ex: 45" min="0" max="100" oninput="updateGenderPie('tiktok')">
-                        </div>
-                        <div class="form-group" style="margin-bottom:0">
-                          <label style="font-size:12px;color:var(--gray-4);display:block;margin-bottom:5px">♀ Feminino (%)</label>
-                          <input type="number" class="form-control" id="aud-tiktok-genero-f" placeholder="Ex: 55" min="0" max="100" oninput="updateGenderPie('tiktok')">
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:8px">Faixa etária <span style="font-weight:400;text-transform:none;letter-spacing:0">(deve somar 100%)</span></label>
-                    <div class="age-ranges-grid">
-                      <div class="age-range-row"><span class="age-range-label">13–17</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-tiktok-age-1317" min="0" max="100" placeholder="0" oninput="syncInputToSlider('tiktok','1317',this.value);updateAgeBars('tiktok')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-tiktok-1317" min="0" max="100" value="0" oninput="syncSlider('tiktok','1317',this.value)"></div>
-                      <div class="age-range-row"><span class="age-range-label">18–24</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-tiktok-age-1824" min="0" max="100" placeholder="0" oninput="syncInputToSlider('tiktok','1824',this.value);updateAgeBars('tiktok')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-tiktok-1824" min="0" max="100" value="0" oninput="syncSlider('tiktok','1824',this.value)"></div>
-                      <div class="age-range-row"><span class="age-range-label">25–34</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-tiktok-age-2534" min="0" max="100" placeholder="0" oninput="syncInputToSlider('tiktok','2534',this.value);updateAgeBars('tiktok')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-tiktok-2534" min="0" max="100" value="0" oninput="syncSlider('tiktok','2534',this.value)"></div>
-                      <div class="age-range-row"><span class="age-range-label">35–44</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-tiktok-age-3544" min="0" max="100" placeholder="0" oninput="syncInputToSlider('tiktok','3544',this.value);updateAgeBars('tiktok')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-tiktok-3544" min="0" max="100" value="0" oninput="syncSlider('tiktok','3544',this.value)"></div>
-                      <div class="age-range-row"><span class="age-range-label">45+</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-tiktok-age-45p" min="0" max="100" placeholder="0" oninput="syncInputToSlider('tiktok','45p',this.value);updateAgeBars('tiktok')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-tiktok-45p" min="0" max="100" value="0" oninput="syncSlider('tiktok','45p',this.value)"></div>
-                    </div>
-                    <div class="age-sum-indicator under" id="aud-tiktok-age-sum">Total: 0%</div>
-                  </div>
-                  <div>
-                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:8px">Formatos que mais performam</label>
-                    <div class="format-pills-grid" id="fmt-tiktok">
-                      <div class="format-pill" onclick="toggleFormatPill(this)">Vídeo curto</div>
-                      <div class="format-pill" onclick="toggleFormatPill(this)">Dueto</div>
-                      <div class="format-pill" onclick="toggleFormatPill(this)">Lives</div>
-                      <div class="format-pill" onclick="toggleFormatPill(this)">Trend/Challenge</div>
-                      <div class="format-pill" onclick="toggleFormatPill(this)">Tutorial</div>
-                    </div>
-                  </div>
-                  <div class="form-group" style="margin-bottom:0">
-                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:6px">Contexto adicional <span style="font-weight:400;text-transform:none;letter-spacing:0">(opcional)</span></label>
-                    <textarea class="form-control" id="aud-tiktok-contexto" rows="2" placeholder="Ex: Conteúdo de humor e lifestyle performa melhor, média de 200k views por vídeo..."></textarea>
-                  </div>
-                  <div class="form-group" style="margin-bottom:0">
-                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:6px">Período de referência</label>
-                    <div class="period-chips" id="period-chips-tiktok">
-                      <span class="period-chip" data-days="30" onclick="selectPeriodChip('tiktok',this)">Últimos 30 dias</span>
-                      <span class="period-chip" data-days="90" onclick="selectPeriodChip('tiktok',this)">Últimos 90 dias</span>
-                      <span class="period-chip" data-days="180" onclick="selectPeriodChip('tiktok',this)">Últimos 6 meses</span>
-                      <span class="period-chip" data-days="365" onclick="selectPeriodChip('tiktok',this)">Últimos 12 meses</span>
-                      <span class="period-chip" data-days="custom" onclick="selectPeriodChip('tiktok',this)">Personalizado</span>
-                    </div>
-                    <div class="period-custom-row" id="period-custom-tiktok">
-                      <label>Datas do período</label>
-                      <div class="period-dates-row">
-                        <div><span style="font-size:11px;color:var(--gray-3);display:block;margin-bottom:3px">De</span><input type="date" id="aud-tiktok-periodo-inicio"></div>
-                        <div><span style="font-size:11px;color:var(--gray-3);display:block;margin-bottom:3px">Até</span><input type="date" id="aud-tiktok-periodo-fim"></div>
-                      </div>
-                    </div>
-                    <input type="hidden" id="aud-tiktok-periodo" value="">
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- YouTube -->
-            <div class="social-network-group" data-network="youtube" data-prefix="youtube.com/" style="display:none">
-              <div class="social-network-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-                <span style="font-size:12px;font-weight:600;color:var(--gray-4)">YouTube</span>
-                <div style="display:flex;gap:8px;align-items:center">
-                  <button type="button" class="social-add-btn" onclick="addSocialEntry(this.closest('.social-network-group'))"
-                    style="background:none;border:none;cursor:pointer;color:var(--gray-3);font-size:12px;font-weight:600;padding:2px 6px;transition:color .15s"
-                    onmouseover="this.style.color='var(--brown-warm)'" onmouseout="this.style.color='var(--gray-3)'">+ perfil</button>
-                  <button type="button" onclick="removeCanal('youtube')"
-                    style="background:none;border:none;cursor:pointer;color:var(--gray-3);font-size:14px;line-height:1;padding:2px 4px;transition:color .15s"
-                    onmouseover="this.style.color='#c0392b'" onmouseout="this.style.color='var(--gray-3)'" title="Remover canal">×</button>
-                </div>
-              </div>
-              <div class="social-entries" style="display:flex;flex-direction:column;gap:8px">
-                <div class="social-entry" style="display:flex;gap:8px;align-items:center">
-                  <div class="social-input-wrapper" style="flex:1">
-                    <span class="social-input-prefix">youtube.com/</span>
-                    <input type="text" class="form-control" id="social-youtube" placeholder="@seucanal" style="padding-left:105px">
-                  </div>
-                </div>
-              </div>
-              <!-- Audience data panel for YouTube -->
-              <div class="audience-panel" id="aud-panel-youtube">
-                <div class="audience-panel-toggle" onclick="toggleAudiencePanel('youtube')">
-                  <span class="audience-panel-toggle-label">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
-                    Dados do público <span style="color:var(--gray-3);font-weight:400">(opcional)</span>
-                  </span>
-                  <span class="audience-panel-arrow">▾</span>
-                </div>
-                <div class="audience-panel-body">
-                  <div class="est-toggle-row">
-                    <span class="est-toggle-label">Tipo de dado</span>
-                    <span class="est-badge" id="est-badge-youtube">Estimativa</span>
-                    <div class="est-toggle-switch" id="est-toggle-youtube" onclick="toggleEstimate('youtube')" title="Estimativa / Dado real">
-                      <div class="est-toggle-knob"></div>
-                    </div>
-                  </div>
-                  <div class="form-group" style="margin-bottom:0">
-                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:6px">Inscritos</label>
-                    <input type="text" class="form-control" id="aud-youtube-seguidores" placeholder="Ex: 120k" inputmode="numeric" oninput="onSeguidoresInput(this,'youtube')">
-                  </div>
-                  <div>
-                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:8px">Gênero</label>
-                    <div class="gender-section">
-                      <div class="gender-pie-wrap">
-                        <svg class="gender-pie-svg" id="gender-pie-youtube" viewBox="0 0 120 120">
-                          <circle cx="60" cy="60" r="42" fill="var(--gray-2)"/>
-                          <circle cx="60" cy="60" r="42" fill="none" stroke="#4A90D9" stroke-width="20" stroke-dasharray="263.9 263.9" stroke-dashoffset="-0.1" id="gender-pie-m-youtube" style="transform-origin:center;transform:rotate(-90deg)"/>
-                          <circle cx="60" cy="60" r="42" fill="none" stroke="#E1306C" stroke-width="20" stroke-dasharray="0 263.9" stroke-dashoffset="0" id="gender-pie-f-youtube" style="transform-origin:center;transform:rotate(-90deg)"/>
-                          <circle cx="60" cy="60" r="32" fill="var(--white)"/>
-                          <text x="60" y="56" text-anchor="middle" font-size="11" font-weight="700" fill="#E1306C" font-family="var(--font-body)" id="gender-pie-txt-f-youtube">—</text>
-                          <text x="60" y="70" text-anchor="middle" font-size="11" font-weight="700" fill="#4A90D9" font-family="var(--font-body)" id="gender-pie-txt-m-youtube"></text>
-                        </svg>
-                        <div class="gender-pie-legend" id="gender-pie-lbl-youtube">
-                          <span class="gender-pie-legend-item"><span class="gender-pie-legend-dot" style="background:#4A90D9"></span>♂ Masculino</span>
-                          <span class="gender-pie-legend-item"><span class="gender-pie-legend-dot" style="background:#E1306C"></span>♀ Feminino</span>
-                        </div>
-                      </div>
-                      <div class="gender-inputs">
-                        <div class="form-group" style="margin-bottom:0">
-                          <label style="font-size:12px;color:var(--gray-4);display:block;margin-bottom:5px">♂ Masculino (%)</label>
-                          <input type="number" class="form-control" id="aud-youtube-genero-m" placeholder="Ex: 55" min="0" max="100" oninput="updateGenderPie('youtube')">
-                        </div>
-                        <div class="form-group" style="margin-bottom:0">
-                          <label style="font-size:12px;color:var(--gray-4);display:block;margin-bottom:5px">♀ Feminino (%)</label>
-                          <input type="number" class="form-control" id="aud-youtube-genero-f" placeholder="Ex: 45" min="0" max="100" oninput="updateGenderPie('youtube')">
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:8px">Faixa etária <span style="font-weight:400;text-transform:none;letter-spacing:0">(deve somar 100%)</span></label>
-                    <div class="age-ranges-grid">
-                      <div class="age-range-row"><span class="age-range-label">13–17</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-youtube-age-1317" min="0" max="100" placeholder="0" oninput="syncInputToSlider('youtube','1317',this.value);updateAgeBars('youtube')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-youtube-1317" min="0" max="100" value="0" oninput="syncSlider('youtube','1317',this.value)"></div>
-                      <div class="age-range-row"><span class="age-range-label">18–24</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-youtube-age-1824" min="0" max="100" placeholder="0" oninput="syncInputToSlider('youtube','1824',this.value);updateAgeBars('youtube')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-youtube-1824" min="0" max="100" value="0" oninput="syncSlider('youtube','1824',this.value)"></div>
-                      <div class="age-range-row"><span class="age-range-label">25–34</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-youtube-age-2534" min="0" max="100" placeholder="0" oninput="syncInputToSlider('youtube','2534',this.value);updateAgeBars('youtube')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-youtube-2534" min="0" max="100" value="0" oninput="syncSlider('youtube','2534',this.value)"></div>
-                      <div class="age-range-row"><span class="age-range-label">35–44</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-youtube-age-3544" min="0" max="100" placeholder="0" oninput="syncInputToSlider('youtube','3544',this.value);updateAgeBars('youtube')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-youtube-3544" min="0" max="100" value="0" oninput="syncSlider('youtube','3544',this.value)"></div>
-                      <div class="age-range-row"><span class="age-range-label">45+</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-youtube-age-45p" min="0" max="100" placeholder="0" oninput="syncInputToSlider('youtube','45p',this.value);updateAgeBars('youtube')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-youtube-45p" min="0" max="100" value="0" oninput="syncSlider('youtube','45p',this.value)"></div>
-                    </div>
-                    <div class="age-sum-indicator under" id="aud-youtube-age-sum">Total: 0%</div>
-                  </div>
-                  <div>
-                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:8px">Formatos que mais performam</label>
-                    <div class="format-pills-grid" id="fmt-youtube">
-                      <div class="format-pill" onclick="toggleFormatPill(this)">Vídeo longo</div>
-                      <div class="format-pill" onclick="toggleFormatPill(this)">Shorts</div>
-                      <div class="format-pill" onclick="toggleFormatPill(this)">Live</div>
-                      <div class="format-pill" onclick="toggleFormatPill(this)">Série</div>
-                      <div class="format-pill" onclick="toggleFormatPill(this)">Tutorial/How-to</div>
-                    </div>
-                  </div>
-                  <div class="form-group" style="margin-bottom:0">
-                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:6px">Contexto adicional <span style="font-weight:400;text-transform:none;letter-spacing:0">(opcional)</span></label>
-                    <textarea class="form-control" id="aud-youtube-contexto" rows="2" placeholder="Ex: Canal focado em vlogs de viagem, vídeos acima de 15min têm melhor retenção..."></textarea>
-                  </div>
-                  <div class="form-group" style="margin-bottom:0">
-                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:6px">Período de referência</label>
-                    <div class="period-chips" id="period-chips-youtube">
-                      <span class="period-chip" data-days="30" onclick="selectPeriodChip('youtube',this)">Últimos 30 dias</span>
-                      <span class="period-chip" data-days="90" onclick="selectPeriodChip('youtube',this)">Últimos 90 dias</span>
-                      <span class="period-chip" data-days="180" onclick="selectPeriodChip('youtube',this)">Últimos 6 meses</span>
-                      <span class="period-chip" data-days="365" onclick="selectPeriodChip('youtube',this)">Últimos 12 meses</span>
-                      <span class="period-chip" data-days="custom" onclick="selectPeriodChip('youtube',this)">Personalizado</span>
-                    </div>
-                    <div class="period-custom-row" id="period-custom-youtube">
-                      <label>Datas do período</label>
-                      <div class="period-dates-row">
-                        <div><span style="font-size:11px;color:var(--gray-3);display:block;margin-bottom:3px">De</span><input type="date" id="aud-youtube-periodo-inicio"></div>
-                        <div><span style="font-size:11px;color:var(--gray-3);display:block;margin-bottom:3px">Até</span><input type="date" id="aud-youtube-periodo-fim"></div>
-                      </div>
-                    </div>
-                    <input type="hidden" id="aud-youtube-periodo" value="">
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- LinkedIn -->
-            <div class="social-network-group" data-network="linkedin" data-prefix="linkedin.com/in/" style="display:none">
-              <div class="social-network-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-                <span style="font-size:12px;font-weight:600;color:var(--gray-4)">LinkedIn</span>
-                <div style="display:flex;gap:8px;align-items:center">
-                  <button type="button" class="social-add-btn" onclick="addSocialEntry(this.closest('.social-network-group'))"
-                    style="background:none;border:none;cursor:pointer;color:var(--gray-3);font-size:12px;font-weight:600;padding:2px 6px;transition:color .15s"
-                    onmouseover="this.style.color='var(--brown-warm)'" onmouseout="this.style.color='var(--gray-3)'">+ perfil</button>
-                  <button type="button" onclick="removeCanal('linkedin')"
-                    style="background:none;border:none;cursor:pointer;color:var(--gray-3);font-size:14px;line-height:1;padding:2px 4px;transition:color .15s"
-                    onmouseover="this.style.color='#c0392b'" onmouseout="this.style.color='var(--gray-3)'" title="Remover canal">×</button>
-                </div>
-              </div>
-              <div class="social-entries" style="display:flex;flex-direction:column;gap:8px">
-                <div class="social-entry" style="display:flex;gap:8px;align-items:center">
-                  <div class="social-input-wrapper" style="flex:1">
-                    <span class="social-input-prefix">linkedin.com/in/</span>
-                    <input type="text" class="form-control" id="social-linkedin" placeholder="seuperfil" style="padding-left:118px">
-                  </div>
-                </div>
-              </div>
-              <!-- Audience data panel for LinkedIn -->
-              <div class="audience-panel" id="aud-panel-linkedin">
-                <div class="audience-panel-toggle" onclick="toggleAudiencePanel('linkedin')">
-                  <span class="audience-panel-toggle-label">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
-                    Dados do público <span style="color:var(--gray-3);font-weight:400">(opcional)</span>
-                  </span>
-                  <span class="audience-panel-arrow">▾</span>
-                </div>
-                <div class="audience-panel-body">
-                  <div class="est-toggle-row">
-                    <span class="est-toggle-label">Tipo de dado</span>
-                    <span class="est-badge" id="est-badge-linkedin">Estimativa</span>
-                    <div class="est-toggle-switch" id="est-toggle-linkedin" onclick="toggleEstimate('linkedin')" title="Estimativa / Dado real">
-                      <div class="est-toggle-knob"></div>
-                    </div>
-                  </div>
-                  <div class="form-group" style="margin-bottom:0">
-                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:6px">Conexões/Seguidores</label>
-                    <input type="text" class="form-control" id="aud-linkedin-seguidores" placeholder="Ex: 15k" inputmode="numeric" oninput="onSeguidoresInput(this,'linkedin')">
-                  </div>
-                  <div>
-                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:8px">Gênero</label>
-                    <div class="gender-section">
-                      <div class="gender-pie-wrap">
-                        <svg class="gender-pie-svg" id="gender-pie-linkedin" viewBox="0 0 120 120">
-                          <circle cx="60" cy="60" r="42" fill="var(--gray-2)"/>
-                          <circle cx="60" cy="60" r="42" fill="none" stroke="#4A90D9" stroke-width="20" stroke-dasharray="263.9 263.9" stroke-dashoffset="-0.1" id="gender-pie-m-linkedin" style="transform-origin:center;transform:rotate(-90deg)"/>
-                          <circle cx="60" cy="60" r="42" fill="none" stroke="#E1306C" stroke-width="20" stroke-dasharray="0 263.9" stroke-dashoffset="0" id="gender-pie-f-linkedin" style="transform-origin:center;transform:rotate(-90deg)"/>
-                          <circle cx="60" cy="60" r="32" fill="var(--white)"/>
-                          <text x="60" y="56" text-anchor="middle" font-size="11" font-weight="700" fill="#E1306C" font-family="var(--font-body)" id="gender-pie-txt-f-linkedin">—</text>
-                          <text x="60" y="70" text-anchor="middle" font-size="11" font-weight="700" fill="#4A90D9" font-family="var(--font-body)" id="gender-pie-txt-m-linkedin"></text>
-                        </svg>
-                        <div class="gender-pie-legend" id="gender-pie-lbl-linkedin">
-                          <span class="gender-pie-legend-item"><span class="gender-pie-legend-dot" style="background:#4A90D9"></span>♂ Masculino</span>
-                          <span class="gender-pie-legend-item"><span class="gender-pie-legend-dot" style="background:#E1306C"></span>♀ Feminino</span>
-                        </div>
-                      </div>
-                      <div class="gender-inputs">
-                        <div class="form-group" style="margin-bottom:0">
-                          <label style="font-size:12px;color:var(--gray-4);display:block;margin-bottom:5px">♂ Masculino (%)</label>
-                          <input type="number" class="form-control" id="aud-linkedin-genero-m" placeholder="Ex: 60" min="0" max="100" oninput="updateGenderPie('linkedin')">
-                        </div>
-                        <div class="form-group" style="margin-bottom:0">
-                          <label style="font-size:12px;color:var(--gray-4);display:block;margin-bottom:5px">♀ Feminino (%)</label>
-                          <input type="number" class="form-control" id="aud-linkedin-genero-f" placeholder="Ex: 40" min="0" max="100" oninput="updateGenderPie('linkedin')">
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:8px">Faixa etária <span style="font-weight:400;text-transform:none;letter-spacing:0">(deve somar 100%)</span></label>
-                    <div class="age-ranges-grid">
-                      <div class="age-range-row"><span class="age-range-label">13–17</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-linkedin-age-1317" min="0" max="100" placeholder="0" oninput="syncInputToSlider('linkedin','1317',this.value);updateAgeBars('linkedin')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-linkedin-1317" min="0" max="100" value="0" oninput="syncSlider('linkedin','1317',this.value)"></div>
-                      <div class="age-range-row"><span class="age-range-label">18–24</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-linkedin-age-1824" min="0" max="100" placeholder="0" oninput="syncInputToSlider('linkedin','1824',this.value);updateAgeBars('linkedin')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-linkedin-1824" min="0" max="100" value="0" oninput="syncSlider('linkedin','1824',this.value)"></div>
-                      <div class="age-range-row"><span class="age-range-label">25–34</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-linkedin-age-2534" min="0" max="100" placeholder="0" oninput="syncInputToSlider('linkedin','2534',this.value);updateAgeBars('linkedin')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-linkedin-2534" min="0" max="100" value="0" oninput="syncSlider('linkedin','2534',this.value)"></div>
-                      <div class="age-range-row"><span class="age-range-label">35–44</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-linkedin-age-3544" min="0" max="100" placeholder="0" oninput="syncInputToSlider('linkedin','3544',this.value);updateAgeBars('linkedin')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-linkedin-3544" min="0" max="100" value="0" oninput="syncSlider('linkedin','3544',this.value)"></div>
-                      <div class="age-range-row"><span class="age-range-label">45+</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-linkedin-age-45p" min="0" max="100" placeholder="0" oninput="syncInputToSlider('linkedin','45p',this.value);updateAgeBars('linkedin')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-linkedin-45p" min="0" max="100" value="0" oninput="syncSlider('linkedin','45p',this.value)"></div>
-                    </div>
-                    <div class="age-sum-indicator under" id="aud-linkedin-age-sum">Total: 0%</div>
-                  </div>
-                  <div>
-                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:8px">Formatos que mais performam</label>
-                    <div class="format-pills-grid" id="fmt-linkedin">
-                      <div class="format-pill" onclick="toggleFormatPill(this)">Artigo</div>
-                      <div class="format-pill" onclick="toggleFormatPill(this)">Post de texto</div>
-                      <div class="format-pill" onclick="toggleFormatPill(this)">Carrossel PDF</div>
-                      <div class="format-pill" onclick="toggleFormatPill(this)">Vídeo nativo</div>
-                      <div class="format-pill" onclick="toggleFormatPill(this)">Newsletter</div>
-                    </div>
-                  </div>
-                  <div class="form-group" style="margin-bottom:0">
-                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:6px">Contexto adicional <span style="font-weight:400;text-transform:none;letter-spacing:0">(opcional)</span></label>
-                    <textarea class="form-control" id="aud-linkedin-contexto" rows="2" placeholder="Ex: Audiência predominantemente de executivos e profissionais de tecnologia..."></textarea>
-                  </div>
-                  <div class="form-group" style="margin-bottom:0">
-                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:6px">Período de referência</label>
-                    <div class="period-chips" id="period-chips-linkedin">
-                      <span class="period-chip" data-days="30" onclick="selectPeriodChip('linkedin',this)">Últimos 30 dias</span>
-                      <span class="period-chip" data-days="90" onclick="selectPeriodChip('linkedin',this)">Últimos 90 dias</span>
-                      <span class="period-chip" data-days="180" onclick="selectPeriodChip('linkedin',this)">Últimos 6 meses</span>
-                      <span class="period-chip" data-days="365" onclick="selectPeriodChip('linkedin',this)">Últimos 12 meses</span>
-                      <span class="period-chip" data-days="custom" onclick="selectPeriodChip('linkedin',this)">Personalizado</span>
-                    </div>
-                    <div class="period-custom-row" id="period-custom-linkedin">
-                      <label>Datas do período</label>
-                      <div class="period-dates-row">
-                        <div><span style="font-size:11px;color:var(--gray-3);display:block;margin-bottom:3px">De</span><input type="date" id="aud-linkedin-periodo-inicio"></div>
-                        <div><span style="font-size:11px;color:var(--gray-3);display:block;margin-bottom:3px">Até</span><input type="date" id="aud-linkedin-periodo-fim"></div>
-                      </div>
-                    </div>
-                    <input type="hidden" id="aud-linkedin-periodo" value="">
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Twitch -->
-            <div class="social-network-group" data-network="twitch" data-prefix="twitch.tv/" style="display:none">
-              <div class="social-network-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-                <span style="font-size:12px;font-weight:600;color:var(--gray-4)">Twitch</span>
-                <div style="display:flex;gap:8px;align-items:center">
-                  <button type="button" class="social-add-btn" onclick="addSocialEntry(this.closest('.social-network-group'))"
-                    style="background:none;border:none;cursor:pointer;color:var(--gray-3);font-size:12px;font-weight:600;padding:2px 6px;transition:color .15s"
-                    onmouseover="this.style.color='var(--brown-warm)'" onmouseout="this.style.color='var(--gray-3)'">+ perfil</button>
-                  <button type="button" onclick="removeCanal('twitch')"
-                    style="background:none;border:none;cursor:pointer;color:var(--gray-3);font-size:14px;line-height:1;padding:2px 4px;transition:color .15s"
-                    onmouseover="this.style.color='#c0392b'" onmouseout="this.style.color='var(--gray-3)'" title="Remover canal">×</button>
-                </div>
-              </div>
-              <div class="social-entries" style="display:flex;flex-direction:column;gap:8px">
-                <div class="social-entry" style="display:flex;gap:8px;align-items:center">
-                  <div class="social-input-wrapper" style="flex:1">
-                    <span class="social-input-prefix">twitch.tv/</span>
-                    <input type="text" class="form-control" id="social-twitch" placeholder="seucanal" style="padding-left:82px">
-                  </div>
-                </div>
-              </div>
-              <!-- Audience data panel for Twitch -->
-              <div class="audience-panel" id="aud-panel-twitch">
-                <div class="audience-panel-toggle" onclick="toggleAudiencePanel('twitch')">
-                  <span class="audience-panel-toggle-label">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
-                    Dados do público <span style="color:var(--gray-3);font-weight:400">(opcional)</span>
-                  </span>
-                  <span class="audience-panel-arrow">▾</span>
-                </div>
-                <div class="audience-panel-body">
-                  <div class="est-toggle-row">
-                    <span class="est-toggle-label">Tipo de dado</span>
-                    <span class="est-badge" id="est-badge-twitch">Estimativa</span>
-                    <div class="est-toggle-switch" id="est-toggle-twitch" onclick="toggleEstimate('twitch')" title="Estimativa / Dado real">
-                      <div class="est-toggle-knob"></div>
-                    </div>
-                  </div>
-                  <div class="form-group" style="margin-bottom:0">
-                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:6px">Seguidores</label>
-                    <input type="text" class="form-control" id="aud-twitch-seguidores" placeholder="Ex: 80k" inputmode="numeric" oninput="onSeguidoresInput(this,'twitch')">
-                  </div>
-                  <div>
-                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:8px">Gênero</label>
-                    <div class="gender-section">
-                      <div class="gender-pie-wrap">
-                        <svg class="gender-pie-svg" id="gender-pie-twitch" viewBox="0 0 120 120">
-                          <circle cx="60" cy="60" r="42" fill="var(--gray-2)"/>
-                          <circle cx="60" cy="60" r="42" fill="none" stroke="#4A90D9" stroke-width="20" stroke-dasharray="263.9 263.9" stroke-dashoffset="-0.1" id="gender-pie-m-twitch" style="transform-origin:center;transform:rotate(-90deg)"/>
-                          <circle cx="60" cy="60" r="42" fill="none" stroke="#E1306C" stroke-width="20" stroke-dasharray="0 263.9" stroke-dashoffset="0" id="gender-pie-f-twitch" style="transform-origin:center;transform:rotate(-90deg)"/>
-                          <circle cx="60" cy="60" r="32" fill="var(--white)"/>
-                          <text x="60" y="56" text-anchor="middle" font-size="11" font-weight="700" fill="#E1306C" font-family="var(--font-body)" id="gender-pie-txt-f-twitch">—</text>
-                          <text x="60" y="70" text-anchor="middle" font-size="11" font-weight="700" fill="#4A90D9" font-family="var(--font-body)" id="gender-pie-txt-m-twitch"></text>
-                        </svg>
-                        <div class="gender-pie-legend" id="gender-pie-lbl-twitch">
-                          <span class="gender-pie-legend-item"><span class="gender-pie-legend-dot" style="background:#4A90D9"></span>♂ Masculino</span>
-                          <span class="gender-pie-legend-item"><span class="gender-pie-legend-dot" style="background:#E1306C"></span>♀ Feminino</span>
-                        </div>
-                      </div>
-                      <div class="gender-inputs">
-                        <div class="form-group" style="margin-bottom:0">
-                          <label style="font-size:12px;color:var(--gray-4);display:block;margin-bottom:5px">♂ Masculino (%)</label>
-                          <input type="number" class="form-control" id="aud-twitch-genero-m" placeholder="Ex: 65" min="0" max="100" oninput="updateGenderPie('twitch')">
-                        </div>
-                        <div class="form-group" style="margin-bottom:0">
-                          <label style="font-size:12px;color:var(--gray-4);display:block;margin-bottom:5px">♀ Feminino (%)</label>
-                          <input type="number" class="form-control" id="aud-twitch-genero-f" placeholder="Ex: 35" min="0" max="100" oninput="updateGenderPie('twitch')">
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:8px">Faixa etária <span style="font-weight:400;text-transform:none;letter-spacing:0">(deve somar 100%)</span></label>
-                    <div class="age-ranges-grid">
-                      <div class="age-range-row"><span class="age-range-label">13–17</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-twitch-age-1317" min="0" max="100" placeholder="0" oninput="syncInputToSlider('twitch','1317',this.value);updateAgeBars('twitch')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-twitch-1317" min="0" max="100" value="0" oninput="syncSlider('twitch','1317',this.value)"></div>
-                      <div class="age-range-row"><span class="age-range-label">18–24</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-twitch-age-1824" min="0" max="100" placeholder="0" oninput="syncInputToSlider('twitch','1824',this.value);updateAgeBars('twitch')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-twitch-1824" min="0" max="100" value="0" oninput="syncSlider('twitch','1824',this.value)"></div>
-                      <div class="age-range-row"><span class="age-range-label">25–34</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-twitch-age-2534" min="0" max="100" placeholder="0" oninput="syncInputToSlider('twitch','2534',this.value);updateAgeBars('twitch')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-twitch-2534" min="0" max="100" value="0" oninput="syncSlider('twitch','2534',this.value)"></div>
-                      <div class="age-range-row"><span class="age-range-label">35–44</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-twitch-age-3544" min="0" max="100" placeholder="0" oninput="syncInputToSlider('twitch','3544',this.value);updateAgeBars('twitch')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-twitch-3544" min="0" max="100" value="0" oninput="syncSlider('twitch','3544',this.value)"></div>
-                      <div class="age-range-row"><span class="age-range-label">45+</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-twitch-age-45p" min="0" max="100" placeholder="0" oninput="syncInputToSlider('twitch','45p',this.value);updateAgeBars('twitch')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-twitch-45p" min="0" max="100" value="0" oninput="syncSlider('twitch','45p',this.value)"></div>
-                    </div>
-                    <div class="age-sum-indicator under" id="aud-twitch-age-sum">Total: 0%</div>
-                  </div>
-                  <div>
-                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:8px">Formatos que mais performam</label>
-                    <div class="format-pills-grid" id="fmt-twitch">
-                      <div class="format-pill" onclick="toggleFormatPill(this)">Stream ao vivo</div>
-                      <div class="format-pill" onclick="toggleFormatPill(this)">Clip</div>
-                      <div class="format-pill" onclick="toggleFormatPill(this)">VOD</div>
-                      <div class="format-pill" onclick="toggleFormatPill(this)">Raid</div>
-                    </div>
-                  </div>
-                  <div class="form-group" style="margin-bottom:0">
-                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:6px">Contexto adicional <span style="font-weight:400;text-transform:none;letter-spacing:0">(opcional)</span></label>
-                    <textarea class="form-control" id="aud-twitch-contexto" rows="2" placeholder="Ex: Canal de gaming focado em FPS, streams diárias com média de 500 viewers simultâneos..."></textarea>
-                  </div>
-                  <div class="form-group" style="margin-bottom:0">
-                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:6px">Período de referência</label>
-                    <div class="period-chips" id="period-chips-twitch">
-                      <span class="period-chip" data-days="30" onclick="selectPeriodChip('twitch',this)">Últimos 30 dias</span>
-                      <span class="period-chip" data-days="90" onclick="selectPeriodChip('twitch',this)">Últimos 90 dias</span>
-                      <span class="period-chip" data-days="180" onclick="selectPeriodChip('twitch',this)">Últimos 6 meses</span>
-                      <span class="period-chip" data-days="365" onclick="selectPeriodChip('twitch',this)">Últimos 12 meses</span>
-                      <span class="period-chip" data-days="custom" onclick="selectPeriodChip('twitch',this)">Personalizado</span>
-                    </div>
-                    <div class="period-custom-row" id="period-custom-twitch">
-                      <label>Datas do período</label>
-                      <div class="period-dates-row">
-                        <div><span style="font-size:11px;color:var(--gray-3);display:block;margin-bottom:3px">De</span><input type="date" id="aud-twitch-periodo-inicio"></div>
-                        <div><span style="font-size:11px;color:var(--gray-3);display:block;margin-bottom:3px">Até</span><input type="date" id="aud-twitch-periodo-fim"></div>
-                      </div>
-                    </div>
-                    <input type="hidden" id="aud-twitch-periodo" value="">
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Kwai -->
-            <div class="social-network-group" data-network="kwai" data-prefix="kwai.com/" style="display:none">
-              <div class="social-network-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-                <span style="font-size:12px;font-weight:600;color:var(--gray-4)">Kwai</span>
-                <div style="display:flex;gap:8px;align-items:center">
-                  <button type="button" class="social-add-btn" onclick="addSocialEntry(this.closest('.social-network-group'))"
-                    style="background:none;border:none;cursor:pointer;color:var(--gray-3);font-size:12px;font-weight:600;padding:2px 6px;transition:color .15s"
-                    onmouseover="this.style.color='var(--brown-warm)'" onmouseout="this.style.color='var(--gray-3)'">+ perfil</button>
-                  <button type="button" onclick="removeCanal('kwai')"
-                    style="background:none;border:none;cursor:pointer;color:var(--gray-3);font-size:14px;line-height:1;padding:2px 4px;transition:color .15s"
-                    onmouseover="this.style.color='#c0392b'" onmouseout="this.style.color='var(--gray-3)'" title="Remover canal">×</button>
-                </div>
-              </div>
-              <div class="social-entries" style="display:flex;flex-direction:column;gap:8px">
-                <div class="social-entry" style="display:flex;gap:8px;align-items:center">
-                  <div class="social-input-wrapper" style="flex:1">
-                    <span class="social-input-prefix">kwai.com/</span>
-                    <input type="text" class="form-control" id="social-kwai" placeholder="@seuperfil" style="padding-left:82px">
-                  </div>
-                </div>
-              </div>
-              <!-- Audience data panel for Kwai -->
-              <div class="audience-panel" id="aud-panel-kwai">
-                <div class="audience-panel-toggle" onclick="toggleAudiencePanel('kwai')">
-                  <span class="audience-panel-toggle-label">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
-                    Dados do público <span style="color:var(--gray-3);font-weight:400">(opcional)</span>
-                  </span>
-                  <span class="audience-panel-arrow">▾</span>
-                </div>
-                <div class="audience-panel-body">
-                  <div class="est-toggle-row">
-                    <span class="est-toggle-label">Tipo de dado</span>
-                    <span class="est-badge" id="est-badge-kwai">Estimativa</span>
-                    <div class="est-toggle-switch" id="est-toggle-kwai" onclick="toggleEstimate('kwai')" title="Estimativa / Dado real">
-                      <div class="est-toggle-knob"></div>
-                    </div>
-                  </div>
-                  <div class="form-group" style="margin-bottom:0">
-                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:6px">Seguidores</label>
-                    <input type="text" class="form-control" id="aud-kwai-seguidores" placeholder="Ex: 200k" inputmode="numeric" oninput="onSeguidoresInput(this,'kwai')">
-                  </div>
-                  <div>
-                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:8px">Gênero</label>
-                    <div class="gender-section">
-                      <div class="gender-pie-wrap">
-                        <svg class="gender-pie-svg" id="gender-pie-kwai" viewBox="0 0 120 120">
-                          <circle cx="60" cy="60" r="42" fill="var(--gray-2)"/>
-                          <circle cx="60" cy="60" r="42" fill="none" stroke="#4A90D9" stroke-width="20" stroke-dasharray="263.9 263.9" stroke-dashoffset="-0.1" id="gender-pie-m-kwai" style="transform-origin:center;transform:rotate(-90deg)"/>
-                          <circle cx="60" cy="60" r="42" fill="none" stroke="#E1306C" stroke-width="20" stroke-dasharray="0 263.9" stroke-dashoffset="0" id="gender-pie-f-kwai" style="transform-origin:center;transform:rotate(-90deg)"/>
-                          <circle cx="60" cy="60" r="32" fill="var(--white)"/>
-                          <text x="60" y="56" text-anchor="middle" font-size="11" font-weight="700" fill="#E1306C" font-family="var(--font-body)" id="gender-pie-txt-f-kwai">—</text>
-                          <text x="60" y="70" text-anchor="middle" font-size="11" font-weight="700" fill="#4A90D9" font-family="var(--font-body)" id="gender-pie-txt-m-kwai"></text>
-                        </svg>
-                        <div class="gender-pie-legend" id="gender-pie-lbl-kwai">
-                          <span class="gender-pie-legend-item"><span class="gender-pie-legend-dot" style="background:#4A90D9"></span>♂ Masculino</span>
-                          <span class="gender-pie-legend-item"><span class="gender-pie-legend-dot" style="background:#E1306C"></span>♀ Feminino</span>
-                        </div>
-                      </div>
-                      <div class="gender-inputs">
-                        <div class="form-group" style="margin-bottom:0">
-                          <label style="font-size:12px;color:var(--gray-4);display:block;margin-bottom:5px">♂ Masculino (%)</label>
-                          <input type="number" class="form-control" id="aud-kwai-genero-m" placeholder="Ex: 45" min="0" max="100" oninput="updateGenderPie('kwai')">
-                        </div>
-                        <div class="form-group" style="margin-bottom:0">
-                          <label style="font-size:12px;color:var(--gray-4);display:block;margin-bottom:5px">♀ Feminino (%)</label>
-                          <input type="number" class="form-control" id="aud-kwai-genero-f" placeholder="Ex: 55" min="0" max="100" oninput="updateGenderPie('kwai')">
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:8px">Faixa etária <span style="font-weight:400;text-transform:none;letter-spacing:0">(deve somar 100%)</span></label>
-                    <div class="age-ranges-grid">
-                      <div class="age-range-row"><span class="age-range-label">13–17</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-kwai-age-1317" min="0" max="100" placeholder="0" oninput="syncInputToSlider('kwai','1317',this.value);updateAgeBars('kwai')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-kwai-1317" min="0" max="100" value="0" oninput="syncSlider('kwai','1317',this.value)"></div>
-                      <div class="age-range-row"><span class="age-range-label">18–24</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-kwai-age-1824" min="0" max="100" placeholder="0" oninput="syncInputToSlider('kwai','1824',this.value);updateAgeBars('kwai')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-kwai-1824" min="0" max="100" value="0" oninput="syncSlider('kwai','1824',this.value)"></div>
-                      <div class="age-range-row"><span class="age-range-label">25–34</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-kwai-age-2534" min="0" max="100" placeholder="0" oninput="syncInputToSlider('kwai','2534',this.value);updateAgeBars('kwai')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-kwai-2534" min="0" max="100" value="0" oninput="syncSlider('kwai','2534',this.value)"></div>
-                      <div class="age-range-row"><span class="age-range-label">35–44</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-kwai-age-3544" min="0" max="100" placeholder="0" oninput="syncInputToSlider('kwai','3544',this.value);updateAgeBars('kwai')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-kwai-3544" min="0" max="100" value="0" oninput="syncSlider('kwai','3544',this.value)"></div>
-                      <div class="age-range-row"><span class="age-range-label">45+</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-kwai-age-45p" min="0" max="100" placeholder="0" oninput="syncInputToSlider('kwai','45p',this.value);updateAgeBars('kwai')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-kwai-45p" min="0" max="100" value="0" oninput="syncSlider('kwai','45p',this.value)"></div>
-                    </div>
-                    <div class="age-sum-indicator under" id="aud-kwai-age-sum">Total: 0%</div>
-                  </div>
-                  <div>
-                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:8px">Formatos que mais performam</label>
-                    <div class="format-pills-grid" id="fmt-kwai">
-                      <div class="format-pill" onclick="toggleFormatPill(this)">Vídeo curto</div>
-                      <div class="format-pill" onclick="toggleFormatPill(this)">Trend</div>
-                      <div class="format-pill" onclick="toggleFormatPill(this)">Tutorial</div>
-                    </div>
-                  </div>
-                  <div class="form-group" style="margin-bottom:0">
-                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:6px">Contexto adicional <span style="font-weight:400;text-transform:none;letter-spacing:0">(opcional)</span></label>
-                    <textarea class="form-control" id="aud-kwai-contexto" rows="2" placeholder="Ex: Conteúdo de entretenimento e humor, público predominantemente de regiões Norte e Nordeste..."></textarea>
-                  </div>
-                  <div class="form-group" style="margin-bottom:0">
-                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:6px">Período de referência</label>
-                    <div class="period-chips" id="period-chips-kwai">
-                      <span class="period-chip" data-days="30" onclick="selectPeriodChip('kwai',this)">Últimos 30 dias</span>
-                      <span class="period-chip" data-days="90" onclick="selectPeriodChip('kwai',this)">Últimos 90 dias</span>
-                      <span class="period-chip" data-days="180" onclick="selectPeriodChip('kwai',this)">Últimos 6 meses</span>
-                      <span class="period-chip" data-days="365" onclick="selectPeriodChip('kwai',this)">Últimos 12 meses</span>
-                      <span class="period-chip" data-days="custom" onclick="selectPeriodChip('kwai',this)">Personalizado</span>
-                    </div>
-                    <div class="period-custom-row" id="period-custom-kwai">
-                      <label>Datas do período</label>
-                      <div class="period-dates-row">
-                        <div><span style="font-size:11px;color:var(--gray-3);display:block;margin-bottom:3px">De</span><input type="date" id="aud-kwai-periodo-inicio"></div>
-                        <div><span style="font-size:11px;color:var(--gray-3);display:block;margin-bottom:3px">Até</span><input type="date" id="aud-kwai-periodo-fim"></div>
-                      </div>
-                    </div>
-                    <input type="hidden" id="aud-kwai-periodo" value="">
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Kick -->
-            <div class="social-network-group" data-network="kick" data-prefix="kick.com/" style="display:none">
-              <div class="social-network-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-                <span style="font-size:12px;font-weight:600;color:var(--gray-4)">Kick</span>
-                <div style="display:flex;gap:8px;align-items:center">
-                  <button type="button" class="social-add-btn" onclick="addSocialEntry(this.closest('.social-network-group'))"
-                    style="background:none;border:none;cursor:pointer;color:var(--gray-3);font-size:12px;font-weight:600;padding:2px 6px;transition:color .15s"
-                    onmouseover="this.style.color='var(--brown-warm)'" onmouseout="this.style.color='var(--gray-3)'">+ perfil</button>
-                  <button type="button" onclick="removeCanal('kick')"
-                    style="background:none;border:none;cursor:pointer;color:var(--gray-3);font-size:14px;line-height:1;padding:2px 4px;transition:color .15s"
-                    onmouseover="this.style.color='#c0392b'" onmouseout="this.style.color='var(--gray-3)'" title="Remover canal">×</button>
-                </div>
-              </div>
-              <div class="social-entries" style="display:flex;flex-direction:column;gap:8px">
-                <div class="social-entry" style="display:flex;gap:8px;align-items:center">
-                  <div class="social-input-wrapper" style="flex:1">
-                    <span class="social-input-prefix">kick.com/</span>
-                    <input type="text" class="form-control" id="social-kick" placeholder="seucanal" style="padding-left:76px">
-                  </div>
-                </div>
-              </div>
-              <!-- Audience data panel for Kick -->
-              <div class="audience-panel" id="aud-panel-kick">
-                <div class="audience-panel-toggle" onclick="toggleAudiencePanel('kick')">
-                  <span class="audience-panel-toggle-label">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
-                    Dados do público <span style="color:var(--gray-3);font-weight:400">(opcional)</span>
-                  </span>
-                  <span class="audience-panel-arrow">▾</span>
-                </div>
-                <div class="audience-panel-body">
-                  <div class="est-toggle-row">
-                    <span class="est-toggle-label">Tipo de dado</span>
-                    <span class="est-badge" id="est-badge-kick">Estimativa</span>
-                    <div class="est-toggle-switch" id="est-toggle-kick" onclick="toggleEstimate('kick')" title="Estimativa / Dado real">
-                      <div class="est-toggle-knob"></div>
-                    </div>
-                  </div>
-                  <div class="form-group" style="margin-bottom:0">
-                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:6px">Seguidores</label>
-                    <input type="text" class="form-control" id="aud-kick-seguidores" placeholder="Ex: 50k" inputmode="numeric" oninput="onSeguidoresInput(this,'kick')">
-                  </div>
-                  <div>
-                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:8px">Gênero</label>
-                    <div class="gender-section">
-                      <div class="gender-pie-wrap">
-                        <svg class="gender-pie-svg" id="gender-pie-kick" viewBox="0 0 120 120">
-                          <circle cx="60" cy="60" r="42" fill="var(--gray-2)"/>
-                          <circle cx="60" cy="60" r="42" fill="none" stroke="#4A90D9" stroke-width="20" stroke-dasharray="263.9 263.9" stroke-dashoffset="-0.1" id="gender-pie-m-kick" style="transform-origin:center;transform:rotate(-90deg)"/>
-                          <circle cx="60" cy="60" r="42" fill="none" stroke="#E1306C" stroke-width="20" stroke-dasharray="0 263.9" stroke-dashoffset="0" id="gender-pie-f-kick" style="transform-origin:center;transform:rotate(-90deg)"/>
-                          <circle cx="60" cy="60" r="32" fill="var(--white)"/>
-                          <text x="60" y="56" text-anchor="middle" font-size="11" font-weight="700" fill="#E1306C" font-family="var(--font-body)" id="gender-pie-txt-f-kick">—</text>
-                          <text x="60" y="70" text-anchor="middle" font-size="11" font-weight="700" fill="#4A90D9" font-family="var(--font-body)" id="gender-pie-txt-m-kick"></text>
-                        </svg>
-                        <div class="gender-pie-legend" id="gender-pie-lbl-kick">
-                          <span class="gender-pie-legend-item"><span class="gender-pie-legend-dot" style="background:#4A90D9"></span>♂ Masculino</span>
-                          <span class="gender-pie-legend-item"><span class="gender-pie-legend-dot" style="background:#E1306C"></span>♀ Feminino</span>
-                        </div>
-                      </div>
-                      <div class="gender-inputs">
-                        <div class="form-group" style="margin-bottom:0">
-                          <label style="font-size:12px;color:var(--gray-4);display:block;margin-bottom:5px">♂ Masculino (%)</label>
-                          <input type="number" class="form-control" id="aud-kick-genero-m" placeholder="Ex: 70" min="0" max="100" oninput="updateGenderPie('kick')">
-                        </div>
-                        <div class="form-group" style="margin-bottom:0">
-                          <label style="font-size:12px;color:var(--gray-4);display:block;margin-bottom:5px">♀ Feminino (%)</label>
-                          <input type="number" class="form-control" id="aud-kick-genero-f" placeholder="Ex: 30" min="0" max="100" oninput="updateGenderPie('kick')">
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:8px">Faixa etária <span style="font-weight:400;text-transform:none;letter-spacing:0">(deve somar 100%)</span></label>
-                    <div class="age-ranges-grid">
-                      <div class="age-range-row"><span class="age-range-label">13–17</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-kick-age-1317" min="0" max="100" placeholder="0" oninput="syncInputToSlider('kick','1317',this.value);updateAgeBars('kick')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-kick-1317" min="0" max="100" value="0" oninput="syncSlider('kick','1317',this.value)"></div>
-                      <div class="age-range-row"><span class="age-range-label">18–24</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-kick-age-1824" min="0" max="100" placeholder="0" oninput="syncInputToSlider('kick','1824',this.value);updateAgeBars('kick')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-kick-1824" min="0" max="100" value="0" oninput="syncSlider('kick','1824',this.value)"></div>
-                      <div class="age-range-row"><span class="age-range-label">25–34</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-kick-age-2534" min="0" max="100" placeholder="0" oninput="syncInputToSlider('kick','2534',this.value);updateAgeBars('kick')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-kick-2534" min="0" max="100" value="0" oninput="syncSlider('kick','2534',this.value)"></div>
-                      <div class="age-range-row"><span class="age-range-label">35–44</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-kick-age-3544" min="0" max="100" placeholder="0" oninput="syncInputToSlider('kick','3544',this.value);updateAgeBars('kick')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-kick-3544" min="0" max="100" value="0" oninput="syncSlider('kick','3544',this.value)"></div>
-                      <div class="age-range-row"><span class="age-range-label">45+</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-kick-age-45p" min="0" max="100" placeholder="0" oninput="syncInputToSlider('kick','45p',this.value);updateAgeBars('kick')"><span class="age-range-pct-suffix">%</span></div><input type="range" class="age-range-slider" id="slider-kick-45p" min="0" max="100" value="0" oninput="syncSlider('kick','45p',this.value)"></div>
-                    </div>
-                    <div class="age-sum-indicator under" id="aud-kick-age-sum">Total: 0%</div>
-                  </div>
-                  <div>
-                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:8px">Formatos que mais performam</label>
-                    <div class="format-pills-grid" id="fmt-kick">
-                      <div class="format-pill" onclick="toggleFormatPill(this)">Stream</div>
-                      <div class="format-pill" onclick="toggleFormatPill(this)">Clip</div>
-                      <div class="format-pill" onclick="toggleFormatPill(this)">VOD</div>
-                    </div>
-                  </div>
-                  <div class="form-group" style="margin-bottom:0">
-                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:6px">Contexto adicional <span style="font-weight:400;text-transform:none;letter-spacing:0">(opcional)</span></label>
-                    <textarea class="form-control" id="aud-kick-contexto" rows="2" placeholder="Ex: Canal de streams de jogos, público jovem adulto com alta interação no chat..."></textarea>
-                  </div>
-                  <div class="form-group" style="margin-bottom:0">
-                    <label style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:6px">Período de referência</label>
-                    <div class="period-chips" id="period-chips-kick">
-                      <span class="period-chip" data-days="30" onclick="selectPeriodChip('kick',this)">Últimos 30 dias</span>
-                      <span class="period-chip" data-days="90" onclick="selectPeriodChip('kick',this)">Últimos 90 dias</span>
-                      <span class="period-chip" data-days="180" onclick="selectPeriodChip('kick',this)">Últimos 6 meses</span>
-                      <span class="period-chip" data-days="365" onclick="selectPeriodChip('kick',this)">Últimos 12 meses</span>
-                      <span class="period-chip" data-days="custom" onclick="selectPeriodChip('kick',this)">Personalizado</span>
-                    </div>
-                    <div class="period-custom-row" id="period-custom-kick">
-                      <label>Datas do período</label>
-                      <div class="period-dates-row">
-                        <div><span style="font-size:11px;color:var(--gray-3);display:block;margin-bottom:3px">De</span><input type="date" id="aud-kick-periodo-inicio"></div>
-                        <div><span style="font-size:11px;color:var(--gray-3);display:block;margin-bottom:3px">Até</span><input type="date" id="aud-kick-periodo-fim"></div>
-                      </div>
-                    </div>
-                    <input type="hidden" id="aud-kick-periodo" value="">
-                  </div>
-                </div>
-              </div>
-            </div>
+            <!-- Canal cards are generated dynamically by addCanal() -->
+            <!-- REMOVED: static network groups for instagram, tiktok, youtube, linkedin, twitch, kwai, kick -->
+            <!-- PLACEHOLDER to find end of container: -->
 
           </div>
         </div>
@@ -3686,19 +3048,21 @@ function collectFormData() {
   data.segmentos = Array.from(document.querySelectorAll('#segmentPillGrid .segment-pill.selected'))
     .map(p => p.textContent.trim());
 
-  // Redes sociais
+  // Redes sociais — arquitetura dinâmica (canal-cards)
   data.socials = [];
-  document.querySelectorAll('#social-networks-container .social-network-group').forEach(group => {
-    const network = group.dataset.network;
-    const prefix = group.dataset.prefix;
-    const values = Array.from(group.querySelectorAll('.social-entry input'))
-      .map(i => i.value.trim()).filter(Boolean);
-    if (values.length > 0) {
-      const labelMap = { instagram:'Instagram', tiktok:'TikTok', youtube:'YouTube', linkedin:'LinkedIn' };
-      values.forEach(v => {
-        data.socials.push({ network: labelMap[network] || network, handle: prefix + v });
-      });
-    }
+  document.querySelectorAll('#social-networks-container .canal-card').forEach(card => {
+    const profileId = card.dataset.profileId;
+    const network   = card.dataset.network;
+    if (!profileId || !network) return;
+    const usernameInput = document.getElementById('canal-username-' + profileId);
+    const username = usernameInput ? usernameInput.value.trim() : '';
+    if (!username) return;
+    const urlPfx = CANAL_URL_PREFIX[network] || { text: '' };
+    data.socials.push({
+      network: CANAL_META[network]?.label || network,
+      handle: urlPfx.text + username,
+      profileId
+    });
   });
 
   return data;
@@ -4384,39 +3748,19 @@ function updateCompleteness() {
 }
 
 /* ══════════════════════════════════════════════
-   REDES SOCIAIS — MÚLTIPLOS PERFIS
+   REDES SOCIAIS — ARQUITETURA DINÂMICA
+   Cada addCanal() cria um card independente com profileId único
+   profileId = network + '-' + index (ex: instagram-0, instagram-1)
 ══════════════════════════════════════════════ */
-function addSocialEntry(networkGroup) {
-  const entries = networkGroup.querySelector('.social-entries');
-  if (entries.querySelectorAll('.social-entry').length >= 3) {
-    showToast('Máximo de 3 perfis por rede', 'error'); return;
-  }
-  const prefix = networkGroup.dataset.prefix;
-  const padMap = {'instagram.com/':'110px','tiktok.com/@':'100px','youtube.com/':'105px','linkedin.com/in/':'118px'};
-  const padLeft = padMap[prefix] || '110px';
-  const div = document.createElement('div');
-  div.className = 'social-entry';
-  div.style.cssText = 'display:flex;gap:8px;align-items:center';
-  div.innerHTML = `
-    <div class="social-input-wrapper" style="flex:1">
-      <span class="social-input-prefix">${prefix}</span>
-      <input type="text" class="form-control" placeholder="outro perfil" style="padding-left:${padLeft}">
-    </div>
-    <button type="button" onclick="this.parentElement.remove()" style="background:none;border:none;cursor:pointer;color:var(--gray-3);font-size:18px;padding:6px;flex-shrink:0">✕</button>
-  `;
-  entries.appendChild(div);
-  div.querySelector('input').focus();
-  if (entries.querySelectorAll('.social-entry').length >= 3)
-    networkGroup.querySelector('.social-add-btn').style.display = 'none';
-}
 
 /* ══════════════════════════════════════════════
-   AUDIENCE PANELS — dados por canal
+   AUDIENCE PANELS — dados por profileId
+   profileId = network + '-' + index (ex: instagram-0)
 ══════════════════════════════════════════════ */
 
 /** Abre/fecha o painel de dados de audiência de um canal */
-function toggleAudiencePanel(network) {
-  const panel = document.getElementById('aud-panel-' + network);
+function toggleAudiencePanel(profileId) {
+  const panel = document.getElementById('aud-panel-' + profileId);
   if (!panel) return;
   panel.classList.toggle('open');
   const arrow = panel.querySelector('.audience-panel-arrow');
@@ -4424,9 +3768,9 @@ function toggleAudiencePanel(network) {
 }
 
 /** Alterna entre Estimativa e Dado real para um canal */
-function toggleEstimate(network) {
-  const sw    = document.getElementById('est-toggle-' + network);
-  const badge = document.getElementById('est-badge-' + network);
+function toggleEstimate(profileId) {
+  const sw    = document.getElementById('est-toggle-' + profileId);
+  const badge = document.getElementById('est-badge-' + profileId);
   if (!sw || !badge) return;
   const isReal = sw.classList.toggle('is-real');
   badge.textContent   = isReal ? 'Dado real' : 'Estimativa';
@@ -4434,17 +3778,17 @@ function toggleEstimate(network) {
 }
 
 /** Atualiza barras de faixa etária e indicador de soma para um canal */
-function updateAgeBars(network) {
+function updateAgeBars(profileId) {
   const ranges = ['1317', '1824', '2534', '3544', '45p'];
   let total = 0;
   ranges.forEach(r => {
-    const input = document.getElementById('aud-' + network + '-age-' + r);
-    const bar   = document.getElementById('agebar-' + network + '-' + r);
+    const input = document.getElementById('aud-' + profileId + '-age-' + r);
+    const bar   = document.getElementById('agebar-' + profileId + '-' + r);
     const val   = parseFloat(input?.value) || 0;
     total += val;
     if (bar) bar.style.width = Math.min(val, 100) + '%';
   });
-  const indicator = document.getElementById('aud-' + network + '-age-sum');
+  const indicator = document.getElementById('aud-' + profileId + '-age-sum');
   if (!indicator) return;
   const rounded = Math.round(total * 10) / 10;
   indicator.textContent = 'Total: ' + rounded + '%';
@@ -4480,7 +3824,7 @@ function parseFollowers(str) {
  *  Enquanto digita: formata com pontos como separador de milhar (padrão pt-BR): 2.350.000
  *  Preserva posição do cursor corretamente.
  */
-function onSeguidoresInput(el, network) {
+function onSeguidoresInput(el, profileId) {
   // Salva posição do cursor antes de reformatar
   const selStart = el.selectionStart;
   const prevLen  = el.value.length;
@@ -4511,13 +3855,13 @@ function onSeguidoresInput(el, network) {
  *  SVG: viewBox 120×120, cx/cy=60, r=42, stroke-width=20, circumference≈263.9
  *  Dois arcos: feminino (rosa #E1306C) e masculino (azul #4A90D9)
  */
-function updateGenderPie(network) {
-  const fEl   = document.getElementById('aud-' + network + '-genero-f');
-  const mEl   = document.getElementById('aud-' + network + '-genero-m');
-  const arcF  = document.getElementById('gender-pie-f-' + network);
-  const arcM  = document.getElementById('gender-pie-m-' + network);
-  const txtF  = document.getElementById('gender-pie-txt-f-' + network);
-  const txtM  = document.getElementById('gender-pie-txt-m-' + network);
+function updateGenderPie(profileId) {
+  const fEl   = document.getElementById('aud-' + profileId + '-genero-f');
+  const mEl   = document.getElementById('aud-' + profileId + '-genero-m');
+  const arcF  = document.getElementById('gender-pie-f-' + profileId);
+  const arcM  = document.getElementById('gender-pie-m-' + profileId);
+  const txtF  = document.getElementById('gender-pie-txt-f-' + profileId);
+  const txtM  = document.getElementById('gender-pie-txt-m-' + profileId);
   if (!arcF || !fEl || !mEl) return;
 
   let f = parseFloat(fEl.value) || 0;
@@ -4553,6 +3897,7 @@ function updateGenderPie(network) {
     if (arcM) arcM.setAttribute('stroke-dasharray', C.toFixed(2) + ' ' + C.toFixed(2));
     if (txtF) { txtF.textContent = '—'; txtF.setAttribute('fill', '#A89880'); }
     if (txtM) txtM.textContent = '';
+    updateGenderSum(profileId, f, m);
     return;
   }
 
@@ -4577,6 +3922,35 @@ function updateGenderPie(network) {
   if (txtM) {
     txtM.textContent = m > 0 ? m + '%' : '';
   }
+
+  updateGenderSum(profileId, f, m);
+}
+
+/** Atualiza o indicador de quanto falta para M+F somar 100% */
+function updateGenderSum(profileId, f, m) {
+  const indicator = document.getElementById('gender-sum-' + profileId);
+  if (!indicator) return;
+  if (f === undefined || m === undefined) {
+    const fEl = document.getElementById('aud-' + profileId + '-genero-f');
+    const mEl = document.getElementById('aud-' + profileId + '-genero-m');
+    f = parseFloat(fEl?.value) || 0;
+    m = parseFloat(mEl?.value) || 0;
+  }
+  const total   = Math.round((f + m) * 10) / 10;
+  const falta   = Math.round((100 - total) * 10) / 10;
+  if (total === 100) {
+    indicator.textContent = '✓ 100% — gênero completo';
+    indicator.className   = 'gender-sum-indicator ok';
+  } else if (total > 100) {
+    indicator.textContent = '⚠ Total: ' + total + '% (excede 100%)';
+    indicator.className   = 'gender-sum-indicator over';
+  } else if (total === 0) {
+    indicator.textContent = 'Preencha masculino e feminino';
+    indicator.className   = 'gender-sum-indicator under';
+  } else {
+    indicator.textContent = 'Falta ' + falta + '% para completar 100%';
+    indicator.className   = 'gender-sum-indicator under';
+  }
 }
 
 /* ── Slider de faixa etária ── */
@@ -4584,38 +3958,38 @@ function updateGenderPie(network) {
 const AGE_RANGES = ['1317', '1824', '2534', '3544', '45p'];
 
 /** Calcula a soma de todas as faixas exceto a indicada */
-function _ageOtherSum(network, excludeRange) {
+function _ageOtherSum(profileId, excludeRange) {
   let sum = 0;
   AGE_RANGES.forEach(r => {
     if (r === excludeRange) return;
-    const inp = document.getElementById('aud-' + network + '-age-' + r);
+    const inp = document.getElementById('aud-' + profileId + '-age-' + r);
     sum += parseFloat(inp?.value) || 0;
   });
   return sum;
 }
 
 /** Sincroniza o slider → input numérico, clamping para que total não passe de 100 */
-function syncSlider(network, range, value) {
-  const input  = document.getElementById('aud-' + network + '-age-' + range);
-  const slider = document.getElementById('slider-' + network + '-' + range);
+function syncSlider(profileId, range, value) {
+  const input  = document.getElementById('aud-' + profileId + '-age-' + range);
+  const slider = document.getElementById('slider-' + profileId + '-' + range);
   if (!input) return;
 
-  const otherSum = _ageOtherSum(network, range);
+  const otherSum = _ageOtherSum(profileId, range);
   const maxVal   = Math.max(0, 100 - otherSum);
   const clamped  = Math.min(parseFloat(value) || 0, maxVal);
 
   input.value = clamped;
   if (slider && parseFloat(slider.value) !== clamped) slider.value = clamped;
-  updateAgeBars(network);
+  updateAgeBars(profileId);
 }
 
 /** Sincroniza o input numérico → slider (bidirecional), clamping para total ≤ 100 */
-function syncInputToSlider(network, range, value) {
-  const slider = document.getElementById('slider-' + network + '-' + range);
-  const input  = document.getElementById('aud-' + network + '-age-' + range);
+function syncInputToSlider(profileId, range, value) {
+  const slider = document.getElementById('slider-' + profileId + '-' + range);
+  const input  = document.getElementById('aud-' + profileId + '-age-' + range);
   if (!slider) return;
 
-  const otherSum = _ageOtherSum(network, range);
+  const otherSum = _ageOtherSum(profileId, range);
   const maxVal   = Math.max(0, 100 - otherSum);
   const clamped  = Math.min(Math.max(parseFloat(value) || 0, 0), maxVal);
 
@@ -4648,35 +4022,52 @@ const CANAL_META = {
   kick:      { label: 'Kick',       icon: CANAL_SVG.kick      },
 };
 
-/** Estado: quais redes já foram adicionadas */
-const _addedCanais = new Set();
+/* ── Contador de canais por plataforma (permite múltiplos do mesmo tipo) ── */
+const _canalCounters = {};
 
-/** Abre/fecha o picker de canais e popula a lista com redes ainda não adicionadas */
+/** Formatos disponíveis por rede */
+const CANAL_FORMATS = {
+  instagram: ['Reels', 'Stories', 'Post carrossel', 'Post estático', 'Live'],
+  tiktok:    ['Vídeo curto', 'Live', 'Stories', 'Série'],
+  youtube:   ['Vídeo longo', 'Shorts', 'Live', 'Community post'],
+  linkedin:  ['Post', 'Artigo', 'Vídeo', 'Newsletter'],
+  twitch:    ['Stream', 'Clip', 'VOD'],
+  kwai:      ['Vídeo', 'Live'],
+  kick:      ['Stream', 'Clip', 'VOD'],
+};
+
+/** Prefixo de URL por rede */
+const CANAL_URL_PREFIX = {
+  instagram: { text: 'instagram.com/', padding: '112px' },
+  tiktok:    { text: 'tiktok.com/@',   padding: '102px' },
+  youtube:   { text: 'youtube.com/',   padding: '108px' },
+  linkedin:  { text: 'linkedin.com/in/', padding: '125px' },
+  twitch:    { text: 'twitch.tv/',     padding: '92px'  },
+  kwai:      { text: 'kwai.com/',      padding: '88px'  },
+  kick:      { text: 'kick.com/',      padding: '88px'  },
+};
+
+/** Abre/fecha o picker de canais — mostra TODAS as plataformas sempre */
 function openCanalPicker() {
   const picker = document.getElementById('canal-picker');
   if (!picker) return;
   const isOpen = picker.style.display !== 'none';
   if (isOpen) { picker.style.display = 'none'; return; }
 
-  // Popula lista com canais disponíveis (não adicionados)
+  // Popula lista com todos os canais disponíveis (sem filtro — múltiplos permitidos)
   const list = document.getElementById('canal-picker-list');
   list.innerHTML = '';
-  const available = Object.keys(CANAL_META).filter(n => !_addedCanais.has(n));
-  if (available.length === 0) {
-    list.innerHTML = '<div style="padding:8px 6px;font-size:13px;color:var(--gray-3)">Todos os canais já foram adicionados.</div>';
-  } else {
-    available.forEach(net => {
-      const meta = CANAL_META[net];
-      const btn  = document.createElement('button');
-      btn.type   = 'button';
-      btn.style.cssText = 'display:flex;align-items:center;gap:9px;width:100%;padding:8px 10px;border:none;border-radius:8px;background:none;cursor:pointer;font-size:13px;font-weight:500;color:var(--text);font-family:var(--font-body);text-align:left;transition:background .12s';
-      btn.innerHTML = `<span style="display:flex;align-items:center;color:var(--gray-4);flex-shrink:0">${meta.icon}</span><span>${meta.label}</span>`;
-      btn.onmouseover = () => btn.style.background = 'var(--gray-1)';
-      btn.onmouseout  = () => btn.style.background = 'none';
-      btn.onclick     = () => addCanal(net);
-      list.appendChild(btn);
-    });
-  }
+  Object.keys(CANAL_META).forEach(net => {
+    const meta = CANAL_META[net];
+    const btn  = document.createElement('button');
+    btn.type   = 'button';
+    btn.style.cssText = 'display:flex;align-items:center;gap:9px;width:100%;padding:8px 10px;border:none;border-radius:8px;background:none;cursor:pointer;font-size:13px;font-weight:500;color:var(--text);font-family:var(--font-body);text-align:left;transition:background .12s';
+    btn.innerHTML = `<span style="display:flex;align-items:center;color:var(--gray-4);flex-shrink:0">${meta.icon}</span><span>${meta.label}</span>`;
+    btn.onmouseover = () => btn.style.background = 'var(--gray-1)';
+    btn.onmouseout  = () => btn.style.background = 'none';
+    btn.onclick     = () => addCanal(net);
+    list.appendChild(btn);
+  });
   picker.style.display = 'block';
 
   // Fecha ao clicar fora
@@ -4692,43 +4083,304 @@ function openCanalPicker() {
   }, 0);
 }
 
-/** Adiciona (exibe) o grupo de um canal e marca como adicionado */
+/** Gera o HTML completo de um card de canal dinamicamente */
 function addCanal(network) {
-  const group = document.querySelector('.social-network-group[data-network="' + network + '"]');
-  if (group) group.style.display = 'block';
-  _addedCanais.add(network);
+  if (!_canalCounters[network]) _canalCounters[network] = 0;
+  const idx       = _canalCounters[network]++;
+  const profileId = network + '-' + idx;
+  const meta      = CANAL_META[network];
+  const urlPfx    = CANAL_URL_PREFIX[network] || { text: network + '.com/', padding: '100px' };
+  const formats   = CANAL_FORMATS[network] || [];
+
+  // Pills de formato
+  const formatPills = formats.map(f =>
+    `<span class="format-pill" onclick="toggleFormatPill(this)">${f}</span>`
+  ).join('');
+
+  // Faixas etárias (5 ranges)
+  const ageRows = [
+    { id: '1317', label: '13–17 anos' },
+    { id: '1824', label: '18–24 anos' },
+    { id: '2534', label: '25–34 anos' },
+    { id: '3544', label: '35–44 anos' },
+    { id: '45p',  label: '45+ anos'   },
+  ].map(row => `
+    <div class="age-row">
+      <span class="age-label">${row.label}</span>
+      <div class="age-bar-track"><div class="age-bar-fill" id="agebar-${profileId}-${row.id}"></div></div>
+      <div class="age-controls">
+        <input type="range" min="0" max="100" value="0" class="age-slider"
+          id="slider-${profileId}-${row.id}"
+          oninput="syncSlider('${profileId}','${row.id}',this.value)">
+        <div class="age-input-wrap">
+          <input type="number" min="0" max="100" value="" placeholder="0" class="age-input"
+            id="aud-${profileId}-age-${row.id}"
+            oninput="syncInputToSlider('${profileId}','${row.id}',this.value);updateAgeBars('${profileId}')">
+          <span class="age-pct-label">%</span>
+        </div>
+      </div>
+    </div>`).join('');
+
+  const cardHTML = `
+<div class="canal-card" id="canal-card-${profileId}" data-profile-id="${profileId}" data-network="${network}">
+
+  <!-- ── Header ── -->
+  <div class="canal-card-header" id="canal-card-header-${profileId}">
+    <span class="canal-card-icon">${meta.icon}</span>
+    <span class="canal-card-label">${meta.label}</span>
+    <div class="canal-card-username-wrap">
+      <span class="canal-card-username-prefix" id="canal-prefix-${profileId}">${urlPfx.text}</span>
+      <input type="text" class="canal-card-username-input" id="canal-username-${profileId}"
+        placeholder="@seuusuario"
+        style="padding-left:${urlPfx.padding}"
+        oninput="onCanalUsernameInput('${profileId}')">
+    </div>
+    <span class="canal-card-saved-badge" id="canal-saved-badge-${profileId}">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      Salvo
+    </span>
+    <button type="button" class="canal-card-remove-btn" onclick="removeCanal('${profileId}')" title="Remover canal">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+
+  <!-- ── Painel de dados do público (colapsável) ── -->
+  <div class="audience-panel" id="aud-panel-${profileId}">
+
+    <!-- Toggle header do painel -->
+    <div class="audience-panel-toggle" onclick="toggleAudiencePanel('${profileId}')">
+      <span style="font-size:12px;font-weight:700;color:var(--gray-4);display:flex;align-items:center;gap:7px">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Dados do Público
+      </span>
+      <svg class="audience-panel-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+
+    <div class="audience-panel-body" id="aud-body-${profileId}">
+
+      <!-- Seguidores -->
+      <div class="form-group">
+        <label class="form-label" for="aud-${profileId}-seguidores">Seguidores</label>
+        <div style="position:relative">
+          <input type="text" id="aud-${profileId}-seguidores" class="form-input"
+            placeholder="Ex: 2.350.000"
+            oninput="onSeguidoresInput(this,'${profileId}')">
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:7px">
+          <span style="font-size:11.5px;color:var(--gray-3)">Dado estimado?</span>
+          <div class="estimate-toggle" id="est-toggle-${profileId}" onclick="toggleEstimate('${profileId}')">
+            <div class="estimate-toggle-knob"></div>
+          </div>
+          <span class="estimate-badge" id="est-badge-${profileId}">Estimativa</span>
+        </div>
+      </div>
+
+      <!-- Formatos -->
+      <div class="form-group">
+        <label class="form-label">Formatos de conteúdo</label>
+        <div class="format-pills-wrap">${formatPills}</div>
+      </div>
+
+      <!-- Período de referência -->
+      <div class="form-group">
+        <label class="form-label">Período de referência dos dados</label>
+        <div class="period-chips" id="period-chips-${profileId}">
+          <span class="period-chip selected" data-days="30"  onclick="selectPeriodChip('${profileId}',this)">Últimos 30 dias</span>
+          <span class="period-chip"          data-days="90"  onclick="selectPeriodChip('${profileId}',this)">Últimos 3 meses</span>
+          <span class="period-chip"          data-days="180" onclick="selectPeriodChip('${profileId}',this)">Últimos 6 meses</span>
+          <span class="period-chip"          data-days="365" onclick="selectPeriodChip('${profileId}',this)">Último ano</span>
+          <span class="period-chip"          data-days="custom" onclick="selectPeriodChip('${profileId}',this)">Personalizado</span>
+        </div>
+        <div class="period-custom-row" id="period-custom-${profileId}">
+          <input type="date" class="form-input" id="aud-${profileId}-data-inicio" placeholder="Data início">
+          <span style="font-size:12px;color:var(--gray-3)">até</span>
+          <input type="date" class="form-input" id="aud-${profileId}-data-fim" placeholder="Data fim">
+        </div>
+        <input type="hidden" id="aud-${profileId}-periodo" value="30">
+      </div>
+
+      <!-- Gênero -->
+      <div class="form-group">
+        <label class="form-label">Distribuição por gênero</label>
+        <div class="gender-chart-layout">
+          <!-- Lado masculino (esquerdo) -->
+          <div class="gender-side gender-side-male">
+            <div class="gender-legend-item">
+              <span class="gender-legend-dot" style="background:#4A90D9"></span>
+              <span class="gender-legend-label">Masculino</span>
+            </div>
+            <div class="gender-input-wrap">
+              <input type="number" min="0" max="100" class="gender-input" placeholder="0"
+                id="aud-${profileId}-genero-m"
+                oninput="updateGenderPie('${profileId}')">
+              <span class="gender-pct">%</span>
+            </div>
+          </div>
+          <!-- Pie chart (centro) -->
+          <div class="gender-pie-wrap">
+            <svg class="gender-pie-svg" viewBox="0 0 120 120">
+              <!-- Fundo cinza -->
+              <circle cx="60" cy="60" r="42" fill="none" stroke="#E0D8CC" stroke-width="20"/>
+              <!-- Arco feminino (rosa) -->
+              <circle id="gender-pie-f-${profileId}" cx="60" cy="60" r="42" fill="none"
+                stroke="#E1306C" stroke-width="20"
+                stroke-dasharray="0 263.89"
+                stroke-linecap="butt"
+                transform="rotate(-90 60 60)"/>
+              <!-- Arco masculino (azul) -->
+              <circle id="gender-pie-m-${profileId}" cx="60" cy="60" r="42" fill="none"
+                stroke="#4A90D9" stroke-width="20"
+                stroke-dasharray="0 263.89"
+                stroke-linecap="butt"
+                transform="rotate(-90 60 60)"/>
+              <!-- Textos centrais -->
+              <text id="gender-pie-txt-f-${profileId}" x="60" y="57" text-anchor="middle"
+                font-size="13" font-weight="700" fill="#A89880" font-family="DM Sans,sans-serif">—</text>
+              <text id="gender-pie-txt-m-${profileId}" x="60" y="71" text-anchor="middle"
+                font-size="11" font-weight="600" fill="#4A90D9" font-family="DM Sans,sans-serif"></text>
+            </svg>
+          </div>
+          <!-- Lado feminino (direito) -->
+          <div class="gender-side gender-side-female">
+            <div class="gender-legend-item">
+              <span class="gender-legend-dot" style="background:#E1306C"></span>
+              <span class="gender-legend-label">Feminino</span>
+            </div>
+            <div class="gender-input-wrap">
+              <input type="number" min="0" max="100" class="gender-input" placeholder="0"
+                id="aud-${profileId}-genero-f"
+                oninput="updateGenderPie('${profileId}')">
+              <span class="gender-pct">%</span>
+            </div>
+          </div>
+        </div>
+        <!-- Indicador de progresso M+F -->
+        <div class="gender-sum-indicator under" id="gender-sum-${profileId}">Preencha masculino e feminino</div>
+      </div>
+
+      <!-- Faixa etária -->
+      <div class="form-group">
+        <label class="form-label">Faixa etária do público</label>
+        ${ageRows}
+        <div class="age-sum-indicator under" id="aud-${profileId}-age-sum">Total: 0%</div>
+      </div>
+
+      <!-- Localização -->
+      <div class="form-group">
+        <label class="form-label">Cidade / região principal</label>
+        <input type="text" id="aud-${profileId}-cidade" class="form-input" placeholder="Ex: São Paulo, Brasil">
+      </div>
+
+    </div><!-- /audience-panel-body -->
+  </div><!-- /audience-panel -->
+
+  <!-- ── Footer com botão Salvar ── -->
+  <div class="canal-card-footer" id="canal-card-footer-${profileId}">
+    <button type="button" class="btn-edit-canal" id="btn-edit-${profileId}" onclick="editCanal('${profileId}')">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      Editar
+    </button>
+    <button type="button" class="btn-save-canal" id="btn-save-${profileId}" onclick="saveCanal('${profileId}')">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      Salvar canal
+    </button>
+  </div>
+
+</div>`;
+
+  // Insere card no container
+  const container = document.getElementById('social-networks-container');
+  if (!container) return;
+  const div = document.createElement('div');
+  div.innerHTML = cardHTML.trim();
+  container.appendChild(div.firstElementChild);
 
   // Fecha picker
   const picker = document.getElementById('canal-picker');
   if (picker) picker.style.display = 'none';
 
-  // Se todos os canais foram adicionados, esconde o botão "Adicionar canal"
-  if (_addedCanais.size >= Object.keys(CANAL_META).length) {
-    const btn = document.getElementById('add-canal-btn');
-    if (btn) btn.style.display = 'none';
+  // Abre o painel de dados do público automaticamente
+  setTimeout(() => {
+    toggleAudiencePanel(profileId);
+    // Foca no campo de username
+    const usernameInput = document.getElementById('canal-username-' + profileId);
+    if (usernameInput) usernameInput.focus();
+  }, 50);
+}
+
+/** Callback ao digitar no campo username do card (sem funcionalidade especial por ora) */
+function onCanalUsernameInput(profileId) {
+  // Futuramente: validação de username
+}
+
+/** Salva o canal: valida username, fecha painel, marca como salvo */
+function saveCanal(profileId) {
+  const usernameInput = document.getElementById('canal-username-' + profileId);
+  const username = usernameInput ? usernameInput.value.trim() : '';
+
+  if (!username) {
+    if (usernameInput) {
+      usernameInput.style.borderColor = '#c0392b';
+      usernameInput.focus();
+      setTimeout(() => { usernameInput.style.borderColor = ''; }, 1200);
+    }
+    showToast('Preencha o @usuário do canal antes de salvar', 'error');
+    return;
+  }
+
+  // Fecha painel de dados do público
+  const panel = document.getElementById('aud-panel-' + profileId);
+  if (panel && panel.classList.contains('open')) {
+    toggleAudiencePanel(profileId);
+  }
+
+  // Marca card como salvo
+  const card   = document.getElementById('canal-card-' + profileId);
+  const header = document.getElementById('canal-card-header-' + profileId);
+  const footer = document.getElementById('canal-card-footer-' + profileId);
+  if (card)   card.classList.add('saved');
+  if (header) header.classList.add('saved');
+  if (footer) footer.classList.add('saved');
+
+  showToast('Canal salvo com sucesso!', 'success');
+}
+
+/** Reabre o painel para edição, remove estado salvo */
+function editCanal(profileId) {
+  const card   = document.getElementById('canal-card-' + profileId);
+  const header = document.getElementById('canal-card-header-' + profileId);
+  const footer = document.getElementById('canal-card-footer-' + profileId);
+  if (card)   card.classList.remove('saved');
+  if (header) header.classList.remove('saved');
+  if (footer) footer.classList.remove('saved');
+
+  // Abre painel se fechado
+  const panel = document.getElementById('aud-panel-' + profileId);
+  if (panel && !panel.classList.contains('open')) {
+    toggleAudiencePanel(profileId);
   }
 }
 
-/** Remove (oculta) o grupo de um canal e o torna disponível novamente no picker */
-function removeCanal(network) {
-  const group = document.querySelector('.social-network-group[data-network="' + network + '"]');
-  if (group) group.style.display = 'none';
-  _addedCanais.delete(network);
-
-  // Garante que o botão "Adicionar canal" está visível
-  const btn = document.getElementById('add-canal-btn');
-  if (btn) btn.style.display = '';
+/** Remove o card do canal do DOM */
+function removeCanal(profileId) {
+  const card = document.getElementById('canal-card-' + profileId);
+  if (card) {
+    card.style.transition = 'opacity .2s, transform .2s';
+    card.style.opacity = '0';
+    card.style.transform = 'scale(.97)';
+    setTimeout(() => card.remove(), 220);
+  }
 }
 
 /* ── Chips de período de referência ── */
 
 /** Seleciona um chip de período e controla visibilidade do campo de data personalizada */
-function selectPeriodChip(network, el) {
-  document.querySelectorAll('#period-chips-' + network + ' .period-chip')
+function selectPeriodChip(profileId, el) {
+  document.querySelectorAll('#period-chips-' + profileId + ' .period-chip')
     .forEach(c => c.classList.remove('selected'));
   el.classList.add('selected');
-  const customRow  = document.getElementById('period-custom-' + network);
-  const hiddenInput = document.getElementById('aud-' + network + '-periodo');
+  const customRow   = document.getElementById('period-custom-' + profileId);
+  const hiddenInput = document.getElementById('aud-' + profileId + '-periodo');
   if (el.dataset.days === 'custom') {
     if (customRow)   customRow.classList.add('visible');
     if (hiddenInput) hiddenInput.value = 'custom';
@@ -4738,29 +4390,34 @@ function selectPeriodChip(network, el) {
   }
 }
 
-/** Valida dados de audiência de todos os canais preenchidos (chamada no nextStep do painel 3)
+/** Valida dados de audiência de todos os canais dinâmicos (chamada no nextStep do painel 3)
  *  Retorna true se ok para avançar, false se há erro (e exibe toast).
  */
 function validateAudiencePanels() {
-  const networks = ['instagram', 'tiktok', 'youtube', 'linkedin', 'twitch', 'kwai', 'kick'];
-  for (const net of networks) {
-    const panel = document.getElementById('aud-panel-' + net);
-    if (!panel || !panel.classList.contains('open')) continue;
-    // Se o painel está aberto, verifica se algum campo de idade foi preenchido
+  const cards = document.querySelectorAll('#social-networks-container .canal-card');
+  for (const card of cards) {
+    const profileId = card.dataset.profileId;
+    if (!profileId) continue;
+    const panel = document.getElementById('aud-panel-' + profileId);
+    if (!panel) continue;
+
+    // Verifica se algum campo de idade foi preenchido
     const ranges = ['1317', '1824', '2534', '3544', '45p'];
     const hasAnyAge = ranges.some(r => {
-      const v = parseFloat(document.getElementById('aud-' + net + '-age-' + r)?.value) || 0;
+      const v = parseFloat(document.getElementById('aud-' + profileId + '-age-' + r)?.value) || 0;
       return v > 0;
     });
     if (!hasAnyAge) continue; // sem dados de idade → ok (campo opcional)
+
     // Se tem dados de idade, soma deve ser exatamente 100
-    const indicator = document.getElementById('aud-' + net + '-age-sum');
+    const indicator = document.getElementById('aud-' + profileId + '-age-sum');
     const isOk = indicator?.classList.contains('ok');
     if (!isOk) {
-      const netLabel = { instagram:'Instagram', tiktok:'TikTok', youtube:'YouTube', linkedin:'LinkedIn', twitch:'Twitch', kwai:'Kwai', kick:'Kick' }[net] || net;
-      showToast('Faixa etária do ' + netLabel + ' precisa somar 100%', 'error');
-      // Abre o painel e sobe o scroll até ele
-      if (!panel.classList.contains('open')) toggleAudiencePanel(net);
+      const network  = card.dataset.network || profileId;
+      const netLabel = CANAL_META[network]?.label || network;
+      showToast('Faixa etária de ' + netLabel + ' precisa somar 100%', 'error');
+      // Abre o painel e rola até ele
+      if (panel && !panel.classList.contains('open')) toggleAudiencePanel(profileId);
       panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return false;
     }
@@ -5263,38 +4920,42 @@ function collectOppData() {
   const videoUrl = document.getElementById('videoUrl')?.value?.trim() || '';
   const linkExterno = document.getElementById('opp-link-externo')?.value?.trim() || '';
 
-  // Redes sociais + dados de audiência por canal
+  // Redes sociais + dados de audiência por canal — arquitetura dinâmica
   const redesSociais = {};
   const publicoCanais = {};
-  document.querySelectorAll('#social-networks-container .social-network-group').forEach(group => {
-    const network = group.dataset.network;
-    const prefix = group.dataset.prefix || '';
-    const values = Array.from(group.querySelectorAll('.social-entry input'))
-      .map(i => i.value.trim()).filter(Boolean).map(v => prefix + v);
-    if (values.length > 0) redesSociais[network] = values;
+  document.querySelectorAll('#social-networks-container .canal-card').forEach(card => {
+    const profileId = card.dataset.profileId;
+    const network   = card.dataset.network;
+    if (!profileId || !network) return;
 
-    // Coleta dados de audiência se o painel foi aberto/preenchido
-    const panel = document.getElementById('aud-panel-' + network);
-    if (!panel) return;
-    const seguidoresRaw = document.getElementById('aud-' + network + '-seguidores')?.value?.trim() || '';
-    const seguidoresNum = parseFollowers(seguidoresRaw); // converte K/M → número
-    const generoF      = parseFloat(document.getElementById('aud-' + network + '-genero-f')?.value) || null;
-    const generoM      = parseFloat(document.getElementById('aud-' + network + '-genero-m')?.value) || null;
-    const ageRanges    = {};
+    // Username / handle
+    const usernameInput = document.getElementById('canal-username-' + profileId);
+    const username = usernameInput ? usernameInput.value.trim() : '';
+    if (username) {
+      const urlPfx = CANAL_URL_PREFIX[network] || { text: '' };
+      if (!redesSociais[network]) redesSociais[network] = [];
+      redesSociais[network].push(urlPfx.text + username);
+    }
+
+    // Dados de audiência
+    const seguidoresRaw = document.getElementById('aud-' + profileId + '-seguidores')?.value?.trim() || '';
+    const seguidoresNum = parseFollowers(seguidoresRaw);
+    const generoF       = parseFloat(document.getElementById('aud-' + profileId + '-genero-f')?.value) || null;
+    const generoM       = parseFloat(document.getElementById('aud-' + profileId + '-genero-m')?.value) || null;
+    const ageRanges     = {};
     ['1317','1824','2534','3544','45p'].forEach(r => {
-      const v = parseFloat(document.getElementById('aud-' + network + '-age-' + r)?.value);
+      const v = parseFloat(document.getElementById('aud-' + profileId + '-age-' + r)?.value);
       if (!isNaN(v) && v > 0) ageRanges[r] = v;
     });
     // Formatos selecionados
     const formatos = Array.from(
-      document.querySelectorAll('#fmt-' + network + ' .format-pill.selected')
+      card.querySelectorAll('.format-pill.selected')
     ).map(p => p.textContent.trim());
-    const contexto     = document.getElementById('aud-' + network + '-contexto')?.value?.trim() || '';
-    // Período: chip selecionado ou datas personalizadas
-    let periodo = document.getElementById('aud-' + network + '-periodo')?.value || '';
+    // Período
+    let periodo = document.getElementById('aud-' + profileId + '-periodo')?.value || '';
     if (periodo === 'custom') {
-      const ini = document.getElementById('aud-' + network + '-periodo-inicio')?.value || '';
-      const fim = document.getElementById('aud-' + network + '-periodo-fim')?.value || '';
+      const ini = document.getElementById('aud-' + profileId + '-data-inicio')?.value || '';
+      const fim = document.getElementById('aud-' + profileId + '-data-fim')?.value || '';
       if (ini && fim) {
         const fmt = iso => { const [y,m,d] = iso.split('-'); return d+'/'+m+'/'+y.slice(2); };
         periodo = fmt(ini) + ' a ' + fmt(fim);
@@ -5302,19 +4963,20 @@ function collectOppData() {
         periodo = ini ? 'a partir de ' + ini : '';
       }
     }
-    const isReal       = document.getElementById('est-toggle-' + network)?.classList.contains('is-real') || false;
+    const isReal = document.getElementById('est-toggle-' + profileId)?.classList.contains('is-real') || false;
+    const cidade = document.getElementById('aud-' + profileId + '-cidade')?.value?.trim() || '';
 
-    // Só salva se houver pelo menos um dado preenchido
     const hasData = seguidoresNum || generoF || generoM ||
-                    Object.keys(ageRanges).length > 0 || formatos.length > 0 || contexto;
+                    Object.keys(ageRanges).length > 0 || formatos.length > 0 || cidade;
     if (hasData) {
-      publicoCanais[network] = {
+      publicoCanais[profileId] = {
+        network,
         tipo_dado: isReal ? 'real' : 'estimativa',
         seguidores: seguidoresNum || null,
         genero: (generoF !== null || generoM !== null) ? { f: generoF, m: generoM } : null,
         faixa_etaria: Object.keys(ageRanges).length > 0 ? ageRanges : null,
         formatos: formatos.length > 0 ? formatos : null,
-        contexto: contexto || null,
+        cidade: cidade || null,
         periodo_referencia: periodo || null
       };
     }
@@ -5874,28 +5536,22 @@ function maybePreFillEdit() {
     if (videoEl) videoEl.value = opp.video_url;
   }
 
-  // --- Redes sociais ---
+  // --- Redes sociais — arquitetura dinâmica ---
   const redesSociais = opp.redes_sociais || {};
   if (Object.keys(redesSociais).length > 0) {
     Object.entries(redesSociais).forEach(([network, values]) => {
-      const group = document.querySelector('.social-network-group[data-network="' + network + '"]');
-      if (!group) return;
-      const entriesContainer = group.querySelector('.social-entries');
-      if (!entriesContainer) return;
-      const prefix = group.dataset.prefix || '';
       const valArr = Array.isArray(values) ? values : [values];
-      // Preenche entradas existentes e cria novas se necessário
-      valArr.forEach((val, i) => {
-        // Remove o prefix para exibir apenas o handle/path
-        const displayVal = val.startsWith(prefix) ? val.slice(prefix.length) : val;
-        let inputs = entriesContainer.querySelectorAll('.social-entry input');
-        if (i < inputs.length) {
-          inputs[i].value = displayVal;
-        } else {
-          // Adiciona nova entrada
-          addSocialEntry(group);
-          inputs = entriesContainer.querySelectorAll('.social-entry input');
-          if (inputs[i]) inputs[i].value = displayVal;
+      const urlPfx = CANAL_URL_PREFIX[network] || { text: '' };
+      valArr.forEach(val => {
+        // Cria card dinamicamente e preenche o username
+        addCanal(network);
+        // O último card adicionado tem o profileId mais recente
+        const counter = (_canalCounters[network] || 1) - 1;
+        const profileId = network + '-' + counter;
+        const usernameInput = document.getElementById('canal-username-' + profileId);
+        if (usernameInput) {
+          const displayVal = val.startsWith(urlPfx.text) ? val.slice(urlPfx.text.length) : val;
+          usernameInput.value = displayVal;
         }
       });
     });
@@ -6035,17 +5691,23 @@ function loadMockData() {
   const linkEl = document.getElementById('opp-link-externo');
   if (linkEl) linkEl.value = 'https://coparelevantiasurf.com.br';
 
-  // --- Step 3: Materiais / Redes sociais ---
-  // Preencher Instagram
-  const igInput = document.querySelector('.social-network-group[data-network="instagram"] .social-entry input');
+  // --- Step 3: Materiais / Redes sociais — arquitetura dinâmica ---
+  // Adiciona e preenche Instagram
+  addCanal('instagram');
+  const igProfileId = 'instagram-' + ((_canalCounters['instagram'] || 1) - 1);
+  const igInput = document.getElementById('canal-username-' + igProfileId);
   if (igInput) igInput.value = 'coparelevantiasurf';
 
-  // Preencher YouTube
-  const ytInput = document.querySelector('.social-network-group[data-network="youtube"] .social-entry input');
+  // Adiciona e preenche YouTube
+  addCanal('youtube');
+  const ytProfileId = 'youtube-' + ((_canalCounters['youtube'] || 1) - 1);
+  const ytInput = document.getElementById('canal-username-' + ytProfileId);
   if (ytInput) ytInput.value = 'CopaRelevantiaSurf';
 
-  // Preencher TikTok
-  const ttInput = document.querySelector('.social-network-group[data-network="tiktok"] .social-entry input');
+  // Adiciona e preenche TikTok
+  addCanal('tiktok');
+  const ttProfileId = 'tiktok-' + ((_canalCounters['tiktok'] || 1) - 1);
+  const ttInput = document.getElementById('canal-username-' + ttProfileId);
   if (ttInput) ttInput.value = 'coparelevantiasurf';
 
   // Vídeo
