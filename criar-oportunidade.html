@@ -719,27 +719,6 @@ input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 input[type=number] { -moz-appearance: textfield; }
 
-/* ── Upload Zones ── */
-.upload-zone-primary {
-  border: 2px dashed var(--gold-border); border-radius: var(--radius-lg);
-  padding: 36px 24px; text-align: center; cursor: pointer; transition: all .2s;
-  background: linear-gradient(135deg, rgba(184,134,11,0.04) 0%, rgba(200,168,75,0.06) 100%);
-  position: relative;
-}
-.upload-zone-primary:hover {
-  border-color: var(--gold); background: linear-gradient(135deg, rgba(184,134,11,0.08) 0%, rgba(200,168,75,0.10) 100%);
-}
-.upload-zone-primary .upload-icon { display: flex; justify-content: center; margin-bottom: 12px; color: var(--gray-3); }
-.upload-zone-primary h4 {
-  font-family: var(--font-heading); font-size: 17px; color: var(--text); margin-bottom: 6px;
-}
-.upload-zone-primary p { font-size: 13px; color: var(--gray-3); }
-.upload-zone-primary .upload-badge {
-  display: inline-flex; align-items: center; gap: 5px;
-  background: var(--black); color: var(--white);
-  border-radius: var(--radius-pill); padding: 4px 12px;
-  font-size: 11px; font-weight: 700; letter-spacing: .3px; margin-bottom: 12px;
-}
 .upload-zone-secondary {
   border: 1.5px dashed var(--gray-2); border-radius: var(--radius-md);
   padding: 20px 16px; text-align: center; cursor: pointer; transition: all .2s;
@@ -1652,86 +1631,42 @@ input[type=number] { -moz-appearance: textfield; }
 
     <!-- Step Progress (7 dots) -->
     <div class="step-progress">
-      <div class="step active" id="step-dot-0">
+      <div class="step active" id="step-dot-1">
         <div class="step-circle"><span>1</span></div>
-        <span class="step-label">Mídia Kit</span>
-      </div>
-      <div class="step-line" id="step-line-0"></div>
-      <div class="step" id="step-dot-1">
-        <div class="step-circle"><span>2</span></div>
         <span class="step-label">Tipo</span>
       </div>
       <div class="step-line" id="step-line-1"></div>
       <div class="step" id="step-dot-2">
-        <div class="step-circle"><span>3</span></div>
+        <div class="step-circle"><span>2</span></div>
         <span class="step-label">Informações</span>
       </div>
       <div class="step-line" id="step-line-2"></div>
       <div class="step" id="step-dot-3">
-        <div class="step-circle"><span>4</span></div>
+        <div class="step-circle"><span>3</span></div>
         <span class="step-label">Materiais</span>
       </div>
       <div class="step-line" id="step-line-3"></div>
       <div class="step" id="step-dot-4">
-        <div class="step-circle"><span>5</span></div>
+        <div class="step-circle"><span>4</span></div>
         <span class="step-label">Detalhes</span>
       </div>
       <div class="step-line" id="step-line-4"></div>
       <div class="step" id="step-dot-5">
-        <div class="step-circle"><span>6</span></div>
+        <div class="step-circle"><span>5</span></div>
         <span class="step-label">Segmentos</span>
       </div>
       <div class="step-line" id="step-line-5"></div>
       <div class="step" id="step-dot-6">
-        <div class="step-circle"><span>7</span></div>
+        <div class="step-circle"><span>6</span></div>
         <span class="step-label">Preview</span>
       </div>
       <div class="step-line" id="step-line-6"></div>
       <div class="step" id="step-dot-7">
-        <div class="step-circle"><span>8</span></div>
+        <div class="step-circle"><span>7</span></div>
         <span class="step-label">Publicar</span>
       </div>
     </div>
 
-    <!-- ════════════════════════════════════════════
-         PASSO 0 — MÍDIA KIT (apenas PDF)
-    ════════════════════════════════════════════ -->
-    <div id="panel-0">
-      <div class="form-card">
-        <div class="card-header">
-          <div class="card-title">Mídia Kit</div>
-          <div class="card-desc">Envie o PDF do seu mídia kit. Marcas tomam decisões muito mais rápido quando têm acesso a esse material.</div>
-        </div>
-
-        <div class="info-note">
-          Oportunidades com mídia kit completo recebem significativamente mais interesse das marcas no Radar.
-        </div>
-
-        <!-- PDF Mídia Kit -->
-        <div class="form-group">
-          <label>PDF do Mídia Kit <span style="font-size:11px;font-weight:400;color:var(--gray-3)">(opcional)</span></label>
-          <div class="upload-zone-primary" onclick="triggerUpload('pdf')" id="pdfZone">
-            <div class="upload-icon"><svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="8" y="4" width="22" height="30" rx="3" stroke="currentColor" stroke-width="1.5" fill="none" opacity=".3"/><path d="M22 4v8h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity=".5"/><path d="M14 20h12M14 25h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity=".6"/><path d="M20 14l-4 4 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity=".5"/></svg></div>
-            <h4>Arraste ou clique para enviar o PDF</h4>
-            <p>Formato PDF · Máximo 20 MB</p>
-            <input type="file" id="pdfInput" accept=".pdf" style="display:none" onchange="previewFile(this,'pdfPreview','pdfName')">
-          </div>
-          <div id="pdfPreview" style="display:none">
-            <div class="upload-preview-name">
-              <span style="font-size:13px;opacity:.6">PDF</span>
-              <span id="pdfName"></span>
-              <button onclick="removeFile('pdf')">✕</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="step-actions">
-        <button class="btn btn-primary" id="btnProximo0" onclick="nextStep(1)">
-          Próximo: Tipo →
-        </button>
-      </div>
-    </div><!-- /panel-0 -->
 
 
     <!-- ════════════════════════════════════════════
@@ -1836,7 +1771,6 @@ input[type=number] { -moz-appearance: textfield; }
       </div>
 
       <div class="step-actions">
-        <button class="btn btn-ghost" onclick="nextStep(0)">← Voltar</button>
         <button class="btn btn-primary" id="btnProximo1" disabled onclick="nextStep(2)">
           Próximo: Informações →
         </button>
@@ -2341,8 +2275,8 @@ input[type=number] { -moz-appearance: textfield; }
 /* ══════════════════════════════════════════════
    ESTADO GLOBAL
 ══════════════════════════════════════════════ */
-let currentStep = 0;
-const TOTAL_STEPS = 8;
+let currentStep = 1;
+const TOTAL_STEPS = 7;
 const formState = {
   selectedTemplate: null,
   selectedVisibility: 'publica',
@@ -2589,8 +2523,8 @@ function nextStep(n) {
   panels.forEach(p => p.style.display = 'none');
   document.getElementById('panel-' + n).style.display = 'block';
 
-  // Atualiza step progress
-  for (let i = 0; i < TOTAL_STEPS; i++) {
+  // Atualiza step progress (steps 1–7)
+  for (let i = 1; i <= TOTAL_STEPS; i++) {
     const dot  = document.getElementById('step-dot-' + i);
     const line = document.getElementById('step-line-' + i);
     if (!dot) continue;
@@ -2613,8 +2547,9 @@ function nextStep(n) {
   // Atualiza barra de progresso mobile
   const fill = document.getElementById('mobileProgressFill');
   const label = document.getElementById('mobileProgressStep');
-  if (fill) fill.style.width = ((n + 1) / TOTAL_STEPS * 100).toFixed(2) + '%';
-  if (label) label.textContent = 'Passo ' + (n + 1) + ' de ' + TOTAL_STEPS;
+  const stepNum = n - 1 + 1; // n já começa em 1
+  if (fill) fill.style.width = ((n - 1) / TOTAL_STEPS * 100).toFixed(2) + '%';
+  if (label) label.textContent = 'Passo ' + stepNum + ' de ' + TOTAL_STEPS;
 
   // Hooks por passo
   if (n === 4 && formState.selectedTemplate) renderTemplateFields(formState.selectedTemplate);
@@ -2915,8 +2850,7 @@ function renderReviewSummary() {
   // Segmentos selecionados
   const segmentos = Array.from(document.querySelectorAll('#segmentPillGrid .segment-pill.selected')).map(p => p.textContent.trim());
 
-  // Mídia Kit / Materiais info
-  const pdfName = document.getElementById('pdfName')?.textContent || '';
+  // Materiais info
   const videoUrlVal = document.getElementById('videoUrl')?.value || '';
   const linkExterno = document.getElementById('opp-link-externo')?.value || '';
 
@@ -3038,8 +2972,6 @@ function collectFormData() {
   data.videoUrl = document.getElementById('videoUrl')?.value || '';
   data.linkExterno = document.getElementById('opp-link-externo')?.value || '';
 
-  // PDF
-  data.pdfName = document.getElementById('pdfName')?.textContent || '';
 
   // Template-specific fields
   data.templateFields = [];
@@ -4704,33 +4636,12 @@ function toggleSegmentNew(pill) {
 }
 
 /* ══════════════════════════════════════════════
-   UPLOAD — PDF
+   UPLOAD — FOTOS
 ══════════════════════════════════════════════ */
 function triggerUpload(type) {
-  if (type === 'pdf') document.getElementById('pdfInput').click();
   if (type === 'photos') document.getElementById('photosInput').click();
 }
 
-function previewFile(input, prevId, nameId) {
-  const file = input.files[0];
-  if (!file) return;
-  document.getElementById(nameId).textContent = file.name;
-  document.getElementById(prevId).style.display = 'block';
-  document.getElementById('pdfZone').style.display = 'none';
-}
-
-function removeFile(type) {
-  if (type === 'pdf') {
-    document.getElementById('pdfInput').value = '';
-    document.getElementById('pdfPreview').style.display = 'none';
-    document.getElementById('pdfZone').style.display = 'block';
-    document.getElementById('pdfName').textContent = '';
-  }
-}
-
-/* ══════════════════════════════════════════════
-   UPLOAD — FOTOS
-══════════════════════════════════════════════ */
 
 // Focal points em memória: { 0: {x:50,y:20}, 1: {x:50,y:20}, ... }
 let _focalPoints = {};
@@ -5387,47 +5298,6 @@ async function uploadPhotos(oppId, token) {
   return { imagens: urls, imagem_capa: capaUrl, imagens_focal: focalMap };
 }
 
-/**
- * Upload PDF to Supabase Storage.
- */
-async function uploadPDF(oppId, token) {
-  const input = document.getElementById('pdfInput');
-  if (!input || !input.files || !input.files.length) return null;
-  try {
-    const file = input.files[0];
-    // ── Validação de upload (segurança) ──
-    if (typeof validateFileUpload === 'function') {
-      const check = validateFileUpload(file, {
-        allowedTypes: ['application/pdf'],
-        allowedExtensions: ['.pdf'],
-        maxSizeMB: 20
-      });
-      if (!check.valid) {
-        if (typeof showToast === 'function') showToast(check.error, 'error');
-        console.warn('[Upload] PDF validation failed:', check.error);
-        return null;
-      }
-    }
-    const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-    const fileName = 'opp-' + oppId + '-midia-kit-' + safeName;
-    const formData = new FormData();
-    formData.append('', file);
-    const res = await fetch(
-      SUPABASE_URL + '/storage/v1/object/oportunidades/' + fileName,
-      { method: 'POST', body: file,
-        headers: { 'Authorization': 'Bearer ' + token, 'apikey': SUPABASE_KEY,
-          'Content-Type': file.type || 'application/pdf' } }
-    );
-    if (res.ok) {
-      console.log('[Upload] PDF uploaded:', fileName);
-      return SUPABASE_URL + '/storage/v1/object/public/oportunidades/' + fileName;
-    } else {
-      const errText = await res.text();
-      console.error('[Upload] PDF error:', res.status, errText);
-    }
-  } catch (err) { console.warn('[Upload] PDF failed:', err); }
-  return null;
-}
 
 /* ══════════════════════════════════════════════
    SALVAR RASCUNHO
@@ -5478,14 +5348,11 @@ async function saveDraft() {
       oppId = rows[0]?.id;
     }
 
-    // Upload de arquivos (Fix 3 — feedback se falhar)
+    // Upload de fotos
     if (oppId) {
       const { imagens, imagem_capa, imagens_focal } = await uploadPhotos(oppId, token);
-      const pdfUrl = await uploadPDF(oppId, token);
-      if (imagens.length > 0 || pdfUrl) {
-        const patch = {};
-        if (imagens.length > 0) { patch.imagens = imagens; patch.imagem_capa = imagem_capa; patch.imagens_focal = imagens_focal; }
-        if (pdfUrl) patch.midia_kit_url = pdfUrl;
+      if (imagens.length > 0) {
+        const patch = { imagens, imagem_capa, imagens_focal };
         await fetch(SUPABASE_URL + '/rest/v1/oportunidades?id=eq.' + oppId, {
           method: 'PATCH', body: JSON.stringify(patch),
           headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token,
@@ -5561,7 +5428,7 @@ async function publishOpportunity() {
       console.log('[Publish] Opportunity created:', oppId);
     }
 
-    // Upload photos and PDF (Fix 3 — feedback de erro nos uploads)
+    // Upload fotos
     if (oppId) {
       let uploadErrors = [];
       const { imagens, imagem_capa, imagens_focal } = await uploadPhotos(oppId, token);
@@ -5569,21 +5436,15 @@ async function publishOpportunity() {
       const newUploaded = imagens.filter(u => !document.querySelector('[data-existing-url="' + u + '"]')).length;
       if (expectedPhotos > 0 && newUploaded === 0) uploadErrors.push('fotos');
 
-      const pdfUrl = await uploadPDF(oppId, token);
-      const pdfInput = document.getElementById('pdfInput');
-      if (pdfInput && pdfInput.files && pdfInput.files.length > 0 && !pdfUrl) uploadErrors.push('mídia kit PDF');
-
-      if (imagens.length > 0 || pdfUrl) {
-        const patch = {};
-        if (imagens.length > 0) { patch.imagens = imagens; patch.imagem_capa = imagem_capa; patch.imagens_focal = imagens_focal; }
-        if (pdfUrl) patch.midia_kit_url = pdfUrl;
+      if (imagens.length > 0) {
+        const patch = { imagens, imagem_capa, imagens_focal };
         const patchRes = await fetch(SUPABASE_URL + '/rest/v1/oportunidades?id=eq.' + oppId, {
           method: 'PATCH', body: JSON.stringify(patch),
           headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token,
             'Content-Type': 'application/json', 'Prefer': 'return=minimal' }
         });
-        if (!patchRes.ok) uploadErrors.push('salvar arquivos');
-        console.log('[Publish] Files uploaded:', imagens.length, 'photos', pdfUrl ? '+ PDF' : '');
+        if (!patchRes.ok) uploadErrors.push('salvar fotos');
+        console.log('[Publish] Photos uploaded:', imagens.length);
       }
 
       if (uploadErrors.length > 0) {
@@ -5870,7 +5731,7 @@ function enableClickableStepper() {
   if (!stepper) return;
   stepper.classList.add('edit-mode');
 
-  for (let i = 0; i < TOTAL_STEPS; i++) {
+  for (let i = 1; i <= TOTAL_STEPS; i++) {
     const dot = document.getElementById('step-dot-' + i);
     if (!dot) continue;
     dot.addEventListener('click', function() {
