@@ -5519,11 +5519,15 @@ async function publishOpportunity() {
     nextStep(7);
     return;
   }
-  const slugOk = await validateSlugUnique(true);
-  if (!slugOk) {
-    showToast('O slug escolhido já está em uso. Altere o link público da oportunidade.', 'error');
-    nextStep(7);
-    return;
+  // Se estamos editando e o slug não mudou, pular validação de unicidade
+  const slugUnchanged = formState.editId && formState.editSlug && data.slug === formState.editSlug;
+  if (!slugUnchanged) {
+    const slugOk = await validateSlugUnique(true);
+    if (!slugOk) {
+      showToast('O slug escolhido já está em uso. Altere o link público da oportunidade.', 'error');
+      nextStep(7);
+      return;
+    }
   }
 
   // ── Validação: campos obrigatórios do template ──
