@@ -276,8 +276,8 @@ a { text-decoration: none; color: inherit; }
 .tab-btn { background: none; border: none; border-bottom: 2px solid transparent; padding: 10px 16px; font-family: inherit; font-size: 13px; font-weight: 500; color: var(--gray-500); cursor: pointer; white-space: nowrap; transition: all 0.15s; }
 .tab-btn:hover { color: var(--text); }
 .tab-btn.active { color: var(--text); border-bottom-color: var(--gold); font-weight: 600; }
-.tab-panel { display: none; }
-.tab-panel.active { display: block; }
+.tab-panel { display: block; }
+.detail-tabs { position: sticky; top: 0; background: var(--body-bg, #FAF8F5); z-index: 20; padding-top: 8px; margin-top: -8px; }
 
 /* ─── TAB CONTENT ─── */
 .detail-section { margin-bottom: 28px; }
@@ -939,11 +939,10 @@ a { text-decoration: none; color: inherit; }
 
         <!-- LEFT: TABS -->
         <div>
-          <div class="detail-tabs">
-            <button class="tab-btn active" onclick="switchTab('visao', this)">Visão geral</button>
-            <button class="tab-btn" onclick="switchTab('publico', this)">Público</button>
-            <button class="tab-btn" onclick="switchTab('cotas', this)">Cotas & Entregas</button>
-            <button class="tab-btn" onclick="switchTab('canais', this)">Canais</button>
+          <div class="detail-tabs" id="detailTabsNav">
+            <button class="tab-btn active" data-section="tab-visao">Visão geral</button>
+            <button class="tab-btn" data-section="tab-canais">Canais</button>
+            <button class="tab-btn" data-section="tab-cotas">Cotas & Entregas</button>
           </div>
 
           <div class="tab-content-wrap">
@@ -984,38 +983,15 @@ a { text-decoration: none; color: inherit; }
               </div>
             </div>
 
-            <!-- TAB: Publico -->
-            <div class="tab-panel" id="tab-publico">
-              <!-- Cards por canal (redes sociais) -->
-              <div id="publico-canais-section" style="display:none">
-                <div class="detail-section" style="margin-bottom:0">
-                  <h3 class="detail-section-title">Audiência por canal</h3>
-                  <div class="aud-channels-grid" id="publicoCanaisGrid"></div>
-                </div>
+            <!-- SECTION: Canais -->
+            <div class="tab-panel" id="tab-canais">
+              <div class="detail-section">
+                <h3 class="detail-section-title">Canais e redes sociais</h3>
+                <div class="canais-grid" id="canaisGrid"></div>
               </div>
-              <!-- Público presencial (eventos) -->
-              <div id="publico-presencial-section" style="display:none">
-                <div class="detail-section">
-                  <h3 class="detail-section-title">Público presencial</h3>
-                  <div id="publicoPresencialCard"></div>
-                </div>
-              </div>
-              <!-- Fallback: dados legados (publicoFacts / descrição) -->
-              <div id="publico-legacy-section" style="display:none">
-                <div class="detail-section">
-                  <h3 class="detail-section-title">Perfil da audiência</h3>
-                  <p class="detail-text" id="publicoDesc"></p>
-                </div>
-                <div class="detail-section">
-                  <h3 class="detail-section-title">Dados do público</h3>
-                  <div class="detail-facts" id="publicoFacts"></div>
-                </div>
-              </div>
-              <!-- Estado vazio -->
-              <div id="publico-empty-section" class="aud-empty">Dados de audiência sendo preparados pelo detentor.</div>
             </div>
 
-            <!-- TAB: Cotas -->
+            <!-- SECTION: Cotas -->
             <div class="tab-panel" id="tab-cotas">
               <div class="detail-section">
                 <h3 class="detail-section-title">Cotas disponíveis</h3>
@@ -1024,19 +1000,11 @@ a { text-decoration: none; color: inherit; }
               </div>
             </div>
 
-            <!-- TAB: Canais -->
-            <div class="tab-panel" id="tab-canais">
-              <div class="detail-section">
-                <h3 class="detail-section-title">Canais e redes sociais</h3>
-                <div class="canais-grid" id="canaisGrid"></div>
-              </div>
-            </div>
-
           </div>
         </div>
 
         <!-- RIGHT: SIDEBAR CARD -->
-        <div>
+        <div style="position:sticky;top:60px;align-self:start">
           <div class="interest-card">
             <!-- Header escuro -->
             <div class="interest-card-header">
@@ -2083,12 +2051,37 @@ function renderPage(oppOverride) {
 }
 
 /* ─── TABS ─── */
-function switchTab(id, btn) {
-  document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
-  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
-  document.getElementById('tab-' + id).classList.add('active');
-  btn.classList.add('active');
-}
+/* ─── SCROLL SPY + SMOOTH SCROLL TABS ─── */
+(function() {
+  var tabBtns = document.querySelectorAll('#detailTabsNav .tab-btn');
+  var sectionIds = Array.from(tabBtns).map(function(b) { return b.dataset.section; });
+  var sections = sectionIds.map(function(id) { return document.getElementById(id); }).filter(Boolean);
+
+  // Click → smooth scroll
+  tabBtns.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var target = document.getElementById(btn.dataset.section);
+      if (!target) return;
+      var tabsBar = document.getElementById('detailTabsNav');
+      var offset = tabsBar ? tabsBar.offsetHeight + 12 : 60;
+      var top = target.getBoundingClientRect().top + window.pageYOffset - offset;
+      window.scrollTo({ top: top, behavior: 'smooth' });
+    });
+  });
+
+  // Scroll spy via IntersectionObserver
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        tabBtns.forEach(function(b) { b.classList.remove('active'); });
+        var match = document.querySelector('#detailTabsNav .tab-btn[data-section="' + entry.target.id + '"]');
+        if (match) match.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -60% 0px' });
+
+  sections.forEach(function(s) { observer.observe(s); });
+})();
 
 /* ─── CURRENT OPP (set by renderPage for submitModal) ─── */
 var _CURRENT_OPP = null;

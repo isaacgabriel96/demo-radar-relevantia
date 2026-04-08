@@ -935,8 +935,8 @@ a { text-decoration: none; color: inherit; }
         <div>
           <div class="detail-tabs" id="detailTabsNav">
             <button class="tab-btn active" data-section="section-visao" onclick="scrollToSection('section-visao', this)">Visão geral</button>
-            <button class="tab-btn" data-section="section-cotas" onclick="scrollToSection('section-cotas', this)">Cotas & Entregas</button>
             <button class="tab-btn" data-section="section-canais" onclick="scrollToSection('section-canais', this)">Canais</button>
+            <button class="tab-btn" data-section="section-cotas" onclick="scrollToSection('section-cotas', this)">Cotas & Entregas</button>
           </div>
 
           <div class="tab-content-wrap">
@@ -959,6 +959,14 @@ a { text-decoration: none; color: inherit; }
               </div>
             </section>
 
+            <!-- SECTION: Canais -->
+            <section class="detail-section-block" id="section-canais">
+              <div class="detail-section">
+                <h3 class="detail-section-title">Canais e redes sociais</h3>
+                <div class="canais-grid" id="canaisGrid"></div>
+              </div>
+            </section>
+
             <!-- SECTION: Cotas -->
             <section class="detail-section-block" id="section-cotas">
               <div class="detail-section">
@@ -968,19 +976,11 @@ a { text-decoration: none; color: inherit; }
               </div>
             </section>
 
-            <!-- SECTION: Canais -->
-            <section class="detail-section-block" id="section-canais">
-              <div class="detail-section">
-                <h3 class="detail-section-title">Canais e redes sociais</h3>
-                <div class="canais-grid" id="canaisGrid"></div>
-              </div>
-            </section>
-
           </div>
         </div>
 
         <!-- RIGHT: SIDEBAR CARD -->
-        <div>
+        <div style="position:sticky;top:120px;align-self:start">
           <div class="interest-card">
             <!-- Header escuro -->
             <div class="interest-card-header">
@@ -1804,7 +1804,7 @@ function scrollToSection(sectionId, btn) {
 
 // IntersectionObserver: auto-highlight active tab as user scrolls
 (function initScrollSpy() {
-  var sectionIds = ['section-visao', 'section-cotas', 'section-canais'];
+  var sectionIds = ['section-visao', 'section-canais', 'section-cotas'];
   var activeSection = null;
   function setActive(sectionId) {
     if (activeSection === sectionId) return;
