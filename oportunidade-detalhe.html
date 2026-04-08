@@ -278,6 +278,8 @@ a { text-decoration: none; color: inherit; }
 .tab-btn:hover { color: var(--text); }
 .tab-btn.active { color: var(--text); border-bottom-color: var(--gold); font-weight: 600; }
 .tab-panel { display: block; }
+.tab-content-wrap { padding-top: 28px; }
+.detail-section { margin-bottom: 32px; }
 
 /* ─── TAB CONTENT ─── */
 .detail-section { margin-bottom: 28px; }
@@ -982,7 +984,22 @@ a { text-decoration: none; color: inherit; }
 
             <!-- SECTION: Canais -->
             <div class="tab-panel" id="tab-canais">
-              <div class="detail-section">
+              <!-- Cards ricos por canal (preenchido por renderPublicoTab se houver dados em detalhes.publico_canais) -->
+              <div id="publico-canais-section" style="display:none">
+                <div class="detail-section" style="margin-bottom:0">
+                  <h3 class="detail-section-title">Audiência por canal</h3>
+                  <div class="aud-channels-grid" id="publicoCanaisGrid"></div>
+                </div>
+              </div>
+              <!-- Público presencial — eventos (preenchido por renderPublicoTab se houver dados) -->
+              <div id="publico-presencial-section" style="display:none">
+                <div class="detail-section">
+                  <h3 class="detail-section-title">Público presencial</h3>
+                  <div id="publicoPresencialCard"></div>
+                </div>
+              </div>
+              <!-- Fallback simples (quando não há dados ricos de audiência) -->
+              <div class="detail-section" id="canaisFallbackSection">
                 <h3 class="detail-section-title">Canais e redes sociais</h3>
                 <div class="canais-grid" id="canaisGrid"></div>
               </div>
@@ -1887,6 +1904,12 @@ function renderPage(oppOverride) {
     // ── Empty state ───────────────────────────────────────────────────────
     var hasAnything = hasCanais || hasPresencial || hasLegacy;
     if (secEmpty) secEmpty.style.display = hasAnything ? 'none' : '';
+
+    // Se cards ricos foram renderizados, esconder fallback simples de canais
+    if (hasCanais || hasPresencial) {
+      var fallback = document.getElementById('canaisFallbackSection');
+      if (fallback) fallback.style.display = 'none';
+    }
   })();
 
   var EMPTY_STATE_HTML = '<div style="padding:32px 16px;text-align:center;color:var(--gray-3);font-family:var(--font-body);font-size:14px;">Informações sendo preparadas pelo detentor.</div>';
