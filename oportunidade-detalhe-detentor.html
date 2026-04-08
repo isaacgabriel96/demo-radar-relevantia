@@ -1214,17 +1214,22 @@ function getOppById(id) {
 
 function getOpp() {
   var params = new URLSearchParams(window.location.search);
-  var id = parseInt(params.get('id')) || 1;
-  return getOppById(id);
+  // Use raw id (supports both integer and UUID keys). Fallback to mock id 1 only for design preview.
+  var rawId = params.get('id');
+  var id = rawId ? (parseInt(rawId) || rawId) : 1;
+  return getOppById(typeof id === 'number' ? id : 1);
 }
 
 /**
  * Fetch opportunity from Supabase with all related data.
+ * Uses the detentor's auth token so private/draft records are visible.
  * Transforms DB row into the format renderPage() expects.
  */
 async function fetchOppFromSupabase(idOrPerfilSlug, oppSlug) {
   try {
     var filter;
+    // UUID detection: strings that look like UUIDs or are not pure integers → use id=eq. as string
+    var isUuid = typeof idOrPerfilSlug === 'string' && /^[0-9a-f-]{8,}$/i.test(idOrPerfilSlug);
     if (oppSlug) {
       // Lookup by @perfil-slug/opp-slug — need to resolve perfil slug first
       const pRes = await sbPublicFetch('/rest/v1/perfis?select=id&slug=eq.' + encodeURIComponent(idOrPerfilSlug));
@@ -1232,7 +1237,7 @@ async function fetchOppFromSupabase(idOrPerfilSlug, oppSlug) {
       const pRows = await pRes.json();
       if (!pRows || pRows.length === 0) return null;
       filter = '&detentor_id=eq.' + pRows[0].id + '&slug=eq.' + encodeURIComponent(oppSlug);
-    } else if (typeof idOrPerfilSlug === 'number') {
+    } else if (typeof idOrPerfilSlug === 'number' || isUuid) {
       filter = '&id=eq.' + idOrPerfilSlug;
     } else {
       filter = '&slug=eq.' + encodeURIComponent(idOrPerfilSlug);
@@ -1246,7 +1251,14 @@ async function fetchOppFromSupabase(idOrPerfilSlug, oppSlug) {
       'cotas(nome,preco,icone,ordem),' +
       'canais(icone,label,valor,seguidores,genero_f,genero_m,faixa_etaria,ordem)' +
       filter;
-    const res = await sbPublicFetch(path);
+    // Use auth token so detentor can see their own private/draft records
+    const token = typeof getValidToken === 'function' ? await getValidToken() : null;
+    const headers = {
+      'apikey': SUPABASE_KEY,
+      'Authorization': token ? ('Bearer ' + token) : ('Bearer ' + SUPABASE_KEY),
+      'Content-Type': 'application/json'
+    };
+    const res = await fetch(SUPABASE_URL + path, { headers });
     if (!res.ok) return null;
     const rows = await res.json();
     if (!rows || rows.length === 0) return null;
@@ -2006,7 +2018,10 @@ function goToFullEdit() {
       oppSlug = parts[0];
     }
   } else {
-    id = parseInt(params.get('id'));
+    // Keep id as raw string to support both integer and UUID primary keys.
+    // parseInt would corrupt UUIDs (e.g. "a1b2-..." → NaN, "21abc-..." → 21 wrong).
+    var rawId = params.get('id');
+    id = rawId || null;
   }
 
   if (!id && !oppSlug) {
@@ -2035,8 +2050,16 @@ function goToFullEdit() {
 
     renderPage(oppData);
   } else {
-    console.log('[Detentor Detail] Using mock data for id:', id);
-    renderPage();
+    // Supabase fetch failed or record not found — show clear error, not misleading mock data
+    console.warn('[Detentor Detail] Opportunity not found or access denied for id:', id);
+    var mainEl = document.querySelector('.page-content') || document.querySelector('main');
+    if (mainEl) {
+      mainEl.innerHTML = '<div style="text-align:center;padding:80px 20px;color:var(--gray-3,#A89880);font-family:DM Sans,sans-serif">' +
+        '<p style="font-size:20px;font-weight:600;margin-bottom:8px;color:var(--black,#1A1200)">Oportunidade não encontrada</p>' +
+        '<p style="font-size:14px">O link pode estar incorreto, ou você não tem permissão para visualizar esta oportunidade.</p>' +
+        '<a href="dashboard-detentor.html#oportunidades" style="display:inline-block;margin-top:20px;padding:10px 24px;background:var(--gold,#B8860B);color:#fff;border-radius:100px;text-decoration:none;font-weight:600">Voltar para minhas oportunidades</a>' +
+        '</div>';
+    }
   }
 
   // Hide loading
