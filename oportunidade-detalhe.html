@@ -1249,6 +1249,11 @@ async function fetchOppFromSupabase(idOrPerfilSlug, oppSlug) {
       .filter(f => f.tipo !== 'publico')
       .map(f => ({ icon: f.icone || '📌', label: f.label || '', value: f.valor || '' }));
 
+    // Abrangência geográfica — coluna dedicada (Local / Regional / Nacional / Internacional)
+    if (r.alcance && r.alcance.trim()) {
+      generalFacts.push({ icon: '🗺️', label: 'Abrangência', value: r.alcance.trim() });
+    }
+
     // Complementar generalFacts com dados do campo detalhes (JSONB)
     // Sempre incluído — cobre campos de template como Formato, Transmissão, etc.
     const DETALHE_ICONS = {
@@ -1339,7 +1344,7 @@ async function fetchOppFromSupabase(idOrPerfilSlug, oppSlug) {
       category: r.categoria || '',
       city: city,
       region: r.localizacao || '',
-      date: r.alcance || '',
+      alcance: r.alcance || '',
       // Preço: derivado das cotas (mínimo), ou preco_minimo, ou null
       price: (function() {
         // Prioridade 1: mínimo das cotas_data
@@ -1372,11 +1377,11 @@ async function fetchOppFromSupabase(idOrPerfilSlug, oppSlug) {
       canais: canaisArr.length > 0 ? canaisArr : undefined,
       videoUrl: r.video_url || null,
       sidebar: {
-        evento: (r.datas_evento && r.datas_evento.length > 0) ? (r.datas_evento[0].data || r.alcance || '') : (r.alcance || ''),
+        evento: (r.datas_evento && r.datas_evento.length > 0) ? (r.datas_evento[0].data || '') : '',
         prazo: r.cotas_data && r.cotas_data[0] && r.cotas_data[0].prazo ? r.cotas_data[0].prazo : 'Em aberto',
         cotasQty: cotasArr.length > 0 ? cotasArr.length + ' modalidade' + (cotasArr.length > 1 ? 's' : '') : (r.cotas_habilitadas ? 'Disponível' : 'A definir'),
         formato: r.formato || '',
-        participantes: r.alcance || ''
+        participantes: ''
       },
       // Org data for owner section
       _orgData: orgData,
@@ -1455,7 +1460,7 @@ function renderPage(oppOverride) {
   opp.category = opp.category || '';
   opp.desc = opp.desc || '';
   opp.city = opp.city || '';
-  opp.date = opp.date || '';
+  opp.alcance = opp.alcance || '';
   opp.price = opp.price || 0;
   opp.sidebar = opp.sidebar || { evento: '', prazo: '', cotasQty: '', formato: '', participantes: '' };
 
