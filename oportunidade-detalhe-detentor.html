@@ -271,13 +271,14 @@ a { text-decoration: none; color: inherit; }
 /* ─── BODY LAYOUT ─── */
 .detail-body { display: grid; grid-template-columns: 1fr 360px; gap: 28px; align-items: start; }
 
-/* ─── TABS ─── */
-.detail-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--gray-200); margin-bottom: 24px; overflow-x: auto; }
+/* ─── TABS (scroll-spy nav) ─── */
+.detail-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--gray-200); margin-bottom: 0; overflow-x: auto; position: sticky; top: 64px; z-index: 40; background: var(--white); padding-top: 4px; }
 .tab-btn { background: none; border: none; border-bottom: 2px solid transparent; padding: 10px 16px; font-family: inherit; font-size: 13px; font-weight: 500; color: var(--gray-500); cursor: pointer; white-space: nowrap; transition: all 0.15s; }
 .tab-btn:hover { color: var(--text); }
 .tab-btn.active { color: var(--text); border-bottom-color: var(--gold); font-weight: 600; }
-.tab-panel { display: none; }
-.tab-panel.active { display: block; }
+/* Scroll sections — always visible */
+.detail-section-block { padding-top: 28px; }
+.detail-section-block + .detail-section-block { border-top: 1px solid var(--gray-100); }
 
 /* ─── TAB CONTENT ─── */
 .detail-section { margin-bottom: 28px; }
@@ -303,13 +304,25 @@ a { text-decoration: none; color: inherit; }
 .cota-desc { font-size: 12px; color: var(--gray-500); line-height: 1.5; margin-bottom: 10px; }
 .cota-price { font-size: 13px; color: var(--gold); font-weight: 600; }
 
-/* Canais */
-.canais-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
-.canal-item { display: flex; align-items: center; gap: 14px; padding: 14px 16px; background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius); transition: border-color 0.15s; }
-.canal-item:hover { border-color: var(--gray-300); }
-.canal-icon { width: 40px; height: 40px; border-radius: var(--radius); background: var(--gray-100); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
-.canal-name { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+/* Canais — rich cards */
+.canais-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px; }
+.canal-item { padding: 18px 20px; background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); transition: border-color 0.15s, box-shadow 0.15s; }
+.canal-item:hover { border-color: var(--gray-300); box-shadow: 0 2px 10px rgba(30,22,0,0.06); }
+.canal-item-header { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+.canal-icon { width: 42px; height: 42px; border-radius: var(--radius); background: var(--gray-100); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+.canal-name { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
 .canal-reach { font-size: 12px; color: var(--gray-400); }
+.canal-stats { display: flex; flex-direction: column; gap: 10px; }
+.canal-stat-row { display: flex; flex-direction: column; gap: 4px; }
+.canal-stat-label { font-size: 10px; font-weight: 600; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.06em; }
+.canal-stat-value { font-size: 13px; font-weight: 600; color: var(--text); font-family: var(--font-display, 'Space Grotesk', sans-serif); }
+.canal-gender-bar { display: flex; height: 6px; border-radius: 100px; overflow: hidden; margin-top: 4px; }
+.canal-gender-f { background: #E6A3C8; height: 100%; }
+.canal-gender-m { background: #7EB8E6; height: 100%; flex: 1; }
+.canal-gender-labels { display: flex; justify-content: space-between; margin-top: 3px; }
+.canal-gender-lbl { font-size: 10px; color: var(--gray-400); }
+.canal-faixa-wrap { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 2px; }
+.canal-faixa-tag { padding: 2px 8px; background: var(--gray-100); border-radius: 100px; font-size: 10px; font-weight: 600; color: var(--gray-500); }
 
 /* ─── INTEREST CARD (SIDEBAR) ─── */
 .interest-card {
@@ -895,17 +908,16 @@ a { text-decoration: none; color: inherit; }
 
         <!-- LEFT: TABS -->
         <div>
-          <div class="detail-tabs">
-            <button class="tab-btn active" onclick="switchTab('visao', this)">Visão geral</button>
-            <button class="tab-btn" onclick="switchTab('publico', this)">Público</button>
-            <button class="tab-btn" onclick="switchTab('cotas', this)">Cotas & Entregas</button>
-            <button class="tab-btn" onclick="switchTab('canais', this)">Canais</button>
+          <div class="detail-tabs" id="detailTabsNav">
+            <button class="tab-btn active" data-section="section-visao" onclick="scrollToSection('section-visao', this)">Visão geral</button>
+            <button class="tab-btn" data-section="section-cotas" onclick="scrollToSection('section-cotas', this)">Cotas & Entregas</button>
+            <button class="tab-btn" data-section="section-canais" onclick="scrollToSection('section-canais', this)">Canais</button>
           </div>
 
           <div class="tab-content-wrap">
 
-            <!-- TAB: Visao geral -->
-            <div class="tab-panel active" id="tab-visao">
+            <!-- SECTION: Visao geral -->
+            <section class="detail-section-block" id="section-visao">
               <div class="detail-section">
                 <h3 class="detail-section-title">Sobre a oportunidade</h3>
                 <p class="detail-text" id="detailDesc"></p>
@@ -918,36 +930,24 @@ a { text-decoration: none; color: inherit; }
                 <h3 class="detail-section-title">Segmentos ideais</h3>
                 <div class="tags-wrap" id="detailTags"></div>
               </div>
-            </div>
+            </section>
 
-            <!-- TAB: Publico -->
-            <div class="tab-panel" id="tab-publico">
-              <div class="detail-section">
-                <h3 class="detail-section-title">Perfil da audiência</h3>
-                <p class="detail-text" id="publicoDesc"></p>
-              </div>
-              <div class="detail-section">
-                <h3 class="detail-section-title">Dados do público</h3>
-                <div class="detail-facts" id="publicoFacts"></div>
-              </div>
-            </div>
-
-            <!-- TAB: Cotas -->
-            <div class="tab-panel" id="tab-cotas">
+            <!-- SECTION: Cotas -->
+            <section class="detail-section-block" id="section-cotas">
               <div class="detail-section">
                 <h3 class="detail-section-title">Cotas disponíveis</h3>
                 <p class="detail-text" style="margin-bottom:0">Cada cota oferece ativações exclusivas e diferentes níveis de visibilidade.</p>
                 <div class="cotas-grid" id="cotasGrid"></div>
               </div>
-            </div>
+            </section>
 
-            <!-- TAB: Canais -->
-            <div class="tab-panel" id="tab-canais">
+            <!-- SECTION: Canais -->
+            <section class="detail-section-block" id="section-canais">
               <div class="detail-section">
                 <h3 class="detail-section-title">Canais e redes sociais</h3>
                 <div class="canais-grid" id="canaisGrid"></div>
               </div>
-            </div>
+            </section>
 
           </div>
         </div>
@@ -1264,14 +1264,20 @@ async function fetchOppFromSupabase(idOrPerfilSlug, oppSlug) {
       }));
     }
 
-    // Canais — from canais table or redes_sociais JSON
+    // Canais — from canais table or redes_sociais JSON (with rich data)
     let canaisArr = (r.canais || []).map(c => ({
-      icon: c.icone || '📱', name: c.label || '', reach: c.valor || ''
+      icon: c.icone || '📱',
+      name: c.label || '',
+      reach: c.valor || '',
+      seguidores: c.seguidores || null,
+      genero_f: c.genero_f != null ? c.genero_f : null,
+      genero_m: c.genero_m != null ? c.genero_m : null,
+      faixa_etaria: c.faixa_etaria || null
     }));
     if (canaisArr.length === 0 && r.redes_sociais) {
       const iconMap = { instagram:'📸', tiktok:'🎵', youtube:'▶️', linkedin:'💼', facebook:'📘' };
       Object.entries(r.redes_sociais).forEach(([net, handles]) => {
-        canaisArr.push({ icon: iconMap[net] || '📱', name: net.charAt(0).toUpperCase() + net.slice(1), reach: handles.join(', ') });
+        canaisArr.push({ icon: iconMap[net] || '📱', name: net.charAt(0).toUpperCase() + net.slice(1), reach: handles.join(', '), seguidores: null, genero_f: null, genero_m: null, faixa_etaria: null });
       });
     }
 
@@ -1517,11 +1523,56 @@ function renderPage(oppOverride) {
   }
   document.getElementById('cotasGrid').innerHTML = cotasHtml;
 
-  // Canais
+  // Canais — rich render
   if (opp.canais && opp.canais.length > 0) {
     var canaisHtml = '';
     opp.canais.forEach(function(c) {
-      canaisHtml += '<div class="canal-item"><div class="canal-icon">' + escapeHtml(c.icon) + '</div><div><div class="canal-name">' + escapeHtml(c.name) + '</div><div class="canal-reach">' + escapeHtml(c.reach) + '</div></div></div>';
+      // Format seguidores
+      var segStr = '';
+      if (c.seguidores) {
+        var seg = Number(c.seguidores);
+        segStr = seg >= 1000000 ? (seg/1000000).toFixed(1) + 'M' : seg >= 1000 ? (seg/1000).toFixed(1) + 'k' : seg.toString();
+      }
+
+      canaisHtml += '<div class="canal-item">';
+      // Header: icon + name + reach
+      canaisHtml += '<div class="canal-item-header">';
+      canaisHtml += '<div class="canal-icon">' + escapeHtml(c.icon) + '</div>';
+      canaisHtml += '<div><div class="canal-name">' + escapeHtml(c.name) + '</div>';
+      canaisHtml += '<div class="canal-reach">' + escapeHtml(c.reach) + '</div></div>';
+      canaisHtml += '</div>';
+
+      // Stats block
+      canaisHtml += '<div class="canal-stats">';
+
+      // Seguidores
+      if (segStr) {
+        canaisHtml += '<div class="canal-stat-row"><span class="canal-stat-label">Seguidores</span><span class="canal-stat-value">' + segStr + '</span></div>';
+      }
+
+      // Gênero bar
+      if (c.genero_f != null && c.genero_m != null) {
+        var pctF = Math.round(Number(c.genero_f));
+        var pctM = Math.round(Number(c.genero_m));
+        canaisHtml += '<div class="canal-stat-row">';
+        canaisHtml += '<span class="canal-stat-label">Gênero</span>';
+        canaisHtml += '<div class="canal-gender-bar"><div class="canal-gender-f" style="width:' + pctF + '%"></div><div class="canal-gender-m" style="width:' + pctM + '%"></div></div>';
+        canaisHtml += '<div class="canal-gender-labels"><span class="canal-gender-lbl">♀ ' + pctF + '%</span><span class="canal-gender-lbl">♂ ' + pctM + '%</span></div>';
+        canaisHtml += '</div>';
+      }
+
+      // Faixa etária
+      if (c.faixa_etaria) {
+        var faixas = Array.isArray(c.faixa_etaria) ? c.faixa_etaria : (typeof c.faixa_etaria === 'object' ? Object.entries(c.faixa_etaria).map(function(e){return e[0]+': '+e[1]+'%';}) : [String(c.faixa_etaria)]);
+        canaisHtml += '<div class="canal-stat-row">';
+        canaisHtml += '<span class="canal-stat-label">Faixa etária</span>';
+        canaisHtml += '<div class="canal-faixa-wrap">';
+        faixas.forEach(function(f) { canaisHtml += '<span class="canal-faixa-tag">' + escapeHtml(String(f)) + '</span>'; });
+        canaisHtml += '</div></div>';
+      }
+
+      canaisHtml += '</div>';  // /canal-stats
+      canaisHtml += '</div>';  // /canal-item
     });
     document.getElementById('canaisGrid').innerHTML = canaisHtml;
   } else {
@@ -1607,13 +1658,52 @@ function renderPage(oppOverride) {
   }
 }
 
-/* ─── TABS ─── */
-function switchTab(id, btn) {
-  document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
-  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
-  document.getElementById('tab-' + id).classList.add('active');
-  btn.classList.add('active');
+/* ─── SCROLL SPY TABS ─── */
+function scrollToSection(sectionId, btn) {
+  var el = document.getElementById(sectionId);
+  if (!el) return;
+  // Calculate offset accounting for sticky header + sticky tab nav
+  var tabsNav = document.getElementById('detailTabsNav');
+  var navH = tabsNav ? tabsNav.offsetHeight : 0;
+  var stickyTop = 64 + navH + 8;
+  var elTop = el.getBoundingClientRect().top + window.pageYOffset - stickyTop;
+  window.scrollTo({ top: elTop, behavior: 'smooth' });
 }
+
+// IntersectionObserver: auto-highlight active tab as user scrolls
+(function initScrollSpy() {
+  var sectionIds = ['section-visao', 'section-cotas', 'section-canais'];
+  var activeSection = null;
+  function setActive(sectionId) {
+    if (activeSection === sectionId) return;
+    activeSection = sectionId;
+    document.querySelectorAll('.tab-btn').forEach(function(b) {
+      b.classList.toggle('active', b.getAttribute('data-section') === sectionId);
+    });
+  }
+  function observe() {
+    var tabsNav = document.getElementById('detailTabsNav');
+    var navH = tabsNav ? tabsNav.offsetHeight : 0;
+    var rootMarginTop = -(64 + navH + 10) + 'px';
+    var obs = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          setActive(entry.target.id);
+        }
+      });
+    }, { rootMargin: rootMarginTop + ' 0px -60% 0px', threshold: 0 });
+    sectionIds.forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) obs.observe(el);
+    });
+  }
+  // Init after DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', observe);
+  } else {
+    observe();
+  }
+})();
 
 /* ─── CURRENT OPP (set by renderPage for submitModal) ─── */
 var _CURRENT_OPP = null;
