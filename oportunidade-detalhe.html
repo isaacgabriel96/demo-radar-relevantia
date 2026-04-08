@@ -1265,7 +1265,8 @@ async function fetchOppFromSupabase(idOrPerfilSlug, oppSlug) {
       // Preview fields (chaves técnicas lowercase)
       'demografico': '📊', 'entregas': '🤝',
       'metricas_alcance': '📈', 'metricas_engajamento': '💬', 'metricas_impressoes': '👁️',
-      'prazo_inicio': '📅', 'prazo_fim': '⏰', 'prazo_continua': '🔄'
+      'prazo_inicio': '📅', 'prazo_fim': '⏰', 'prazo_continua': '🔄',
+      'recorrencia': '🔁'
     };
     // Labels legíveis para chaves técnicas
     const DETALHE_LABELS = {
@@ -1276,7 +1277,8 @@ async function fetchOppFromSupabase(idOrPerfilSlug, oppSlug) {
       'metricas_impressoes': 'Impressões mensais',
       'prazo_inicio': 'Início das inscrições',
       'prazo_fim': 'Fim das inscrições',
-      'prazo_continua': 'Prazo'
+      'prazo_continua': 'Prazo',
+      'recorrencia': 'Recorrência'
     };
     // Labels já presentes nos generalFacts da tabela (para evitar duplicata)
     const existingLabels = new Set(generalFacts.map(f => f.label));

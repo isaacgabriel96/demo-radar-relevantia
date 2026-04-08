@@ -5202,6 +5202,22 @@ function collectOppData() {
     if (d || l) datasEvento.push({ data: d, local: l });
   });
 
+  // Recorrência do evento (apenas template 'evento')
+  const hasRecorrencia = document.getElementById('has-recorrencia')?.checked || false;
+  if (hasRecorrencia) {
+    const tipoRecEl = document.getElementById('tipo-recorrencia');
+    const tipoRec = tipoRecEl ? (tipoRecEl.options[tipoRecEl.selectedIndex]?.value || '') : '';
+    if (tipoRec === 'personalizado') {
+      const datasExtras = Array.from(
+        document.querySelectorAll('#datas-extras-list input')
+      ).map(el => el.value.trim()).filter(Boolean);
+      detalhes['recorrencia'] = 'Personalizado' + (datasExtras.length > 0 ? ': ' + datasExtras.join(', ') : '');
+    } else if (tipoRec) {
+      const labels = { semanal: 'Semanal', quinzenal: 'Quinzenal', mensal: 'Mensal', anual: 'Anual' };
+      detalhes['recorrencia'] = labels[tipoRec] || tipoRec;
+    }
+  }
+
   // Cotas
   const cotasHabilitadas = !!document.getElementById('cotas-toggle-switch')?.classList.contains('active');
   const cotasData = [];
