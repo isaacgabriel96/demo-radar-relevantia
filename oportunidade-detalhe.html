@@ -1280,6 +1280,8 @@ async function fetchOppFromSupabase(idOrPerfilSlug, oppSlug) {
         // Ignora chaves internas de métricas combinadas
         if (key === 'metricas') return;
         if (key === 'entregas') return; // tem seção dedicada com white-space:pre-line
+        // Redes sociais — coberto pela seção "Canais" (canal-cards); não duplicar como fact
+        if (key === 'Redes sociais com presença') return;
         const label = DETALHE_LABELS[key] || key;
         if (existingLabels.has(label)) return; // já tem na tabela
         const icon = DETALHE_ICONS[key] || DETALHE_ICONS[label] || '📋';
