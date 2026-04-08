@@ -1212,8 +1212,12 @@ async function fetchOppFromSupabase(idOrPerfilSlug, oppSlug) {
       const pRes = await sbPublicFetch('/rest/v1/perfis?select=id&slug=eq.' + encodeURIComponent(idOrPerfilSlug));
       if (!pRes.ok) return null;
       const pRows = await pRes.json();
-      if (!pRows || pRows.length === 0) return null;
-      filter = '&detentor_id=eq.' + pRows[0].id + '&slug=eq.' + encodeURIComponent(oppSlug);
+      if (!pRows || pRows.length === 0) {
+        // Perfil slug não encontrado (perfil sem slug cadastrado) — fallback: busca só pelo opp slug
+        filter = '&slug=eq.' + encodeURIComponent(oppSlug);
+      } else {
+        filter = '&detentor_id=eq.' + pRows[0].id + '&slug=eq.' + encodeURIComponent(oppSlug);
+      }
     } else if (typeof idOrPerfilSlug === 'number' || isUuid) {
       filter = '&id=eq.' + idOrPerfilSlug;
     } else {
