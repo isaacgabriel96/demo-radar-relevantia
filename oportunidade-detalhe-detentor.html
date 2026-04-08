@@ -1499,13 +1499,7 @@ function renderPage(oppOverride) {
   });
   document.getElementById('detailTags').innerHTML = tagsHtml;
 
-  // Publico
-  document.getElementById('publicoDesc').textContent = opp.publico;
-  var pfHtml = '';
-  (opp.publicoFacts || []).forEach(function(f) {
-    pfHtml += '<div class="fact-item"><div class="fact-icon">' + escapeHtml(f.icon) + '</div><div><div class="fact-label">' + escapeHtml(f.label) + '</div><div class="fact-value">' + escapeHtml(f.value) + '</div></div></div>';
-  });
-  document.getElementById('publicoFacts').innerHTML = pfHtml;
+  // Publico — aba removida, elementos não existem mais no DOM
 
   var EMPTY_STATE_HTML = '<div style="padding:32px 16px;text-align:center;color:var(--gray-3);font-family:var(--font-body);font-size:14px;">Informações sendo preparadas pelo detentor.</div>';
 
