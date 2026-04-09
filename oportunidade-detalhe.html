@@ -445,6 +445,7 @@ a { text-decoration: none; color: inherit; }
 .aud-presencial-card { background: var(--white); border: 1px solid var(--gray-200); border-radius: 14px; overflow: hidden; }
 .aud-presencial-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 12px; border-bottom: 1px solid var(--gray-100); }
 .aud-presencial-title { display: flex; align-items: center; gap: 8px; font-family: var(--font-heading); font-size: 15px; font-weight: 700; color: var(--black); }
+.aud-presencial-body { padding: 14px 16px; display: grid; gap: 14px; }
 .aud-empty { padding: 40px 16px; text-align: center; color: var(--gray-400); font-family: var(--font-body); font-size: 14px; }
 
 /* ─── INTEREST CARD (SIDEBAR) ─── */
@@ -1098,7 +1099,7 @@ a { text-decoration: none; color: inherit; }
             <div class="tab-panel" id="tab-canais">
               <!-- Cards ricos por canal (preenchido por renderPublicoTab se houver dados em detalhes.publico_canais) -->
               <div id="publico-canais-section" style="display:none">
-                <div class="detail-section" style="margin-bottom:0">
+                <div class="detail-section">
                   <h3 class="detail-section-title">Audiência por canal</h3>
                   <div class="aud-channels-grid" id="publicoCanaisGrid"></div>
                 </div>
@@ -2003,6 +2004,7 @@ function renderPage(oppOverride) {
       html += '<span class="aud-presencial-title">🏟️ Público presencial</span>';
       html += '<span class="' + badgeCls + '">' + escapeHtml(badgeTxt) + '</span>';
       html += '</div>';
+      html += '<div class="aud-presencial-body">';
 
       // Histórico
       if (data.historico) {
@@ -2060,10 +2062,11 @@ function renderPage(oppOverride) {
 
       // Footer
       if (data.periodo_referencia) {
-        html += '<div class="aud-period-footer">Referência: ' + escapeHtml(data.periodo_referencia) + '</div>';
+        html += '<div class="aud-period-footer" style="padding:0;margin:0">Referência: ' + escapeHtml(data.periodo_referencia) + '</div>';
       }
 
-      html += '</div>';
+      html += '</div>';// aud-presencial-body
+      html += '</div>';// aud-presencial-card
       return html;
     }
 
