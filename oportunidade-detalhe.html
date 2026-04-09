@@ -1028,12 +1028,14 @@ a { text-decoration: none; color: inherit; }
         <div>
           <div class="tab-content-wrap">
 
+            <!-- DIVIDER: Visão geral -->
+            <div class="section-divider" id="divider-visao" style="margin-top:0;border-top:none;padding-top:0">
+              <div class="section-divider-title">Visão geral</div>
+              <div class="section-divider-sub">Sobre a oportunidade</div>
+            </div>
+
             <!-- TAB: Visao geral -->
             <div class="tab-panel active" id="tab-visao">
-              <div class="detail-section">
-                <h3 class="detail-section-title">Sobre a oportunidade</h3>
-                <p class="detail-text" id="detailDesc"></p>
-              </div>
               <!-- Descrição completa (editor rico Quill) -->
               <div class="detail-section" id="detailObjetivosSection" style="display:none">
                 <div class="detail-text rich-content" id="detailObjetivos"></div>
@@ -1596,9 +1598,7 @@ function renderPage(oppOverride) {
 
   document.getElementById('detailTitle').textContent = opp.title;
   document.getElementById('detailCategory').textContent = opp.category;
-  document.getElementById('detailDesc').textContent = opp.desc;
-
-  // Objetivos (O que buscamos — suporta HTML rico do Quill)
+  // Objetivos (descrição completa — suporta HTML rico do Quill)
   var objSection = document.getElementById('detailObjetivosSection');
   var objEl = document.getElementById('detailObjetivos');
   if (objSection && objEl && opp.objetivos) {
@@ -2388,7 +2388,7 @@ function renderPage(oppOverride) {
     btn.addEventListener('click', function() {
       var sectionId = btn.dataset.section;
       // Scroll para o divider (título da seção) se existir, senão para o tab-panel
-      var dividerMap = { 'tab-canais': 'divider-canais', 'tab-cotas': 'divider-cotas' };
+      var dividerMap = { 'tab-visao': 'divider-visao', 'tab-canais': 'divider-canais', 'tab-cotas': 'divider-cotas' };
       var target = document.getElementById(dividerMap[sectionId] || sectionId);
       if (!target) return;
       isScrollingFromClick = true;
@@ -2396,7 +2396,9 @@ function renderPage(oppOverride) {
       tabBtns.forEach(function(b) { b.classList.remove('active'); });
       btn.classList.add('active');
       var tabsBar = document.getElementById('detailTabsNav');
-      var offset = tabsBar ? tabsBar.offsetHeight + 16 : 80;
+      var topbarH = 64; // fixed topbar height
+      var tabsH = tabsBar ? tabsBar.offsetHeight : 44;
+      var offset = topbarH + tabsH + 24; // topbar + tabs + breathing room
       var top = target.getBoundingClientRect().top + window.pageYOffset - offset;
       window.scrollTo({ top: top, behavior: 'smooth' });
       // Reabilita spy após animação
@@ -2405,7 +2407,7 @@ function renderPage(oppOverride) {
   });
 
   // Scroll spy via scroll event — usa dividers como referência quando existem
-  var dividerMap = { 'tab-canais': 'divider-canais', 'tab-cotas': 'divider-cotas' };
+  var dividerMap = { 'tab-visao': 'divider-visao', 'tab-canais': 'divider-canais', 'tab-cotas': 'divider-cotas' };
   var spyTargets = sectionIds.map(function(id) {
     return document.getElementById(dividerMap[id] || id);
   }).filter(Boolean);
