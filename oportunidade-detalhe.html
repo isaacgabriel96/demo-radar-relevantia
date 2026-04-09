@@ -1335,6 +1335,9 @@ async function fetchOppFromSupabase(idOrPerfilSlug, oppSlug) {
         // Ignora chaves internas de métricas combinadas
         if (key === 'metricas') return;
         if (key === 'entregas') return; // tem seção dedicada com white-space:pre-line
+        if (key === 'busca_marca') return; // tem seção dedicada "O que buscamos"
+        if (key === 'publico_canais') return; // dados de audiência — renderizado nos canal cards
+        if (key === 'publico_presencial') return; // dados de audiência presencial
         // Redes sociais — coberto pela seção "Canais" (canal-cards); não duplicar como fact
         if (key === 'Redes sociais com presença') return;
         const label = DETALHE_LABELS[key] || key;
@@ -1758,8 +1761,10 @@ function renderPage(oppOverride) {
 
     // ── Build per-channel card HTML (accordion) ──────────────────────────
     var _cardCounter = 0;
-    function buildChannelCard(network, data, handles) {
-      var meta    = NET_META[network] || { label: network, icon: '', color: '#888' };
+    function buildChannelCard(profileId, data, handles) {
+      // data.network contém o nome real da rede (instagram, youtube, etc.)
+      var network = data.network || profileId;
+      var meta    = NET_META[network] || { label: network.charAt(0).toUpperCase() + network.slice(1), icon: '', color: '#888' };
       var handlesList = (handles && handles[network]) ? (Array.isArray(handles[network]) ? handles[network] : [handles[network]]) : [];
       var handleStr = handlesList.length > 0 ? handlesList.join(', ') : '';
       var isReal    = data.tipo_dado === 'real';
