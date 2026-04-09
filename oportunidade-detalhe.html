@@ -356,7 +356,7 @@ a { text-decoration: none; color: inherit; }
 .section-divider-sub { font-size: 14px; color: var(--gray-400); margin-bottom: 24px; }
 
 /* ── Oportunidade Modal ── */
-.opp-modal-overlay { position: fixed; inset: 0; background: rgba(26,18,0,0.6); z-index: 1000; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 0.25s ease, visibility 0.25s; }
+.opp-modal-overlay { position: fixed; inset: 0; background: rgba(26,18,0,0.78); z-index: 1000; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 0.25s ease, visibility 0.25s; }
 .opp-modal-overlay.open { opacity: 1; visibility: visible; pointer-events: auto; }
 .opp-modal { background: var(--white); border-radius: 20px; width: 90%; max-width: 820px; max-height: 85vh; overflow: hidden; padding: 0; box-shadow: 0 24px 80px rgba(30,22,0,0.2); transform: translateY(16px) scale(0.97); transition: transform 0.25s ease; }
 .opp-modal-overlay.open .opp-modal { transform: translateY(0) scale(1); }
@@ -2398,7 +2398,7 @@ function renderPage(oppOverride) {
       var tabsBar = document.getElementById('detailTabsNav');
       var topbarH = 64; // fixed topbar height
       var tabsH = tabsBar ? tabsBar.offsetHeight : 44;
-      var offset = topbarH + tabsH + 24; // topbar + tabs + breathing room
+      var offset = topbarH + tabsH + 8; // topbar + tabs + small padding
       var top = target.getBoundingClientRect().top + window.pageYOffset - offset;
       window.scrollTo({ top: top, behavior: 'smooth' });
       // Reabilita spy após animação
