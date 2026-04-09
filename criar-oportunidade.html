@@ -1238,6 +1238,10 @@ input[type=number] { -moz-appearance: textfield; }
 }
 .pv-cover img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
 .pv-cover-placeholder { display: flex; flex-direction: column; align-items: center; gap: 8px; color: var(--gray-3); font-size: 13px; }
+/* Preview gallery adaptive modes */
+.pv-cover.pv-gallery-carousel { grid-template-columns: 1fr; grid-template-rows: 1fr; }
+.pv-cover.pv-gallery-carousel .pv-cover-thumb { display: none; }
+.pv-cover.pv-gallery-4 .pv-cover-thumb:nth-child(5) { display: none; }
 .pv-header-body { padding: 20px 24px; }
 .pv-category-badge {
   display: inline-block; background: var(--gold-gradient); color: var(--white);
@@ -1903,13 +1907,6 @@ input[type=number] { -moz-appearance: textfield; }
           </div>
         </div>
 
-        <!-- Vídeo -->
-        <div class="form-group">
-          <label>Vídeos <span style="font-size:11px;font-weight:400;color:var(--gray-3)">(opcional)</span></label>
-          <input type="url" class="form-control" id="videoUrl" placeholder="Ex: https://youtube.com/watch?v=...">
-          <div style="font-size:11px;color:var(--gray-3);margin-top:5px">YouTube, Vimeo ou qualquer link de vídeo</div>
-        </div>
-
         <hr class="section-divider">
 
         <!-- Redes Sociais -->
@@ -1975,8 +1972,8 @@ input[type=number] { -moz-appearance: textfield; }
       <div class="form-card" style="margin-top:0">
         <div class="cotas-toggle-header" onclick="toggleCotasSection()" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none">
           <div>
-            <div style="font-family:var(--font-heading);font-size:17px;font-weight:600;color:var(--text);margin-bottom:3px">Cotas de patrocínio</div>
-            <div style="font-size:13px;color:var(--gray-3)">Esta oportunidade tem cotas definidas?</div>
+            <div style="font-family:var(--font-heading);font-size:17px;font-weight:600;color:var(--text);margin-bottom:3px">Oportunidades de patrocínio</div>
+            <div style="font-size:13px;color:var(--gray-3)">Esta oportunidade tem oportunidades de patrocínio definidas?</div>
           </div>
           <div style="display:flex;align-items:center;gap:12px;flex-shrink:0">
             <span id="cotas-toggle-label" style="font-size:13px;font-weight:600;color:var(--gray-3)">Não</span>
@@ -1989,7 +1986,7 @@ input[type=number] { -moz-appearance: textfield; }
         <div id="cotas-section" style="display:none;margin-top:24px">
           <div id="cotas-list"></div>
           <button type="button" class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:4px" onclick="addCota()">
-            + Adicionar cota
+            + Adicionar oportunidade
           </button>
         </div>
       </div>
@@ -2113,13 +2110,6 @@ input[type=number] { -moz-appearance: textfield; }
           </div>
         </div>
         <div class="form-card" style="margin-top:16px">
-          <div class="card-header"><div class="card-title" style="font-size:16px">Prazo de inscrição</div></div>
-          <div class="editable-placeholder" onclick="openInlineEditor('prazo')" id="pvPrazo">
-            <span class="ep-icon">+</span>
-            <span class="ep-text">Clique para definir o prazo de inscrição</span>
-          </div>
-        </div>
-        <div class="form-card" style="margin-top:16px">
           <div class="card-header"><div class="card-title" style="font-size:16px">Segmentos</div></div>
           <div class="pv-tags" id="pvTags">
             <span style="color:var(--gray-3);font-size:13px;font-style:italic">Nenhum segmento selecionado</span>
@@ -2171,6 +2161,15 @@ input[type=number] { -moz-appearance: textfield; }
          PASSO 7 — PUBLICAR
     ════════════════════════════════════════════ -->
     <div id="panel-7" style="display:none">
+
+      <!-- Prazo de inscrição -->
+      <div class="form-card">
+        <div class="card-header"><div class="card-title" style="font-size:16px">Prazo de inscrição</div></div>
+        <div class="editable-placeholder" onclick="openInlineEditor('prazo')" id="pvPrazo">
+          <span class="ep-icon">+</span>
+          <span class="ep-text">Clique para definir o prazo de inscrição</span>
+        </div>
+      </div>
 
       <!-- Link público da oportunidade (slug) -->
       <div class="form-card">
@@ -2450,21 +2449,44 @@ const TEMPLATES = {
           {v:'celebridade',   l:'Celebridade'},
           {v:'apresentador',  l:'Apresentador(a)'},
           {v:'especialista',  l:'Especialista / Palestrante'},
-          {v:'jornalista',    l:'Jornalista'}
+          {v:'jornalista',    l:'Jornalista'},
+          {v:'atleta',        l:'Atleta'},
+          {v:'musico',        l:'Músico / Artista'},
+          {v:'ator',          l:'Ator / Atriz'},
+          {v:'comediante',    l:'Comediante'},
+          {v:'creator',       l:'Creator / Streamer'},
+          {v:'podcaster',     l:'Podcaster'},
+          {v:'modelo',        l:'Modelo'},
+          {v:'dj',            l:'DJ'}
         ]
       },
       {
         id: 'nicho', label: 'Nicho principal', type: 'select', required: true,
         options: [
-          {v:'esporte',      l:'Esporte'},
-          {v:'moda',         l:'Moda & Beleza'},
-          {v:'gastronomia',  l:'Gastronomia'},
-          {v:'tech',         l:'Tecnologia'},
-          {v:'financas',     l:'Finanças'},
-          {v:'humor',        l:'Humor & Entretenimento'},
-          {v:'lifestyle',    l:'Lifestyle'},
-          {v:'fitness',      l:'Fitness & Saúde'},
-          {v:'outro',        l:'Outro'}
+          {v:'esporte',        l:'Esporte'},
+          {v:'moda',           l:'Moda & Beleza'},
+          {v:'gastronomia',    l:'Gastronomia'},
+          {v:'tech',           l:'Tecnologia'},
+          {v:'financas',       l:'Finanças'},
+          {v:'humor',          l:'Humor & Entretenimento'},
+          {v:'lifestyle',      l:'Lifestyle'},
+          {v:'fitness',        l:'Fitness & Saúde'},
+          {v:'musica',         l:'Música'},
+          {v:'games',          l:'Games & eSports'},
+          {v:'educacao',       l:'Educação'},
+          {v:'viagens',        l:'Viagens'},
+          {v:'automotivo',     l:'Automotivo'},
+          {v:'pets',           l:'Pets'},
+          {v:'familia',        l:'Maternidade & Família'},
+          {v:'sustentabilidade', l:'Sustentabilidade'},
+          {v:'arte',           l:'Arte & Design'},
+          {v:'negocios',       l:'Negócios & Empreendedorismo'},
+          {v:'hiphop',         l:'Hip-hop / Rap'},
+          {v:'sertanejo',      l:'Sertanejo'},
+          {v:'funk',           l:'Funk'},
+          {v:'pop',            l:'Pop'},
+          {v:'rock',           l:'Rock'},
+          {v:'outro',          l:'Outro'}
         ]
       },
       {
@@ -2697,7 +2719,12 @@ function nextStep(n) {
   if (label) label.textContent = 'Passo ' + stepNum + ' de ' + TOTAL_STEPS;
 
   // Hooks por passo
-  if (n === 4 && formState.selectedTemplate) renderTemplateFields(formState.selectedTemplate);
+  if (n === 4 && formState.selectedTemplate) {
+    var tplContainer = document.getElementById('template-specific-fields');
+    if (tplContainer && !tplContainer.hasChildNodes()) {
+      renderTemplateFields(formState.selectedTemplate);
+    }
+  }
   if (n === 6) renderPreview();
   if (n === 7) { renderReviewSummary(); autoFillSlug(); }
 
@@ -3191,10 +3218,14 @@ function renderPreview() {
   document.getElementById('pvCategoryBadge').textContent = d.category || '—';
   document.getElementById('pvTitle').textContent = d.nome || 'Nome da oportunidade';
 
-  // Cover — Gallery 1+4 com focal points
+  // Cover — Gallery adaptável por quantidade de fotos
   const allImgs = d.coverImg ? [d.coverImg, ...d.otherImgs] : d.otherImgs;
   const mainEl = document.getElementById('pvCoverMain');
+  const pvCover = document.getElementById('pvCover');
   const fallbackColors = ['#e0d8cc', '#d0c8b8', '#c8c0b0', '#bfb8a8'];
+
+  // Reset classes
+  pvCover.classList.remove('pv-gallery-carousel', 'pv-gallery-4');
 
   if (d.coverImg) {
     const fp0 = _focalPoints[0] || { x: 50, y: 20 };
@@ -3205,25 +3236,44 @@ function renderPreview() {
     mainEl.innerHTML = `<div class="pv-cover-placeholder"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".4"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><span>Sem foto de capa</span></div>`;
   }
 
-  // 4 thumbs na galeria grid (mesma ordem da página de detalhe)
-  // HTML order: pvThumb0, pvThumb2, pvThumb1, pvThumb3
-  // Grid positions: col2/row1, col3/row1, col2/row2, col3/row2
-  // Detail page maps: col2/row1→imgs[1], col3/row1→imgs[3], col2/row2→imgs[2], col3/row2→imgs[4]
-  const thumbMapping = [
-    { id: 'pvThumb0', imgIdx: 1 },  // col2/row1
-    { id: 'pvThumb2', imgIdx: 3 },  // col3/row1
-    { id: 'pvThumb1', imgIdx: 2 },  // col2/row2
-    { id: 'pvThumb3', imgIdx: 4 }   // col3/row2
-  ];
-  for (let i = 0; i < thumbMapping.length; i++) {
-    const thumbEl = document.getElementById(thumbMapping[i].id);
-    if (!thumbEl) continue;
-    const imgUrl = allImgs[thumbMapping[i].imgIdx];
-    if (imgUrl) {
-      const fp = _focalPoints[thumbMapping[i].imgIdx] || { x: 50, y: 20 };
-      thumbEl.style.background = `url(${imgUrl}) ${fp.x}% ${fp.y}% / cover no-repeat`;
-    } else {
-      thumbEl.style.background = fallbackColors[i];
+  if (allImgs.length <= 3) {
+    // 1-3 fotos: full-width, sem thumbs
+    pvCover.classList.add('pv-gallery-carousel');
+  } else if (allImgs.length === 4) {
+    // 4 fotos: main + 3 thumbs
+    pvCover.classList.add('pv-gallery-4');
+    const thumbMapping4 = [
+      { id: 'pvThumb0', imgIdx: 1 },
+      { id: 'pvThumb2', imgIdx: 3 },
+      { id: 'pvThumb1', imgIdx: 2 }
+    ];
+    for (let i = 0; i < thumbMapping4.length; i++) {
+      const thumbEl = document.getElementById(thumbMapping4[i].id);
+      if (!thumbEl) continue;
+      const imgUrl = allImgs[thumbMapping4[i].imgIdx];
+      if (imgUrl) {
+        const fp = _focalPoints[thumbMapping4[i].imgIdx] || { x: 50, y: 20 };
+        thumbEl.style.background = `url(${imgUrl}) ${fp.x}% ${fp.y}% / cover no-repeat`;
+      }
+    }
+  } else {
+    // 5+: layout original 1+4
+    const thumbMapping = [
+      { id: 'pvThumb0', imgIdx: 1 },
+      { id: 'pvThumb2', imgIdx: 3 },
+      { id: 'pvThumb1', imgIdx: 2 },
+      { id: 'pvThumb3', imgIdx: 4 }
+    ];
+    for (let i = 0; i < thumbMapping.length; i++) {
+      const thumbEl = document.getElementById(thumbMapping[i].id);
+      if (!thumbEl) continue;
+      const imgUrl = allImgs[thumbMapping[i].imgIdx];
+      if (imgUrl) {
+        const fp = _focalPoints[thumbMapping[i].imgIdx] || { x: 50, y: 20 };
+        thumbEl.style.background = `url(${imgUrl}) ${fp.x}% ${fp.y}% / cover no-repeat`;
+      } else {
+        thumbEl.style.background = fallbackColors[i];
+      }
     }
   }
 
@@ -5071,18 +5121,33 @@ function addCota() {
   card.className = 'cota-card';
   card.innerHTML = `
     <div class="cota-card-header">
-      <div class="cota-card-title">Cota ${idx}</div>
-      <button type="button" class="cota-card-remove" onclick="this.closest('.cota-card').remove(); renumerarCotas()" title="Remover cota">✕</button>
+      <div class="cota-card-title">Oportunidade ${idx}</div>
+      <button type="button" class="cota-card-remove" onclick="this.closest('.cota-card').remove(); renumerarCotas()" title="Remover oportunidade">✕</button>
     </div>
     <div class="grid-2" style="margin-bottom:16px">
       <div class="form-group" style="margin-bottom:0">
-        <label style="font-size:12px;font-weight:600;color:var(--gray-3);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Nome da cota</label>
+        <label style="font-size:12px;font-weight:600;color:var(--gray-3);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Nome da oportunidade</label>
         <input type="text" class="form-control cota-nome" placeholder="Ex: Diamante, Ouro, Prata…">
       </div>
       <div class="form-group" style="margin-bottom:0">
-        <label style="font-size:12px;font-weight:600;color:var(--gray-3);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Valor (R$)</label>
-        <input type="number" class="form-control cota-valor" placeholder="Ex: 5000" min="0">
+        <label style="font-size:12px;font-weight:600;color:var(--gray-3);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Valor</label>
+        <div style="display:flex;gap:8px">
+          <select class="form-control cota-moeda" style="width:90px;flex-shrink:0">
+            <option value="BRL" selected>R$</option>
+            <option value="USD">US$</option>
+            <option value="EUR">€</option>
+            <option value="GBP">£</option>
+          </select>
+          <input type="text" class="form-control cota-valor" placeholder="Ex: 5.000" inputmode="numeric" oninput="maskCurrency(this)">
+        </div>
       </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text);font-weight:500">
+        <input type="checkbox" class="cota-mostrar-valor" checked style="width:16px;height:16px;accent-color:var(--gold)">
+        Mostrar valor
+      </label>
+      <span style="font-size:11px;color:var(--gray-3)">Oportunidades com valor tendem a receber mais interesse das marcas.</span>
     </div>
     <div class="form-group" style="margin-bottom:16px">
       <label style="font-size:12px;font-weight:600;color:var(--gray-3);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Vagas disponíveis</label>
@@ -5090,10 +5155,10 @@ function addCota() {
     </div>
     <div class="form-group" style="margin-bottom:16px">
       <label style="font-size:12px;font-weight:600;color:var(--gray-3);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Descrição <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--gray-3)">(opcional)</span></label>
-      <textarea class="form-control cota-descricao" placeholder="Descreva brevemente esta cota..." rows="2" style="resize:vertical"></textarea>
+      <textarea class="form-control cota-descricao" placeholder="Descreva brevemente esta oportunidade..." rows="2" style="resize:vertical"></textarea>
     </div>
     <div class="form-group" style="margin-bottom:16px">
-      <label style="font-size:12px;font-weight:600;color:var(--gray-3);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Fotos da cota <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--gray-3)">(até 3)</span></label>
+      <label style="font-size:12px;font-weight:600;color:var(--gray-3);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px">Fotos <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--gray-3)">(até 3)</span></label>
       <div class="cota-photos-grid" style="display:flex;gap:8px;flex-wrap:wrap"></div>
       <input type="file" class="cota-photo-input" accept="image/*" multiple style="display:none" onchange="handleCotaPhotoSelect(this)">
       <button type="button" class="btn btn-ghost" style="padding:7px 16px;font-size:12px;margin-top:6px" onclick="this.previousElementSibling.click()">+ Adicionar fotos</button>
@@ -5126,8 +5191,16 @@ function renumerarCotas() {
   const cards = document.querySelectorAll('#cotas-list .cota-card');
   cards.forEach((card, i) => {
     const title = card.querySelector('.cota-card-title');
-    if (title) title.textContent = `Cota ${i + 1}`;
+    if (title) title.textContent = `Oportunidade ${i + 1}`;
   });
+}
+
+// ── Máscara de valor monetário (1.000, 150.000, etc.) ──
+function maskCurrency(el) {
+  var v = el.value.replace(/\D/g, '');
+  if (!v) { el.value = ''; return; }
+  v = Number(v).toLocaleString('pt-BR');
+  el.value = v;
 }
 
 // ── Per-cota photo upload handling ──
@@ -5417,9 +5490,12 @@ function collectOppData() {
   const cotasData = [];
   if (cotasHabilitadas) {
     document.querySelectorAll('#cotas-list .cota-card').forEach((card, i) => {
+      var rawVal = (card.querySelector('.cota-valor')?.value || '').replace(/\D/g, '');
       cotasData.push({
-        nome: card.querySelector('.cota-nome')?.value || 'Cota ' + (i+1),
-        valor: card.querySelector('.cota-valor')?.value || '',
+        nome: card.querySelector('.cota-nome')?.value || 'Oportunidade ' + (i+1),
+        valor: rawVal,
+        moeda: card.querySelector('.cota-moeda')?.value || 'BRL',
+        mostrar_valor: card.querySelector('.cota-mostrar-valor')?.checked !== false,
         vagas: card.querySelector('.cota-vagas')?.value || '',
         descricao: card.querySelector('.cota-descricao')?.value || '',
         beneficios: Array.from(card.querySelectorAll('.cota-beneficios-list input')).map(el => el.value).filter(Boolean),
@@ -5668,7 +5744,7 @@ async function publishOpportunity() {
   const hasPhotos = document.querySelectorAll('#photosGrid .photo-thumb').length > 0;
   if (!hasPhotos) { showToast('Adicione pelo menos uma foto.', 'error'); return; }
   if (data.cotas_habilitadas && (!data.cotas_data || data.cotas_data.length === 0)) {
-    showToast('Adicione pelo menos uma cota ou desative as cotas.', 'error'); return;
+    showToast('Adicione pelo menos uma oportunidade ou desative as oportunidades.', 'error'); return;
   }
 
   // ── Validação: slug obrigatório e único ──

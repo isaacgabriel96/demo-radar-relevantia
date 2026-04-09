@@ -1447,16 +1447,28 @@ async function fetchOppFromSupabase(idOrPerfilSlug, oppSlug) {
       emoji: c.icone || '🏆', name: c.nome || '', desc: c.descricao || '', price: c.preco || '',
       vagas: null, beneficios: [], imagens: Array.isArray(c.imagens) ? c.imagens : []
     }));
+    var MOEDA_SIMBOLO = { BRL: 'R$', USD: 'US$', EUR: '€', GBP: '£' };
     if (cotasArr.length === 0 && r.cotas_data) {
-      cotasArr = r.cotas_data.map((c, i) => ({
-        emoji: c.icone || ['🏆','🥈','🥉','⭐'][i] || '⭐',
-        name: c.nome || 'Cota ' + (i+1),
-        desc: c.descricao || '',
-        price: c.valor ? 'R$ ' + Number(c.valor).toLocaleString('pt-BR') : '',
-        vagas: (c.vagas != null && c.vagas !== '') ? c.vagas : null,
-        beneficios: Array.isArray(c.beneficios) ? c.beneficios : [],
-        imagens: Array.isArray(c.imagens) ? c.imagens.slice(0, 3) : []
-      }));
+      cotasArr = r.cotas_data.map((c, i) => {
+        var simb = MOEDA_SIMBOLO[c.moeda || 'BRL'] || 'R$';
+        var mostrar = c.mostrar_valor !== false;
+        var priceText = '';
+        if (mostrar && c.valor) {
+          priceText = simb + ' ' + Number(c.valor).toLocaleString('pt-BR');
+        } else if (!mostrar) {
+          priceText = 'Sob consulta';
+        }
+        return {
+          emoji: c.icone || ['🏆','🥈','🥉','⭐'][i] || '⭐',
+          name: c.nome || 'Oportunidade ' + (i+1),
+          desc: c.descricao || '',
+          price: priceText,
+          mostrar_valor: mostrar,
+          vagas: (c.vagas != null && c.vagas !== '') ? c.vagas : null,
+          beneficios: Array.isArray(c.beneficios) ? c.beneficios : [],
+          imagens: Array.isArray(c.imagens) ? c.imagens.slice(0, 3) : []
+        };
+      });
     }
 
     // Canais — from canais table or redes_sociais JSON
