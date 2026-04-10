@@ -301,6 +301,27 @@ a { text-decoration: none; color: inherit; }
 .detail-section { margin-bottom: 32px; }
 .detail-section-title { font-family: var(--font-heading); font-size: 18px; font-weight: 600; color: var(--black); margin-bottom: 14px; }
 .detail-text { font-size: 14px; color: var(--gray-600); line-height: 1.75; word-break: break-word; }
+/* ─── Mídia Kit Viewer ─── */
+.mk-viewer-wrap { background: var(--white); border: 1px solid var(--gray-2,#E0D8CC);
+  border-radius: var(--radius-lg,16px); overflow: hidden; box-shadow: 0 2px 16px rgba(30,22,0,.07); }
+.mk-viewer-controls { display: flex; align-items: center; gap: 8px; padding: 10px 14px;
+  border-bottom: 1px solid var(--gray-2,#E0D8CC); background: var(--gray-1,#F5F0E8); }
+.mk-btn-icon { width: 32px; height: 32px; border: 1.5px solid var(--gray-2,#E0D8CC); border-radius: 8px;
+  background: var(--white); cursor: pointer; font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  transition: border-color .15s, background .15s; color: var(--black); flex-shrink: 0; }
+.mk-btn-icon:hover:not(:disabled) { border-color: var(--gold,#B8860B); background: var(--gray-1,#F5F0E8); }
+.mk-btn-icon:disabled { opacity: .35; cursor: not-allowed; }
+.mk-page-info { font-size: 12px; color: var(--gray-4,#5C4C38); min-width: 55px; text-align: center; }
+.mk-viewer-title { flex: 1; font-size: 12px; color: var(--gray-3,#A89880);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mk-canvas-wrap { overflow: auto; background: #F0EDE8; max-height: 560px; }
+.mk-canvas-wrap canvas { display: block; margin: 0 auto; max-width: 100%; }
+.mk-loading-state { padding: 56px 24px; text-align: center; color: var(--gray-3,#A89880); font-size: 13px; }
+/* Fullscreen */
+.mk-viewer-wrap.mk-fullscreen { position: fixed; inset: 0; z-index: 9999; border-radius: 0;
+  display: flex; flex-direction: column; }
+.mk-viewer-wrap.mk-fullscreen .mk-canvas-wrap { flex: 1; max-height: none; }
 /* ── Rich content (Quill output) ── */
 .rich-content h2 { font-family: var(--font-heading, 'Poppins', sans-serif); font-size: 20px; font-weight: 600; color: var(--black); margin: 24px 0 8px; }
 .rich-content h3 { font-family: var(--font-heading, 'Poppins', sans-serif); font-size: 16px; font-weight: 600; color: var(--black); margin: 20px 0 6px; }
@@ -1074,6 +1095,22 @@ a { text-decoration: none; color: inherit; }
                 <h3 class="detail-section-title">Vídeo</h3>
                 <div id="detailVideoContent"></div>
               </div>
+              <!-- Apresentação / Mídia Kit (exibido só se tiver media_kit_url) -->
+              <div class="detail-section" id="detailMediaKitSection" style="display:none">
+                <h3 class="detail-section-title">Apresentação</h3>
+                <div class="mk-viewer-wrap" id="detailMkViewerWrap">
+                  <div class="mk-viewer-controls">
+                    <button class="mk-btn-icon" id="detailMkPrevBtn" disabled title="Página anterior">&#8249;</button>
+                    <span class="mk-page-info" id="detailMkPageInfo">— / —</span>
+                    <button class="mk-btn-icon" id="detailMkNextBtn" disabled title="Próxima página">&#8250;</button>
+                    <span class="mk-viewer-title" id="detailMkTitle">Carregando…</span>
+                    <button class="mk-btn-icon" id="detailMkFullscreenBtn" title="Tela cheia">⤢</button>
+                  </div>
+                  <div class="mk-canvas-wrap" id="detailMkCanvasWrap">
+                    <div class="mk-loading-state" id="detailMkLoadingState">Carregando apresentação…</div>
+                  </div>
+                </div>
+              </div>
               <!-- Datas do evento (exibido só se tiver datas_evento) -->
               <div class="detail-section" id="detailDatasSection" style="display:none">
                 <h3 class="detail-section-title">Datas do evento</h3>
@@ -1343,7 +1380,7 @@ async function fetchOppFromSupabase(idOrPerfilSlug, oppSlug) {
     const path = '/rest/v1/oportunidades?select=' +
       'id,slug,detentor_id,titulo,categoria,categoria_slug,descricao_curta,descricao_completa,localizacao,alcance,' +
       'preco_minimo,formato,bg_gradient,imagens,imagem_capa,imagens_focal,tags,publico_descricao,visibilidade,' +
-      'video_url,link_externo,redes_sociais,detalhes,datas_evento,cotas_data,cotas_habilitadas,' +
+      'video_url,link_externo,redes_sociais,detalhes,datas_evento,cotas_data,cotas_habilitadas,media_kit_url,' +
       'perfis:detentor_id(nome,empresa,descricao,website,slug),' +
       'oportunidade_fatos(icone,label,valor,tipo,ordem),' +
       'cotas(nome,preco,icone,ordem),' +
@@ -1398,7 +1435,6 @@ async function fetchOppFromSupabase(idOrPerfilSlug, oppSlug) {
       // Preview fields (chaves técnicas lowercase)
       'demografico': '📊', 'entregas': '🤝',
       'metricas_alcance': '📈', 'metricas_engajamento': '💬', 'metricas_impressoes': '👁️',
-      'prazo_inicio': '📅', 'prazo_fim': '⏰', 'prazo_continua': '🔄',
       'recorrencia': '🔁'
     };
     // Labels legíveis para chaves técnicas
@@ -1408,9 +1444,6 @@ async function fetchOppFromSupabase(idOrPerfilSlug, oppSlug) {
       'metricas_alcance': 'Alcance médio',
       'metricas_engajamento': 'Taxa de engajamento',
       'metricas_impressoes': 'Impressões mensais',
-      'prazo_inicio': 'Início das inscrições',
-      'prazo_fim': 'Fim das inscrições',
-      'prazo_continua': 'Prazo',
       'recorrencia': 'Recorrência'
     };
     // Labels já presentes nos generalFacts da tabela (para evitar duplicata)
@@ -1428,11 +1461,6 @@ async function fetchOppFromSupabase(idOrPerfilSlug, oppSlug) {
         const label = DETALHE_LABELS[key] || key;
         if (existingLabels.has(label)) return; // já tem na tabela
         const icon = DETALHE_ICONS[key] || DETALHE_ICONS[label] || '📋';
-        // prazo_continua é booleano — converter para texto
-        if (key === 'prazo_continua') {
-          if (value) generalFacts.push({ icon, label: 'Prazo', value: 'Oportunidade contínua' });
-          return;
-        }
         if (typeof value === 'string' && value) generalFacts.push({ icon, label, value });
         else if (typeof value === 'boolean' && value) generalFacts.push({ icon, label, value: 'Sim' });
         else if (Array.isArray(value) && value.length > 0) {
@@ -1531,12 +1559,12 @@ async function fetchOppFromSupabase(idOrPerfilSlug, oppSlug) {
       cotas: cotasArr.length > 0 ? cotasArr : undefined,
       canais: canaisArr.length > 0 ? canaisArr : undefined,
       videoUrl: r.video_url || null,
+      mediaKitUrl: r.media_kit_url || null,
       linkExterno: r.link_externo || null,
       datasEvento: r.datas_evento || null,
       cotasData: r.cotas_data || null,
       sidebar: {
         evento: (r.datas_evento && r.datas_evento.length > 0) ? (r.datas_evento[0].data || '') : '',
-        prazo: r.cotas_data && r.cotas_data[0] && r.cotas_data[0].prazo ? r.cotas_data[0].prazo : 'Em aberto',
         cotasQty: cotasArr.length > 0 ? cotasArr.length + ' modalidade' + (cotasArr.length > 1 ? 's' : '') : (r.cotas_habilitadas ? 'Disponível' : 'A definir'),
         formato: r.formato || '',
         participantes: ''
@@ -1620,7 +1648,7 @@ function renderPage(oppOverride) {
   opp.city = opp.city || '';
   opp.alcance = opp.alcance || '';
   opp.price = opp.price || 0;
-  opp.sidebar = opp.sidebar || { evento: '', prazo: '', cotasQty: '', formato: '', participantes: '' };
+  opp.sidebar = opp.sidebar || { evento: '', cotasQty: '', formato: '', participantes: '' };
 
   document.title = opp.title + ' — Radar Relevantia';
 
@@ -1811,6 +1839,100 @@ function renderPage(oppOverride) {
       '</a>';
     }
     section.style.display = '';
+  })();
+
+  // Apresentação / Mídia Kit
+  (function renderMediaKit() {
+    var mkUrl = opp.mediaKitUrl;
+    var section = document.getElementById('detailMediaKitSection');
+    if (!mkUrl || !section) return;
+    section.style.display = '';
+
+    // Estado do viewer
+    var mkDoc = null;
+    var mkPage = 1;
+
+    function mkEnsurePdfJs(cb) {
+      if (window.pdfjsLib) { cb(); return; }
+      var s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+      s.onload = function() {
+        pdfjsLib.GlobalWorkerOptions.workerSrc =
+          'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        cb();
+      };
+      document.head.appendChild(s);
+    }
+
+    function mkRenderPage(num) {
+      if (!mkDoc) return;
+      var SCALE = 1.25;
+      mkDoc.getPage(num).then(function(page) {
+        var wrap = document.getElementById('detailMkCanvasWrap');
+        var old = wrap.querySelector('canvas');
+        if (old) old.remove();
+        var vp = page.getViewport({ scale: SCALE });
+        var canvas = document.createElement('canvas');
+        canvas.width = vp.width; canvas.height = vp.height; canvas.style.maxWidth = '100%';
+        wrap.appendChild(canvas);
+        page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise.then(function() {
+          document.getElementById('detailMkPageInfo').textContent = num + ' / ' + mkDoc.numPages;
+          document.getElementById('detailMkPrevBtn').disabled = num <= 1;
+          document.getElementById('detailMkNextBtn').disabled = num >= mkDoc.numPages;
+        });
+      });
+    }
+
+    mkEnsurePdfJs(function() {
+      pdfjsLib.getDocument(mkUrl).promise.then(function(pdf) {
+        mkDoc = pdf;
+        mkPage = 1;
+        var loading = document.getElementById('detailMkLoadingState');
+        if (loading) loading.style.display = 'none';
+        // Extrai nome do arquivo da URL para o título
+        var urlParts = mkUrl.split('/');
+        var rawName = decodeURIComponent(urlParts[urlParts.length - 1]);
+        var titleEl = document.getElementById('detailMkTitle');
+        if (titleEl) titleEl.textContent = rawName;
+        mkRenderPage(1);
+        var prevBtn = document.getElementById('detailMkPrevBtn');
+        var nextBtn = document.getElementById('detailMkNextBtn');
+        if (prevBtn) prevBtn.addEventListener('click', function() {
+          if (mkPage > 1) { mkPage--; mkRenderPage(mkPage); }
+        });
+        if (nextBtn) nextBtn.addEventListener('click', function() {
+          if (mkPage < mkDoc.numPages) { mkPage++; mkRenderPage(mkPage); }
+        });
+        // Fullscreen
+        var fsBtn = document.getElementById('detailMkFullscreenBtn');
+        var wrap = document.getElementById('detailMkViewerWrap');
+        if (fsBtn && wrap) {
+          fsBtn.addEventListener('click', function() {
+            if (wrap.classList.contains('mk-fullscreen')) {
+              wrap.classList.remove('mk-fullscreen');
+              fsBtn.textContent = '⤢';
+              document.body.style.overflow = '';
+            } else {
+              wrap.classList.add('mk-fullscreen');
+              fsBtn.textContent = '✕';
+              document.body.style.overflow = 'hidden';
+            }
+          });
+          // ESC para sair do fullscreen
+          document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && wrap.classList.contains('mk-fullscreen')) {
+              wrap.classList.remove('mk-fullscreen');
+              fsBtn.textContent = '⤢';
+              document.body.style.overflow = '';
+            }
+          });
+        }
+      }).catch(function(err) {
+        console.warn('[MK] PDF load error:', err);
+        var loading = document.getElementById('detailMkLoadingState');
+        if (loading) loading.textContent = 'Não foi possível carregar a apresentação.';
+      });
+    });
   })();
 
   // Datas do evento
@@ -2370,7 +2492,6 @@ function renderPage(oppOverride) {
   })();
   var infoHtml = '';
   infoHtml += '<div class="interest-row"><span class="interest-row-label">Tipo</span><span class="interest-row-value">' + escapeHtml(opp.category || '—') + '</span></div>';
-  infoHtml += '<div class="interest-row"><span class="interest-row-label">Prazo</span><span class="interest-row-value deadline">' + escapeHtml(opp.sidebar.prazo || 'Em aberto') + '</span></div>';
   // Datas do evento na sidebar
   if (opp.datasEvento && opp.datasEvento.length > 0) {
     var datasStr = opp.datasEvento.map(function(d) {

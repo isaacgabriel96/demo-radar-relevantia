@@ -777,6 +777,84 @@ input[type=number] { -moz-appearance: textfield; }
   font-size: 13px; color: var(--gray-4); line-height: 1.55;
 }
 
+/* ── Mídia Kit Upload (Passo 2) ── */
+.mk-upload-zone {
+  border: 2px dashed var(--gray-2); border-radius: var(--radius-md);
+  background: var(--gray-1); padding: 28px 20px; text-align: center;
+  cursor: pointer; transition: border-color .2s, background .2s;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+}
+.mk-upload-zone:hover { border-color: var(--gold); background: #FAF6ED; }
+.mk-upload-zone.drag-over { border-color: var(--gold); background: #FAF6ED; }
+.mk-upload-zone .mk-upload-icon { font-size: 28px; }
+.mk-upload-zone p { margin: 0; font-size: 13px; color: var(--gray-4); }
+.mk-upload-zone strong { color: var(--black); font-size: 14px; }
+.mk-upload-sub { font-size: 12px !important; color: var(--gray-3) !important; }
+
+.mk-warning-box {
+  display: flex; gap: 12px; align-items: flex-start;
+  background: #FFF8E1; border: 1px solid #F0CC60;
+  border-left: 4px solid var(--gold);
+  border-radius: var(--radius-md);
+  padding: 14px 16px; margin-top: 12px;
+  font-size: 13px; color: var(--black);
+}
+.mk-warning-box .mk-warn-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.mk-warning-box strong { display: block; margin-bottom: 3px; font-weight: 700; font-size: 13px; }
+.mk-warning-box p { margin: 0; color: var(--gray-4); font-size: 12px; line-height: 1.55; }
+
+.mk-file-preview {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--white); border: 1px solid var(--gray-2);
+  border-radius: var(--radius-md); padding: 12px 14px; margin-top: 12px;
+}
+.mk-file-icon {
+  width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
+  background: var(--gold-gradient); display: flex; align-items: center;
+  justify-content: center; font-size: 16px;
+}
+.mk-file-meta { flex: 1; min-width: 0; }
+.mk-file-name { font-size: 13px; font-weight: 600; color: var(--black); display: block;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mk-file-size { font-size: 11px; color: var(--gray-3); }
+.mk-remove-btn {
+  border: none; background: none; cursor: pointer; color: var(--gray-3);
+  font-size: 16px; padding: 4px; border-radius: 50%; transition: color .15s, background .15s;
+}
+.mk-remove-btn:hover { color: var(--black); background: var(--gray-1); }
+
+/* Preview do viewer inline (como vai aparecer para patrocinadores) */
+.mk-preview-label {
+  font-size: 11px; font-weight: 600; color: var(--gray-3);
+  text-transform: uppercase; letter-spacing: .8px;
+  display: block; margin-bottom: 10px;
+}
+.mk-viewer-wrap {
+  background: var(--white); border: 1px solid var(--gray-2);
+  border-radius: var(--radius-lg); overflow: hidden;
+  box-shadow: 0 2px 12px rgba(30,22,0,.07);
+}
+.mk-viewer-controls {
+  display: flex; align-items: center; gap: 8px; padding: 10px 14px;
+  border-bottom: 1px solid var(--gray-2); background: var(--gray-1);
+}
+.mk-btn-icon {
+  width: 30px; height: 30px; border: 1.5px solid var(--gray-2); border-radius: 8px;
+  background: var(--white); cursor: pointer; font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  transition: border-color .15s, background .15s; color: var(--black);
+}
+.mk-btn-icon:hover:not(:disabled) { border-color: var(--gold); background: var(--gray-1); }
+.mk-btn-icon:disabled { opacity: .35; cursor: not-allowed; }
+.mk-page-info { font-size: 12px; color: var(--gray-4); min-width: 50px; text-align: center; }
+.mk-viewer-title { flex: 1; font-size: 12px; color: var(--gray-3);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mk-canvas-wrap { overflow: auto; background: #F0EDE8; max-height: 480px; }
+.mk-canvas-wrap canvas { display: block; margin: 0 auto; max-width: 100%; }
+.mk-loading-state {
+  padding: 48px; text-align: center; color: var(--gray-3); font-size: 13px;
+}
+
 /* ── Template Cards (Passo 1) ── */
 .template-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 .template-card {
@@ -1385,102 +1463,6 @@ input[type=number] { -moz-appearance: textfield; }
 .pv-editor-body label { display: block; font-size: 13px; font-weight: 500; color: var(--gray-4); margin-bottom: 6px; }
 .pv-editor-body .editor-field + .editor-field { margin-top: 14px; }
 
-/* ── Date Picker customizado (prazo) ── */
-.dp-wrap { position: relative; }
-.dp-display {
-  width: 100%; border: 1px solid var(--gray-2); border-radius: var(--radius-base);
-  padding: 8px 12px; font-size: 13px; font-family: var(--font-body);
-  color: var(--text); cursor: pointer; background: var(--white);
-  display: flex; align-items: center; justify-content: space-between;
-  transition: border-color 0.15s; user-select: none;
-}
-.dp-display:hover { border-color: var(--gold); }
-.dp-display.open { border-color: var(--gold); box-shadow: var(--shadow-focus); }
-.dp-display .dp-placeholder { color: var(--gray-3); }
-.dp-display .dp-arrow { color: var(--gray-3); font-size: 12px; transition: transform 0.15s; }
-.dp-display.open .dp-arrow { transform: rotate(180deg); }
-.dp-calendar {
-  position: fixed;
-  background: var(--white); border: 1px solid var(--gray-2);
-  border-radius: var(--radius-md); box-shadow: 0 8px 24px rgba(30,22,0,0.12);
-  z-index: 2000; padding: 8px; display: none; width: 280px;
-}
-.dp-calendar.show { display: block; }
-.dp-nav {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 6px; gap: 4px;
-}
-.dp-nav-btn {
-  width: 22px; height: 22px; border: none; border-radius: 5px;
-  background: var(--gray-1); color: var(--gray-4); cursor: pointer;
-  font-size: 11px; display: flex; align-items: center; justify-content: center;
-  transition: background 0.12s; flex-shrink: 0;
-}
-.dp-nav-btn:hover { background: var(--gray-2); }
-.dp-selects { display: flex; gap: 4px; flex: 1; }
-.dp-select {
-  flex: 1; border: 1px solid var(--gray-2); border-radius: 5px;
-  padding: 2px 4px; font-size: 12px; font-family: var(--font-body);
-  color: var(--text); background: var(--white); cursor: pointer;
-  appearance: auto;
-}
-.dp-select:focus { outline: none; border-color: var(--gold); }
-.dp-weekdays {
-  display: grid; grid-template-columns: repeat(7, 1fr);
-  margin-bottom: 2px;
-}
-.dp-weekday {
-  text-align: center; font-size: 10px; font-weight: 600;
-  color: var(--gray-3); padding: 2px 0;
-}
-.dp-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; }
-.dp-day {
-  text-align: center; padding: 4px 1px; font-size: 12px; border-radius: 5px;
-  cursor: pointer; transition: background 0.1s, color 0.1s; color: var(--text);
-}
-.dp-day:hover:not(.dp-day-disabled):not(.dp-day-empty) { background: var(--gray-1); }
-.dp-day-disabled { color: var(--gray-2); cursor: not-allowed; pointer-events: none; }
-.dp-day-empty { pointer-events: none; }
-.dp-day-today { font-weight: 700; color: var(--gold); }
-.dp-day-selected {
-  background: var(--gold-gradient) !important;
-  color: var(--white) !important; font-weight: 600; border-radius: 6px;
-}
-.dp-day-in-range { background: var(--gray-1); border-radius: 0; }
-.dp-day-range-start { border-radius: 6px 0 0 6px; }
-.dp-day-range-end   { border-radius: 0 6px 6px 0; }
-.dp-error {
-  font-size: 12px; color: #c0392b; margin-top: 6px;
-  display: none; padding: 6px 10px; background: #fdf0ef;
-  border-radius: 6px; border-left: 3px solid #c0392b;
-}
-.dp-error.show { display: block; }
-/* Opções prazo (contínua / sem fim) */
-.dp-option {
-  display: flex; align-items: center; gap: 8px;
-  padding: 8px 10px; background: var(--gray-1);
-  border-radius: var(--radius-base); cursor: pointer;
-  user-select: none; margin-bottom: 10px;
-  border: 1.5px solid transparent; transition: border-color 0.15s;
-}
-.dp-option:hover { border-color: var(--gray-2); }
-.dp-option.checked { border-color: var(--gold); background: var(--gold-muted); }
-.dp-option input[type=checkbox] { display: none; }
-.dp-option-check {
-  width: 16px; height: 16px; border-radius: 4px; border: 1.5px solid var(--gray-3);
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-  background: var(--white); transition: all 0.15s;
-}
-.dp-option.checked .dp-option-check {
-  background: var(--gold-gradient); border-color: var(--gold);
-  color: var(--white); font-size: 10px;
-}
-.dp-option-label { font-size: 13px; color: var(--text); line-height: 1.4; }
-.dp-option-label small { display: block; font-size: 11px; color: var(--gray-3); margin-top: 1px; }
-.dp-fields-section { transition: opacity 0.2s; }
-.dp-fields-section.disabled { opacity: 0.35; pointer-events: none; }
-#dp-field-fim { transition: opacity 0.2s; }
-#dp-field-fim.disabled { opacity: 0.35; pointer-events: none; }
 .pv-editor-footer {
   display: flex; justify-content: flex-end; gap: 8px;
   padding: 14px 20px; border-top: 1px solid var(--gray-1);
@@ -1817,6 +1799,58 @@ input[type=number] { -moz-appearance: textfield; }
           <label>Descrição completa</label>
           <div id="opp-objetivos-editor"></div>
         </div>
+
+        <!-- ── Upload de Apresentação / Mídia Kit ── -->
+        <div class="form-group" id="mediaKitUploadGroup">
+          <label>Apresentação / Mídia Kit
+            <span style="font-size:11px;font-weight:400;color:var(--gray-3)">(opcional · PDF · máx 100 MB)</span>
+          </label>
+          <div class="mk-upload-zone" id="mkUploadZone"
+               onclick="document.getElementById('mkFileInput').click()"
+               ondragover="mkDragOver(event)" ondragleave="mkDragLeave(event)" ondrop="mkDrop(event)">
+            <span class="mk-upload-icon">📄</span>
+            <p><strong>Arraste o PDF aqui ou clique para selecionar</strong></p>
+            <p class="mk-upload-sub">Suporta apresentações e mídia kits em formato PDF</p>
+            <input type="file" id="mkFileInput" accept=".pdf,application/pdf" style="display:none"
+                   onchange="handleMkFile(this.files[0])">
+          </div>
+
+          <!-- ⚠️ Aviso de dados pessoais — destaque -->
+          <div class="mk-warning-box">
+            <span class="mk-warn-icon">⚠️</span>
+            <div>
+              <strong>Dados pessoais não são permitidos</strong>
+              <p>Não inclua e-mails, telefones, WhatsApp ou qualquer dado de contato pessoal na apresentação. Apresentações com esses dados poderão ser removidas pela plataforma.</p>
+            </div>
+          </div>
+
+          <!-- Preview do arquivo selecionado -->
+          <div class="mk-file-preview" id="mkFilePreview" style="display:none">
+            <div class="mk-file-icon">📄</div>
+            <div class="mk-file-meta">
+              <span class="mk-file-name" id="mkFileName">—</span>
+              <span class="mk-file-size" id="mkFileSize">—</span>
+            </div>
+            <button type="button" class="mk-remove-btn" onclick="removeMkFile()" title="Remover arquivo">✕</button>
+          </div>
+        </div>
+
+        <!-- Preview do viewer — aparece ao selecionar arquivo -->
+        <div class="form-group" id="mkViewerPreviewGroup" style="display:none">
+          <span class="mk-preview-label">Preview — como vai aparecer para os patrocinadores</span>
+          <div class="mk-viewer-wrap" id="mkViewerWrap">
+            <div class="mk-viewer-controls">
+              <button class="mk-btn-icon" id="mkPrevBtn" disabled title="Página anterior">&#8249;</button>
+              <span class="mk-page-info" id="mkPageInfo">— / —</span>
+              <button class="mk-btn-icon" id="mkNextBtn" disabled title="Próxima página">&#8250;</button>
+              <span class="mk-viewer-title" id="mkViewerTitle">—</span>
+            </div>
+            <div class="mk-canvas-wrap" id="mkCanvasWrap">
+              <div class="mk-loading-state" id="mkLoadingState">Carregando apresentação…</div>
+            </div>
+          </div>
+        </div>
+        <!-- ── /Upload de Apresentação ── -->
 
         <div class="form-group">
           <label>O que buscamos em uma marca parceira</label>
@@ -2161,15 +2195,6 @@ input[type=number] { -moz-appearance: textfield; }
          PASSO 7 — PUBLICAR
     ════════════════════════════════════════════ -->
     <div id="panel-7" style="display:none">
-
-      <!-- Prazo de inscrição -->
-      <div class="form-card">
-        <div class="card-header"><div class="card-title" style="font-size:16px">Prazo de inscrição</div></div>
-        <div class="editable-placeholder" onclick="openInlineEditor('prazo')" id="pvPrazo">
-          <span class="ep-icon">+</span>
-          <span class="ep-text">Clique para definir o prazo de inscrição</span>
-        </div>
-      </div>
 
       <!-- Link público da oportunidade (slug) -->
       <div class="form-card">
@@ -2721,7 +2746,7 @@ function nextStep(n) {
   // Hooks por passo
   if (n === 4 && formState.selectedTemplate) {
     var tplContainer = document.getElementById('template-specific-fields');
-    if (tplContainer && !tplContainer.hasChildNodes()) {
+    if (tplContainer && tplContainer.children.length === 0) {
       renderTemplateFields(formState.selectedTemplate);
     }
   }
@@ -3318,9 +3343,6 @@ function renderPreview() {
     factsEl.innerHTML = `<div class="pv-fact-empty" style="color:var(--gray-3);font-size:13px;font-style:italic">Nenhum destaque adicionado</div>`;
   }
 
-  // Prazo (renderização via função compartilhada)
-  renderPrazoDisplay();
-
   // Tags / Segmentos
   const tagsEl = document.getElementById('pvTags');
   if (d.segmentos.length > 0) {
@@ -3378,13 +3400,6 @@ function switchPreviewTab(tabId, btn) {
 
 /* ── Inline Editor ── */
 const EDITOR_CONFIG = {
-  prazo: {
-    title: 'Prazo de inscrição',
-    fields: [
-      { key: 'prazo_inicio', label: 'Início das inscrições', type: 'date', placeholder: '' },
-      { key: 'prazo_fim',    label: 'Fim das inscrições',   type: 'date', placeholder: '' }
-    ]
-  },
   publico: {
     title: 'Público-alvo',
     fields: [
@@ -3422,58 +3437,7 @@ function openInlineEditor(key) {
 
   const body = document.getElementById('pvEditorBody');
 
-  if (key === 'prazo') {
-    // Date picker customizado para prazo — layout coluna única com campos dropdown
-    body.innerHTML = `
-      <!-- Opção: oportunidade contínua (sem datas) -->
-      <div class="dp-option" id="dp-opt-continua" onclick="dpToggleContinua()">
-        <input type="checkbox" id="dp-chk-continua">
-        <div class="dp-option-check" id="dp-chk-continua-icon"></div>
-        <div class="dp-option-label">
-          Oportunidade contínua
-          <small>Sem data de início nem de fim — aceita inscrições o tempo todo</small>
-        </div>
-      </div>
-
-      <!-- Campos de data -->
-      <div class="dp-fields-section" id="dp-fields-section">
-
-        <!-- Início -->
-        <div class="dp-wrap" id="dp-field-inicio">
-          <label style="font-size:13px;font-weight:500;color:var(--gray-4);display:block;margin-bottom:6px;">Início das inscrições</label>
-          <div class="dp-display" id="dp-display-inicio" onclick="dpToggle('inicio')">
-            <span id="dp-txt-inicio" class="dp-placeholder">Selecione a data de início</span>
-            <span class="dp-arrow">▾</span>
-          </div>
-          <div class="dp-calendar" id="dp-cal-inicio"></div>
-          <div class="dp-error" id="dp-error-inicio"></div>
-        </div>
-
-        <!-- Sem data de fim -->
-        <div class="dp-option" id="dp-opt-semfim" onclick="dpToggleSemFim()" style="margin-top:12px;">
-          <div class="dp-option-check" id="dp-chk-semfim-icon"></div>
-          <div class="dp-option-label">
-            Sem data de fim
-            <small>Inscrições abertas indefinidamente a partir do início</small>
-          </div>
-        </div>
-
-        <!-- Fim -->
-        <div class="dp-wrap" id="dp-field-fim" style="margin-top:4px;">
-          <label style="font-size:13px;font-weight:500;color:var(--gray-4);display:block;margin-bottom:6px;">Fim das inscrições <span style="font-weight:400;font-size:11px;color:var(--gray-3)">(mín. 7 dias após início)</span></label>
-          <div class="dp-display" id="dp-display-fim" onclick="dpToggle('fim')">
-            <span id="dp-txt-fim" class="dp-placeholder">Selecione a data de fim</span>
-            <span class="dp-arrow">▾</span>
-          </div>
-          <div class="dp-calendar" id="dp-cal-fim"></div>
-          <div class="dp-error" id="dp-error-fim"></div>
-        </div>
-
-      </div>
-    `;
-    dpInit();
-  } else {
-    body.innerHTML = config.fields.map(f => {
+  body.innerHTML = config.fields.map(f => {
       const currentVal = previewEditData[f.key] || '';
       if (f.type === 'textarea') {
         return `<div class="editor-field"><label>${f.label}</label><textarea id="editor-${f.key}" placeholder="${f.placeholder}">${currentVal}</textarea></div>`;
@@ -3487,27 +3451,14 @@ function openInlineEditor(key) {
 
   // Focus first field
   setTimeout(() => {
-    if (key === 'prazo') {
-      dpToggle('inicio'); // abre o calendário de início automaticamente
-    } else {
-      const firstInput = body.querySelector('textarea, input');
-      if (firstInput) firstInput.focus();
-    }
+    const firstInput = body.querySelector('textarea, input');
+    if (firstInput) firstInput.focus();
   }, 80);
 }
 
 function saveInlineEdit() {
   const config = EDITOR_CONFIG[currentEditorKey];
   if (!config) return;
-
-  // Prazo: valida antes de fechar
-  if (currentEditorKey === 'prazo') {
-    if (!dpValidateAndSave()) return; // não fecha se inválido
-    closeInlineEditor();
-    renderPrazoDisplay();
-    updateCompleteness();
-    return;
-  }
 
   config.fields.forEach(f => {
     const el = document.getElementById('editor-' + f.key);
@@ -3542,337 +3493,17 @@ function saveInlineEdit() {
   updateCompleteness();
 }
 
-/* ══════════════════════════════════════════════
-   DATE PICKER CUSTOMIZADO — Prazo de inscrição
-   Regras:
-   - início ≥ hoje + 7 dias
-   - fim ≥ início + 7 dias
-   ══════════════════════════════════════════════ */
-const _dp = {
-  inicio: { value: null, year: null, month: null },
-  fim:    { value: null, year: null, month: null }
-};
 
-function dpAddDays(iso, n) {
-  const d = new Date(iso + 'T12:00:00');
-  d.setDate(d.getDate() + n);
-  return d.toISOString().split('T')[0];
-}
-function dpToday() { return new Date().toISOString().split('T')[0]; }
-function dpFmtLabel(iso) {
-  if (!iso) return null;
-  const d = new Date(iso + 'T12:00:00');
-  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
-}
-function dpFmtShort(iso) {
-  if (!iso) return null;
-  const d = new Date(iso + 'T12:00:00');
-  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
-}
-
-function dpInit() {
-  const today = dpToday();
-  _dp.inicio.value   = previewEditData.prazo_inicio   || null;
-  _dp.fim.value      = previewEditData.prazo_fim      || null;
-  _dp.continua       = previewEditData.prazo_continua || false;
-  _dp.semFim         = previewEditData.prazo_sem_fim  || false;
-  const minIni = dpAddDays(today, 7);
-  for (const which of ['inicio', 'fim']) {
-    const val = _dp[which].value;
-    const ref = val || (which === 'inicio' ? minIni : (_dp.inicio.value ? dpAddDays(_dp.inicio.value, 7) : dpAddDays(minIni, 7)));
-    const d = new Date(ref + 'T12:00:00');
-    _dp[which].year  = d.getFullYear();
-    _dp[which].month = d.getMonth();
-  }
-  // Atualiza textos dos botões com valores já salvos
-  dpUpdateDisplay('inicio');
-  dpUpdateDisplay('fim');
-  // Restaurar estado dos checkboxes
-  if (_dp.continua) dpToggleContinua(true);
-  if (_dp.semFim)   dpToggleSemFim(true);
-}
-
-function dpUpdateDisplay(which) {
-  const txtEl  = document.getElementById('dp-txt-' + which);
-  const dispEl = document.getElementById('dp-display-' + which);
-  if (!txtEl) return;
-  const val = _dp[which].value;
-  if (val) {
-    txtEl.textContent = dpFmtLabel(val);
-    txtEl.classList.remove('dp-placeholder');
-    if (dispEl) dispEl.style.borderColor = 'var(--gold)';
-  } else {
-    txtEl.textContent = which === 'inicio' ? 'Selecione a data de início' : 'Selecione a data de fim';
-    txtEl.classList.add('dp-placeholder');
-    if (dispEl) dispEl.style.borderColor = '';
-  }
-}
-
-function dpToggle(which) {
-  const cal     = document.getElementById('dp-cal-' + which);
-  const dispEl  = document.getElementById('dp-display-' + which);
-  if (!cal || !dispEl) return;
-
-  const isOpen = cal.classList.contains('show');
-
-  // Fecha todos os calendários primeiro
-  ['inicio', 'fim'].forEach(w => {
-    const c = document.getElementById('dp-cal-' + w);
-    const d = document.getElementById('dp-display-' + w);
-    if (c) c.classList.remove('show');
-    if (d) d.classList.remove('open');
-  });
-
-  if (!isOpen) {
-    // Posiciona o calendário via fixed, alinhado ao botão
-    const rect  = dispEl.getBoundingClientRect();
-    const calW  = 280;
-    const calH  = 295; // altura estimada
-    let top  = rect.bottom + 4;
-    let left = rect.left;
-    // Se não cabe abaixo, abre acima
-    if (top + calH > window.innerHeight - 10) {
-      top = rect.top - calH - 4;
-    }
-    // Se não cabe à direita, alinha pela direita do botão
-    if (left + calW > window.innerWidth - 10) {
-      left = rect.right - calW;
-    }
-    cal.style.top  = top  + 'px';
-    cal.style.left = left + 'px';
-    dpRenderCal(which);
-    cal.classList.add('show');
-    dispEl.classList.add('open');
-  }
-}
-
-function dpRenderCal(which) {
-  const cal = document.getElementById('dp-cal-' + which);
-  if (!cal) return;
-  const today   = dpToday();
-  const minIni  = dpAddDays(today, 7);
-  const minFim  = _dp.inicio.value ? dpAddDays(_dp.inicio.value, 7) : dpAddDays(minIni, 7);
-  const minDate = which === 'inicio' ? minIni : minFim;
-  const year  = _dp[which].year;
-  const month = _dp[which].month;
-  const months = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho',
-                  'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-  const curYear  = new Date().getFullYear();
-  const years    = Array.from({length: 5}, (_, i) => curYear + i);
-  const monthOpts = months.map((m, i) => `<option value="${i}" ${i === month ? 'selected' : ''}>${m}</option>`).join('');
-  const yearOpts  = years.map(y => `<option value="${y}" ${y === year ? 'selected' : ''}>${y}</option>`).join('');
-  const firstDay    = new Date(year, month, 1).getDay();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const blanks = Array(firstDay).fill('<div class="dp-day dp-day-empty"></div>').join('');
-  const ini = _dp.inicio.value;
-  const fim = _dp.fim.value;
-  const dayDivs = Array.from({length: daysInMonth}, (_, i) => {
-    const day = i + 1;
-    const iso = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-    const isDisabled = iso < minDate;
-    const isSelected = _dp[which].value === iso;
-    const isToday    = iso === today;
-    const inRange = ini && fim && iso > ini && iso < fim;
-    const isStart = iso === ini;
-    const isEnd   = iso === fim;
-    let cls = 'dp-day';
-    if (isDisabled) cls += ' dp-day-disabled';
-    if (isToday && !isDisabled) cls += ' dp-day-today';
-    if (isSelected) cls += ' dp-day-selected';
-    if (inRange)  cls += ' dp-day-in-range';
-    if (isStart && fim) cls += ' dp-day-range-start';
-    if (isEnd   && ini) cls += ' dp-day-range-end';
-    const click = isDisabled ? '' : `onclick="dpSelectDay('${which}','${iso}')"`;
-    return `<div class="${cls}" ${click}>${day}</div>`;
-  }).join('');
-  cal.innerHTML = `
-    <div class="dp-nav">
-      <button class="dp-nav-btn" onclick="dpShiftMonth('${which}',-1)">‹</button>
-      <div class="dp-selects">
-        <select class="dp-select" onchange="dpSetMonth('${which}',this.value)">${monthOpts}</select>
-        <select class="dp-select" onchange="dpSetYear('${which}',this.value)">${yearOpts}</select>
-      </div>
-      <button class="dp-nav-btn" onclick="dpShiftMonth('${which}',1)">›</button>
-    </div>
-    <div class="dp-weekdays">
-      ${['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'].map(d=>`<div class="dp-weekday">${d}</div>`).join('')}
-    </div>
-    <div class="dp-days">${blanks}${dayDivs}</div>
-  `;
-}
-
-function dpShiftMonth(which, delta) {
-  _dp[which].month += delta;
-  if (_dp[which].month < 0)  { _dp[which].month = 11; _dp[which].year--; }
-  if (_dp[which].month > 11) { _dp[which].month = 0;  _dp[which].year++; }
-  dpRenderCal(which);
-}
-function dpSetMonth(which, val) { _dp[which].month = parseInt(val); dpRenderCal(which); }
-function dpSetYear(which, val)  { _dp[which].year  = parseInt(val); dpRenderCal(which); }
-
-function dpSelectDay(which, iso) {
-  _dp[which].value = iso;
-  dpUpdateDisplay(which);
-  const errEl = document.getElementById('dp-error-' + which);
-  if (errEl) { errEl.textContent = ''; errEl.classList.remove('show'); }
-  // Se selecionou início, verifica fim e avança o mês do calendário fim
-  if (which === 'inicio') {
-    const minFim = dpAddDays(iso, 7);
-    if (!_dp.fim.value || _dp.fim.value < minFim) {
-      _dp.fim.value = null;
-      dpUpdateDisplay('fim');
-    }
-    const d = new Date(minFim + 'T12:00:00');
-    _dp.fim.year  = d.getFullYear();
-    _dp.fim.month = d.getMonth();
-    // Re-renderiza para atualizar highlight de range
-    dpRenderCal(which);
-    // Fecha o calendário de início e abre o de fim automaticamente (se não semFim)
-    const calIni = document.getElementById('dp-cal-inicio');
-    const dispIni = document.getElementById('dp-display-inicio');
-    if (calIni) calIni.classList.remove('show');
-    if (dispIni) dispIni.classList.remove('open');
-    if (!_dp.semFim && !_dp.continua) {
-      dpToggle('fim');
-    }
-  } else {
-    dpRenderCal(which);
-    // Fecha o calendário após selecionar fim
-    const cal  = document.getElementById('dp-cal-fim');
-    const disp = document.getElementById('dp-display-fim');
-    if (cal)  cal.classList.remove('show');
-    if (disp) disp.classList.remove('open');
-  }
-}
-
-function dpToggleContinua(force) {
-  const opt    = document.getElementById('dp-opt-continua');
-  const icon   = document.getElementById('dp-chk-continua-icon');
-  const section = document.getElementById('dp-fields-section');
-  if (!opt) return;
-  const isChecked = force === true ? true : (force === false ? false : !_dp.continua);
-  _dp.continua = isChecked;
-  opt.classList.toggle('checked', isChecked);
-  icon.textContent = isChecked ? '✓' : '';
-  if (section) section.classList.toggle('disabled', isChecked);
-  // Sempre fecha calendários abertos
-  ['inicio','fim'].forEach(w => {
-    document.getElementById('dp-cal-' + w)?.classList.remove('show');
-    document.getElementById('dp-display-' + w)?.classList.remove('open');
-  });
-}
-
-function dpToggleSemFim(force) {
-  const opt      = document.getElementById('dp-opt-semfim');
-  const icon     = document.getElementById('dp-chk-semfim-icon');
-  const fieldFim = document.getElementById('dp-field-fim');
-  if (!opt) return;
-  const isChecked = force === true ? true : (force === false ? false : !_dp.semFim);
-  _dp.semFim = isChecked;
-  opt.classList.toggle('checked', isChecked);
-  icon.textContent = isChecked ? '✓' : '';
-  if (fieldFim) fieldFim.classList.toggle('disabled', isChecked);
-  if (isChecked) {
-    _dp.fim.value = null;
-    dpUpdateDisplay('fim');
-    document.getElementById('dp-cal-fim')?.classList.remove('show');
-    document.getElementById('dp-display-fim')?.classList.remove('open');
-  }
-}
-
-function dpValidateAndSave() {
-  // Oportunidade contínua: sem datas
-  if (_dp.continua) {
-    previewEditData.prazo_continua  = true;
-    delete previewEditData.prazo_inicio;
-    delete previewEditData.prazo_fim;
-    delete previewEditData.prazo_sem_fim;
-    return true;
-  }
-  delete previewEditData.prazo_continua;
-
-  const ini    = _dp.inicio.value;
-  const fim    = _dp.fim.value;
-  const today  = dpToday();
-  const minIni = dpAddDays(today, 7);
-  let ok = true;
-
-  const errIni = document.getElementById('dp-error-inicio');
-  if (!ini) {
-    errIni.textContent = 'Selecione a data de início.';
-    errIni.classList.add('show'); ok = false;
-  } else if (ini < minIni) {
-    errIni.textContent = `Início deve ser a partir de ${dpFmtShort(minIni)} (mín. 7 dias a partir de hoje).`;
-    errIni.classList.add('show'); ok = false;
-  } else { errIni.classList.remove('show'); }
-
-  // Sem data de fim: só valida início
-  if (_dp.semFim) {
-    if (!ok) return false;
-    previewEditData.prazo_inicio  = ini;
-    previewEditData.prazo_sem_fim = true;
-    delete previewEditData.prazo_fim;
-    return true;
-  }
-  delete previewEditData.prazo_sem_fim;
-
-  const errFim = document.getElementById('dp-error-fim');
-  if (!fim) {
-    errFim.textContent = 'Selecione a data de fim.';
-    errFim.classList.add('show'); ok = false;
-  } else if (ini && fim < dpAddDays(ini, 7)) {
-    errFim.textContent = `Fim deve ser ao menos 7 dias após o início (a partir de ${dpFmtShort(dpAddDays(ini, 7))}).`;
-    errFim.classList.add('show'); ok = false;
-  } else { errFim.classList.remove('show'); }
-
-  if (!ok) return false;
-  previewEditData.prazo_inicio = ini;
-  previewEditData.prazo_fim    = fim;
-  return true;
-}
-
-function renderPrazoDisplay() {
-  const pvPrazo = document.getElementById('pvPrazo');
-  if (!pvPrazo) return;
-  const ini      = previewEditData.prazo_inicio;
-  const fim      = previewEditData.prazo_fim;
-  const continua = previewEditData.prazo_continua;
-  const semFim   = previewEditData.prazo_sem_fim;
-
-  let txt = null;
-  if (continua) {
-    txt = 'Oportunidade contínua — sem prazo';
-  } else if (ini && fim) {
-    txt = `${dpFmtShort(ini)} → ${dpFmtShort(fim)}`;
-  } else if (ini && semFim) {
-    txt = `A partir de ${dpFmtShort(ini)} · Sem data de fim`;
-  } else if (ini) {
-    txt = `A partir de ${dpFmtShort(ini)}`;
-  }
-
-  if (txt) {
-    pvPrazo.className = 'editable-placeholder filled';
-    pvPrazo.innerHTML = `<span class="ep-text">${txt}</span>`;
-  } else {
-    pvPrazo.className = 'editable-placeholder';
-    pvPrazo.innerHTML = `<span class="ep-icon">+</span><span class="ep-text">Clique para definir o prazo de inscrição</span>`;
-  }
-}
 
 function closeInlineEditor(event) {
   if (event && event.target !== event.currentTarget) return;
-  // Fecha calendários fixos antes de fechar o modal
-  ['inicio','fim'].forEach(w => {
-    document.getElementById('dp-cal-' + w)?.classList.remove('show');
-    document.getElementById('dp-display-' + w)?.classList.remove('open');
-  });
   document.getElementById('pvEditorOverlay').style.display = 'none';
 }
 
 function updateCompleteness() {
-  const editableKeys = ['prazo_inicio'];
+  const editableKeys = [];
   const filled = editableKeys.filter(k => previewEditData[k]).length;
-  const pct = Math.round((filled / editableKeys.length) * 100);
+  const pct = editableKeys.length > 0 ? Math.round((filled / editableKeys.length) * 100) : 100;
   const fillEl = document.getElementById('pvCompletenessFill');
   const labelEl = document.getElementById('pvCompletenessLabel');
   if (fillEl) fillEl.style.width = pct + '%';
@@ -5272,6 +4903,143 @@ async function uploadCotaPhotos(oppId, cotaIdx, card, token) {
 }
 
 /* ══════════════════════════════════════════════
+   MÍDIA KIT — UPLOAD + VIEWER PREVIEW
+══════════════════════════════════════════════ */
+let mkPdfFile = null;
+let mkPdfDoc = null;
+let mkCurrentPage = 1;
+
+function mkFormatBytes(bytes) {
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
+function handleMkFile(file) {
+  if (!file) return;
+  if (!file.type.match(/pdf/)) {
+    alert('Apenas arquivos PDF são aceitos.');
+    return;
+  }
+  if (file.size > 100 * 1024 * 1024) {
+    alert('O arquivo excede o limite de 100 MB.');
+    return;
+  }
+  mkPdfFile = file;
+  document.getElementById('mkFileName').textContent = file.name;
+  document.getElementById('mkFileSize').textContent = mkFormatBytes(file.size);
+  document.getElementById('mkFilePreview').style.display = 'flex';
+  document.getElementById('mkViewerPreviewGroup').style.display = 'block';
+  document.getElementById('mkViewerTitle').textContent = file.name;
+  document.getElementById('mkLoadingState').style.display = 'block';
+  document.getElementById('mkLoadingState').textContent = 'Carregando apresentação…';
+
+  // Inicia viewer preview com PDF.js
+  _mkEnsurePdfJs(function() {
+    const url = URL.createObjectURL(file);
+    pdfjsLib.getDocument(url).promise.then(function(pdf) {
+      mkPdfDoc = pdf;
+      mkCurrentPage = 1;
+      document.getElementById('mkLoadingState').style.display = 'none';
+      _mkRenderPage(1);
+      document.getElementById('mkPrevBtn').disabled = true;
+      document.getElementById('mkNextBtn').disabled = pdf.numPages <= 1;
+    }).catch(function(err) {
+      console.warn('[MK] PDF load error:', err);
+      document.getElementById('mkLoadingState').textContent = 'Erro ao carregar o PDF.';
+    });
+  });
+}
+
+function removeMkFile() {
+  mkPdfFile = null;
+  mkPdfDoc = null;
+  mkCurrentPage = 1;
+  document.getElementById('mkFileInput').value = '';
+  document.getElementById('mkFilePreview').style.display = 'none';
+  document.getElementById('mkViewerPreviewGroup').style.display = 'none';
+  const wrap = document.getElementById('mkCanvasWrap');
+  const canvas = wrap.querySelector('canvas');
+  if (canvas) canvas.remove();
+  document.getElementById('mkLoadingState').style.display = 'block';
+  document.getElementById('mkLoadingState').textContent = 'Carregando apresentação…';
+  document.getElementById('mkPrevBtn').disabled = true;
+  document.getElementById('mkNextBtn').disabled = true;
+  document.getElementById('mkPageInfo').textContent = '— / —';
+  document.getElementById('mkViewerTitle').textContent = '—';
+}
+
+function _mkEnsurePdfJs(cb) {
+  if (window.pdfjsLib) { cb(); return; }
+  const s = document.createElement('script');
+  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+  s.onload = function() {
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    cb();
+  };
+  document.head.appendChild(s);
+}
+
+function _mkRenderPage(num) {
+  if (!mkPdfDoc) return;
+  const SCALE = 1.25;
+  mkPdfDoc.getPage(num).then(function(page) {
+    const wrap = document.getElementById('mkCanvasWrap');
+    // Remove canvas anterior
+    const old = wrap.querySelector('canvas');
+    if (old) old.remove();
+
+    const vp = page.getViewport({ scale: SCALE });
+    const canvas = document.createElement('canvas');
+    canvas.width = vp.width;
+    canvas.height = vp.height;
+    canvas.style.maxWidth = '100%';
+    wrap.appendChild(canvas);
+
+    page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise.then(function() {
+      document.getElementById('mkPageInfo').textContent = num + ' / ' + mkPdfDoc.numPages;
+      document.getElementById('mkPrevBtn').disabled = num <= 1;
+      document.getElementById('mkNextBtn').disabled = num >= mkPdfDoc.numPages;
+    });
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const prevBtn = document.getElementById('mkPrevBtn');
+  const nextBtn = document.getElementById('mkNextBtn');
+  if (prevBtn) prevBtn.addEventListener('click', function() {
+    if (mkCurrentPage > 1) { mkCurrentPage--; _mkRenderPage(mkCurrentPage); }
+  });
+  if (nextBtn) nextBtn.addEventListener('click', function() {
+    if (mkPdfDoc && mkCurrentPage < mkPdfDoc.numPages) { mkCurrentPage++; _mkRenderPage(mkCurrentPage); }
+  });
+});
+
+function mkDragOver(e) { e.preventDefault(); document.getElementById('mkUploadZone').classList.add('drag-over'); }
+function mkDragLeave(e) { document.getElementById('mkUploadZone').classList.remove('drag-over'); }
+function mkDrop(e) {
+  e.preventDefault();
+  document.getElementById('mkUploadZone').classList.remove('drag-over');
+  const f = e.dataTransfer.files[0];
+  if (f) handleMkFile(f);
+}
+
+/* Upload do mídia kit para Supabase Storage. Retorna a URL pública ou null. */
+async function uploadMediaKit(oppId, token) {
+  if (!mkPdfFile) return null;
+  const safeName = mkPdfFile.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+  const fileName = 'opp-' + oppId + '-midia-kit-' + safeName;
+  const uploadRes = await fetch(
+    SUPABASE_URL + '/storage/v1/object/oportunidades/' + fileName,
+    { method: 'POST', body: mkPdfFile,
+      headers: { 'Authorization': 'Bearer ' + token, 'apikey': SUPABASE_KEY,
+        'Content-Type': 'application/pdf', 'x-upsert': 'true' } }
+  );
+  if (!uploadRes.ok) { console.warn('[MK] Upload failed'); return null; }
+  return SUPABASE_URL + '/storage/v1/object/public/oportunidades/' + fileName;
+}
+
+/* ══════════════════════════════════════════════
    CHAR COUNT
 ══════════════════════════════════════════════ */
 function updateChar(el, countId, max) {
@@ -5682,6 +5450,18 @@ async function saveDraft() {
           });
         }
       }
+
+      // Upload de apresentação (mídia kit PDF)
+      try {
+        const mkUrl = await uploadMediaKit(oppId, token);
+        if (mkUrl) {
+          await fetch(SUPABASE_URL + '/rest/v1/oportunidades?id=eq.' + oppId, {
+            method: 'PATCH', body: JSON.stringify({ media_kit_url: mkUrl }),
+            headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token,
+              'Content-Type': 'application/json', 'Prefer': 'return=minimal' }
+          });
+        }
+      } catch (e) { console.warn('[Draft] Mídia kit upload failed:', e); }
     }
 
     showToast('Rascunho salvo!', 'success');
@@ -5706,8 +5486,6 @@ async function saveDraft() {
  * - metricas_alcance   → detalhes.metricas_alcance (JSONB)
  * - metricas_engajamento → detalhes.metricas_engajamento (JSONB)
  * - metricas_impressoes  → detalhes.metricas_impressoes (JSONB)
- * - prazo_inicio/fim   → detalhes.prazo_inicio / prazo_fim (JSONB)
- * - prazo_continua     → detalhes.prazo_continua (JSONB)
  */
 function mergePreviewData(data) {
   if (!previewEditData || Object.keys(previewEditData).length === 0) return data;
@@ -5719,8 +5497,7 @@ function mergePreviewData(data) {
   const extraDetalhes = {};
   const detalheKeys = [
     'demografico', 'entregas',
-    'metricas_alcance', 'metricas_engajamento', 'metricas_impressoes',
-    'prazo_inicio', 'prazo_fim', 'prazo_continua', 'prazo_sem_fim'
+    'metricas_alcance', 'metricas_engajamento', 'metricas_impressoes'
   ];
   detalheKeys.forEach(k => {
     if (previewEditData[k] != null && previewEditData[k] !== '') {
@@ -5873,6 +5650,19 @@ async function publishOpportunity() {
           console.log('[Publish] Cota photos updated');
         }
       }
+
+      // Upload de apresentação (mídia kit PDF)
+      try {
+        const mkUrl = await uploadMediaKit(oppId, token);
+        if (mkUrl) {
+          await fetch(SUPABASE_URL + '/rest/v1/oportunidades?id=eq.' + oppId, {
+            method: 'PATCH', body: JSON.stringify({ media_kit_url: mkUrl }),
+            headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token,
+              'Content-Type': 'application/json', 'Prefer': 'return=minimal' }
+          });
+          console.log('[Publish] Mídia kit uploaded:', mkUrl);
+        }
+      } catch (e) { console.warn('[Publish] Mídia kit upload failed:', e); }
 
       if (uploadErrors.length > 0) {
         showToast('Oportunidade publicada, mas falhou ao enviar: ' + uploadErrors.join(', ') + '. Edite para reenviar.', 'error');
@@ -6157,8 +5947,7 @@ function maybePreFillEdit() {
   if (opp.publico_descricao) previewEditData.publico = opp.publico_descricao;
   const previewDetalheKeys = [
     'demografico', 'entregas',
-    'metricas_alcance', 'metricas_engajamento', 'metricas_impressoes',
-    'prazo_inicio', 'prazo_fim', 'prazo_continua', 'prazo_sem_fim'
+    'metricas_alcance', 'metricas_engajamento', 'metricas_impressoes'
   ];
   previewDetalheKeys.forEach(k => {
     if (detalhes[k] != null && detalhes[k] !== '') previewEditData[k] = detalhes[k];
@@ -6381,8 +6170,6 @@ function loadMockData() {
             }
 
             // --- Pré-preencher previewEditData com dados extras ---
-            previewEditData.prazo_inicio = '2026-05-01';
-            previewEditData.prazo_fim = '2026-06-15';
             previewEditData.publico = 'Jovens de 18 a 35 anos, entusiastas de esportes radicais e surf, predominantemente das classes A e B. Público engajado com lifestyle ativo, sustentabilidade e cultura de praia.';
             previewEditData.demografico = '62% masculino, 38% feminino\nFaixa etária: 18-25 (45%), 26-35 (35%), 36-45 (20%)\nPrincipais regiões: SP (55%), RJ (20%), SC (10%), outros (15%)';
             previewEditData.entregas = '• Logo na camisa oficial dos atletas\n• Menções em todas as postagens do evento nas redes sociais\n• Espaço para ativação de marca na arena do evento\n• Camarote exclusivo para convidados da marca\n• Relatório pós-evento com métricas de exposição';
