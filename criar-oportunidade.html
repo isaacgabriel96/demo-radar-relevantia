@@ -2302,7 +2302,8 @@ const formState = {
   slugIsValid: false,   // true quando slug foi validado como único
   _pendingDetalhes: null,
   _pendingCotas: null,
-  _pendingCotasHabilitadas: false
+  _pendingCotasHabilitadas: false,
+  existingMkUrl: null   // URL do mídia kit existente em modo edição
 };
 
 /* ══════════════════════════════════════════════
@@ -5008,6 +5009,7 @@ function handleMkFile(file) {
 function removeMkFile() {
   mkPdfFile = null;
   mkPdfDoc = null;
+  formState.existingMkUrl = null; // limpa URL existente — PDF será removido ao salvar
   mkCurrentPage = 1;
   document.getElementById('mkFileInput').value = '';
   document.getElementById('mkFilePreview').style.display = 'none';
@@ -5081,7 +5083,8 @@ function mkDrop(e) {
 
 /* Upload do mídia kit para Supabase Storage. Retorna a URL pública ou null. */
 async function uploadMediaKit(oppId, token) {
-  if (!mkPdfFile) return null;
+  // Se nenhum arquivo novo foi selecionado, mantém a URL existente (modo edição)
+  if (!mkPdfFile) return formState.existingMkUrl || null;
   const safeName = mkPdfFile.name.replace(/[^a-zA-Z0-9._-]/g, '_');
   const fileName = 'opp-' + oppId + '-midia-kit-' + safeName;
   const uploadRes = await fetch(
@@ -5930,6 +5933,10 @@ function maybePreFillEdit() {
           const displayVal = val.startsWith(urlPfx.text) ? val.slice(urlPfx.text.length) : val;
           usernameInput.value = displayVal;
         }
+        // Em modo edição, marcar o card como salvo (dados vêm do banco — já foram validados)
+        // O usuário pode clicar "Editar" para re-editar; editCanal() remove a classe .saved
+        const card = document.getElementById('canal-card-' + profileId);
+        if (card) card.classList.add('saved');
       });
     });
   }
@@ -5973,6 +5980,22 @@ function maybePreFillEdit() {
       grid.insertBefore(thumb, slot);
     });
     updatePhotoSlot();
+  }
+
+  // --- Apresentação / Mídia Kit existente ---
+  if (opp.midia_kit_url) {
+    // Guarda URL existente para manter caso nenhum novo arquivo seja selecionado
+    formState.existingMkUrl = opp.midia_kit_url;
+    // Exibe o nome do arquivo atual no campo de preview
+    const fileName = opp.midia_kit_url.split('/').pop().replace(/^opp-\d+-midia-kit-/, '') || 'apresentação.pdf';
+    const preview = document.getElementById('mkFilePreview');
+    const nameEl  = document.getElementById('mkFileName');
+    const sizeEl  = document.getElementById('mkFileSize');
+    if (preview && nameEl) {
+      nameEl.textContent = '📄 ' + decodeURIComponent(fileName) + ' (atual)';
+      if (sizeEl) sizeEl.textContent = '';
+      preview.style.display = 'flex';
+    }
   }
 
   // --- Passo 5: Segmentos / tags ---
