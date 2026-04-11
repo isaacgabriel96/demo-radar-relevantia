@@ -3437,7 +3437,58 @@ function openInlineEditor(key) {
 
   const body = document.getElementById('pvEditorBody');
 
-  body.innerHTML = config.fields.map(f => {
+  if (key === 'prazo') {
+    // Date picker customizado para prazo — layout coluna única com campos dropdown
+    body.innerHTML = `
+      <!-- Opção: oportunidade contínua (sem datas) -->
+      <div class="dp-option" id="dp-opt-continua" onclick="dpToggleContinua()">
+        <input type="checkbox" id="dp-chk-continua">
+        <div class="dp-option-check" id="dp-chk-continua-icon"></div>
+        <div class="dp-option-label">
+          Oportunidade contínua
+          <small>Sem data de início nem de fim — aceita inscrições o tempo todo</small>
+        </div>
+      </div>
+
+      <!-- Campos de data -->
+      <div class="dp-fields-section" id="dp-fields-section">
+
+        <!-- Início -->
+        <div class="dp-wrap" id="dp-field-inicio">
+          <label style="font-size:13px;font-weight:500;color:var(--gray-4);display:block;margin-bottom:6px;">Início das inscrições</label>
+          <div class="dp-display" id="dp-display-inicio" onclick="dpToggle('inicio')">
+            <span id="dp-txt-inicio" class="dp-placeholder">Selecione a data de início</span>
+            <span class="dp-arrow">▾</span>
+          </div>
+          <div class="dp-calendar" id="dp-cal-inicio"></div>
+          <div class="dp-error" id="dp-error-inicio"></div>
+        </div>
+
+        <!-- Sem data de fim -->
+        <div class="dp-option" id="dp-opt-semfim" onclick="dpToggleSemFim()" style="margin-top:12px;">
+          <div class="dp-option-check" id="dp-chk-semfim-icon"></div>
+          <div class="dp-option-label">
+            Sem data de fim
+            <small>Inscrições abertas indefinidamente a partir do início</small>
+          </div>
+        </div>
+
+        <!-- Fim -->
+        <div class="dp-wrap" id="dp-field-fim" style="margin-top:4px;">
+          <label style="font-size:13px;font-weight:500;color:var(--gray-4);display:block;margin-bottom:6px;">Fim das inscrições <span style="font-weight:400;font-size:11px;color:var(--gray-3)">(mín. 7 dias após início)</span></label>
+          <div class="dp-display" id="dp-display-fim" onclick="dpToggle('fim')">
+            <span id="dp-txt-fim" class="dp-placeholder">Selecione a data de fim</span>
+            <span class="dp-arrow">▾</span>
+          </div>
+          <div class="dp-calendar" id="dp-cal-fim"></div>
+          <div class="dp-error" id="dp-error-fim"></div>
+        </div>
+
+      </div>
+    `;
+    dpInit();
+  } else {
+    body.innerHTML = config.fields.map(f => {
       const currentVal = previewEditData[f.key] || '';
       if (f.type === 'textarea') {
         return `<div class="editor-field"><label>${f.label}</label><textarea id="editor-${f.key}" placeholder="${f.placeholder}">${currentVal}</textarea></div>`;
@@ -3451,8 +3502,12 @@ function openInlineEditor(key) {
 
   // Focus first field
   setTimeout(() => {
-    const firstInput = body.querySelector('textarea, input');
-    if (firstInput) firstInput.focus();
+    if (key === 'prazo') {
+      dpToggle('inicio'); // abre o calendário de início automaticamente
+    } else {
+      const firstInput = body.querySelector('textarea, input');
+      if (firstInput) firstInput.focus();
+    }
   }, 80);
 }
 
