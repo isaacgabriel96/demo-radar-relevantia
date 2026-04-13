@@ -257,6 +257,25 @@ select:disabled { background: var(--gray-1); color: var(--gray-5); cursor: not-a
   .confirmed-row { flex-direction: column; gap: 12px; }
   .pending-channels { flex-direction: column; }
 }
+
+/* ── Brandfetch search (detentor) ── */
+.det-company-search-box { position: relative; }
+.det-search-icon { transition: opacity 0.15s; }
+.det-search-icon.hidden { display: none; }
+.det-bf-dropdown {
+  display: none; position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+  background: #fff; border: 1.5px solid var(--gray-3); border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(30,22,0,.10); z-index: 200; overflow: hidden;
+}
+.det-bf-dropdown.show { display: block; }
+.det-bf-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 13px; cursor: pointer; transition: background 0.12s;
+}
+.det-bf-item:hover { background: var(--gray-1, #F5F0E8); }
+.det-bf-item img { width: 28px; height: 28px; border-radius: 5px; object-fit: contain; background: #f5f5f5; flex-shrink: 0; }
+.det-bf-item .bf-name { font-size: 13px; font-weight: 600; color: var(--black); }
+.det-bf-item .bf-domain { font-size: 11px; color: #999; }
 </style>
 </head>
 <body>
@@ -335,9 +354,29 @@ select:disabled { background: var(--gray-1); color: var(--gray-5); cursor: not-a
       <div class="section-label"><span class="section-label-icon">🏢</span>Dados da empresa</div>
 
       <div class="form-row">
-        <div class="form-group">
+        <div class="form-group" style="position:relative;">
           <label>Nome da empresa <span class="req">*</span></label>
-          <input type="text" id="f-empresa" placeholder="Razão social ou nome fantasia">
+          <!-- Brandfetch search box -->
+          <div class="det-company-search-box" id="det-company-search-box" style="position:relative;">
+            <svg class="det-search-icon" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);width:16px;height:16px;pointer-events:none;color:#C0C0C0;">
+              <circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M13.5 13.5L17 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <input type="text" id="f-empresa" placeholder="Buscar empresa..." autocomplete="off"
+              style="padding-left:36px;"
+              oninput="detHandleBrandfetchSearch(this.value)">
+            <div id="detBrandfetchResults" class="det-bf-dropdown"></div>
+          </div>
+          <!-- Card empresa selecionada -->
+          <div id="detSelectedCard" style="display:none; margin-top:8px; padding:10px 12px; border:1.5px solid var(--gray-3); border-radius:8px; display:none; align-items:center; gap:10px; background:var(--white);">
+            <img id="detBrandIcon" src="" alt="" style="width:32px;height:32px;border-radius:6px;object-fit:contain;background:#f5f5f5;flex-shrink:0;">
+            <div style="flex:1;min-width:0;">
+              <div id="detBrandName" style="font-size:14px;font-weight:600;color:var(--black);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
+              <div id="detBrandDomain" style="font-size:11px;color:var(--gray-5);"></div>
+            </div>
+            <button type="button" onclick="detClearCompany()" style="background:none;border:none;cursor:pointer;color:var(--gray-5);font-size:18px;line-height:1;padding:0 2px;" title="Remover">×</button>
+          </div>
+          <span class="field-error" id="det-empresaError" style="font-size:11px;display:none;color:#D32F2F;margin-top:4px;"></span>
         </div>
         <div class="form-group">
           <label>Segmento <span class="req">*</span></label>
@@ -563,6 +602,94 @@ select:disabled { background: var(--gray-1); color: var(--gray-5); cursor: not-a
 <script src="js/sanitize.js"></script>
 <script>
 
+// ─── BRANDFETCH (detentor) ───────────────────────────────
+const DET_BF_CLIENT_ID = '1idE-ar9WXT49s6Qb2f';
+let _detBfCache = [];
+let _detBfTimer = null;
+let _detSelectedBrand = null;
+
+function detHandleBrandfetchSearch(query) {
+  const results = document.getElementById('detBrandfetchResults');
+  clearTimeout(_detBfTimer);
+  if (!query || query.length < 2) { results.classList.remove('show'); return; }
+  _detBfTimer = setTimeout(() => detFetchBrandfetchSuggestions(query), 320);
+}
+
+async function detFetchBrandfetchSuggestions(query, autoSelectFirst = false) {
+  const results = document.getElementById('detBrandfetchResults');
+  try {
+    const res = await fetch(`https://api.brandfetch.io/v2/search/${encodeURIComponent(query)}?c=${DET_BF_CLIENT_ID}`);
+    if (!res.ok) return;
+    const data = await res.json();
+    if (!Array.isArray(data) || data.length === 0) { results.classList.remove('show'); return; }
+    _detBfCache = data.slice(0, 6);
+    if (autoSelectFirst && _detBfCache.length > 0) {
+      const b = _detBfCache[0];
+      detSelectBrandfetchBrand({ name: b.name || '', domain: b.domain || '', icon: b.icon || '' });
+      return;
+    }
+    results.innerHTML = _detBfCache.map((b, i) => `
+      <div class="det-bf-item" data-det-bf-index="${i}">
+        <img src="${b.icon || ''}" alt="" onerror="this.style.display='none'">
+        <div><div class="bf-name">${b.name || b.domain || ''}</div><div class="bf-domain">${b.domain || ''}</div></div>
+      </div>`).join('');
+    results.classList.add('show');
+  } catch(e) { /* silencioso */ }
+}
+
+function detSelectBrandfetchBrand(brand) {
+  _detSelectedBrand = brand;
+  const searchInput = document.getElementById('f-empresa');
+  const card = document.getElementById('detSelectedCard');
+  const results = document.getElementById('detBrandfetchResults');
+  const searchIcon = document.querySelector('.det-search-icon');
+  // Esconde input e lupa, mostra card
+  searchInput.style.display = 'none';
+  if (searchIcon) searchIcon.classList.add('hidden');
+  results.classList.remove('show');
+  // Preenche card
+  document.getElementById('detBrandIcon').src = brand.icon || '';
+  document.getElementById('detBrandIcon').style.display = brand.icon ? '' : 'none';
+  document.getElementById('detBrandName').textContent = brand.name || brand.domain || '';
+  document.getElementById('detBrandDomain').textContent = brand.domain || '';
+  card.style.display = 'flex';
+  // Auto-fill website se ainda estiver vazio
+  const websiteInput = document.getElementById('f-website');
+  if (websiteInput && !websiteInput.value && brand.domain) {
+    websiteInput.value = 'https://' + brand.domain;
+  }
+}
+
+function detClearCompany() {
+  _detSelectedBrand = null;
+  const searchInput = document.getElementById('f-empresa');
+  const card = document.getElementById('detSelectedCard');
+  const searchIcon = document.querySelector('.det-search-icon');
+  searchInput.style.display = '';
+  searchInput.value = '';
+  if (searchIcon) searchIcon.classList.remove('hidden');
+  card.style.display = 'none';
+  document.getElementById('detBrandfetchResults').classList.remove('show');
+  searchInput.focus();
+}
+
+// Event delegation para clicks no dropdown
+document.addEventListener('click', function(e) {
+  const item = e.target.closest('[data-det-bf-index]');
+  if (item) {
+    const idx = parseInt(item.dataset.detBfIndex, 10);
+    const b = _detBfCache[idx];
+    if (b) detSelectBrandfetchBrand({ name: b.name || '', domain: b.domain || '', icon: b.icon || '' });
+    return;
+  }
+  // Fecha dropdown ao clicar fora
+  const box = document.getElementById('det-company-search-box');
+  if (box && !box.contains(e.target)) {
+    document.getElementById('detBrandfetchResults').classList.remove('show');
+  }
+});
+// ─────────────────────────────────────────────────────────
+
 async function sbInsert(table, data) {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
     method: 'POST',
@@ -715,7 +842,7 @@ const checkCodigoThrottled = throttle(checkCodigo, 800);
 async function submitCadastro() {
   const nome    = urlNome  || document.getElementById('f-nome')?.value.trim()  || '';
   const email   = urlEmail || document.getElementById('f-email')?.value.trim() || '';
-  const empresa  = document.getElementById('f-empresa').value.trim();
+  const empresa  = (_detSelectedBrand && _detSelectedBrand.name) ? _detSelectedBrand.name : document.getElementById('f-empresa').value.trim();
   const segmento = document.getElementById('f-segmento').value;
   const dialCode = document.getElementById('phoneDial').textContent.trim();
   const telNum   = document.getElementById('f-tel').value.trim();
