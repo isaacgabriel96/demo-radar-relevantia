@@ -248,14 +248,41 @@ select:disabled { background: var(--gray-1); color: var(--gray-5); cursor: not-a
 
 @media (max-width: 900px) {
   body { flex-direction: column; }
-  .panel-left { width: 100%; height: auto; position: static; padding: 28px 24px; }
-  .panel-logo { margin-bottom: 20px; }
-  .panel-title { font-size: 26px; }
+  .panel-left { width: 100%; height: auto; position: static; padding: 24px 20px 20px; }
+  .panel-logo { margin-bottom: 14px; }
+  .panel-title { font-size: 22px; line-height: 1.3; }
+  .panel-desc { font-size: 14px; }
   .panel-steps { display: none; }
-  .panel-right { padding: 36px 24px 60px; }
-  .form-row { grid-template-columns: 1fr; }
+  .panel-right { padding: 28px 20px 60px; }
+  .form-section-title { font-size: 13px; }
+  .form-row { grid-template-columns: 1fr; gap: 10px; }
+  .form-group label { font-size: 13px; }
+  .form-group input,
+  .form-group select,
+  .select-wrap select { font-size: 15px; padding: 10px 14px; min-height: 44px; }
+  .select-wrap::after { top: 50%; transform: translateY(-50%); }
+  .input-hint { font-size: 11px; }
+  .btn-pill { font-size: 14px; padding: 12px 28px; min-height: 46px; width: 100%; }
+  .btn-outline-sm { font-size: 13px; padding: 8px 20px; }
+  .step-nav { flex-direction: column; gap: 10px; align-items: stretch; }
+  .step-nav .btn-pill { width: 100%; text-align: center; }
+  .step-indicator { gap: 6px; }
+  .step-dot { width: 28px; height: 28px; font-size: 11px; }
+  .step-line { width: 18px; }
   .confirmed-row { flex-direction: column; gap: 12px; }
   .pending-channels { flex-direction: column; }
+  #detSelectedCard { gap: 10px; padding: 10px 12px; }
+  .det-bf-item { padding: 10px 12px; }
+  .det-bf-item img { width: 32px; height: 32px; }
+}
+
+@media (max-width: 480px) {
+  .panel-left { padding: 18px 16px 16px; }
+  .panel-title { font-size: 19px; }
+  .panel-right { padding: 22px 16px 60px; }
+  .form-group input,
+  .form-group select,
+  .select-wrap select { font-size: 16px; /* prevent iOS zoom */ }
 }
 
 /* ── Brandfetch search (detentor) ── */
@@ -924,7 +951,6 @@ async function submitCadastro() {
       indicacao,
       codigo_convite: codigo || null,
       codigo_valido,
-      prioridade: codigo_valido,
       status: 'pendente'
     });
 
