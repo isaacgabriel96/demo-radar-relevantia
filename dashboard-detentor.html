@@ -1458,13 +1458,15 @@ tbody tr:last-child td { border-bottom: none; }
               <input class="form-input empresa-field" id="empresaNomeInput" type="text" value="" disabled style="background:var(--gray-1,#F5F0E8)">
               <!-- Edit mode: Brandfetch search (aparece ao editar) -->
               <div id="empresaBrandfetchBox" style="display:none;position:relative;margin-top:8px">
-                <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);width:16px;height:16px;pointer-events:none;color:#C0C0C0;">
-                  <circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.5"/>
-                  <path d="M13.5 13.5L17 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
-                <input type="text" id="dashEmpresaSearch" placeholder="Buscar nova empresa pelo nome ou domínio..." autocomplete="off"
-                  class="form-input" style="padding-left:36px"
-                  oninput="dashBrandfetchSearch(this.value)">
+                <div id="dashSearchInputWrap" style="position:relative">
+                  <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);width:16px;height:16px;pointer-events:none;color:#C0C0C0;">
+                    <circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M13.5 13.5L17 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                  </svg>
+                  <input type="text" id="dashEmpresaSearch" placeholder="Buscar nova empresa pelo nome ou domínio..." autocomplete="off"
+                    class="form-input" style="padding-left:36px"
+                    oninput="dashBrandfetchSearch(this.value)">
+                </div>
                 <div id="dashBrandfetchResults" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1px solid var(--gray-2,#E0D8CC);border-radius:var(--radius-base);box-shadow:0 4px 16px rgba(30,22,0,.1);z-index:200;max-height:240px;overflow-y:auto"></div>
               </div>
               <!-- Card empresa selecionada via Brandfetch no dashboard -->
@@ -2406,10 +2408,10 @@ async function dashFetchBrandfetchSuggestions(query) {
 
 function dashSelectBrandfetchBrand(brand) {
   _dashSelectedBrand = brand;
-  const searchInput  = document.getElementById('dashEmpresaSearch');
-  const card         = document.getElementById('dashSelectedCard');
-  const results      = document.getElementById('dashBrandfetchResults');
-  if (searchInput) searchInput.style.display = 'none';
+  const searchWrap = document.getElementById('dashSearchInputWrap');
+  const card       = document.getElementById('dashSelectedCard');
+  const results    = document.getElementById('dashBrandfetchResults');
+  if (searchWrap) searchWrap.style.display = 'none';
   results.style.display = 'none';
   document.getElementById('dashBrandIcon').src = brand.icon || '';
   document.getElementById('dashBrandIcon').style.display = brand.icon ? '' : 'none';
@@ -2422,10 +2424,12 @@ function dashSelectBrandfetchBrand(brand) {
 
 function dashClearCompany() {
   _dashSelectedBrand = null;
+  const searchWrap  = document.getElementById('dashSearchInputWrap');
   const searchInput = document.getElementById('dashEmpresaSearch');
   const card        = document.getElementById('dashSelectedCard');
   const results     = document.getElementById('dashBrandfetchResults');
-  if (searchInput) { searchInput.style.display = ''; searchInput.value = ''; }
+  if (searchWrap)  { searchWrap.style.display = ''; }
+  if (searchInput) { searchInput.value = ''; }
   card.style.display = 'none';
   results.style.display = 'none';
   const hint = document.getElementById('empresaNomeChangeHint');
