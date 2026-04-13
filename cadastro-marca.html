@@ -139,7 +139,8 @@
   /* COMPANY SEARCH */
   .company-search-box { position: relative; }
   .company-search-box input { padding-left: 42px; }
-  .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--gray-light); pointer-events: none; }
+  .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--gray-light); pointer-events: none; transition: opacity 0.15s; }
+  .search-icon.hidden { display: none; }
   .company-results {
     position: absolute; top: calc(100% + 6px); left: 0; right: 0;
     background: var(--white); border: 1.5px solid var(--gray-border);
@@ -513,10 +514,6 @@
           <div class="step-dot">3</div>
           <div class="step-info"><div class="step-name">Objetivos</div><div class="step-desc">Metas de marketing e negócios</div></div>
         </div>
-        <div class="step-item" id="nav-step-4">
-          <div class="step-dot">4</div>
-          <div class="step-info"><div class="step-name">Público-alvo</div><div class="step-desc">Quem você quer impactar</div></div>
-        </div>
       </nav>
     </div>
     <div class="panel-bottom">
@@ -535,11 +532,11 @@
     <!-- STEP 1 -->
     <div class="step-panel active" id="step-1">
       <div class="step-header">
-        <div class="step-badge">Passo 1 de 4</div>
+        <div class="step-badge">Passo 1 de 3</div>
         <h1 class="step-title">Seu perfil de acesso</h1>
         <p class="step-subtitle">Dados pessoais do usuário responsável pela conta da marca.</p>
       </div>
-      <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:25%"></div></div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:33%"></div></div>
 
       <div class="form-grid cols-2">
         <div class="form-group">
@@ -666,11 +663,11 @@
     <!-- STEP 2 -->
     <div class="step-panel" id="step-2">
       <div class="step-header">
-        <div class="step-badge">Passo 2 de 4</div>
+        <div class="step-badge">Passo 2 de 3</div>
         <h1 class="step-title">Encontre sua empresa</h1>
         <p class="step-subtitle">Digite o nome da empresa para localizar e vincular sua conta.</p>
       </div>
-      <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:50%"></div></div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:66%"></div></div>
 
       <div class="company-search-box">
         <svg class="search-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -699,11 +696,11 @@
     <!-- STEP 3 -->
     <div class="step-panel" id="step-3">
       <div class="step-header">
-        <div class="step-badge">Passo 3 de 4</div>
-        <h1 class="step-title">Objetivos, Investimento &amp; Público</h1>
-        <p class="step-subtitle">O que você quer conquistar e quem é o consumidor da sua marca?</p>
+        <div class="step-badge">Passo 3 de 3</div>
+        <h1 class="step-title">Objetivos, Investimento &amp; Categorias</h1>
+        <p class="step-subtitle">O que você quer conquistar e em quais universos sua marca quer estar presente?</p>
       </div>
-      <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:75%"></div></div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:90%"></div></div>
 
       <div class="section-label" style="display:flex;align-items:center;gap:6px;">
         Principais objetivos de marketing <span class="req">*</span>
@@ -729,49 +726,6 @@
         <div class="budget-card" onclick="selectBudget(this)"><span class="value">R$ 200k–1M</span><span class="label">Scale</span></div>
         <div class="budget-card" onclick="selectBudget(this)"><span class="value">Acima de R$ 1M</span><span class="label">Enterprise</span></div>
       </div>
-
-      <div class="section-label" style="display:flex;align-items:center;gap:6px;">
-        Perfil de consumo <span class="req">*</span>
-        <span class="field-error" id="perfilError" style="margin:0 0 0 auto;font-size:11px;">Selecione ao menos 1 perfil.</span>
-      </div>
-      <p class="input-hint" style="margin-bottom:16px;">Quem é o consumidor final da sua marca. Ajuda a plataforma a sugerir parceiros cujo público se alinha com o seu.</p>
-      <div class="audience-grid" id="perfil-grid" style="margin-bottom:28px;">
-        <div class="audience-chip" onclick="toggleAudience(this)"><span class="emoji">🏙️</span><span class="name">Urbano</span></div>
-        <div class="audience-chip" onclick="toggleAudience(this)"><span class="emoji">🌾</span><span class="name">Interior / Agro</span></div>
-        <div class="audience-chip" onclick="toggleAudience(this)"><span class="emoji">💎</span><span class="name">Alto padrão</span></div>
-        <div class="audience-chip" onclick="toggleAudience(this)"><span class="emoji">📱</span><span class="name">Digital nativo</span></div>
-        <div class="audience-chip" onclick="toggleAudience(this)"><span class="emoji">🎮</span><span class="name">Entretenimento</span></div>
-        <div class="audience-chip" onclick="toggleAudience(this)"><span class="emoji">💼</span><span class="name">Executivos / B2B</span></div>
-        <div class="audience-chip" onclick="toggleAudience(this)"><span class="emoji">👨‍👩‍👧</span><span class="name">Família / Pais e filhos</span></div>
-        <div class="audience-chip" onclick="toggleAudience(this)"><span class="emoji">🎓</span><span name="name">Universitários / Jovem adulto</span></div>
-        <div class="audience-chip" onclick="toggleAudience(this)"><span class="emoji">👴</span><span class="name">Melhor idade (50+)</span></div>
-        <div class="audience-chip" onclick="toggleAudience(this)"><span class="emoji">💪</span><span class="name">Esportistas / Ativos</span></div>
-        <div class="audience-chip" onclick="toggleAudience(this)"><span class="emoji">🌱</span><span class="name">Consumo consciente</span></div>
-        <div class="audience-chip" onclick="toggleAudience(this)"><span class="emoji">✈️</span><span class="name">Viajantes frequentes</span></div>
-        <div class="audience-chip" onclick="toggleAudience(this)"><span class="emoji">👗</span><span class="name">Formadores de opinião</span></div>
-        <div class="audience-chip" onclick="toggleAudience(this)"><span class="emoji">🎨</span><span class="name">Criativos / Artistas</span></div>
-        <div class="audience-chip" onclick="toggleAudience(this)"><span class="emoji">🤝</span><span class="name">Empreendedores</span></div>
-        <div class="audience-chip" onclick="toggleAudience(this)"><span class="emoji">⛪</span><span class="name">Comunidade religiosa</span></div>
-        <div class="audience-chip" onclick="toggleAudience(this)"><span class="emoji">🏘️</span><span class="name">Periferia / Classe C e D</span></div>
-        <div class="audience-chip" onclick="toggleAudience(this)"><span class="emoji">👶</span><span class="name">Geração Z (até 25 anos)</span></div>
-        <div class="audience-chip" onclick="toggleAudience(this)"><span class="emoji">🏆</span><span class="name">Alta performance</span></div>
-        <div class="audience-chip" onclick="toggleAudience(this)"><span class="emoji">🌍</span><span class="name">Cosmopolita / Multicultural</span></div>
-      </div>
-
-      <div class="step-actions">
-        <button class="btn-back" onclick="goToStep(2)"><svg viewBox="0 0 16 16" fill="none"><path d="M10 12L6 8l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Voltar</button>
-        <button class="btn-next" onclick="goToStep(4)">Continuar <svg viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-      </div>
-    </div>
-
-    <!-- STEP 4 -->
-    <div class="step-panel" id="step-4">
-      <div class="step-header">
-        <div class="step-badge">Passo 4 de 4</div>
-        <h1 class="step-title">Categorias de interesse</h1>
-        <p class="step-subtitle">Em quais universos sua marca quer estar presente na plataforma?</p>
-      </div>
-      <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:95%"></div></div>
 
       <div class="section-label" style="display:flex;align-items:center;gap:6px;">
         Categorias de interesse <span class="req">*</span>
@@ -803,7 +757,7 @@
       </div>
 
       <div class="step-actions">
-        <button class="btn-back" onclick="goToStep(3)"><svg viewBox="0 0 16 16" fill="none"><path d="M10 12L6 8l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Voltar</button>
+        <button class="btn-back" onclick="goToStep(2)"><svg viewBox="0 0 16 16" fill="none"><path d="M10 12L6 8l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Voltar</button>
         <button class="btn-next btn-submit" onclick="submitForm()">Enviar cadastro <svg viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       </div>
     </div>
@@ -995,7 +949,7 @@
     document.getElementById('nav-step-' + currentStep).classList.add('completed');
     currentStep = step;
     document.getElementById('step-' + currentStep).classList.add('active');
-    for (let i = 1; i <= 4; i++) {
+    for (let i = 1; i <= 3; i++) {
       const nav = document.getElementById('nav-step-' + i);
       nav.classList.remove('active','completed');
       if (i < step) nav.classList.add('completed');
@@ -1026,7 +980,7 @@
   }
 
   async function submitForm() {
-    // Valida categorias de interesse (step 4)
+    // Valida categorias de interesse (step 3)
     const catSel = document.querySelectorAll('#categorias-grid .audience-chip.selected');
     const catErr = document.getElementById('categoriaError');
     const catGrid = document.getElementById('categorias-grid');
@@ -1057,11 +1011,6 @@
     const cnpj     = ''; // não coletado neste fluxo
     const segmento = ''; // não coletado neste fluxo
 
-    // Step 3 — perfil de consumo
-    const perfil_consumo = Array.from(
-      document.querySelectorAll('#step-3 .audience-chip.selected')
-    ).map(c => c.querySelector('.name')?.textContent.trim() || c.textContent.trim());
-
     // Step 3 — objetivos
     const objetivos = Array.from(
       document.querySelectorAll('#objectives-grid .objective-card.selected')
@@ -1071,8 +1020,8 @@
     const orcEl = document.querySelector('#budget-options .budget-card.selected');
     const orcamento = orcEl ? (orcEl.querySelector('.value')?.textContent.trim() || '') : '';
 
-    // Step 4 — categorias de interesse
-    const categorias = Array.from(catSel).map(c => c.textContent.trim());
+    // Step 3 — categorias de interesse
+    const categorias = Array.from(catSel).map(c => c.querySelector('.name')?.textContent.trim() || c.textContent.trim());
 
     // ─── Indicação & Código ───
     const indicacao_nome = document.getElementById('referredBy').value.trim();
@@ -1096,7 +1045,6 @@
         cnpj,
         segmento,
         website,
-        perfil_consumo,
         objetivos,
         orcamento,
         categorias,
@@ -1145,7 +1093,7 @@
   // cache dos resultados Brandfetch para uso no event listener
   let _bfCache = [];
 
-  async function fetchBrandfetchSuggestions(query) {
+  async function fetchBrandfetchSuggestions(query, autoSelectFirst = false) {
     const results = document.getElementById('brandfetchResults');
     try {
       const res = await fetch(`https://api.brandfetch.io/v2/search/${encodeURIComponent(query)}?c=${BRANDFETCH_CLIENT_ID}`);
@@ -1153,6 +1101,12 @@
       const data = await res.json();
       if (!Array.isArray(data) || data.length === 0) { results.classList.remove('show'); return; }
       _bfCache = data.slice(0, 6);
+      // Auto-seleciona o primeiro resultado (usado no prefill)
+      if (autoSelectFirst && _bfCache.length > 0) {
+        const b = _bfCache[0];
+        selectBrandfetchBrand({ name: b.name||'', domain: b.domain||'', icon: b.icon||'' });
+        return;
+      }
       results.innerHTML = _bfCache.map((b, i) => {
         const avatarContent = b.icon
           ? `<img src="${b.icon}" alt="" onerror="this.parentElement.textContent='${(b.name||'?')[0].toUpperCase()}'"/>`
@@ -1188,6 +1142,9 @@
     document.getElementById('selectedMeta').textContent = brand.domain || '';
     document.getElementById('selectedCompany').classList.add('show');
     searchInput.style.display = 'none';
+    // Esconde lupa junto com o input
+    const searchIcon = document.querySelector('#step-2 .search-icon');
+    if (searchIcon) searchIcon.classList.add('hidden');
     // Esconde erro se estava visível
     const errEl = document.getElementById('companySearchError');
     if (errEl) errEl.style.display = 'none';
@@ -1201,6 +1158,9 @@
     searchInput.value = '';
     searchInput.focus();
     document.getElementById('brandfetchResults').classList.remove('show');
+    // Mostra lupa novamente
+    const searchIcon = document.querySelector('#step-2 .search-icon');
+    if (searchIcon) searchIcon.classList.remove('hidden');
   }
 
   // Mantida para compatibilidade (prefillCompanyFromEmail usa setCompanyMode internamente)
@@ -1247,7 +1207,9 @@
         hint.textContent = 'Sugerido com base no seu e-mail — edite se necessário';
         searchInput.closest('.company-search-box').insertAdjacentElement('afterend', hint);
       }
-      // NÃO dispara busca automática — usuário digita para ver sugestões
+      // Dispara busca e auto-seleciona o primeiro resultado
+      clearTimeout(_bfTimer);
+      _bfTimer = setTimeout(() => fetchBrandfetchSuggestions(suggestedName, true), 320);
     }
     _prefillDone = true;
   }
@@ -1399,18 +1361,6 @@
   // ── VALIDAÇÃO STEP 3 ──
   function validateStep3() {
     let ok = true;
-    // perfil de consumo
-    const perfilSel = document.querySelectorAll('#perfil-grid .audience-chip.selected');
-    const perfilErr = document.getElementById('perfilError');
-    const perfilGrid = document.getElementById('perfil-grid');
-    if (perfilSel.length === 0) {
-      perfilErr.classList.add('show');
-      perfilGrid.classList.add('error');
-      ok = false;
-    } else {
-      perfilErr.classList.remove('show');
-      perfilGrid.classList.remove('error');
-    }
     // objetivos
     const objSel = document.querySelectorAll('#objectives-grid .objective-card.selected');
     const objErr = document.getElementById('objetivoError');
@@ -1435,8 +1385,20 @@
       budgErr.classList.remove('show');
       budgWrap.classList.remove('error');
     }
+    // categorias de interesse
+    const catSel = document.querySelectorAll('#categorias-grid .audience-chip.selected');
+    const catErr = document.getElementById('categoriaError');
+    const catGrid = document.getElementById('categorias-grid');
+    if (catSel.length === 0) {
+      catErr.classList.add('show');
+      catGrid.classList.add('error');
+      ok = false;
+    } else {
+      catErr.classList.remove('show');
+      catGrid.classList.remove('error');
+    }
     if (!ok) {
-      const firstErr = document.querySelector('#objectives-grid.error, #budget-options.error');
+      const firstErr = document.querySelector('#objectives-grid.error, #budget-options.error, #categorias-grid.error');
       if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
     return ok;
