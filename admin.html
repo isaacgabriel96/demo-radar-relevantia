@@ -2196,6 +2196,10 @@ async function rejeitarContrato(negId) {
 }
 
 // ── Mudanças de Marca ──────────────────────────────────────
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
 async function loadMudancasMarca() {
   const tbody = document.getElementById('tbodyMudancasMarca');
   const count = document.getElementById('countMudancasMarca');
@@ -2237,20 +2241,20 @@ async function loadMudancasMarca() {
         : '';
       return `<tr id="mudanca-row-${r.id}">
         <td>
-          <div style="font-weight:600">${sanitizeText(r.nome || '—')}</div>
-          <div style="font-size:12px;color:#888">${sanitizeText(r.email || '')}</div>
+          <div style="font-weight:600">${esc(r.nome || '—')}</div>
+          <div style="font-size:12px;color:#888">${esc(r.email || '')}</div>
         </td>
-        <td>${sanitizeText(r.empresa || '—')}</td>
+        <td>${esc(r.empresa || '—')}</td>
         <td>
           <div style="display:flex;align-items:center">
             ${iconHtml}
             <div>
-              <div style="font-weight:600">${sanitizeText(pending.name || '—')}</div>
-              ${pending.website ? `<div style="font-size:12px;color:#888">${sanitizeText(pending.website)}</div>` : ''}
+              <div style="font-weight:600">${esc(pending.name || '—')}</div>
+              ${pending.website ? `<div style="font-size:12px;color:#888">${esc(pending.website)}</div>` : ''}
             </div>
           </div>
         </td>
-        <td style="font-size:13px;color:#888">${sanitizeText(pending.domain || '—')}</td>
+        <td style="font-size:13px;color:#888">${esc(pending.domain || '—')}</td>
         <td style="font-size:13px">${reqAt}</td>
         <td>
           <div style="display:flex;gap:6px">
