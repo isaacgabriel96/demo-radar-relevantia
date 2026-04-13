@@ -92,9 +92,9 @@ input[type="password"], input[type="url"], select {
 input:focus, select:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,164,58,0.12); }
 input::placeholder { color: #C0C0C0; }
 .input-hint { font-size: 11px; color: var(--gray-5); margin-top: 5px; }
-.select-wrap { position: relative; }
+.select-wrap { position: relative; width: 100%; }
 .select-wrap::after { content: '▾'; position: absolute; right: 13px; top: 50%; transform: translateY(-50%); color: var(--gray-5); font-size: 12px; pointer-events: none; }
-.select-wrap select { padding-right: 34px; }
+.select-wrap select { padding-right: 34px; width: 100%; }
 select:disabled { background: var(--gray-1); color: var(--gray-5); cursor: not-allowed; }
 
 .code-wrap { position: relative; }
