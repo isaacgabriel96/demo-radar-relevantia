@@ -1422,6 +1422,22 @@ tbody tr:last-child td { border-bottom: none; }
         </div>
       </div>
 
+      <!-- Card: Identidade da empresa (logo + domain) -->
+      <div class="card" id="cardLogoEmpresa" style="margin-bottom:16px">
+        <div style="padding:20px 24px;display:flex;align-items:center;gap:20px">
+          <!-- Logo -->
+          <div id="empresaLogoWrap" style="width:64px;height:64px;border-radius:var(--radius-md);overflow:hidden;flex-shrink:0;background:var(--gray-1,#F5F0E8);display:flex;align-items:center;justify-content:center;border:1px solid var(--gray-2,#E0D8CC)">
+            <img id="empresaLogoImg" src="" alt="Logo" style="width:100%;height:100%;object-fit:contain;display:none">
+            <span id="empresaLogoFallback" style="font-family:var(--font-heading,'Poppins'),sans-serif;font-size:24px;font-weight:700;color:var(--gold,#B8860B)">?</span>
+          </div>
+          <!-- Info -->
+          <div style="flex:1;min-width:0">
+            <div id="empresaLogoNome" style="font-family:var(--font-heading,'Poppins'),sans-serif;font-size:16px;font-weight:600;color:var(--black,#1A1200);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">—</div>
+            <div id="empresaLogoDomain" style="font-size:12px;color:var(--gray-3,#A89880);margin-top:3px">—</div>
+          </div>
+        </div>
+      </div>
+
       <div class="card">
         <div class="card-header">
           <div class="card-title">Dados da empresa</div>
@@ -1885,6 +1901,38 @@ function populateDetenorFields(p) {
   if (perfilFields[1]) perfilFields[1].value = p.email || '';
   if (perfilFields[2]) perfilFields[2].value = p.telefone || '';
   if (perfilFields[3]) perfilFields[3].value = p.cargo || '';
+
+  // Logo identity card
+  const nomeEl   = document.getElementById('empresaLogoNome');
+  const domainEl = document.getElementById('empresaLogoDomain');
+  const img      = document.getElementById('empresaLogoImg');
+  const fallback = document.getElementById('empresaLogoFallback');
+
+  const nomeEmpresa = p.empresa || '';
+  if (nomeEl) nomeEl.textContent = nomeEmpresa || '—';
+  // Store raw empresa_domain in dataset for saveEmpresa to read back
+  if (domainEl) {
+    const rawDomain = p.empresa_domain || null;
+    domainEl.dataset.value = rawDomain || '';
+    domainEl.textContent = rawDomain || (p.website ? p.website.replace(/^https?:\/\//, '') : '—');
+  }
+
+  if (img && fallback) {
+    if (p.logo_url) {
+      img.src = p.logo_url;
+      img.style.display = 'block';
+      fallback.style.display = 'none';
+      img.onerror = function() {
+        img.style.display = 'none';
+        fallback.style.display = '';
+        fallback.textContent = nomeEmpresa ? nomeEmpresa.charAt(0).toUpperCase() : '?';
+      };
+    } else {
+      img.style.display = 'none';
+      fallback.style.display = '';
+      fallback.textContent = nomeEmpresa ? nomeEmpresa.charAt(0).toUpperCase() : '?';
+    }
+  }
 }
 
 // ─── LOAD USER INFO (SDK → localStorage → MOCK fallback) ───
@@ -1914,7 +1962,7 @@ async function loadUserInfoDetentor() {
         // Tentar buscar nome real na tabela perfis
         try {
           const token = session.access_token;
-          const res = await fetch(SUPABASE_URL + '/rest/v1/perfis?id=eq.' + session.user.id + '&select=nome,empresa,email,cnpj,segmento,telefone,website,descricao,cargo&limit=1', {
+          const res = await fetch(SUPABASE_URL + '/rest/v1/perfis?id=eq.' + session.user.id + '&select=nome,empresa,email,cnpj,segmento,telefone,website,descricao,cargo,empresa_domain,logo_url&limit=1', {
             headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token }
           });
           if (res.ok) {
@@ -2303,13 +2351,24 @@ async function saveEmpresa() {
     const fields = document.querySelectorAll('.empresa-field');
     const userId = await getAuthUserId();
     if (userId && fields.length >= 6) {
+      // Read empresa_domain and logo_url from the identity card (set by populateDetenorFields)
+      const domainEl = document.getElementById('empresaLogoDomain');
+      const imgEl    = document.getElementById('empresaLogoImg');
+      const nomeAtual = fields[0]?.value?.trim() || null;
+
+      // empresa_domain: stored in dataset to survive edits
+      const empresaDomain = (domainEl && domainEl.dataset.value) ? domainEl.dataset.value : null;
+      const logoUrl       = (imgEl && imgEl.src && imgEl.style.display !== 'none') ? imgEl.src : null;
+
       const updates = {
-        empresa:   fields[0]?.value?.trim() || null,
-        cnpj:      fields[1]?.value?.trim() || null,
-        segmento:  fields[2]?.value || null,
-        telefone:  fields[3]?.value?.trim() || null,
-        website:   fields[5]?.value?.trim() || null,
-        descricao: fields[6]?.value?.trim() || null
+        empresa:        nomeAtual,
+        cnpj:           fields[1]?.value?.trim() || null,
+        segmento:       fields[2]?.value || null,
+        telefone:       fields[3]?.value?.trim() || null,
+        website:        fields[5]?.value?.trim() || null,
+        descricao:      fields[6]?.value?.trim() || null,
+        empresa_domain: empresaDomain,
+        logo_url:       logoUrl
       };
       const token = await _getWriteToken();
       if (token) {
@@ -2318,6 +2377,14 @@ async function saveEmpresa() {
           headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token,
             'Content-Type': 'application/json', 'Prefer': 'return=minimal' }
         });
+      }
+      // Update logo identity card nome in case user changed the empresa field
+      const nomeEl = document.getElementById('empresaLogoNome');
+      if (nomeEl && nomeAtual) nomeEl.textContent = nomeAtual;
+      // Update fallback letter
+      const fallbackEl = document.getElementById('empresaLogoFallback');
+      if (fallbackEl && imgEl && imgEl.style.display === 'none') {
+        fallbackEl.textContent = nomeAtual ? nomeAtual.charAt(0).toUpperCase() : '?';
       }
     }
   }

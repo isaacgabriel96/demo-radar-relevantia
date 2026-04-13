@@ -870,7 +870,9 @@ const checkCodigoThrottled = throttle(checkCodigo, 800);
 async function submitCadastro() {
   const nome    = urlNome  || document.getElementById('f-nome')?.value.trim()  || '';
   const email   = urlEmail || document.getElementById('f-email')?.value.trim() || '';
-  const empresa  = (_detSelectedBrand && _detSelectedBrand.name) ? _detSelectedBrand.name : document.getElementById('f-empresa').value.trim();
+  const empresa        = (_detSelectedBrand && _detSelectedBrand.name) ? _detSelectedBrand.name : document.getElementById('f-empresa').value.trim();
+  const empresa_domain = (_detSelectedBrand && _detSelectedBrand.domain) ? _detSelectedBrand.domain : null;
+  const logo_url       = (_detSelectedBrand && _detSelectedBrand.icon)   ? _detSelectedBrand.icon   : null;
   const segmento = document.getElementById('f-segmento').value;
   const dialCode = document.getElementById('phoneDial').textContent.trim();
   const telNum   = document.getElementById('f-tel').value.trim();
@@ -942,6 +944,8 @@ async function submitCadastro() {
       nome,
       email,
       empresa,
+      empresa_domain: empresa_domain || null,
+      logo_url:       logo_url       || null,
       segmento,
       telefone: tel,
       website: website || null,
