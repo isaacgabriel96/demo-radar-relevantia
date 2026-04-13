@@ -1238,17 +1238,16 @@
     const searchInput = document.getElementById('companySearch');
     if (searchInput && !searchInput.value) {
       searchInput.value = suggestedName;
-      // Hint de sugestão
+      // Hint de sugestão — inserido FORA da search-box para não interferir no dropdown
       const existingHint = document.getElementById('prefillHint');
       if (!existingHint) {
         const hint = document.createElement('p');
         hint.id = 'prefillHint';
         hint.className = 'prefill-hint';
-        hint.textContent = '✦ Sugerido com base no seu e-mail — edite se necessário';
-        searchInput.parentNode.appendChild(hint);
+        hint.textContent = 'Sugerido com base no seu e-mail — edite se necessário';
+        searchInput.closest('.company-search-box').insertAdjacentElement('afterend', hint);
       }
-      // Dispara busca Brandfetch automaticamente
-      handleBrandfetchSearch(suggestedName);
+      // NÃO dispara busca automática — usuário digita para ver sugestões
     }
     _prefillDone = true;
   }
