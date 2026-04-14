@@ -428,9 +428,8 @@ a { text-decoration: none; color: inherit; }
 .canal-reach { font-size: 12px; color: var(--gray-400); }
 
 /* ─── INCENTIVO FISCAL ─── */
-.incentivo-banner { background: var(--gold-pale, #FBF5E6); border: 1.5px solid rgba(184,134,11,0.22); border-radius: var(--radius-lg); padding: 20px 22px 22px; margin-bottom: 20px; }
+.incentivo-banner { background: var(--gold-pale, #FBF5E6); border: 1.5px solid rgba(184,134,11,0.22); border-radius: var(--radius-lg); padding: 20px 22px 22px; margin-top: 20px; }
 .incentivo-banner-title { display: flex; align-items: center; gap: 8px; font-family: var(--font-heading); font-size: 13px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 16px; }
-.incentivo-banner-title svg { color: var(--gold); flex-shrink: 0; }
 .incentivo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
 .incentivo-card { background: var(--white); border: 1px solid rgba(184,134,11,0.15); border-radius: var(--radius-md); padding: 14px 16px; }
 .incentivo-card .incentivo-label { font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--gray-400); margin-bottom: 5px; font-family: var(--font-body); font-weight: 600; }
@@ -1200,17 +1199,16 @@ a { text-decoration: none; color: inherit; }
 
             <!-- SECTION: Oportunidades (ex-Cotas) -->
             <div class="tab-panel" id="tab-cotas">
-              <!-- Incentivo Fiscal — exibido acima dos cards quando disponível -->
+              <div class="opps-list" id="cotasGrid"></div>
+              <!-- Incentivo Fiscal — exibido abaixo dos cards quando disponível -->
               <div id="incentivo-in-cotas" style="display:none">
                 <div class="incentivo-banner" id="incentivoBanner">
                   <div class="incentivo-banner-title">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                     Incentivo fiscal disponível
                   </div>
                   <div class="incentivo-grid" id="incentivoGrid"></div>
                 </div>
               </div>
-              <div class="opps-list" id="cotasGrid"></div>
             </div>
 
             <!-- MODAL: Detalhe de oportunidade -->
@@ -1307,8 +1305,8 @@ a { text-decoration: none; color: inherit; }
         </div>
 
         <!-- Incentivo Fiscal toggle (ocultado se a oportunidade não tiver incentivo) -->
-        <label class="modal-incentivo-toggle" id="modal-incentivo-group" style="display:none" onclick="toggleIncentivoModal(this)">
-          <input type="checkbox" id="modalIncentivoCheck">
+        <div class="modal-incentivo-toggle" id="modal-incentivo-group" style="display:none" onclick="toggleIncentivoModal(this)">
+          <input type="checkbox" id="modalIncentivoCheck" style="display:none">
           <div class="modal-incentivo-checkbox">
             <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </div>
@@ -1316,7 +1314,7 @@ a { text-decoration: none; color: inherit; }
             <strong>Tenho interesse no incentivo fiscal</strong>
             <span id="modal-incentivo-label">Lei Paulo Gustavo — R$ 1.000.000</span>
           </div>
-        </label>
+        </div>
 
         <!-- Assunto -->
         <div>
@@ -2045,7 +2043,7 @@ function renderPage(oppOverride) {
         '<div class="incentivo-value">' + escapeHtml(d.categoria || '—') + '</div>' +
       '</div>' +
       '<div class="incentivo-card">' +
-        '<div class="incentivo-label">Valor captado</div>' +
+        '<div class="incentivo-label">Valor esperado</div>' +
         '<div class="incentivo-value">' + escapeHtml(valorFormatado) + '</div>' +
       '</div>' +
       '<div class="incentivo-card">' +
