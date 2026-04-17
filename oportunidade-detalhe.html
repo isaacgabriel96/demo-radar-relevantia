@@ -394,6 +394,85 @@ a { text-decoration: none; color: inherit; }
 .section-divider-title { font-family: var(--font-heading); font-size: 26px; font-weight: 700; color: var(--black); letter-spacing: -0.02em; margin-bottom: 6px; }
 .section-divider-sub { font-size: 14px; color: var(--gray-400); margin-bottom: 24px; }
 
+/* ── Login Gate (paywall para não logados) ── */
+.login-gate-overlay {
+  position: fixed; inset: 0; z-index: 900;
+  display: flex; align-items: flex-end; justify-content: center;
+  pointer-events: none;
+}
+.login-gate-overlay::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(26,18,0,0.92) 0%, rgba(26,18,0,0.55) 40%, transparent 70%);
+  pointer-events: none;
+}
+.login-gate-card {
+  position: relative; z-index: 1;
+  background: var(--white);
+  border-radius: 24px 24px 0 0;
+  width: 100%; max-width: 540px;
+  padding: 36px 40px 40px;
+  box-shadow: 0 -8px 48px rgba(30,22,0,0.18);
+  text-align: center;
+  pointer-events: auto;
+  transform: translateY(100%);
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.login-gate-overlay.visible .login-gate-card {
+  transform: translateY(0);
+}
+.login-gate-icon {
+  width: 56px; height: 56px; border-radius: 50%;
+  background: var(--gold-gradient);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 20px;
+  box-shadow: 0 4px 20px rgba(184,134,11,0.3);
+}
+.login-gate-title {
+  font-family: var(--font-heading);
+  font-size: 20px; font-weight: 700;
+  color: var(--black); margin: 0 0 8px;
+  line-height: 1.3;
+}
+.login-gate-sub {
+  font-family: var(--font-body);
+  font-size: 14px; color: var(--gray-4);
+  line-height: 1.6; margin: 0 0 28px;
+}
+.login-gate-actions {
+  display: flex; flex-direction: column; gap: 10px;
+}
+.login-gate-btn-primary {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 14px 28px; border-radius: var(--radius-pill);
+  background: var(--gold-gradient);
+  color: #fff; border: none; cursor: pointer;
+  font-family: var(--font-body); font-size: 15px; font-weight: 600;
+  box-shadow: 0 4px 16px rgba(184,134,11,0.35);
+  text-decoration: none; transition: opacity 0.2s;
+}
+.login-gate-btn-primary:hover { opacity: 0.9; }
+.login-gate-btn-secondary {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 13px 28px; border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--black); border: 1.5px solid var(--gray-2); cursor: pointer;
+  font-family: var(--font-body); font-size: 15px; font-weight: 600;
+  text-decoration: none; transition: border-color 0.2s, background 0.2s;
+}
+.login-gate-btn-secondary:hover { border-color: var(--gray-3); background: var(--gray-1); }
+.login-gate-divider {
+  display: flex; align-items: center; gap: 12px;
+  margin: 4px 0; color: var(--gray-3); font-size: 12px;
+}
+.login-gate-divider::before, .login-gate-divider::after {
+  content: ''; flex: 1; height: 1px; background: var(--gray-2);
+}
+@media (max-width: 600px) {
+  .login-gate-card { padding: 28px 24px 32px; border-radius: 20px 20px 0 0; }
+  .login-gate-title { font-size: 18px; }
+}
+
 /* ── Oportunidade Modal ── */
 .opp-modal-overlay { position: fixed; inset: 0; background: rgba(26,18,0,0.78); z-index: 1000; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 0.25s ease, visibility 0.25s; }
 .opp-modal-overlay.open { opacity: 1; visibility: visible; pointer-events: auto; }
@@ -2819,10 +2898,75 @@ async function requestAccess(oppId, marcaId) {
   }
 }
 
+/* ─── LOGIN GATE (paywall para não logados) ─── */
+function renderLoginGate(oppData) {
+  // Blur no conteúdo principal
+  var sectionsToBlur = ['.detail-gallery', '.gallery-mobile-strip', '.detail-body', '.owner-section', '.similar-section'];
+  sectionsToBlur.forEach(function(sel) {
+    var el = document.querySelector(sel);
+    if (el) { el.style.filter = 'blur(6px)'; el.style.pointerEvents = 'none'; el.style.userSelect = 'none'; }
+  });
+
+  var oppTitle = (oppData && oppData.title) ? oppData.title : 'esta oportunidade';
+  var returnUrl = encodeURIComponent(window.location.href);
+
+  var overlay = document.createElement('div');
+  overlay.id = 'login-gate-overlay';
+  overlay.className = 'login-gate-overlay';
+
+  overlay.innerHTML = [
+    '<div class="login-gate-card">',
+      '<div class="login-gate-icon">',
+        '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">',
+          '<path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/>',
+          '<polyline points="10 17 15 12 10 7"/>',
+          '<line x1="15" y1="12" x2="3" y2="12"/>',
+        '</svg>',
+      '</div>',
+      '<h2 class="login-gate-title">Faça login para ver os detalhes</h2>',
+      '<p class="login-gate-sub">',
+        'Para acessar <strong>' + escapeHtml(oppTitle) + '</strong>,<br>',
+        'entre na sua conta ou cadastre sua marca gratuitamente.',
+      '</p>',
+      '<div class="login-gate-actions">',
+        '<a href="index.html?redirect=' + returnUrl + '" class="login-gate-btn-primary">',
+          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">',
+            '<path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/>',
+            '<polyline points="10 17 15 12 10 7"/>',
+            '<line x1="15" y1="12" x2="3" y2="12"/>',
+          '</svg>',
+          'Entrar na minha conta',
+        '</a>',
+        '<div class="login-gate-divider">ou</div>',
+        '<a href="cadastro-marca.html?redirect=' + returnUrl + '" class="login-gate-btn-secondary">',
+          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">',
+            '<path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/>',
+            '<circle cx="9" cy="7" r="4"/>',
+            '<line x1="19" y1="8" x2="19" y2="14"/>',
+            '<line x1="22" y1="11" x2="16" y2="11"/>',
+          '</svg>',
+          'Cadastrar minha marca',
+        '</a>',
+      '</div>',
+    '</div>'
+  ].join('');
+
+  document.body.appendChild(overlay);
+
+  // Anima entrada após um frame
+  requestAnimationFrame(function() {
+    requestAnimationFrame(function() {
+      overlay.classList.add('visible');
+    });
+  });
+}
+
 /* ─── APPROVAL BLOCKED OVERLAY ─── */
 // existingRequest: null | { id, status } — solicitação já existente desta marca
-function renderApprovalGate(oppData, existingRequest) {
+// visibilidadeMode: 'aprovacao' | 'convidadas' — ajusta textos do gate
+function renderApprovalGate(oppData, existingRequest, visibilidadeMode) {
   var reqStatus = existingRequest ? existingRequest.status : null; // null | 'pendente' | 'recusado'
+  var isConvidadas = (visibilidadeMode === 'convidadas');
 
   // Cria overlay de acesso bloqueado
   var overlay = document.createElement('div');
@@ -2878,7 +3022,12 @@ function renderApprovalGate(oppData, existingRequest) {
     ].join('');
   } else {
     // Sem solicitação — CTA para solicitar
-    messageHtml = [
+    messageHtml = isConvidadas ? [
+      '<p style="font-family:\'DM Sans\',sans-serif;font-size:15px;color:#5C4C38;line-height:1.6;margin:0 0 32px">',
+        'Esta oportunidade é <strong>exclusiva para convidados</strong>.<br>',
+        'Você recebeu o link, mas ainda precisa solicitar acesso para que o detentor aprove sua empresa.',
+      '</p>'
+    ].join('') : [
       '<p style="font-family:\'DM Sans\',sans-serif;font-size:15px;color:#5C4C38;line-height:1.6;margin:0 0 32px">',
         'Esta oportunidade é de <strong>acesso por aprovação</strong>.<br>',
         'Solicite acesso para que o detentor possa analisar seu perfil.',
@@ -3360,24 +3509,34 @@ function updateFavBtnState(isFav) {
     console.log('[Detail] Loaded from Supabase:', oppData.title, '| visibilidade:', oppData.visibilidade);
 
     // ── Gate de visibilidade ──────────────────────────────────────────────────
-    if (oppData.visibilidade === 'aprovacao') {
-      // Verifica se a marca logada tem acesso aprovado
-      var brandSession = typeof getSessionAsync === 'function' ? await getSessionAsync('brand') : (typeof getSession === 'function' ? getSession('brand') : null);
-      var marcaId = brandSession && brandSession.user ? brandSession.user.id : null;
-      var hasAccess = marcaId ? await checkApprovalAccess(oppData.id, marcaId) : false;
+    // Obtém sessão uma única vez para todos os gates
+    var _gateSession = typeof getSessionAsync === 'function' ? await getSessionAsync('brand') : (typeof getSession === 'function' ? getSession('brand') : null);
+    var _gateMarcaId = _gateSession && _gateSession.user ? _gateSession.user.id : null;
+
+    if (!_gateMarcaId) {
+      // Usuário não está logado — renderiza página com blur + modal de login
+      console.log('[Detail] Usuário não logado — exibindo login gate');
+      renderPage(oppData);
+      renderLoginGate(oppData);
+    } else if (oppData.visibilidade === 'aprovacao' || oppData.visibilidade === 'convidadas') {
+      // Ambos os modos exigem aprovação explícita da marca pelo detentor.
+      // 'aprovacao' = aparece no Radar, marca solicita acesso.
+      // 'convidadas' = não aparece no Radar, marca acessa via link mas ainda precisa ser aprovada.
+      var hasAccess = await checkApprovalAccess(oppData.id, _gateMarcaId);
 
       if (!hasAccess) {
-        console.log('[Detail] Acesso bloqueado — visibilidade=aprovacao, marcaId:', marcaId, 'hasAccess:', hasAccess);
+        console.log('[Detail] Acesso bloqueado — visibilidade=' + oppData.visibilidade + ', marcaId:', _gateMarcaId, 'hasAccess:', hasAccess);
         // Busca solicitação existente (qualquer status) para exibir estado correto no gate
-        var existingRequest = marcaId ? await getAccessRequest(oppData.id, marcaId) : null;
+        var existingRequest = await getAccessRequest(oppData.id, _gateMarcaId);
         // Renderiza a página normalmente mas bloqueia o conteúdo principal
         renderPage(oppData);
-        renderApprovalGate(oppData, existingRequest);
+        renderApprovalGate(oppData, existingRequest, oppData.visibilidade);
       } else {
-        console.log('[Detail] Acesso liberado para marca aprovada:', marcaId);
+        console.log('[Detail] Acesso liberado para marca aprovada:', _gateMarcaId);
         renderPage(oppData);
       }
     } else {
+      // Pública — logado, renderiza normalmente
       renderPage(oppData);
     }
     // ─────────────────────────────────────────────────────────────────────────

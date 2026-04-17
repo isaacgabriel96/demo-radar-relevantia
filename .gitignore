@@ -1,0 +1,42 @@
+# ── macOS ──────────────────────────────────────────────────────
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# ── IDE / Editores ────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ── Env / Secrets ─────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ── Node ──────────────────────────────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-error.log*
+package-lock.json
+
+# ── Vercel ────────────────────────────────────────────────────
+.vercel/
+
+# ── Supabase local ────────────────────────────────────────────
+.supabase/
+
+# ── Build / Temp ──────────────────────────────────────────────
+dist/
+build/
+*.log
+tmp/
+temp/
+
+# ── Thumbnails / Cache ────────────────────────────────────────
+Thumbs.db
+ehthumbs.db

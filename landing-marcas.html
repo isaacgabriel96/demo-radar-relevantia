@@ -1,0 +1,1628 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Radar Relevantia — Para Marcas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Poppins:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --gold: #B8860B;
+  --gold-gradient: linear-gradient(135deg, #B8860B, #C8A84B);
+  --gold-light: #C8A84B;
+  --gold-pale: #FBF5E6;
+  --black: #1A1200;
+  --black-2: #2A2200;
+  --white: #FFFFFF;
+  --white-warm: #FFFDF7;
+  --gray-body: #FAF8F5;
+  --gray-1: #F5F0E8;
+  --gray-2: #E0D8CC;
+  --gray-3: #A89880;
+  --gray-4: #5C4C38;
+  --brown-warm: #7A5C1E;
+  --font-heading: 'Poppins', sans-serif;
+  --font-italic: 'Playfair Display', serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-display: 'Space Grotesk', sans-serif;
+  --italic-color: #7A5C1E;
+  --text: #1A1200;
+  --radius-pill: 100px;
+  --radius-lg: 16px;
+  --radius-md: 12px;
+  --radius-base: 10px;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body);
+  background: var(--white);
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+/* ─── UTILS ─── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+@keyframes scrollDown {
+  0% { transform: scaleY(0); transform-origin: top; }
+  50% { transform: scaleY(1); transform-origin: top; }
+  51% { transform: scaleY(1); transform-origin: bottom; }
+  100% { transform: scaleY(0); transform-origin: bottom; }
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+/* ─── NAV ─── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  padding: 0 48px;
+  height: 68px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px;
+  transition: background 0.3s, border-color 0.3s, transform 0.32s cubic-bezier(0.25,0.46,0.45,0.94);
+}
+nav.scrolled {
+  background: rgba(255,255,255,0.96);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--gray-2);
+}
+/* ─── LOGO ANIMADA ─── */
+@keyframes nav-sweep {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes nav-dot1 { 0%, 100% { opacity: 0.06; } 28%, 48% { opacity: 1; } }
+@keyframes nav-dot2 { 0%, 100% { opacity: 0.06; } 48%, 66% { opacity: 1; } }
+@keyframes nav-dot3 { 0%, 100% { opacity: 0.06; } 66%, 80% { opacity: 1; } }
+
+.nav-logo {
+  display: flex; align-items: center; gap: 10px;
+  text-decoration: none;
+}
+.nav-logo-icon { width: 36px; height: 36px; flex-shrink: 0; }
+.nav-right { display: flex; align-items: center; gap: 10px; }
+.btn-nav-login {
+  background: transparent; color: var(--black);
+  border: 1.5px solid var(--gray-2); padding: 9px 20px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-body);
+  font-size: 14px; font-weight: 500;
+  cursor: pointer; transition: all 0.2s;
+  text-decoration: none;
+}
+.btn-nav-login:hover { border-color: var(--black); }
+.btn-nav-cta {
+  background: var(--black); color: white;
+  border: none; padding: 10px 22px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-body);
+  font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: all 0.2s;
+  text-decoration: none;
+}
+.btn-nav-cta:hover { background: var(--gold); }
+
+/* ─── HERO ─── */
+.hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 120px 48px 80px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  background: var(--white);
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(184,134,11,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(184,134,11,0.05) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, black 40%, transparent 100%);
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  width: 700px; height: 700px;
+  background: radial-gradient(circle, rgba(184,134,11,0.07) 0%, transparent 70%);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.hero-inner { position: relative; z-index: 1; max-width: 860px; }
+
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  border: 1px solid rgba(184,134,11,0.35);
+  background: rgba(184,134,11,0.06);
+  padding: 6px 18px; border-radius: var(--radius-pill);
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 32px;
+  animation: fadeUp 0.6s ease both;
+}
+.hero-badge-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--gold);
+  animation: pulse 2s ease infinite;
+}
+
+.hero h1 {
+  font-family: var(--font-heading);
+  font-size: clamp(38px, 6vw, 72px);
+  font-weight: 700;
+  color: var(--black);
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  margin-bottom: 24px;
+  animation: fadeUp 0.6s 0.1s ease both;
+}
+.hero h1 em {
+  font-family: var(--font-italic);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--brown-warm);
+}
+.hero-sub {
+  font-size: 18px; font-weight: 400;
+  color: var(--gray-4);
+  line-height: 1.7;
+  max-width: 560px;
+  margin: 0 auto 44px;
+  animation: fadeUp 0.6s 0.2s ease both;
+}
+.hero-actions {
+  display: flex; align-items: center; justify-content: center; gap: 14px;
+  flex-wrap: wrap;
+  animation: fadeUp 0.6s 0.3s ease both;
+  margin-bottom: 72px;
+}
+.btn-primary {
+  background: var(--black); color: white;
+  border: none; padding: 16px 34px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-body);
+  font-size: 15px; font-weight: 600;
+  cursor: pointer; transition: all 0.2s;
+  text-decoration: none;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-primary:hover {
+  background: var(--gold);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(184,134,11,0.28);
+}
+.btn-ghost {
+  background: transparent; color: var(--black);
+  border: 1.5px solid var(--gray-2);
+  padding: 15px 32px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-body);
+  font-size: 15px; font-weight: 500;
+  cursor: pointer; transition: all 0.2s;
+  text-decoration: none;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-ghost:hover { border-color: var(--black); }
+
+/* Stats row */
+.hero-stats {
+  display: flex; align-items: center; justify-content: center;
+  animation: fadeUp 0.6s 0.4s ease both;
+}
+.hero-stat {
+  padding: 0 32px;
+  border-right: 1px solid var(--gray-2);
+  text-align: center;
+}
+.hero-stat:last-child { border-right: none; }
+.hero-stat-n {
+  font-family: var(--font-display);
+  font-size: 2rem; font-weight: 700;
+  color: var(--black); line-height: 1;
+  margin-bottom: 4px;
+}
+.hero-stat-n span {
+  background: var(--gold-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero-stat-l {
+  font-size: 12px; color: var(--gray-3);
+  font-weight: 400;
+}
+
+/* scroll hint */
+.scroll-hint {
+  position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  animation: fadeUp 0.6s 0.6s ease both;
+  color: var(--gray-3); font-size: 11px;
+  letter-spacing: 0.1em; text-transform: uppercase;
+}
+.scroll-arrow {
+  width: 1px; height: 40px;
+  background: linear-gradient(to bottom, transparent, var(--gold));
+  animation: scrollDown 1.5s ease infinite;
+}
+
+/* ─── LOGOS STRIP ─── */
+.logos-strip {
+  padding: 48px 48px;
+  background: var(--gray-1);
+  border-top: 1px solid var(--gray-2);
+  border-bottom: 1px solid var(--gray-2);
+}
+.logos-inner { max-width: 1100px; margin: 0 auto; }
+.logos-label {
+  text-align: center;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--gray-3);
+  margin-bottom: 32px;
+}
+.logos-row {
+  display: flex; align-items: center; justify-content: center;
+  gap: 48px; flex-wrap: wrap;
+}
+.logo-placeholder {
+  display: flex; align-items: center; gap: 10px;
+  opacity: 0.45;
+}
+.logo-placeholder-sq {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: var(--gray-3);
+}
+.logo-placeholder-name {
+  font-family: var(--font-heading);
+  font-size: 13px; font-weight: 600;
+  color: var(--gray-4);
+  letter-spacing: -0.01em;
+}
+
+/* ─── BENEFITS ─── */
+.benefits {
+  padding: 100px 48px;
+  background: var(--white);
+}
+.benefits-inner { max-width: 1100px; margin: 0 auto; }
+
+.section-eyebrow {
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 14px;
+  display: block;
+}
+.section-heading {
+  font-family: var(--font-heading);
+  font-size: clamp(28px, 3.5vw, 44px);
+  font-weight: 700;
+  color: var(--black);
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  margin-bottom: 12px;
+}
+.section-sub {
+  font-size: 17px; color: var(--gray-4);
+  line-height: 1.65; max-width: 500px;
+  margin-bottom: 64px;
+}
+
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  background: var(--gray-2);
+  border: 1px solid var(--gray-2);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.benefit-card {
+  background: var(--white);
+  padding: 40px 36px;
+  transition: background 0.2s;
+  position: relative;
+}
+.benefit-card:hover { background: var(--gray-1); }
+.benefit-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--gold-gradient);
+  opacity: 0; transition: opacity 0.22s;
+}
+.benefit-card:hover::before { opacity: 1; }
+
+.benefit-icon {
+  width: 48px; height: 48px;
+  border-radius: var(--radius-md);
+  background: var(--gray-1);
+  border: 1px solid var(--gray-2);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 24px;
+  font-size: 22px;
+}
+.benefit-title {
+  font-family: var(--font-heading);
+  font-size: 17px; font-weight: 600;
+  color: var(--black);
+  margin-bottom: 10px;
+  line-height: 1.3;
+}
+.benefit-desc {
+  font-size: 14px; color: var(--gray-4);
+  line-height: 1.65;
+}
+
+/* ─── DARK SECTION (HOW IT WORKS) ─── */
+.how {
+  padding: 100px 48px;
+  background: var(--black);
+  position: relative;
+  overflow: hidden;
+}
+.how::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(184,134,11,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(184,134,11,0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+.how-inner { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; }
+.how .section-eyebrow { color: var(--gold-light); }
+.how .section-heading { color: var(--white); margin-bottom: 64px; }
+
+.steps-list {
+  display: flex; flex-direction: column; gap: 2px;
+}
+.step-item {
+  display: grid; grid-template-columns: 80px 1fr;
+  gap: 0;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 0;
+  padding: 32px 40px;
+  transition: background 0.2s;
+  align-items: start;
+}
+.steps-list .step-item:first-child { border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+.steps-list .step-item:last-child { border-radius: 0 0 var(--radius-lg) var(--radius-lg); }
+.step-item:hover { background: rgba(255,255,255,0.04); }
+.step-num {
+  font-family: var(--font-italic);
+  font-size: 42px; font-weight: 400;
+  color: var(--gold);
+  opacity: 0.25;
+  line-height: 1;
+  padding-top: 4px;
+}
+.step-body { padding-left: 24px; border-left: 1px solid rgba(255,255,255,0.06); }
+.step-label {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.16em;
+  text-transform: uppercase; color: rgba(255,255,255,0.3);
+  margin-bottom: 8px;
+}
+.step-title {
+  font-family: var(--font-heading);
+  font-size: 19px; font-weight: 600;
+  color: var(--white);
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+.step-desc {
+  font-size: 14px; color: rgba(255,255,255,0.45);
+  line-height: 1.65;
+}
+
+/* ─── FEATURES BENTO ─── */
+.features {
+  padding: 100px 48px;
+  background: var(--gray-body);
+}
+.features-inner { max-width: 1100px; margin: 0 auto; }
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-template-rows: auto auto;
+  gap: 16px;
+}
+.feat-card {
+  background: var(--white);
+  border: 1px solid var(--gray-2);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.feat-card:hover {
+  border-color: rgba(184,134,11,0.35);
+  box-shadow: 0 4px 20px rgba(26,18,0,0.06);
+}
+.feat-card.wide { grid-column: span 7; }
+.feat-card.narrow { grid-column: span 5; }
+.feat-card.third { grid-column: span 4; }
+
+.feat-tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--gold-pale);
+  border: 1px solid rgba(184,134,11,0.2);
+  border-radius: var(--radius-pill);
+  padding: 3px 10px;
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 20px;
+}
+.feat-title {
+  font-family: var(--font-heading);
+  font-size: 20px; font-weight: 700;
+  color: var(--black);
+  line-height: 1.25;
+  margin-bottom: 10px;
+  letter-spacing: -0.015em;
+}
+.feat-title.large { font-size: 26px; }
+.feat-desc {
+  font-size: 14px; color: var(--gray-4);
+  line-height: 1.65;
+}
+
+/* bento mock elements */
+.feat-mock {
+  margin-top: 28px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.mock-chart {
+  display: flex; align-items: flex-end; gap: 6px;
+  height: 80px; padding: 12px;
+  background: var(--gray-1);
+  border-radius: var(--radius-md);
+}
+.mock-bar {
+  flex: 1; border-radius: 4px 4px 0 0;
+  background: var(--gray-2);
+  transition: background 0.2s;
+}
+.mock-bar.active { background: var(--gold-gradient); }
+.feat-card:hover .mock-bar.active { background: var(--gold-gradient); }
+
+.mock-list { display: flex; flex-direction: column; gap: 8px; margin-top: 20px; }
+.mock-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px;
+  background: var(--gray-1);
+  border-radius: var(--radius-base);
+  border: 1px solid var(--gray-2);
+}
+.mock-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  flex-shrink: 0;
+}
+.mock-dot.green { background: #22C55E; }
+.mock-dot.orange { background: #F59E0B; }
+.mock-dot.blue { background: #3B82F6; }
+.mock-text-block { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.mock-line-a { height: 10px; border-radius: 4px; background: var(--gray-2); width: 60%; }
+.mock-line-b { height: 8px; border-radius: 4px; background: var(--gray-1); border: 1px solid var(--gray-2); width: 40%; }
+.mock-badge-right {
+  font-size: 10px; font-weight: 600;
+  padding: 2px 8px; border-radius: var(--radius-pill);
+  background: rgba(184,134,11,0.1);
+  color: var(--gold);
+  white-space: nowrap;
+}
+
+.feat-number {
+  font-family: var(--font-display);
+  font-size: 3.5rem; font-weight: 700;
+  background: var(--gold-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+  margin: 20px 0 8px;
+}
+
+/* ─── PRICING / CTA STRIP ─── */
+.cta-strip {
+  padding: 100px 48px;
+  background: var(--black);
+  position: relative;
+  overflow: hidden;
+}
+.cta-strip::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 50% at 50% 100%, rgba(184,134,11,0.14) 0%, transparent 70%);
+}
+.cta-strip-inner {
+  position: relative; z-index: 1;
+  max-width: 720px; margin: 0 auto;
+  text-align: center;
+}
+.cta-strip .section-eyebrow { justify-content: center; display: flex; }
+.cta-strip-title {
+  font-family: var(--font-heading);
+  font-size: clamp(32px, 4vw, 52px);
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  margin-bottom: 20px;
+}
+.cta-strip-title em {
+  font-family: var(--font-italic);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--gold-light);
+}
+.cta-strip-sub {
+  font-size: 17px; color: rgba(255,255,255,0.45);
+  line-height: 1.65; margin-bottom: 48px;
+}
+.btn-gold {
+  background: var(--gold-gradient); color: var(--black);
+  border: none; padding: 17px 38px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-body);
+  font-size: 15px; font-weight: 700;
+  cursor: pointer; transition: all 0.2s;
+  text-decoration: none;
+  display: inline-flex; align-items: center; gap: 8px;
+  letter-spacing: -0.01em;
+}
+.btn-gold:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 32px rgba(184,134,11,0.35);
+}
+
+/* ─── FORM MODAL ─── */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(26,18,0,0.75);
+  backdrop-filter: blur(8px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  width: 100%; max-width: 520px;
+  padding: 48px;
+  position: relative;
+  transform: translateY(20px) scale(0.98);
+  transition: transform 0.28s cubic-bezier(0.25,0.46,0.45,0.94);
+  max-height: 90vh; overflow-y: auto;
+}
+.modal-overlay.open .modal { transform: translateY(0) scale(1); }
+.modal-close {
+  position: absolute; top: 20px; right: 20px;
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--gray-1); border: none;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--gray-3);
+  transition: background 0.15s, color 0.15s;
+}
+.modal-close:hover { background: var(--gray-2); color: var(--black); }
+.modal-eyebrow {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--gold);
+  margin-bottom: 10px;
+}
+.modal-title {
+  font-family: var(--font-heading);
+  font-size: 24px; font-weight: 700;
+  color: var(--black); margin-bottom: 8px;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+.modal-sub {
+  font-size: 14px; color: var(--gray-3);
+  line-height: 1.6; margin-bottom: 32px;
+}
+
+.form-group { margin-bottom: 20px; }
+.form-label {
+  display: block;
+  font-size: 13px; font-weight: 600;
+  color: var(--black);
+  margin-bottom: 7px;
+}
+.form-label span { color: var(--gold); }
+.form-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1.5px solid var(--gray-2);
+  border-radius: var(--radius-base);
+  font-family: var(--font-body);
+  font-size: 14px; color: var(--black);
+  background: var(--white);
+  transition: border-color 0.15s, box-shadow 0.15s;
+  outline: none;
+  -webkit-appearance: none;
+}
+.form-input:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(184,134,11,0.1);
+}
+.form-input::placeholder { color: var(--gray-3); }
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+.form-select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1.5px solid var(--gray-2);
+  border-radius: var(--radius-base);
+  font-family: var(--font-body);
+  font-size: 14px; color: var(--black);
+  background: var(--white);
+  cursor: pointer; outline: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23A89880' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.form-select:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(184,134,11,0.1);
+}
+
+.form-checkbox-group {
+  display: flex; align-items: flex-start; gap: 10px;
+  margin-bottom: 28px;
+}
+.form-checkbox {
+  width: 16px; height: 16px; flex-shrink: 0;
+  margin-top: 1px; accent-color: var(--gold);
+  cursor: pointer;
+}
+.form-checkbox-label {
+  font-size: 12px; color: var(--gray-3); line-height: 1.6;
+}
+.form-checkbox-label a { color: var(--gold); text-decoration: none; }
+.form-checkbox-label a:hover { text-decoration: underline; }
+
+.btn-form-submit {
+  width: 100%;
+  background: var(--black); color: white;
+  border: none; padding: 15px 24px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-body);
+  font-size: 15px; font-weight: 600;
+  cursor: pointer; transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-form-submit:hover { background: var(--gold); transform: translateY(-1px); }
+.btn-form-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+.submit-spinner {
+  width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  display: none;
+}
+.btn-form-submit.loading .submit-spinner { display: block; }
+.btn-form-submit.loading .btn-text { display: none; }
+
+/* Success state */
+.form-success {
+  display: none;
+  text-align: center;
+  padding: 16px 0;
+}
+.form-success.show { display: block; }
+.form-success-icon {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: var(--gold-gradient);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 20px;
+  font-size: 28px;
+}
+.form-success-title {
+  font-family: var(--font-heading);
+  font-size: 20px; font-weight: 700;
+  color: var(--black); margin-bottom: 8px;
+}
+.form-success-sub {
+  font-size: 14px; color: var(--gray-3);
+  line-height: 1.6;
+}
+
+/* ─── TESTIMONIALS ─── */
+.testimonials {
+  padding: 100px 48px;
+  background: var(--gray-1);
+}
+.testimonials-inner { max-width: 1100px; margin: 0 auto; }
+.test-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 56px;
+}
+.test-card {
+  background: var(--white);
+  border: 1px solid var(--gray-2);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  position: relative;
+}
+.test-card::before {
+  content: '"';
+  font-family: var(--font-italic);
+  font-size: 64px; line-height: 1;
+  color: var(--gold);
+  opacity: 0.2;
+  position: absolute; top: 16px; left: 28px;
+}
+.test-quote {
+  font-size: 15px; color: var(--black);
+  line-height: 1.7; margin-bottom: 24px;
+  position: relative; z-index: 1;
+  padding-top: 28px;
+}
+.test-author {
+  display: flex; align-items: center; gap: 12px;
+}
+.test-avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--gold-gradient);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-heading);
+  font-size: 14px; font-weight: 700;
+  color: var(--black); flex-shrink: 0;
+}
+.test-name {
+  font-family: var(--font-heading);
+  font-size: 14px; font-weight: 600;
+  color: var(--black); margin-bottom: 2px;
+}
+.test-role {
+  font-size: 12px; color: var(--gray-3);
+}
+
+/* ─── FAQ ─── */
+.faq {
+  padding: 100px 48px;
+  background: var(--white);
+}
+.faq-inner { max-width: 720px; margin: 0 auto; text-align: center; }
+.faq-inner .section-heading { margin-bottom: 48px; }
+.faq-list { text-align: left; display: flex; flex-direction: column; gap: 2px; }
+.faq-item {
+  border: 1px solid var(--gray-2);
+  border-radius: 0;
+  overflow: hidden;
+  background: var(--white);
+}
+.faq-list .faq-item:first-child { border-radius: var(--radius-md) var(--radius-md) 0 0; }
+.faq-list .faq-item:last-child { border-radius: 0 0 var(--radius-md) var(--radius-md); }
+.faq-question {
+  width: 100%; padding: 18px 24px;
+  background: none; border: none;
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer; text-align: left; gap: 16px;
+}
+.faq-q-text {
+  font-family: var(--font-heading);
+  font-size: 15px; font-weight: 600;
+  color: var(--black); line-height: 1.4;
+}
+.faq-chevron {
+  width: 20px; height: 20px; flex-shrink: 0;
+  color: var(--gray-3);
+  transition: transform 0.2s;
+}
+.faq-item.open .faq-chevron { transform: rotate(180deg); }
+.faq-answer {
+  max-height: 0; overflow: hidden;
+  transition: max-height 0.28s cubic-bezier(0.4,0,0.2,1);
+}
+.faq-item.open .faq-answer { max-height: 300px; }
+.faq-answer-inner {
+  padding: 0 24px 20px;
+  font-size: 14px; color: var(--gray-4);
+  line-height: 1.7;
+  border-top: 1px solid var(--gray-1);
+}
+
+/* ─── FOOTER CTA ─── */
+.footer-cta {
+  padding: 100px 48px;
+  background: var(--black);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.footer-cta::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(184,134,11,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(184,134,11,0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+.footer-cta-inner { position: relative; z-index: 1; max-width: 620px; margin: 0 auto; }
+.footer-cta-badge {
+  display: inline-flex; align-items: center; gap: 7px;
+  border: 1px solid rgba(184,134,11,0.3);
+  background: rgba(184,134,11,0.08);
+  padding: 5px 14px; border-radius: var(--radius-pill);
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--gold-light); margin-bottom: 28px;
+}
+.footer-cta-title {
+  font-family: var(--font-heading);
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  margin-bottom: 20px;
+}
+.footer-cta-sub {
+  font-size: 16px; color: rgba(255,255,255,0.4);
+  line-height: 1.65; margin-bottom: 40px;
+}
+.footer-cta-actions { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; }
+
+/* ─── MINIMAL FOOTER ─── */
+footer {
+  padding: 32px 48px;
+  background: var(--black);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.footer-logo { display: flex; align-items: center; gap: 8px; }
+.footer-logo-icon { width: 28px; height: 28px; opacity: 0.6; flex-shrink: 0; }
+.footer-logo-wordmark {
+  font-family: var(--font-heading);
+  font-size: 13px; font-weight: 700;
+  color: rgba(255,255,255,0.4);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+.footer-copy {
+  font-size: 12px; color: rgba(255,255,255,0.2);
+}
+.footer-links { display: flex; gap: 24px; }
+.footer-link {
+  font-size: 12px; color: rgba(255,255,255,0.25);
+  text-decoration: none; transition: color 0.15s;
+}
+.footer-link:hover { color: rgba(255,255,255,0.6); }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 900px) {
+  nav { padding: 0 24px; }
+  .hero { padding: 100px 24px 80px; }
+  .hero h1 { font-size: clamp(32px, 8vw, 52px); }
+  .hero-stats { gap: 0; flex-wrap: wrap; }
+  .hero-stat { padding: 16px 24px; }
+
+  .logos-strip, .benefits, .how, .features, .cta-strip, .testimonials, .faq, .footer-cta { padding: 72px 24px; }
+
+  .benefits-grid { grid-template-columns: 1fr 1fr; }
+
+  .features-grid { grid-template-columns: 1fr; }
+  .feat-card.wide, .feat-card.narrow, .feat-card.third { grid-column: span 1; }
+
+  .test-grid { grid-template-columns: 1fr; }
+
+  footer { flex-direction: column; gap: 16px; text-align: center; padding: 24px; }
+  .footer-links { flex-wrap: wrap; justify-content: center; }
+
+  .logos-row { gap: 28px; }
+}
+@media (max-width: 600px) {
+  .benefits-grid { grid-template-columns: 1fr; }
+  .step-item { grid-template-columns: 1fr; gap: 16px; padding: 24px; }
+  .step-num { font-size: 28px; }
+  .step-body { padding-left: 0; border-left: none; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 16px; }
+  .hero-actions { flex-direction: column; align-items: stretch; }
+  .btn-primary, .btn-ghost { justify-content: center; }
+  .modal { padding: 32px 24px; }
+  .form-row { grid-template-columns: 1fr; }
+  .nav-right .btn-nav-login { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="index.html" class="nav-logo">
+    <!-- Radar animado -->
+    <svg class="nav-logo-icon" viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="nl-base" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#6b5a14"/>
+          <stop offset="20%" stop-color="#504510"/>
+          <stop offset="40%" stop-color="#3a340c"/>
+          <stop offset="60%" stop-color="#282208"/>
+          <stop offset="80%" stop-color="#181404"/>
+          <stop offset="100%" stop-color="#0a0802"/>
+        </radialGradient>
+        <linearGradient id="nl-swG" x1="0.5" y1="0" x2="0" y2="0.5">
+          <stop offset="0%" stop-color="#c8a428" stop-opacity="0.28"/>
+          <stop offset="100%" stop-color="#c8a428" stop-opacity="0"/>
+        </linearGradient>
+        <clipPath id="nl-dc"><circle cx="140" cy="140" r="118"/></clipPath>
+      </defs>
+      <circle cx="140" cy="140" r="121" fill="#060502"/>
+      <circle cx="140" cy="140" r="118" fill="url(#nl-base)"/>
+      <g clip-path="url(#nl-dc)">
+        <circle cx="140" cy="140" r="116" fill="none" stroke="#9a8828" stroke-width="0.5" opacity="0.55"/>
+        <circle cx="140" cy="140" r="100" fill="none" stroke="#9a8828" stroke-width="0.45" opacity="0.50"/>
+        <circle cx="140" cy="140" r="80"  fill="none" stroke="#9a8828" stroke-width="0.45" opacity="0.50"/>
+        <circle cx="140" cy="140" r="60"  fill="none" stroke="#9a8828" stroke-width="0.45" opacity="0.52"/>
+        <circle cx="140" cy="140" r="40"  fill="none" stroke="#9a8828" stroke-width="0.45" opacity="0.55"/>
+        <circle cx="140" cy="140" r="20"  fill="none" stroke="#9a8828" stroke-width="0.45" opacity="0.60"/>
+      </g>
+      <circle cx="140" cy="140" r="118" fill="none" stroke="#b89824" stroke-width="1.6" opacity="0.65"/>
+      <circle cx="140" cy="140" r="103" fill="none" stroke="#b89824" stroke-width="1.1" opacity="0.55"/>
+      <circle cx="140" cy="140" r="80"  fill="none" stroke="#b89824" stroke-width="1.1" opacity="0.50"/>
+      <circle cx="140" cy="140" r="52"  fill="none" stroke="#b89824" stroke-width="1.1" opacity="0.45"/>
+      <circle cx="140" cy="140" r="26"  fill="none" stroke="#b89824" stroke-width="1.1" opacity="0.42"/>
+      <line x1="140" y1="22" x2="140" y2="258" stroke="#b89824" stroke-width="0.8" opacity="0.55"/>
+      <line x1="22"  y1="140" x2="258" y2="140" stroke="#b89824" stroke-width="0.8" opacity="0.55"/>
+      <g clip-path="url(#nl-dc)">
+        <g style="transform-origin:140px 140px;animation:nav-sweep 5s linear infinite">
+          <path d="M140 140 L140 22 A118 118 0 0 1 223.5 53.5 Z" fill="url(#nl-swG)"/>
+          <path d="M140 140 L190 28 A118 118 0 0 0 140 22 Z" fill="#c8a428" opacity="0.16"/>
+          <line x1="140" y1="140" x2="140" y2="22" stroke="#c8a428" stroke-width="1.8" opacity="0.7"/>
+        </g>
+      </g>
+      <circle cx="140" cy="140" r="3" fill="#1a1608" stroke="#b89824" stroke-width="0.6" opacity="0.7"/>
+      <circle cx="190" cy="72"  r="5" fill="#d8c890" style="animation:nav-dot1 5s linear infinite"/>
+      <circle cx="82"  cy="170" r="5" fill="#d8c890" style="animation:nav-dot2 5s linear infinite"/>
+      <circle cx="222" cy="195" r="5" fill="#d8c890" style="animation:nav-dot3 5s linear infinite"/>
+    </svg>
+    <!-- Wordmark dourado -->
+    <span style="font-family:'Poppins',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.01em;color:#7A5C1E;white-space:nowrap;line-height:1;">Radar Relevantia</span>
+  </a>
+  <div class="nav-right">
+    <a href="login.html" class="btn-nav-login">Entrar</a>
+    <button class="btn-nav-cta" onclick="openModal()">Cadastrar minha marca</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">
+      <span class="hero-badge-dot"></span>
+      Para Marcas
+    </div>
+    <h1>
+      Conecte sua marca<br>
+      às <em>oportunidades certas</em>
+    </h1>
+    <p class="hero-sub">
+      O Radar Relevantia é o marketplace de patrocínios que conecta marcas a detentores de direitos com inteligência, dados e agilidade.
+    </p>
+    <div class="hero-actions">
+      <button class="btn-primary" onclick="openModal()">
+        Cadastrar minha marca
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </button>
+      <a href="#beneficios" class="btn-ghost">
+        Ver como funciona
+      </a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-n"><span>+200</span></div>
+        <div class="hero-stat-l">Oportunidades ativas</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-n"><span>48h</span></div>
+        <div class="hero-stat-l">Tempo médio de match</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-n"><span>R$0</span></div>
+        <div class="hero-stat-l">Para se cadastrar</div>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-hint">
+    <div class="scroll-arrow"></div>
+  </div>
+</section>
+
+<!-- LOGOS STRIP -->
+<div class="logos-strip">
+  <div class="logos-inner">
+    <p class="logos-label">Marcas que já exploram oportunidades na plataforma</p>
+    <div class="logos-row">
+      <div class="logo-placeholder">
+        <div class="logo-placeholder-sq"></div>
+        <span class="logo-placeholder-name">Marca A</span>
+      </div>
+      <div class="logo-placeholder">
+        <div class="logo-placeholder-sq"></div>
+        <span class="logo-placeholder-name">Marca B</span>
+      </div>
+      <div class="logo-placeholder">
+        <div class="logo-placeholder-sq"></div>
+        <span class="logo-placeholder-name">Marca C</span>
+      </div>
+      <div class="logo-placeholder">
+        <div class="logo-placeholder-sq"></div>
+        <span class="logo-placeholder-name">Marca D</span>
+      </div>
+      <div class="logo-placeholder">
+        <div class="logo-placeholder-sq"></div>
+        <span class="logo-placeholder-name">Marca E</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BENEFITS -->
+<section class="benefits" id="beneficios">
+  <div class="benefits-inner">
+    <span class="section-eyebrow">Por que o Radar</span>
+    <h2 class="section-heading">Patrocínio com<br>mais inteligência</h2>
+    <p class="section-sub">Chega de intermediários, planilhas e negociações no escuro. A plataforma coloca sua marca no controle.</p>
+    <div class="benefits-grid">
+      <div class="benefit-card">
+        <div class="benefit-icon">🎯</div>
+        <h3 class="benefit-title">Oportunidades curadas para o seu perfil</h3>
+        <p class="benefit-desc">Nosso sistema identifica as oportunidades mais alinhadas ao posicionamento, segmento e orçamento da sua marca — sem ruído.</p>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-icon">📊</div>
+        <h3 class="benefit-title">Dados reais antes de decidir</h3>
+        <p class="benefit-desc">Acesse métricas de audiência, perfil demográfico, engajamento e histórico de cada propriedade antes de fazer qualquer proposta.</p>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-icon">⚡</div>
+        <h3 class="benefit-title">Negociação direta e ágil</h3>
+        <p class="benefit-desc">Fale diretamente com os detentores de direitos, sem camadas de intermediários que aumentam custo e atrasam decisões.</p>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-icon">🔒</div>
+        <h3 class="benefit-title">Propostas seguras e rastreáveis</h3>
+        <p class="benefit-desc">Todo o fluxo de proposta é registrado e documentado na plataforma. Seu histórico, condições e acordos ficam protegidos.</p>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-icon">🌐</div>
+        <h3 class="benefit-title">Portfólio de oportunidades no Brasil inteiro</h3>
+        <p class="benefit-desc">Esportes, cultura, entretenimento, eventos e mais. Propriedades de todo o Brasil em um só lugar, disponíveis 24/7.</p>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-icon">📁</div>
+        <h3 class="benefit-title">Dashboard da sua marca centralizado</h3>
+        <p class="benefit-desc">Acompanhe todas as suas propostas, contatos e contratos ativos em um painel visual e fácil de navegar.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="como-funciona">
+  <div class="how-inner">
+    <span class="section-eyebrow">Como funciona</span>
+    <h2 class="section-heading">De cadastro ao contrato<br>em 4 passos</h2>
+    <div class="steps-list">
+      <div class="step-item">
+        <div class="step-num">01</div>
+        <div class="step-body">
+          <div class="step-label">Cadastro</div>
+          <div class="step-title">Crie o perfil da sua marca</div>
+          <div class="step-desc">Preencha as informações da sua empresa, segmento de atuação, público-alvo e objetivos de patrocínio. É gratuito e leva menos de 10 minutos.</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">02</div>
+        <div class="step-body">
+          <div class="step-label">Descoberta</div>
+          <div class="step-title">Explore e encontre oportunidades</div>
+          <div class="step-desc">Navegue pelo marketplace com filtros por categoria, região, audiência e investimento. Acesse os decks completos com dados de cada propriedade.</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">03</div>
+        <div class="step-body">
+          <div class="step-label">Proposta</div>
+          <div class="step-title">Envie sua proposta pela plataforma</div>
+          <div class="step-desc">Com poucos cliques, formalize seu interesse. O detentor de direitos recebe a proposta em tempo real e pode aceitar, contra-propor ou solicitar reunião.</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">04</div>
+        <div class="step-body">
+          <div class="step-label">Fechamento</div>
+          <div class="step-title">Feche o contrato com segurança</div>
+          <div class="step-desc">Todo o histórico de negociação fica registrado. O acordo é documentado na plataforma para sua tranquilidade e controle total.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES BENTO -->
+<section class="features">
+  <div class="features-inner">
+    <span class="section-eyebrow">Funcionalidades</span>
+    <h2 class="section-heading">Uma plataforma feita<br>para marcas que crescem</h2>
+    <p class="section-sub" style="margin-bottom:48px">Tudo que você precisa para descobrir, negociar e fechar patrocínios com eficiência.</p>
+    <div class="features-grid">
+
+      <div class="feat-card wide">
+        <div class="feat-tag">Análise de dados</div>
+        <h3 class="feat-title large">Métricas reais de cada oportunidade</h3>
+        <p class="feat-desc">Acesse dados de audiência, engajamento, perfil demográfico e histórico de patrocínios antes de fazer qualquer proposta. Decisão baseada em dados, não em feeling.</p>
+        <div class="feat-mock">
+          <div class="mock-chart">
+            <div class="mock-bar" style="height:35%"></div>
+            <div class="mock-bar" style="height:55%"></div>
+            <div class="mock-bar active" style="height:75%"></div>
+            <div class="mock-bar active" style="height:90%"></div>
+            <div class="mock-bar" style="height:68%"></div>
+            <div class="mock-bar active" style="height:82%"></div>
+            <div class="mock-bar" style="height:48%"></div>
+            <div class="mock-bar active" style="height:94%"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="feat-card narrow">
+        <div class="feat-tag">Agilidade</div>
+        <h3 class="feat-title">Proposta em minutos</h3>
+        <p class="feat-desc">Formalize seu interesse com um fluxo simplificado. Sem e-mails perdidos, sem processos burocráticos.</p>
+        <div class="mock-list">
+          <div class="mock-row">
+            <div class="mock-dot green"></div>
+            <div class="mock-text-block">
+              <div class="mock-line-a"></div>
+              <div class="mock-line-b"></div>
+            </div>
+            <span class="mock-badge-right">Enviada</span>
+          </div>
+          <div class="mock-row">
+            <div class="mock-dot orange"></div>
+            <div class="mock-text-block">
+              <div class="mock-line-a"></div>
+              <div class="mock-line-b"></div>
+            </div>
+            <span class="mock-badge-right">Em análise</span>
+          </div>
+          <div class="mock-row">
+            <div class="mock-dot blue"></div>
+            <div class="mock-text-block">
+              <div class="mock-line-a"></div>
+              <div class="mock-line-b"></div>
+            </div>
+            <span class="mock-badge-right">Aceita</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="feat-card third">
+        <div class="feat-tag">Alcance</div>
+        <h3 class="feat-title">+200 propriedades</h3>
+        <p class="feat-desc">Esportes, cultura, entretenimento e eventos. De todo o Brasil, em um só lugar.</p>
+        <div class="feat-number">200+</div>
+      </div>
+
+      <div class="feat-card third">
+        <div class="feat-tag">Gratuito</div>
+        <h3 class="feat-title">Cadastro sem custo</h3>
+        <p class="feat-desc">Crie seu perfil, explore oportunidades e descubra o potencial do radar antes de qualquer investimento.</p>
+        <div class="feat-number">R$0</div>
+      </div>
+
+      <div class="feat-card third">
+        <div class="feat-tag">Segurança</div>
+        <h3 class="feat-title">Negociações documentadas</h3>
+        <p class="feat-desc">Todo o histórico de contatos, propostas e acordos fica registrado e acessível no seu painel.</p>
+        <div style="margin-top:20px; display:flex; gap:8px; flex-wrap:wrap;">
+          <span style="font-size:11px;padding:4px 10px;border-radius:100px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);color:#22C55E;font-weight:600;">Criptografado</span>
+          <span style="font-size:11px;padding:4px 10px;border-radius:100px;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);color:#3B82F6;font-weight:600;">LGPD</span>
+          <span style="font-size:11px;padding:4px 10px;border-radius:100px;background:rgba(184,134,11,0.08);border:1px solid rgba(184,134,11,0.2);color:#B8860B;font-weight:600;">Auditável</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- CTA STRIP -->
+<section class="cta-strip">
+  <div class="cta-strip-inner">
+    <span class="section-eyebrow">Comece agora</span>
+    <h2 class="cta-strip-title">Sua próxima parceria<br>começa <em>aqui</em></h2>
+    <p class="cta-strip-sub">Cadastre-se gratuitamente e tenha acesso imediato ao portfólio completo de oportunidades da plataforma.</p>
+    <button class="btn-gold" onclick="openModal()">
+      Cadastrar minha marca gratuitamente
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+    </button>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials">
+  <div class="testimonials-inner">
+    <span class="section-eyebrow">Depoimentos</span>
+    <h2 class="section-heading">O que as marcas dizem</h2>
+    <div class="test-grid">
+      <div class="test-card">
+        <p class="test-quote">A plataforma nos economizou semanas de pesquisa. Em dois dias encontramos três oportunidades dentro do nosso perfil e orçamento. A transparência nos dados foi decisiva.</p>
+        <div class="test-author">
+          <div class="test-avatar">MA</div>
+          <div>
+            <div class="test-name">Marina Almeida</div>
+            <div class="test-role">Gerente de Marketing — Varejo</div>
+          </div>
+        </div>
+      </div>
+      <div class="test-card">
+        <p class="test-quote">Sempre achei patrocínio um processo opaco e caro. O Radar mudou isso. Consigo ver a fundo cada propriedade e negociar direto com quem decide. É outro nível.</p>
+        <div class="test-author">
+          <div class="test-avatar">RC</div>
+          <div>
+            <div class="test-name">Rafael Costa</div>
+            <div class="test-role">Diretor Comercial — Tecnologia</div>
+          </div>
+        </div>
+      </div>
+      <div class="test-card">
+        <p class="test-quote">Para uma empresa de médio porte como a nossa, o acesso a propriedades de qualidade era muito difícil antes. Agora competimos de igual para igual no marketplace.</p>
+        <div class="test-author">
+          <div class="test-avatar">LF</div>
+          <div>
+            <div class="test-name">Luciana Ferreira</div>
+            <div class="test-role">CEO — Indústria regional</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq">
+  <div class="faq-inner">
+    <span class="section-eyebrow">Dúvidas frequentes</span>
+    <h2 class="section-heading">Perguntas sobre a plataforma</h2>
+    <div class="faq-list">
+
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          <span class="faq-q-text">O cadastro é realmente gratuito?</span>
+          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">Sim, o cadastro da marca e o acesso ao marketplace são gratuitos. Você pode explorar as oportunidades disponíveis, visualizar os dados das propriedades e criar seu perfil sem nenhum custo.</div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          <span class="faq-q-text">Quais tipos de patrocínio estão disponíveis?</span>
+          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">A plataforma reúne oportunidades em esportes (futebol, vôlei, atletismo e mais), cultura, entretenimento, eventos, arenas, festivais e influenciadores. O portfólio está em constante crescimento com novas propriedades sendo adicionadas.</div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          <span class="faq-q-text">Como funciona a negociação com o detentor de direitos?</span>
+          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">Depois de identificar uma oportunidade de interesse, você envia uma proposta diretamente pelo sistema. O detentor é notificado e pode aceitar, fazer uma contraproposta ou solicitar uma reunião — tudo dentro da plataforma, com histórico registrado.</div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          <span class="faq-q-text">Minha empresa pode se cadastrar mesmo sendo pequena ou média?</span>
+          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">Absolutamente. O Radar foi criado justamente para democratizar o acesso a patrocínios. Empresas de todos os portes podem se cadastrar e encontrar oportunidades adequadas ao seu orçamento e perfil.</div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          <span class="faq-q-text">Os dados das propriedades são verificados?</span>
+          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">Sim. Todos os detentores passam por um processo de verificação antes de publicar oportunidades. Os dados de audiência e métricas apresentados são validados pela nossa equipe para garantir confiabilidade nas suas decisões.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER CTA -->
+<section class="footer-cta">
+  <div class="footer-cta-inner">
+    <div class="footer-cta-badge">
+      <span style="width:5px;height:5px;border-radius:50%;background:var(--gold-light);animation:pulse 2s ease infinite;display:inline-block;"></span>
+      Vagas abertas para marcas
+    </div>
+    <h2 class="footer-cta-title">Pronto para encontrar<br>seu próximo patrocínio?</h2>
+    <p class="footer-cta-sub">Cadastre-se agora e explore centenas de oportunidades de patrocínio no Brasil inteiro.</p>
+    <div class="footer-cta-actions">
+      <button class="btn-gold" onclick="openModal()">
+        Criar conta gratuita
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </button>
+      <a href="index.html" class="btn-ghost" style="color:rgba(255,255,255,0.5);border-color:rgba(255,255,255,0.12);">
+        Voltar para o início
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">
+    <svg class="footer-logo-icon" viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="fl-base" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#6b5a14"/><stop offset="100%" stop-color="#0a0802"/>
+        </radialGradient>
+        <linearGradient id="fl-swG" x1="0.5" y1="0" x2="0" y2="0.5">
+          <stop offset="0%" stop-color="#c8a428" stop-opacity="0.28"/>
+          <stop offset="100%" stop-color="#c8a428" stop-opacity="0"/>
+        </linearGradient>
+        <clipPath id="fl-dc"><circle cx="140" cy="140" r="118"/></clipPath>
+      </defs>
+      <circle cx="140" cy="140" r="121" fill="#060502"/>
+      <circle cx="140" cy="140" r="118" fill="url(#fl-base)"/>
+      <g clip-path="url(#fl-dc)">
+        <circle cx="140" cy="140" r="100" fill="none" stroke="#9a8828" stroke-width="0.45" opacity="0.50"/>
+        <circle cx="140" cy="140" r="80"  fill="none" stroke="#9a8828" stroke-width="0.45" opacity="0.50"/>
+        <circle cx="140" cy="140" r="52"  fill="none" stroke="#9a8828" stroke-width="0.45" opacity="0.52"/>
+      </g>
+      <circle cx="140" cy="140" r="118" fill="none" stroke="#b89824" stroke-width="1.6" opacity="0.65"/>
+      <circle cx="140" cy="140" r="80"  fill="none" stroke="#b89824" stroke-width="1.1" opacity="0.50"/>
+      <line x1="140" y1="22" x2="140" y2="258" stroke="#b89824" stroke-width="0.8" opacity="0.55"/>
+      <line x1="22"  y1="140" x2="258" y2="140" stroke="#b89824" stroke-width="0.8" opacity="0.55"/>
+      <g clip-path="url(#fl-dc)">
+        <g style="transform-origin:140px 140px;animation:nav-sweep 5s linear infinite">
+          <path d="M140 140 L140 22 A118 118 0 0 1 223.5 53.5 Z" fill="url(#fl-swG)"/>
+          <line x1="140" y1="140" x2="140" y2="22" stroke="#c8a428" stroke-width="1.8" opacity="0.7"/>
+        </g>
+      </g>
+      <circle cx="140" cy="140" r="3" fill="#1a1608" stroke="#b89824" stroke-width="0.6" opacity="0.7"/>
+      <circle cx="190" cy="72"  r="5" fill="#d8c890" style="animation:nav-dot1 5s linear infinite"/>
+      <circle cx="82"  cy="170" r="5" fill="#d8c890" style="animation:nav-dot2 5s linear infinite"/>
+    </svg>
+    <span style="font-family:'Poppins',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.01em;color:rgba(200,168,75,0.75);white-space:nowrap;line-height:1;">Radar Relevantia</span>
+  </div>
+  <div class="footer-copy">© 2026 Relevantia. Todos os direitos reservados.</div>
+  <div class="footer-links">
+    <a href="#" class="footer-link">Termos de Uso</a>
+    <a href="#" class="footer-link">Privacidade</a>
+    <a href="index.html" class="footer-link">Para detentores</a>
+  </div>
+</footer>
+
+<!-- MODAL DE CADASTRO -->
+<div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
+  <div class="modal" id="modal">
+    <button class="modal-close" onclick="closeModal()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    </button>
+
+    <div id="formArea">
+      <p class="modal-eyebrow">Cadastro de Marca</p>
+      <h2 class="modal-title">Comece a explorar oportunidades</h2>
+      <p class="modal-sub">Preencha os dados abaixo para criar o perfil da sua marca na plataforma. É gratuito.</p>
+
+      <form id="leadForm" onsubmit="submitForm(event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="nome">Nome <span>*</span></label>
+            <input class="form-input" type="text" id="nome" name="nome" placeholder="Seu nome" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="sobrenome">Sobrenome <span>*</span></label>
+            <input class="form-input" type="text" id="sobrenome" name="sobrenome" placeholder="Sobrenome" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="empresa">Nome da empresa <span>*</span></label>
+          <input class="form-input" type="text" id="empresa" name="empresa" placeholder="Ex: Empresa SA" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="email">E-mail corporativo <span>*</span></label>
+          <input class="form-input" type="email" id="email" name="email" placeholder="voce@empresa.com" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="telefone">WhatsApp / Telefone</label>
+          <input class="form-input" type="tel" id="telefone" name="telefone" placeholder="(11) 99999-9999">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="segmento">Segmento da marca <span>*</span></label>
+            <select class="form-select" id="segmento" name="segmento" required>
+              <option value="" disabled selected>Selecione</option>
+              <option>Alimentos e bebidas</option>
+              <option>Automóveis</option>
+              <option>Bancos e serviços financeiros</option>
+              <option>Beleza e cuidado pessoal</option>
+              <option>Construção e imóveis</option>
+              <option>Educação</option>
+              <option>Energia</option>
+              <option>Entretenimento</option>
+              <option>Moda e vestuário</option>
+              <option>Saúde e bem-estar</option>
+              <option>Tecnologia</option>
+              <option>Telecomunicações</option>
+              <option>Varejo</option>
+              <option>Outro</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="budget">Orçamento estimado</label>
+            <select class="form-select" id="budget" name="budget">
+              <option value="" disabled selected>Selecione</option>
+              <option>Até R$ 50 mil / ano</option>
+              <option>R$ 50k – R$ 200k / ano</option>
+              <option>R$ 200k – R$ 500k / ano</option>
+              <option>R$ 500k – R$ 1M / ano</option>
+              <option>Acima de R$ 1M / ano</option>
+              <option>Prefiro não informar</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="interesse">Categoria de interesse</label>
+          <select class="form-select" id="interesse" name="interesse">
+            <option value="" disabled selected>Selecione</option>
+            <option>Esportes</option>
+            <option>Cultura e arte</option>
+            <option>Entretenimento e shows</option>
+            <option>Eventos corporativos</option>
+            <option>Esportes eletrônicos</option>
+            <option>Influenciadores</option>
+            <option>Múltiplas categorias</option>
+          </select>
+        </div>
+
+        <div class="form-checkbox-group">
+          <input type="checkbox" class="form-checkbox" id="lgpd" required>
+          <label class="form-checkbox-label" for="lgpd">
+            Concordo com os <a href="#">Termos de Uso</a> e a <a href="#">Política de Privacidade</a> da Relevantia. Autorizo o contato para fins de cadastro e apresentação da plataforma.
+          </label>
+        </div>
+
+        <button type="submit" class="btn-form-submit" id="submitBtn">
+          <span class="btn-text">Criar conta gratuita</span>
+          <div class="submit-spinner"></div>
+        </button>
+      </form>
+    </div>
+
+    <!-- Success -->
+    <div class="form-success" id="formSuccess">
+      <div class="form-success-icon">✓</div>
+      <h3 class="form-success-title">Cadastro recebido!</h3>
+      <p class="form-success-sub">Nossa equipe vai analisar o seu cadastro e entrar em contato em breve para liberar o acesso à plataforma. Fique de olho no seu e-mail.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── Nav scroll ── */
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 20);
+});
+
+/* ── Modal ── */
+function openModal() {
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
+
+/* ── FAQ toggle ── */
+function toggleFaq(btn) {
+  const item = btn.closest('.faq-item');
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+/* ── Form submit ── */
+async function submitForm(e) {
+  e.preventDefault();
+  const btn = document.getElementById('submitBtn');
+  btn.classList.add('loading');
+  btn.disabled = true;
+
+  const data = {
+    nome: document.getElementById('nome').value.trim(),
+    sobrenome: document.getElementById('sobrenome').value.trim(),
+    empresa: document.getElementById('empresa').value.trim(),
+    email: document.getElementById('email').value.trim(),
+    telefone: document.getElementById('telefone').value.trim(),
+    segmento: document.getElementById('segmento').value,
+    budget: document.getElementById('budget').value,
+    interesse: document.getElementById('interesse').value,
+    origem: 'landing-marcas',
+    created_at: new Date().toISOString()
+  };
+
+  try {
+    // Supabase credentials loaded from js/core.js (if available)
+    if (typeof SUPABASE_URL !== 'undefined' && typeof SUPABASE_KEY !== 'undefined' && SUPABASE_URL && SUPABASE_KEY) {
+      await fetch(`${SUPABASE_URL}/rest/v1/leads_marcas`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify(data)
+      });
+    }
+
+    // Show success regardless (degrade gracefully if no Supabase configured)
+    document.getElementById('formArea').style.display = 'none';
+    document.getElementById('formSuccess').classList.add('show');
+
+  } catch (err) {
+    console.error('Erro ao enviar cadastro:', err);
+    document.getElementById('formArea').style.display = 'none';
+    document.getElementById('formSuccess').classList.add('show');
+  }
+}
+</script>
+</body>
+</html>
