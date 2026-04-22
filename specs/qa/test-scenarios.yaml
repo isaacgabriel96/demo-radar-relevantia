@@ -1,0 +1,925 @@
+# test-scenarios.yaml
+# Cenários executáveis de QA para Radar Relevantia MVP
+# Consumido por: .claude/agents/orchestrator.md + 7 sub-agentes
+# Referência: specs/qa/surface-map.md
+#
+# Convenções:
+#   id:          kebab-case único (usado como anchor em relatórios)
+#   persona:     marca | detentor | admin | cross | security | ux
+#   priority:    P0 (crítico) | P1 (alto) | P2 (médio) | P3 (baixo)
+#   type:        static | runtime | integration | security | usability
+#   agent:       qual sub-agent executa (ver .claude/agents/)
+#   requires:    IDs de cenários que precisam rodar antes
+#   env:         production | local (default: production, per user decision)
+#   expects:     lista de asserções verificáveis
+#   artifacts:   arquivos/páginas/tabelas envolvidos
+#   risk_if_fails: impacto se cenário falhar
+
+meta:
+  project: "Radar Relevantia MVP"
+  base_path: "/Users/isaacaraujo/Relevantia Softwares/MVP"
+  supabase_project: "bzckerazidgrkbpgqqee"
+  environment: production
+  run_log_dir: "specs/qa/run-log/"
+  report_output: "specs/qa/run-log/{{timestamp}}-report.md"
+
+# =============================================================================
+# PERSONA: MARCA (brand/sponsor)
+# =============================================================================
+scenarios_marca:
+  - id: marca-01-cadastro-happy-path
+    persona: marca
+    priority: P0
+    type: integration
+    agent: persona-marca
+    description: "Cadastro completo Marca em 4 steps com email corporativo válido"
+    artifacts:
+      - cadastro-marca.html
+      - js/sanitize.js
+      - table:marcas_waitlist
+    steps:
+      - "Acessar cadastro-marca.html"
+      - "Step 1: preencher nome, sobrenome, email corporativo (domínio customizado), telefone BR válido, cargo"
+      - "Step 2: preencher empresa (criar manual), CNPJ válido (checksum mod-11), setor"
+      - "Step 3: selecionar perfil_consumo, 2 objetivos (dentro do limite de 3), orcamento"
+      - "Step 4: selecionar >= 1 categoria"
+      - "Submeter"
+    expects:
+      - "INSERT em marcas_waitlist com status='pendente'"
+      - "Sem criação de auth.users neste momento"
+      - "Tela de confirmação exibida"
+      - "Dados preservados ao navegar Voltar/Próximo"
+    risk_if_fails: "Marca não consegue entrar na waitlist → bloqueia aquisição"
+
+  - id: marca-02-free-domain-blocked
+    persona: marca
+    priority: P0
+    type: integration
+    agent: persona-marca
+    description: "Bloqueio de email com domínio gratuito (FREE_DOMAINS)"
+    artifacts:
+      - cadastro-marca.html
+    steps:
+      - "Step 1 com email @gmail.com, @hotmail.com, @uol.com.br (3 tentativas)"
+    expects:
+      - "Cada tentativa exibe 'Use seu email corporativo'"
+      - "Avanço para Step 2 é bloqueado"
+      - "FREE_DOMAINS contém 17+ domínios (auditar lista vs surface-map)"
+    risk_if_fails: "Leads pessoais poluem waitlist de marcas"
+
+  - id: marca-03-cnpj-invalido
+    persona: marca
+    priority: P1
+    type: integration
+    agent: persona-marca
+    description: "Validação CNPJ com checksum mod-11 + rejeição de dígitos iguais"
+    artifacts:
+      - cadastro-marca.html
+      - js/sanitize.js
+    steps:
+      - "CNPJ com 14 dígitos iguais (11.111.111/1111-11)"
+      - "CNPJ com formato válido mas checksum errado"
+      - "CNPJ válido real (ex: empresa conhecida)"
+    expects:
+      - "Primeiros 2 casos: mensagem inline de erro + bloqueia avanço"
+      - "Último caso: aceita"
+    risk_if_fails: "CNPJs falsos entram na waitlist"
+
+  - id: marca-04-max-3-objetivos
+    persona: marca
+    priority: P2
+    type: usability
+    agent: persona-marca
+    description: "Limite duro de 3 objetivos no Step 3"
+    artifacts:
+      - cadastro-marca.html
+    steps:
+      - "Tentar marcar 4 checkboxes de objetivos"
+    expects:
+      - "4o clique é bloqueado ou desmarca automaticamente"
+      - "Mensagem clara 'Selecione no máximo 3 objetivos'"
+    risk_if_fails: "UX confusa, dados inconsistentes com modelo"
+
+  - id: marca-05-codigo-convite-invalido
+    persona: marca
+    priority: P2
+    type: integration
+    agent: persona-marca
+    description: "Validação de código de convite contra tabela codigos_convite"
+    artifacts:
+      - cadastro-marca.html
+      - table:codigos_convite
+    steps:
+      - "Preencher código_convite='INVALIDO123'"
+      - "Preencher código válido existente"
+      - "Deixar vazio (opcional)"
+    expects:
+      - "Inválido: 'Código inválido ou expirado', bloqueia"
+      - "Válido: aceita, armazena para INSERT"
+      - "Vazio: aceita (campo opcional)"
+    risk_if_fails: "Convites não funcionam ou aceitam qualquer coisa"
+
+  - id: marca-06-email-duplicado
+    persona: marca
+    priority: P1
+    type: integration
+    agent: persona-marca
+    description: "Email já presente na waitlist deve ser rejeitado no INSERT"
+    artifacts:
+      - cadastro-marca.html
+      - table:marcas_waitlist
+    steps:
+      - "Submeter cadastro com email já existente na waitlist"
+    expects:
+      - "Mensagem clara indicando email duplicado"
+      - "Unique constraint do Supabase respeitada"
+    risk_if_fails: "Duplicatas na waitlist geram conflitos no fluxo admin"
+
+  - id: marca-07-login-pos-aprovacao
+    persona: marca
+    priority: P0
+    type: integration
+    agent: persona-marca
+    requires: [marca-01-cadastro-happy-path, admin-02-aprovar-marca]
+    description: "Login da marca após aprovação admin e email de acesso"
+    artifacts:
+      - login.html
+      - js/core.js
+      - edge:create-user-and-send-access
+    steps:
+      - "Receber email com credenciais (via Edge Function)"
+      - "Acessar login.html como marca"
+      - "Login com email/senha"
+    expects:
+      - "Dual Auth Pattern: SDK signIn funciona (se online)"
+      - "sb_marca_session salvo em localStorage"
+      - "Redirect para dashboard-marca.html"
+      - "Sessão cascata 3-níveis operacional"
+    risk_if_fails: "Marca aprovada não entra na plataforma"
+
+  - id: marca-08-dashboard-oportunidades
+    persona: marca
+    priority: P0
+    type: integration
+    agent: persona-marca
+    requires: [marca-07-login-pos-aprovacao]
+    description: "Marca navega oportunidades disponíveis e filtra"
+    artifacts:
+      - dashboard-marca.html
+      - table:oportunidades
+    expects:
+      - "Apenas oportunidades com status='publicada' listadas (RLS)"
+      - "Filtros funcionam (categoria, incentivo fiscal, valor)"
+      - "restoreSessionToSDK() executa antes de queries RLS"
+    risk_if_fails: "Marca vê dados errados ou lista vazia"
+
+  - id: marca-09-iniciar-negociacao
+    persona: marca
+    priority: P0
+    type: integration
+    agent: persona-marca
+    requires: [marca-08-dashboard-oportunidades]
+    description: "Marca inicia negociação em oportunidade de detentor"
+    artifacts:
+      - table:negociacoes
+      - table:rodadas_negociacao
+      - table:contrapartidas
+    expects:
+      - "INSERT em negociacoes com marca_id=auth.uid()"
+      - "Rodada inicial criada em rodadas_negociacao (imutável)"
+      - "Mensagem inicial opcional em mensagens"
+    risk_if_fails: "Core value prop quebrado"
+
+  - id: marca-10-rate-limit-login
+    persona: marca
+    priority: P1
+    type: security
+    agent: persona-marca
+    description: "Rate limiter localStorage bloqueia após 5 tentativas"
+    artifacts:
+      - login.html
+      - localStorage:rr_rl_login
+    steps:
+      - "5 tentativas de login com senha errada"
+      - "Verificar localStorage rr_rl_login"
+      - "6a tentativa"
+    expects:
+      - "Após 5 falhas: bloqueio de 30s"
+      - "Contador resetado após sucesso ou após janela"
+    risk_if_fails: "Brute force não mitigado"
+
+# =============================================================================
+# PERSONA: DETENTOR (rights holder / event organizer)
+# =============================================================================
+scenarios_detentor:
+  - id: detentor-01-cadastro-com-codigo
+    persona: detentor
+    priority: P0
+    type: integration
+    agent: persona-detentor
+    description: "Cadastro Detentor single-page com código_acesso obrigatório"
+    artifacts:
+      - cadastro-detentor.html
+      - table:detentores_waitlist
+      - table:codigos_acesso
+    steps:
+      - "Preencher código_acesso válido (throttle 800ms na validação)"
+      - "Preencher nome, email (SEM bloqueio FREE_DOMAINS), telefone com DDI (14 países)"
+      - "Selecionar estado → cidade (dynamic list per state)"
+      - "Preencher demais campos e submeter"
+    expects:
+      - "INSERT em detentores_waitlist com status='pendente'"
+      - "Throttle de validação de código não quebra UX"
+      - "FREE_DOMAINS NÃO se aplica (detentores podem usar gmail etc.)"
+    risk_if_fails: "Detentores legítimos bloqueados"
+
+  - id: detentor-02-codigo-invalido
+    persona: detentor
+    priority: P0
+    type: integration
+    agent: persona-detentor
+    description: "Código de acesso obrigatório bloqueia cadastro"
+    artifacts:
+      - cadastro-detentor.html
+    steps:
+      - "Submeter com código_acesso vazio"
+      - "Submeter com código_acesso inválido"
+    expects:
+      - "Ambos bloqueiam submit"
+      - "Mensagem clara distinguindo vazio vs inválido"
+    risk_if_fails: "Cadastros sem controle de convite"
+
+  - id: detentor-03-telefone-14-paises
+    persona: detentor
+    priority: P2
+    type: usability
+    agent: persona-detentor
+    description: "Telefone aceita 14 DDIs diferentes"
+    artifacts:
+      - cadastro-detentor.html
+    expects:
+      - "Dropdown de DDI lista 14 países"
+      - "Validação de formato por país"
+    risk_if_fails: "Detentores internacionais não cadastram"
+
+  - id: detentor-04-login-pos-aprovacao
+    persona: detentor
+    priority: P0
+    type: integration
+    agent: persona-detentor
+    requires: [detentor-01-cadastro-com-codigo, admin-03-aprovar-detentor]
+    description: "Login detentor após aprovação admin"
+    artifacts:
+      - login.html
+      - js/core.js
+    expects:
+      - "sb_detentor_session em localStorage"
+      - "Redirect para dashboard-detentor.html"
+    risk_if_fails: "Detentor aprovado não entra"
+
+  - id: detentor-05-criar-oportunidade-6-templates
+    persona: detentor
+    priority: P0
+    type: integration
+    agent: persona-detentor
+    requires: [detentor-04-login-pos-aprovacao]
+    description: "Criar oportunidade em cada um dos 6 templates"
+    artifacts:
+      - criar-oportunidade.html
+      - table:oportunidades
+      - storage:oportunidades
+    steps:
+      - "Criar 1 oportunidade em cada template: personalidade, evento, esporte, midia, local, projeto"
+      - "CAT_TO_TPL mapping respeitado (Celebridade→personalidade etc.)"
+      - "Preencher cotas_data, datas_evento, redes_sociais (JSONB)"
+      - "Upload de PDF até 20MB"
+      - "saveDraft → publishOpportunity"
+    expects:
+      - "INSERT em oportunidades com status='rascunho' e depois 'publicada'"
+      - "Upload funciona pós-save (path pattern correto)"
+      - "JSONB estruturado conforme spec"
+      - "RLS permite detentor ver só próprias oportunidades"
+    risk_if_fails: "Detentores não publicam → sem inventário"
+
+  - id: detentor-06-incentivo-fiscal-7-leis
+    persona: detentor
+    priority: P1
+    type: integration
+    agent: persona-detentor
+    description: "Oportunidade com incentivo fiscal cobre as 7 leis"
+    artifacts:
+      - criar-oportunidade.html
+    steps:
+      - "Criar oportunidade marcando incentivo_data com cada lei: rouanet, lie, paulo_gustavo, iss, icms, pronac, outras"
+    expects:
+      - "JSONB incentivo_data aceita as 7 leis"
+      - "UI mostra campos específicos por lei quando aplicável"
+    risk_if_fails: "Funcionalidade de incentivo fiscal incompleta"
+
+  - id: detentor-07-pdf-upload-limite
+    persona: detentor
+    priority: P2
+    type: security
+    agent: persona-detentor
+    description: "Limite 20MB em PDF respeitado + tipo validado"
+    artifacts:
+      - criar-oportunidade.html
+      - storage:oportunidades
+    steps:
+      - "Upload PDF 19MB (deve passar)"
+      - "Upload PDF 21MB (deve falhar)"
+      - "Upload .exe com extensão .pdf (deve falhar)"
+    expects:
+      - "Limite enforced no frontend + storage policy"
+      - "Tipo MIME validado no backend"
+    risk_if_fails: "Storage abusada ou malware uploaded"
+
+  - id: detentor-08-responder-negociacao
+    persona: detentor
+    priority: P0
+    type: integration
+    agent: persona-detentor
+    requires: [marca-09-iniciar-negociacao]
+    description: "Detentor responde proposta em negociação"
+    artifacts:
+      - table:negociacoes
+      - table:rodadas_negociacao
+      - table:mensagens
+    expects:
+      - "Nova rodada criada em rodadas_negociacao (imutável — rodada anterior intacta)"
+      - "JSONB snapshot completo de contrapartidas na rodada"
+      - "Mensagem opcional anexada"
+    risk_if_fails: "Core loop de negociação quebrado"
+
+# =============================================================================
+# PERSONA: ADMIN (Relevantia Admin)
+# =============================================================================
+scenarios_admin:
+  - id: admin-01-login-so-fetch
+    persona: admin
+    priority: P0
+    type: integration
+    agent: persona-admin
+    description: "Login admin usa APENAS fetch manual (sem SDK)"
+    artifacts:
+      - login.html (ou admin-login.html)
+      - js/core.js
+    expects:
+      - "signIn admin bypassa SDK — usa POST /auth/v1/token?grant_type=password"
+      - "sb_admin_session em localStorage"
+      - "Redirect para admin.html"
+    risk_if_fails: "Admin não entra — operação travada"
+
+  - id: admin-02-aprovar-marca
+    persona: admin
+    priority: P0
+    type: integration
+    agent: persona-admin
+    requires: [admin-01-login-so-fetch, marca-01-cadastro-happy-path]
+    description: "Admin aprova marca na waitlist + dispara Edge Function"
+    artifacts:
+      - admin.html
+      - edge:admin-actions
+      - edge:create-user-and-send-access
+      - table:marcas_waitlist
+      - table:perfis
+      - table:auth.users
+    steps:
+      - "Listar pendentes em marcas_waitlist"
+      - "Clicar 'Aprovar' na linha da marca-01"
+      - "Edge Function create-user-and-send-access é chamada"
+    expects:
+      - "auth.users criado com role='brand' em metadata"
+      - "INSERT em perfis com role='brand'"
+      - "Email enviado com senha temporária"
+      - "marcas_waitlist.status='aprovado'"
+    risk_if_fails: "Pipeline de onboarding quebrado"
+
+  - id: admin-03-aprovar-detentor
+    persona: admin
+    priority: P0
+    type: integration
+    agent: persona-admin
+    requires: [admin-01-login-so-fetch, detentor-01-cadastro-com-codigo]
+    description: "Admin aprova detentor na waitlist"
+    artifacts:
+      - admin.html
+      - edge:create-user-and-send-access
+      - table:detentores_waitlist
+    expects:
+      - "auth.users criado com role='rightsholder'"
+      - "INSERT em perfis com role='rightsholder'"
+      - "Email de acesso enviado"
+    risk_if_fails: "Detentor não é criado"
+
+  - id: admin-04-rejeitar-waitlist
+    persona: admin
+    priority: P1
+    type: integration
+    agent: persona-admin
+    description: "Admin rejeita cadastro e não cria auth user"
+    artifacts:
+      - admin.html
+    expects:
+      - "marcas_waitlist.status='rejeitado'"
+      - "Nenhum auth.users criado"
+      - "Sem email enviado"
+    risk_if_fails: "Usuários rejeitados recebem acesso indevido"
+
+  - id: admin-05-moderar-oportunidades
+    persona: admin
+    priority: P2
+    type: integration
+    agent: persona-admin
+    description: "Admin pode ver/ocultar oportunidades publicadas"
+    artifacts:
+      - admin.html
+      - table:oportunidades
+    expects:
+      - "Admin vê todas as oportunidades (RLS bypass para role=admin)"
+      - "Ação de despublicar altera status"
+    risk_if_fails: "Sem moderação de conteúdo"
+
+  - id: admin-06-sessao-admin-isolada
+    persona: admin
+    priority: P1
+    type: security
+    agent: persona-admin
+    description: "sb_admin_session não conflita com sb_marca/detentor_session"
+    artifacts:
+      - localStorage (3 chaves)
+    steps:
+      - "Login admin → verificar que só sb_admin_session existe"
+      - "Abrir outra aba como marca → verificar isolamento"
+    expects:
+      - "Cada role tem chave própria — sem cross-contamination"
+    risk_if_fails: "Session hijacking cross-role"
+
+# =============================================================================
+# CROSS-PERFIL: Fluxos end-to-end envolvendo 2+ perfis
+# =============================================================================
+scenarios_cross:
+  - id: cross-01-e2e-negociacao-completa
+    persona: cross
+    priority: P0
+    type: integration
+    agent: tester-cross-perfil
+    requires:
+      - marca-09-iniciar-negociacao
+      - detentor-08-responder-negociacao
+    description: "Negociação completa: marca inicia → detentor responde → marca aceita → contrato gerado"
+    artifacts:
+      - table:negociacoes
+      - table:rodadas_negociacao
+      - table:contrapartidas
+      - table:mensagens
+      - table:contratos
+    steps:
+      - "Marca inicia com contrapartida inicial (rodada 1)"
+      - "Detentor contra-propõe (rodada 2, snapshot JSONB)"
+      - "Marca aceita (status='aceita' em negociacoes)"
+      - "Contrato é gerado em contratos"
+    expects:
+      - "Todas as rodadas preservadas (imutabilidade)"
+      - "Rodada final aprovada gera contrato"
+      - "RLS: marca só vê suas negociações, detentor só vê as dele"
+      - "Mensagens preservadas no histórico"
+    risk_if_fails: "Core value prop do produto quebrado"
+
+  - id: cross-02-rls-cross-leak
+    persona: cross
+    priority: P0
+    type: security
+    agent: tester-cross-perfil
+    description: "Marca A não pode ver dados de Marca B nem de detentores alheios"
+    artifacts:
+      - table:negociacoes
+      - table:perfis
+      - table:mensagens
+    steps:
+      - "Logar como Marca A"
+      - "Tentar queries diretas via console: SELECT * FROM negociacoes WHERE marca_id != auth.uid()"
+      - "Repetir para perfis, mensagens, contratos"
+    expects:
+      - "RLS retorna resultado vazio ou erro de permissão"
+      - "Confirmar em cada tabela protegida"
+    risk_if_fails: "Vazamento de dados entre marcas/detentores"
+
+  - id: cross-03-dual-auth-pattern
+    persona: cross
+    priority: P1
+    type: integration
+    agent: tester-cross-perfil
+    description: "Validar Dual Auth Pattern (SDK + manual fetch fallback)"
+    artifacts:
+      - js/core.js
+      - login.html
+    steps:
+      - "Login normal (SDK funciona)"
+      - "Simular SDK indisponível (bloquear CDN via DevTools)"
+      - "Novo login — deve cair no manual fetch"
+    expects:
+      - "Fallback manual preserva sessão"
+      - "Cascata 3 níveis executa na ordem"
+      - "Timeout 5s via AbortController não trava UI"
+    risk_if_fails: "Usuários ficam presos em loading quando SDK falha"
+
+  - id: cross-04-rodadas-imutabilidade
+    persona: cross
+    priority: P0
+    type: security
+    agent: tester-cross-perfil
+    description: "Rodadas passadas não podem ser alteradas"
+    artifacts:
+      - table:rodadas_negociacao
+    steps:
+      - "Após rodada 2 criada, tentar UPDATE na rodada 1 via SDK"
+      - "Tentar DELETE na rodada 1"
+    expects:
+      - "RLS bloqueia UPDATE/DELETE em rodadas_negociacao"
+      - "Apenas INSERT permitido (e apenas pelo dono do turno)"
+    risk_if_fails: "Histórico de negociação pode ser fraudado"
+
+# =============================================================================
+# SECURITY: RLS + vulnerabilidades conhecidas
+# =============================================================================
+scenarios_security:
+  - id: sec-01-rls-embaixadores
+    persona: security
+    priority: P0
+    type: security
+    agent: auditor-supabase
+    description: "Verificar RLS da tabela embaixadores (vulnerabilidade conhecida no surface-map)"
+    artifacts:
+      - table:embaixadores
+    steps:
+      - "Query anônima: SELECT * FROM embaixadores"
+      - "Query autenticada como marca"
+      - "Query autenticada como detentor"
+    expects:
+      - "Apenas dono do registro ou admin pode SELECT/UPDATE/DELETE"
+      - "INSERT controlado por policy específica"
+    risk_if_fails: "Dados de embaixadores expostos"
+
+  - id: sec-02-rls-perfis
+    persona: security
+    priority: P0
+    type: security
+    agent: auditor-supabase
+    description: "RLS em perfis — usuário não vê perfis alheios"
+    artifacts:
+      - table:perfis
+    expects:
+      - "SELECT apenas onde user_id=auth.uid() OR role='admin'"
+      - "UPDATE apenas do próprio registro"
+    risk_if_fails: "PII (telefone, empresa, CNPJ) vazada"
+
+  - id: sec-03-rls-waitlists-pii
+    persona: security
+    priority: P0
+    type: security
+    agent: auditor-supabase
+    description: "marcas_waitlist e detentores_waitlist protegidas (PII)"
+    artifacts:
+      - table:marcas_waitlist
+      - table:detentores_waitlist
+    expects:
+      - "INSERT público (para cadastro funcionar sem auth)"
+      - "SELECT/UPDATE/DELETE apenas admin"
+    risk_if_fails: "Lista de leads inteira exposta publicamente"
+
+  - id: sec-04-rls-pagamentos
+    persona: security
+    priority: P0
+    type: security
+    agent: auditor-supabase
+    description: "Tabela pagamentos/stripe_accounts protegida"
+    artifacts:
+      - table:pagamentos
+      - table:stripe_accounts
+    expects:
+      - "SELECT apenas do dono"
+      - "Nenhuma policy pública"
+    risk_if_fails: "Dados financeiros expostos"
+
+  - id: sec-05-token-no-hash
+    persona: security
+    priority: P1
+    type: security
+    agent: auditor-codigo
+    description: "access_token de recuperação usa hash fragment, não query string"
+    artifacts:
+      - nova-senha.html
+      - edge:send-password-reset (template de email)
+    expects:
+      - "URL gerada contém #access_token=... (não ?access_token=...)"
+      - "Parse via window.location.hash"
+    risk_if_fails: "Tokens em logs de servidor / referrer"
+
+  - id: sec-06-email-enumeration
+    persona: security
+    priority: P1
+    type: security
+    agent: auditor-codigo
+    description: "esqueci-senha.html não revela se email existe"
+    artifacts:
+      - esqueci-senha.html
+      - edge:send-password-reset
+    steps:
+      - "Submeter email válido existente"
+      - "Submeter email inexistente"
+      - "Submeter email com typo"
+    expects:
+      - "Mesma mensagem em todos os casos"
+      - "Mesmo delay de resposta (não deve vazar timing)"
+    risk_if_fails: "Enumeração de usuários facilitada"
+
+  - id: sec-07-credenciais-frontend
+    persona: security
+    priority: P0
+    type: static
+    agent: auditor-codigo
+    description: "Zero credenciais secretas no frontend"
+    artifacts:
+      - "**/*.html"
+      - "js/**/*.js"
+    steps:
+      - "Grep por SERVICE_ROLE, secret, private_key, STRIPE_SECRET etc."
+    expects:
+      - "Apenas SUPABASE_ANON_KEY + SUPABASE_URL expostos (público by design)"
+      - "Nenhuma chave admin/service_role em arquivos estáticos"
+    risk_if_fails: "Comprometimento total do backend"
+
+  - id: sec-08-cnpj-bypass
+    persona: security
+    priority: P2
+    type: security
+    agent: auditor-codigo
+    description: "Checksum CNPJ não pode ser bypass via DevTools"
+    artifacts:
+      - cadastro-marca.html
+      - js/sanitize.js
+    steps:
+      - "Desabilitar JS via DevTools e submeter"
+      - "Modificar função validateCNPJ para sempre retornar true"
+    expects:
+      - "Backend também valida (idealmente em Edge Function ou trigger)"
+      - "OU: aceitar limitação frontend-only e documentar"
+    risk_if_fails: "CNPJs inválidos passam"
+
+# =============================================================================
+# UX / USABILITY
+# =============================================================================
+scenarios_ux:
+  - id: ux-01-sessao-cascata-3-niveis
+    persona: ux
+    priority: P1
+    type: usability
+    agent: auditor-ux
+    description: "Cascata 3-níveis (SDK → legacy localStorage → async refresh) não gera tela em branco"
+    artifacts:
+      - js/core.js
+      - dashboard-marca.html
+      - dashboard-detentor.html
+    steps:
+      - "Reload dashboard com SDK lento (throttle network)"
+      - "Reload com localStorage parcial"
+      - "Reload com DNS Supabase bloqueado"
+    expects:
+      - "loadingScreen visível em todos os casos"
+      - "Nunca tela em branco por mais de 5s (AbortController timeout)"
+      - "Fallback para login.html se todos falham"
+    risk_if_fails: "UX quebrada em redes instáveis"
+
+  - id: ux-02-redirect-nova-senha
+    persona: ux
+    priority: P3
+    type: usability
+    agent: auditor-ux
+    description: "Após redefinir senha, redirect acontece em 2500ms"
+    artifacts:
+      - nova-senha.html
+    expects:
+      - "Mensagem de sucesso visível ~2.5s"
+      - "Redirect automático para login.html"
+    risk_if_fails: "UX ruim (usuário não entende o que aconteceu)"
+
+  - id: ux-03-loading-states
+    persona: ux
+    priority: P2
+    type: usability
+    agent: auditor-ux
+    description: "Todos os botões críticos têm loading state"
+    artifacts:
+      - "*.html (login, cadastro, criar-oportunidade, submit de negociação)"
+    expects:
+      - "Botão desabilitado durante request"
+      - "Spinner ou texto 'Enviando...' visível"
+      - "Sem duplo-submit"
+    risk_if_fails: "Duplo-submit cria registros duplicados"
+
+  - id: ux-04-mobile-responsivo
+    persona: ux
+    priority: P2
+    type: usability
+    agent: auditor-ux
+    description: "Páginas principais funcionais em mobile (375px, 414px)"
+    artifacts:
+      - "login.html, cadastro-*.html, dashboard-*.html, criar-oportunidade.html"
+    expects:
+      - "Sem overflow horizontal"
+      - "Campos de formulário usáveis em touch"
+      - "Navegação entre steps funciona em mobile"
+    risk_if_fails: "Usuários mobile bloqueados"
+
+  - id: ux-05-mensagens-erro-clareza
+    persona: ux
+    priority: P2
+    type: usability
+    agent: auditor-ux
+    description: "Mensagens de erro são claras e acionáveis"
+    artifacts:
+      - "todas as páginas com formulário"
+    expects:
+      - "Sem 'Erro desconhecido' genérico exceto em casos realmente inesperados"
+      - "Erro de rede vs erro de validação distinguidos"
+      - "Texto em português claro"
+    risk_if_fails: "Usuários abandonam por não entender problema"
+
+  - id: ux-06-design-system-aderencia
+    persona: ux
+    priority: P3
+    type: usability
+    agent: auditor-ux
+    description: "Páginas seguem design system v3.2 (Poppins + DM Sans + gold gradient)"
+    artifacts:
+      - "design-system - mvp.html (referência)"
+      - "todas as páginas do MVP"
+    expects:
+      - "Fonte heading: Poppins"
+      - "Fonte body: DM Sans"
+      - "Gold sempre com gradient (#B8860B → #C8A84B)"
+      - "Botões pill 100px"
+      - "Nenhum 'Radar Relevantia' como texto (usar logos/5.png)"
+    risk_if_fails: "Inconsistência visual reduz confiança"
+
+# =============================================================================
+# STATIC ANALYSIS (código sem execução)
+# =============================================================================
+scenarios_static:
+  - id: stat-01-duplicacao-logica-auth
+    persona: security
+    priority: P2
+    type: static
+    agent: auditor-codigo
+    description: "Lógica de auth não duplicada entre arquivos"
+    artifacts:
+      - js/core.js
+      - js/**/*.js
+    expects:
+      - "signIn/signOut centralizados em core.js"
+      - "Sem reimplementações em outros arquivos"
+    risk_if_fails: "Bug fix em um lugar não propaga"
+
+  - id: stat-02-edge-functions-catalog
+    persona: security
+    priority: P1
+    type: static
+    agent: auditor-supabase
+    description: "Catálogo de Edge Functions corresponde ao surface-map"
+    artifacts:
+      - supabase:edge-functions (live)
+      - specs/qa/surface-map.md
+    expects:
+      - "admin-actions (update-status + create-user-and-send-access) presente"
+      - "send-password-reset presente"
+      - "Sem Edge Functions órfãs ou não-documentadas"
+    risk_if_fails: "Superfície de ataque desconhecida"
+
+  - id: stat-03-rls-policies-completude
+    persona: security
+    priority: P0
+    type: static
+    agent: auditor-supabase
+    description: "Toda tabela pública tem pelo menos uma policy ou RLS desabilitada conscientemente"
+    artifacts:
+      - supabase:pg_policies (live query)
+    steps:
+      - "SELECT schemaname, tablename, policyname FROM pg_policies WHERE schemaname='public'"
+      - "Comparar com lista de tabelas em surface-map"
+    expects:
+      - "Cada tabela com dados sensíveis tem policies adequadas"
+      - "Tabelas sem RLS são documentadas"
+    risk_if_fails: "Vulnerabilidades RLS ocultas"
+
+# =============================================================================
+# ORDEM DE EXECUÇÃO SUGERIDA
+# =============================================================================
+execution_order:
+  phase_0_static:
+    - stat-01-duplicacao-logica-auth
+    - stat-02-edge-functions-catalog
+    - stat-03-rls-policies-completude
+    - sec-07-credenciais-frontend
+  phase_1_security_baseline:
+    - sec-01-rls-embaixadores
+    - sec-02-rls-perfis
+    - sec-03-rls-waitlists-pii
+    - sec-04-rls-pagamentos
+    - sec-05-token-no-hash
+    - sec-06-email-enumeration
+    - sec-08-cnpj-bypass
+  phase_2_cadastros:
+    - marca-01-cadastro-happy-path
+    - marca-02-free-domain-blocked
+    - marca-03-cnpj-invalido
+    - marca-04-max-3-objetivos
+    - marca-05-codigo-convite-invalido
+    - marca-06-email-duplicado
+    - detentor-01-cadastro-com-codigo
+    - detentor-02-codigo-invalido
+    - detentor-03-telefone-14-paises
+  phase_3_admin:
+    - admin-01-login-so-fetch
+    - admin-02-aprovar-marca
+    - admin-03-aprovar-detentor
+    - admin-04-rejeitar-waitlist
+    - admin-05-moderar-oportunidades
+    - admin-06-sessao-admin-isolada
+  phase_4_login_dashboard:
+    - marca-07-login-pos-aprovacao
+    - marca-08-dashboard-oportunidades
+    - marca-10-rate-limit-login
+    - detentor-04-login-pos-aprovacao
+    - detentor-05-criar-oportunidade-6-templates
+    - detentor-06-incentivo-fiscal-7-leis
+    - detentor-07-pdf-upload-limite
+  phase_5_negociacao:
+    - marca-09-iniciar-negociacao
+    - detentor-08-responder-negociacao
+    - cross-01-e2e-negociacao-completa
+    - cross-02-rls-cross-leak
+    - cross-03-dual-auth-pattern
+    - cross-04-rodadas-imutabilidade
+  phase_6_ux:
+    - ux-01-sessao-cascata-3-niveis
+    - ux-02-redirect-nova-senha
+    - ux-03-loading-states
+    - ux-04-mobile-responsivo
+    - ux-05-mensagens-erro-clareza
+    - ux-06-design-system-aderencia
+
+# =============================================================================
+# DADOS DE TESTE (fixtures)
+# =============================================================================
+test_fixtures:
+  marca_valida:
+    firstName: "QA"
+    lastName: "Marca Teste"
+    email: "qa-marca-{{timestamp}}@qa-radar.example"  # domínio customizado
+    phone: "+5511987654321"
+    cargo: "Diretor de Marketing"
+    company: "QA Brand Test LTDA"
+    cnpj: "11.222.333/0001-81"  # placeholder — usar CNPJ válido gerado
+    setor: "Tecnologia"
+    perfil_consumo: "Premium"
+    objetivos: ["Awareness", "Ativação"]
+    orcamento: "50k-100k"
+    categorias: ["Esporte", "Evento"]
+
+  detentor_valido:
+    nome: "QA Detentor Teste"
+    email: "qa-detentor-{{timestamp}}@gmail.com"  # FREE_DOMAINS permitido
+    codigo_acesso: "{{valid_code_from_supabase}}"
+    telefone_ddi: "+55"
+    telefone: "11987654321"
+    estado: "SP"
+    cidade: "São Paulo"
+
+  admin_credenciais:
+    email: "{{admin_email_from_env}}"
+    senha: "{{admin_password_from_env}}"
+
+  oportunidade_minima:
+    template: "evento"
+    titulo: "QA Evento Teste"
+    categoria: "Evento"
+    valor_min: 10000
+    valor_max: 50000
+    datas_evento: { inicio: "2026-06-01", fim: "2026-06-02" }
+
+# =============================================================================
+# CLEANUP POST-RUN
+# =============================================================================
+cleanup:
+  policy: "Cada cenário que cria dados em produção deve registrar IDs criados"
+  location: "specs/qa/run-log/{{timestamp}}-created-ids.json"
+  manual_cleanup_required:
+    - "auth.users criados pelo admin-02/03 (requer intervenção Supabase)"
+    - "Registros em marcas_waitlist/detentores_waitlist"
+    - "Oportunidades criadas em detentor-05"
+    - "Negociações criadas em marca-09/cross-01"
+  automation_note: |
+    Agente deve SEMPRE registrar IDs criados em arquivo separado.
+    Limpeza manual pelo admin humano após análise do relatório.
+    NUNCA executar DELETE em massa sem confirmação explícita do usuário.
