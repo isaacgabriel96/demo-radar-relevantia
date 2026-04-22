@@ -3656,7 +3656,7 @@ input[type=number] { -moz-appearance: textfield; }
                 <input type="text" id="share-link-input" class="form-control" readonly
                   style="font-size:12px;padding:7px 10px;background:var(--gray-1)"
                   value="">
-                <button type="button" class="btn btn-ghost" style="padding:7px 14px;font-size:12px;flex-shrink:0"
+                <button type="button" id="share-link-copy-btn" class="btn btn-ghost" style="padding:7px 14px;font-size:12px;flex-shrink:0"
                   onclick="copyShareLink(event)">Copiar</button>
               </div>
             </div>
@@ -6973,23 +6973,24 @@ function selectVisibility(type) {
 /** Atualiza o input do link de convite com a URL real da oportunidade */
 function _updateShareLink() {
   const input = document.getElementById('share-link-input');
+  const btn   = document.getElementById('share-link-copy-btn');
   if (!input) return;
-  // Em modo edição: usa o slug ou id da oportunidade
   const oppSlug = formState.editSlug || null;
   const oppId   = formState.editId   || null;
-  const base    = 'https://radar-relevantia.com/oportunidade-detalhe.html';
+  const base    = 'https://radar-relevantia.com.br/oportunidade-detalhe.html';
   let link = '';
   if (oppSlug) {
     link = base + '?slug=' + encodeURIComponent(oppSlug);
   } else if (oppId) {
     link = base + '?id=' + encodeURIComponent(oppId);
   } else {
-    // Ainda em criação (sem ID) — avisa que o link ficará disponível após salvar
-    input.placeholder = 'Disponível após salvar a oportunidade';
     input.value = '';
+    input.placeholder = 'Disponível após publicar a oportunidade';
+    if (btn) { btn.disabled = true; btn.style.opacity = '0.45'; btn.style.cursor = 'default'; }
     return;
   }
   input.value = link;
+  if (btn) { btn.disabled = false; btn.style.opacity = ''; btn.style.cursor = ''; }
 }
 
 /* ══════════════════════════════════════════════
@@ -7281,10 +7282,20 @@ function addDataExtra() {
 function copyShareLink(e) {
   e.stopPropagation();
   const input = document.getElementById('share-link-input');
-  if (!input) return;
-  input.select();
-  document.execCommand('copy');
-  showToast('Link copiado!', 'success');
+  if (!input || !input.value) return;
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(input.value).then(() => {
+      showToast('Link copiado!', 'success');
+    }).catch(() => {
+      input.select();
+      document.execCommand('copy');
+      showToast('Link copiado!', 'success');
+    });
+  } else {
+    input.select();
+    document.execCommand('copy');
+    showToast('Link copiado!', 'success');
+  }
 }
 
 /* ══════════════════════════════════════════════
@@ -8626,6 +8637,12 @@ async function publishOpportunity() {
       if (!res.ok) { const err = await res.text(); console.error('[Publish]', err); throw new Error(err); }
       const rows = await res.json();
       oppId = rows[0]?.id;
+      // Atualiza formState para que o share link fique disponível após publicar
+      if (oppId) {
+        formState.editId = oppId;
+        if (rows[0]?.slug) formState.editSlug = rows[0].slug;
+        _updateShareLink();
+      }
       console.log('[Publish] Opportunity created:', oppId);
     }
 
