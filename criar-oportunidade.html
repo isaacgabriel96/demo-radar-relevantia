@@ -9894,9 +9894,8 @@ window.agPreencher = function() {
   // Usa maybePreFillEdit que já existe na página — forceRun=true bypassa o guard de ?edit=
   maybePreFillEdit(true);
 
-  // maybePreFillEdit salta o step 2 (panel-5/template fields), então os _pending* de cotas e detalhes
-  // nunca seriam aplicados via renderTemplateFields. Forçamos aqui: se já há campos renderizados,
-  // chamamos _applyPendingDetalhes diretamente; senão, limpamos o container e re-renderizamos.
+  // Garante que template-specific-fields e cotas estejam renderizados
+  // (maybePreFillEdit navega para panel-2/Informações e não renderiza o step 2/Detalhes)
   if (formState.selectedTemplate) {
     const tplContainer = document.getElementById('template-specific-fields');
     if (tplContainer) {
@@ -9907,6 +9906,46 @@ window.agPreencher = function() {
       }
     }
   }
+
+  // Após preencher todos os dados, avançar para panel-3 com TODAS as seções visíveis
+  // para que o usuário possa revisar canais e oportunidades preenchidos pelo agente.
+  const panels = document.querySelectorAll('[id^="panel-"]');
+  panels.forEach(p => p.style.display = 'none');
+  const p3 = document.getElementById('panel-3');
+  if (p3) p3.style.display = 'block';
+
+  // Inicializa o preview do step 3 (s3Enter faz scroll e monta o preview)
+  s3Enter();
+
+  // Revela todas as sub-seções do panel-3 de uma vez (não progressivo)
+  const mkWrap            = document.getElementById('s3MediaKitWrap');
+  const marcaWrap         = document.getElementById('s3MarcaWrap');
+  const canaisWrap        = document.getElementById('s3CanaisWrap');
+  const oportunidadesWrap = document.getElementById('s3OportunidadesWrap');
+  const segInlineWrap     = document.getElementById('s3SegmentosInlineWrap');
+  if (mkWrap)            mkWrap.style.display            = 'block';
+  if (marcaWrap)         marcaWrap.style.display         = 'block';
+  if (canaisWrap)        canaisWrap.style.display        = 'block';
+  if (oportunidadesWrap) oportunidadesWrap.style.display = 'block';
+  if (segInlineWrap)     segInlineWrap.style.display     = 'block';
+
+  // Ativa todas as abas do panel-3 (remove s3-tab-disabled)
+  document.querySelectorAll('.detail-tab-btn').forEach(t => {
+    t.classList.remove('s3-tab-disabled', 'active');
+    t.removeAttribute('disabled');
+  });
+
+  // Atualiza botões de navegação para contexto "step 7" (todos visíveis)
+  const s3Actions = document.getElementById('s3StepActions');
+  if (s3Actions) {
+    s3Actions.innerHTML =
+      '<button class="btn btn-ghost" onclick="nextStep(3)">← Voltar</button>' +
+      '<button class="btn btn-primary" onclick="nextStep(8)">Próximo →</button>';
+  }
+
+  _updateProgressDots(7);
+  currentStep = 7;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 </script>
 
