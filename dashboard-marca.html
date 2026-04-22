@@ -1612,6 +1612,9 @@ function mapDbOpp(row) {
     city:        city,
     org:         row.localizacao || '',
     orgInitials: row.icone || row.titulo.substring(0, 2).toUpperCase(),
+    detentorEmpresa:       (row.perfis && row.perfis.empresa) || null,
+    detentorEmpresaDomain: (row.perfis && row.perfis.empresa_domain) || null,
+    detentorLogoUrl:       (row.perfis && row.perfis.logo_url) || null,
     images:      (row.imagens && row.imagens.length > 0) ? row.imagens : [],
     _bgGradient: row.bg_gradient,
     _icon:       row.icone,
@@ -1638,7 +1641,7 @@ function loadOpportunities(callback) {
   }
 
   // Produção: busca do Supabase
-  fetch(SUPABASE_URL + '/rest/v1/oportunidades?select=id,slug,titulo,categoria,localizacao,alcance,preco_minimo,icone,bg_gradient,imagens,imagem_capa,imagens_focal,tags,descricao_curta,rating,visibilidade,perfis:detentor_id(slug)&ativo=eq.true&order=id.asc', {
+  fetch(SUPABASE_URL + '/rest/v1/oportunidades?select=id,slug,titulo,categoria,localizacao,alcance,preco_minimo,icone,bg_gradient,imagens,imagem_capa,imagens_focal,tags,descricao_curta,rating,visibilidade,perfis:detentor_id(slug,empresa,empresa_domain,logo_url)&ativo=eq.true&order=id.asc', {
     headers: {
       'apikey': SUPABASE_KEY,
       'Content-Type': 'application/json'
@@ -2182,15 +2185,42 @@ function renderOpportunities(opps) {
         <div class="opp-card-desc">${opp.desc}</div>
         <div class="opp-card-divider"></div>
         <div class="opp-card-footer">
-          <div class="olc-brand-row">
-            <div class="olc-logo">${opp.orgInitials}</div>
-            <span class="olc-brand-name">${opp.org}</span>
+          <div class="olc-brand-row" ${opp.detentorEmpresaDomain ? `data-bf-domain="${opp.detentorEmpresaDomain}"` : ''}>
+            <div class="olc-logo" style="overflow:hidden;padding:0;background:var(--gray-100)">
+              <img src="" alt="" style="width:100%;height:100%;object-fit:contain;display:none" onerror="this.style.display='none';this.nextElementSibling.style.display=''">
+              <span style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700">${opp.detentorEmpresa ? opp.detentorEmpresa.charAt(0).toUpperCase() : (opp.orgInitials||'?')}</span>
+            </div>
+            <span class="olc-brand-name">${opp.detentorEmpresa || opp.org}</span>
           </div>
           ${footerArrow}
         </div>
       </div>
     </${cardTag}>`;
   }).join('');
+
+  // Buscar logos via Brandfetch para cards com empresa_domain
+  const bfCache = {};
+  document.querySelectorAll('#oppGrid .olc-brand-row[data-bf-domain]').forEach(row => {
+    const domain = row.dataset.bfDomain;
+    if (!domain) return;
+    const img = row.querySelector('img');
+    const span = row.querySelector('span');
+    if (!img) return;
+    const apply = (src) => {
+      img.src = src;
+      img.style.display = 'block';
+      if (span) span.style.display = 'none';
+      img.onerror = () => { img.style.display = 'none'; if (span) span.style.display = ''; };
+    };
+    if (bfCache[domain]) { apply(bfCache[domain]); return; }
+    fetch(`https://api.brandfetch.io/v2/search/${encodeURIComponent(domain)}?c=1idE-ar9WXT49s6Qb2f`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        const icon = Array.isArray(data) && data.length > 0 ? data[0].icon : null;
+        if (icon) { bfCache[domain] = icon; apply(icon); }
+      })
+      .catch(() => {});
+  });
 }
 
 // ─── HERO CAROUSEL CONTROLS ───
