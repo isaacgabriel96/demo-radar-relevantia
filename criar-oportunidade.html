@@ -5534,9 +5534,9 @@ function renderReviewSummary() {
   const videoUrlVal = document.getElementById('videoUrl')?.value || '';
   const linkExterno = document.getElementById('opp-link-externo')?.value || '';
 
-  // Fotos
-  const coverThumb = document.querySelector('#photosGrid .photo-thumb.cover-photo img');
-  const allThumbs  = Array.from(document.querySelectorAll('#photosGrid .photo-thumb img'));
+  // Fotos — usar lpUploadedPhotos (sistema LP)
+  const coverPhoto = lpUploadedPhotos.find(p => p.isCover) || lpUploadedPhotos[0] || null;
+  const otherPhotos = lpUploadedPhotos.filter(p => p !== coverPhoto);
   const tplLabel = tpl?.label || tplKey || '';
 
   // ── Preview visual 1+4 (espelha oportunidade-detalhe.html) ──
@@ -5547,9 +5547,9 @@ function renderReviewSummary() {
   // Gallery grid 1+4
   preview += `<div class="opp-preview-gallery">`;
   // Main (capa)
-  if (coverThumb) {
-    const fp0 = _focalPoints[0] || { x: 50, y: 20 };
-    preview += `<div class="opp-preview-gallery-main" style="background:url(${coverThumb.src}) ${fp0.x}% ${fp0.y}% / cover no-repeat">`;
+  if (coverPhoto) {
+    const fp0 = coverPhoto.focalPoint || { x: 50, y: 20 };
+    preview += `<div class="opp-preview-gallery-main" style="background:url(${coverPhoto.url}) ${fp0.x}% ${fp0.y}% / cover no-repeat">`;
     if (tplLabel) preview += `<div class="opp-preview-gallery-badge">${tplLabel}</div>`;
     preview += `</div>`;
   } else {
@@ -5557,14 +5557,12 @@ function renderReviewSummary() {
   }
 
   // 4 thumbs (mesma ordem de grid: [0,2,1,3] para preencher col2-row1, col3-row1, col2-row2, col3-row2)
-  const otherThumbs = allThumbs.filter(img => img !== coverThumb);
   const thumbOrder = [0, 2, 1, 3];
   for (let i = 0; i < 4; i++) {
-    const ot = otherThumbs[thumbOrder[i]];
+    const ot = otherPhotos[thumbOrder[i]];
     if (ot) {
-      const fpIdx = thumbOrder[i] + 1;
-      const fp = _focalPoints[fpIdx] || { x: 50, y: 20 };
-      preview += `<div class="opp-preview-gallery-thumb" style="background:url(${ot.src}) ${fp.x}% ${fp.y}% / cover no-repeat"></div>`;
+      const fp = ot.focalPoint || { x: 50, y: 20 };
+      preview += `<div class="opp-preview-gallery-thumb" style="background:url(${ot.url}) ${fp.x}% ${fp.y}% / cover no-repeat"></div>`;
     } else {
       preview += `<div class="opp-preview-gallery-thumb" style="background:${fallbackColors[i]}"></div>`;
     }
@@ -5643,10 +5641,10 @@ function collectFormData() {
   data.abrangencia = abrangenciaEl?.options[abrangenciaEl.selectedIndex]?.text || '';
   if (data.abrangencia === 'Selecione…') data.abrangencia = '';
 
-  // Fotos
-  data.coverImg = document.querySelector('#photosGrid .photo-thumb.cover-photo img')?.src || '';
-  data.otherImgs = Array.from(document.querySelectorAll('#photosGrid .photo-thumb img'))
-    .filter(img => img.src !== data.coverImg).map(img => img.src);
+  // Fotos — usar lpUploadedPhotos (sistema LP)
+  const lpCover = lpUploadedPhotos.find(p => p.isCover) || lpUploadedPhotos[0] || null;
+  data.coverImg = lpCover ? lpCover.url : '';
+  data.otherImgs = lpUploadedPhotos.filter(p => p !== lpCover).map(p => p.url);
 
   // Vídeo
   data.videoUrl = document.getElementById('videoUrl')?.value || '';
@@ -8314,37 +8312,29 @@ function collectOppData() {
 
 /**
  * Upload photos to Supabase Storage and return array of public URLs.
- * Converts data URLs from preview thumbnails to blobs for upload.
+ * Uses lpUploadedPhotos array: items with .file are uploaded; items without .file already have public URLs.
  */
 async function uploadPhotos(oppId, token) {
-  const thumbs = document.querySelectorAll('#photosGrid .photo-thumb');
-  if (!thumbs.length) return { imagens: [], imagem_capa: null, imagens_focal: {} };
+  if (!lpUploadedPhotos.length) return { imagens: [], imagem_capa: null, imagens_focal: {} };
 
   const urls = [];
-  const indexToUrl = {};
   let capaUrl = null;
-  const coverThumb = document.querySelector('#photosGrid .photo-thumb.cover-photo');
+  const focalMap = {};
 
-  for (let i = 0; i < thumbs.length; i++) {
-    const thumb = thumbs[i];
-    const img = thumb.querySelector('img');
-    const src = img ? img.src : '';
+  for (let i = 0; i < lpUploadedPhotos.length; i++) {
+    const photo = lpUploadedPhotos[i];
 
-    // Foto já existente (modo edição) — já tem URL pública, não precisa re-upload
-    const existingUrl = thumb.getAttribute('data-existing-url');
-    if (existingUrl) {
-      urls.push(existingUrl);
-      indexToUrl[i] = existingUrl;
-      if (thumb === coverThumb) capaUrl = existingUrl;
+    // Foto existente (modo edição, sem file) — já tem URL pública, não precisa re-upload
+    if (!photo.file) {
+      urls.push(photo.url);
+      if (photo.isCover) capaUrl = photo.url;
+      focalMap[photo.url] = photo.focalPoint || { x: 50, y: 20 };
       continue;
     }
 
-    // Foto nova (data: URI) — fazer upload
-    if (!src || !src.startsWith('data:')) continue;
-
+    // Foto nova — fazer upload do arquivo
     try {
-      const res = await fetch(src);
-      const blob = await res.blob();
+      const blob = photo.file;
       const ext = blob.type.split('/')[1] || 'jpg';
       const fileName = oppId + '/' + Date.now() + '-' + i + '.' + ext;
 
@@ -8358,19 +8348,13 @@ async function uploadPhotos(oppId, token) {
       if (uploadRes.ok) {
         const publicUrl = SUPABASE_URL + '/storage/v1/object/public/oportunidades/' + fileName;
         urls.push(publicUrl);
-        indexToUrl[i] = publicUrl;
-        if (thumb === coverThumb) capaUrl = publicUrl;
+        if (photo.isCover) capaUrl = publicUrl;
+        focalMap[publicUrl] = photo.focalPoint || { x: 50, y: 20 };
       }
     } catch (err) { console.warn('[Upload] Photo', i, 'failed:', err); }
   }
 
   if (!capaUrl && urls.length > 0) capaUrl = urls[0];
-
-  // Build focal point map: URL → {x, y}
-  const focalMap = {};
-  for (const [idx, url] of Object.entries(indexToUrl)) {
-    focalMap[url] = _focalPoints[parseInt(idx)] || { x: 50, y: 20 };
-  }
 
   return { imagens: urls, imagem_capa: capaUrl, imagens_focal: focalMap };
 }
@@ -8523,7 +8507,7 @@ async function publishOpportunity() {
   if (!data.titulo) { showToast('Preencha o nome da oportunidade.', 'error'); return; }
   if (!data.descricao_curta) { showToast('Preencha a descrição da oportunidade.', 'error'); return; }
   if (!data.localizacao) { showToast('Selecione o estado e cidade da oportunidade.', 'error'); return; }
-  const hasPhotos = document.querySelectorAll('#photosGrid .photo-thumb').length > 0;
+  const hasPhotos = lpUploadedPhotos.length > 0;
   if (!hasPhotos) { showToast('Adicione pelo menos uma foto.', 'error'); return; }
   if (data.cotas_habilitadas && (!data.cotas_data || data.cotas_data.length === 0)) {
     showToast('Adicione pelo menos uma oportunidade ou desative as oportunidades.', 'error'); return;
@@ -8621,9 +8605,9 @@ async function publishOpportunity() {
     if (oppId) {
       let uploadErrors = [];
       const { imagens, imagem_capa, imagens_focal } = await uploadPhotos(oppId, token);
-      const expectedPhotos = document.querySelectorAll('#photosGrid .photo-thumb:not([data-existing-url])').length;
-      const newUploaded = imagens.filter(u => !document.querySelector('[data-existing-url="' + u + '"]')).length;
-      if (expectedPhotos > 0 && newUploaded === 0) uploadErrors.push('fotos');
+      const expectedNewPhotos = lpUploadedPhotos.filter(p => p.file).length;
+      const newUploaded = imagens.filter(u => u.includes('/storage/v1/object/public/')).length;
+      if (expectedNewPhotos > 0 && newUploaded === 0) uploadErrors.push('fotos');
 
       if (imagens.length > 0) {
         const patch = { imagens, imagem_capa, imagens_focal };
@@ -8919,12 +8903,11 @@ function maybePreFillEdit(forceRun = false) {
     selectVisibility(opp.visibilidade);
   }
 
-  // --- Passo 3: Fotos existentes ---
+  // --- Passo 3: Fotos existentes — carregar no sistema LP ---
   const existingImgs = opp.imagens || opp.images || [];
   const existingCapa = opp.imagem_capa || '';
   const existingFocal = opp.imagens_focal || {};
   if (existingImgs.length > 0 || existingCapa) {
-    const grid = document.getElementById('photosGrid');
     // Garante que a capa apareça, mesmo que não esteja em existingImgs
     let allImgs = existingImgs.slice();
     if (existingCapa && !allImgs.includes(existingCapa)) {
@@ -8935,24 +8918,20 @@ function maybePreFillEdit(forceRun = false) {
       ? [existingCapa, ...allImgs.filter(u => u !== existingCapa)]
       : allImgs;
 
+    // Limpar e popular lpUploadedPhotos com as fotos existentes
+    lpUploadedPhotos.length = 0;
     orderedImgs.forEach((url, idx) => {
       if (!url) return;
-      const thumb = document.createElement('div');
-      thumb.className = 'photo-thumb' + (url === existingCapa ? ' cover-photo' : '');
-      thumb.setAttribute('data-photo-index', idx);
-      thumb.setAttribute('data-existing-url', url);
-      thumb.innerHTML = `<img src="${url}" alt="">
-        <button class="photo-remove" onclick="removePhoto(this.parentElement)">✕</button>
-        <button class="photo-cover-btn" onclick="setCoverPhoto(this.parentElement)">Capa</button>
-        <button class="photo-focal-btn${existingFocal[url] ? ' has-focal' : ''}" onclick="openFocalEditor(${idx})" title="Ajustar enquadramento da foto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/></svg>Ajustar</button>`;
-      // Focal point: do banco ou padrão
       const fp = existingFocal[url] || { x: 50, y: 20 };
-      _focalPoints[idx] = fp;
-      thumb.querySelector('img').style.objectPosition = fp.x + '% ' + fp.y + '%';
-      const slot = grid.querySelector('.photo-add-slot');
-      grid.insertBefore(thumb, slot);
+      lpUploadedPhotos.push({ file: null, url: url, isCover: url === existingCapa || idx === 0, focalPoint: fp });
     });
-    updatePhotoSlot();
+    // Garantir apenas uma capa
+    if (lpUploadedPhotos.length > 0) {
+      const hasCover = lpUploadedPhotos.some(p => p.isCover);
+      if (!hasCover) lpUploadedPhotos[0].isCover = true;
+    }
+    lpRenderPhotosGrid();
+    lpUpdateHeroPreview();
   }
 
   // --- Apresentação / Mídia Kit existente ---
