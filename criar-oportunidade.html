@@ -6433,6 +6433,7 @@ function addCanal(network) {
   const idx       = _canalCounters[network]++;
   const profileId = network + '-' + idx;
   const meta      = CANAL_META[network];
+  if (!meta) { console.warn('[addCanal] rede desconhecida ignorada:', network); return; }
   const urlPfx    = CANAL_URL_PREFIX[network] || { text: network + '.com/', padding: '100px' };
   const formats   = CANAL_FORMATS[network] || [];
 
@@ -8453,7 +8454,7 @@ async function saveDraft() {
         headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token,
           'Content-Type': 'application/json', 'Prefer': 'return=representation' }
       });
-      if (!res.ok) throw new Error('HTTP ' + res.status);
+      if (!res.ok) { const err = await res.text(); console.error('[SaveDraft POST]', err); throw new Error('HTTP ' + res.status + ': ' + err); }
       const rows = await res.json();
       oppId = rows[0]?.id;
     }
@@ -9664,7 +9665,6 @@ async function agCallGemini(messages, { useSearch = false } = {}) {
     body: JSON.stringify({
       messages,
       useSearch,
-      systemPrompt: AG_SYSTEM_PROMPT,
     }),
   });
 
