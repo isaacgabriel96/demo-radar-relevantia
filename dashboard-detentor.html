@@ -1995,11 +1995,18 @@ function populateDetenorFields(p) {
   }
 
   if (img && fallback) {
-    if (p.logo_url) {
-      img.src = p.logo_url;
+    const domainLogo = p.empresa_domain ? `https://logo.clearbit.com/${p.empresa_domain}` : null;
+    const storedLogo = p.logo_url || null;
+    const primarySrc = domainLogo || storedLogo;
+    if (primarySrc) {
+      img.src = primarySrc;
       img.style.display = 'block';
       fallback.style.display = 'none';
       img.onerror = function() {
+        if (storedLogo && img.src !== storedLogo) {
+          img.src = storedLogo;
+          return;
+        }
         img.style.display = 'none';
         fallback.style.display = '';
         fallback.textContent = nomeEmpresa ? nomeEmpresa.charAt(0).toUpperCase() : '?';
