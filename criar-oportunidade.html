@@ -2377,6 +2377,236 @@ input[type=number] { -moz-appearance: textfield; }
   .step3-toolbar { flex-wrap: wrap; gap: 12px; justify-content: center; }
   .detail-tabs { top: 56px; }
 }
+
+/* ══════════════════════════════════════════════
+   PAINEL AGENTE DE CADASTRO (embedded)
+════════════════════════════════════════════════ */
+#panel-agent {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 0 32px;
+}
+.agent-header {
+  margin-bottom: 20px;
+}
+.agent-header h2 {
+  font-family: var(--font-heading); font-size: 18px; font-weight: 700;
+  color: var(--black); margin-bottom: 4px;
+}
+.agent-header p { font-size: 13px; color: var(--gray-3); line-height: 1.5; }
+
+/* Input card */
+.ag-input-card {
+  background: var(--white); border: 1px solid #E0D8CC;
+  border-radius: 16px; overflow: hidden;
+  box-shadow: 0 1px 4px rgba(30,22,0,0.06);
+  margin-bottom: 12px;
+}
+.ag-card-head { padding: 14px 18px 0; }
+.ag-card-title { font-family: var(--font-heading); font-size: 14px; font-weight: 600; color: var(--black); margin-bottom: 2px; }
+.ag-card-desc { font-size: 12px; color: #A89880; margin-bottom: 12px; }
+.ag-input-section { padding: 0 18px 18px; }
+
+/* Drop zone */
+.ag-drop-zone {
+  border: 2px dashed #E0D8CC;
+  border-radius: 10px; padding: 18px;
+  text-align: center; cursor: pointer;
+  transition: all 0.18s; background: #F5F0E8;
+  margin-bottom: 10px;
+}
+.ag-drop-zone:hover, .ag-drop-zone.drag-over { border-color: #B8860B; background: rgba(184,134,11,0.06); }
+.ag-drop-zone-icon { font-size: 24px; margin-bottom: 4px; }
+.ag-drop-zone-text { font-size: 13px; color: #5C4C38; font-weight: 500; }
+.ag-drop-zone-sub  { font-size: 11px; color: #A89880; margin-top: 2px; }
+.ag-drop-zone input { display: none; }
+
+.ag-link-row { display: flex; gap: 6px; margin-bottom: 10px; }
+.ag-link-row input {
+  flex: 1; padding: 8px 10px;
+  border: 1.5px solid #E0D8CC; border-radius: 10px;
+  font-size: 13px; font-family: var(--font-body, 'DM Sans', sans-serif); color: var(--black);
+  background: #F5F0E8;
+}
+.ag-link-row input:focus { outline: none; border-color: #B8860B; background: var(--white); }
+.ag-link-row input::placeholder { color: #A89880; }
+.ag-btn-sm {
+  padding: 8px 14px; border-radius: 100px;
+  font-size: 12px; font-weight: 600; font-family: var(--font-body, 'DM Sans', sans-serif);
+  cursor: pointer; border: 1.5px solid #E0D8CC;
+  background: var(--white); color: var(--black); transition: all 0.15s;
+  white-space: nowrap;
+}
+.ag-btn-sm:hover { border-color: #B8860B; color: #B8860B; }
+
+.ag-attachments-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.ag-attachment-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 10px; border-radius: 100px;
+  font-size: 11px; font-weight: 500;
+  border: 1px solid #E0D8CC; background: #F5F0E8; color: #5C4C38;
+}
+.ag-attachment-chip.pdf  { border-color: rgba(239,68,68,0.3); background: rgba(239,68,68,0.06); color: #DC2626; }
+.ag-attachment-chip.link { border-color: rgba(59,130,246,0.3); background: rgba(59,130,246,0.07); color: #2563EB; }
+.ag-attachment-chip .ag-rm {
+  width: 14px; height: 14px; border-radius: 50%; background: rgba(0,0,0,0.08);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 10px; line-height: 1; color: inherit;
+}
+.ag-attachment-chip .ag-rm:hover { background: rgba(0,0,0,0.18); }
+
+textarea.ag-desc-input {
+  width: 100%; min-height: 80px; padding: 10px 12px;
+  border: 1.5px solid #E0D8CC; border-radius: 10px;
+  font-size: 13px; font-family: var(--font-body, 'DM Sans', sans-serif); color: var(--black);
+  background: #F5F0E8; resize: vertical; line-height: 1.6;
+  transition: border-color 0.18s; box-sizing: border-box;
+}
+textarea.ag-desc-input:focus {
+  outline: none; border-color: #B8860B;
+  box-shadow: 0 0 0 3px rgba(184,134,11,0.10); background: var(--white);
+}
+textarea.ag-desc-input::placeholder { color: #A89880; }
+
+/* Botão analisar */
+.ag-btn-analisar {
+  width: 100%; padding: 12px;
+  background: var(--black, #1A1200); color: var(--white, #FFF);
+  border: none; border-radius: 100px;
+  font-size: 14px; font-weight: 600; font-family: var(--font-heading, 'Poppins', sans-serif);
+  cursor: pointer; margin-top: 10px; transition: all 0.18s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.ag-btn-analisar:hover:not(:disabled) {
+  background: #2C1E00; transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(30,22,0,0.22);
+}
+.ag-btn-analisar:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+/* Error */
+.ag-error-msg {
+  background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.22);
+  border-radius: 10px; padding: 10px 14px; margin-top: 10px;
+  font-size: 12px; color: #DC2626; display: none; line-height: 1.5;
+}
+.ag-error-msg.visible { display: block; }
+
+/* Chat card */
+.ag-chat-card {
+  background: var(--white); border: 1px solid #E0D8CC;
+  border-radius: 16px; overflow: hidden;
+  box-shadow: 0 1px 4px rgba(30,22,0,0.06);
+  display: none;
+}
+.ag-chat-card.visible { display: block; }
+
+.ag-chat-thread {
+  padding: 16px 18px 12px;
+  max-height: 380px;
+  overflow-y: auto;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.ag-chat-thread::-webkit-scrollbar { width: 4px; }
+.ag-chat-thread::-webkit-scrollbar-thumb { background: #E0D8CC; border-radius: 2px; }
+
+.ag-msg { display: flex; gap: 8px; align-items: flex-start; }
+.ag-msg.user { flex-direction: row-reverse; }
+
+.ag-msg-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; flex-shrink: 0;
+}
+.ag-msg.agent .ag-msg-avatar { background: linear-gradient(135deg, #B8860B, #C8A84B); color: #FFF; font-size: 12px; }
+.ag-msg.user  .ag-msg-avatar { background: #E0D8CC; color: #5C4C38; }
+
+.ag-msg-bubble {
+  max-width: calc(100% - 40px);
+  padding: 9px 13px;
+  border-radius: 12px;
+  font-size: 13px; line-height: 1.55;
+}
+.ag-msg.agent .ag-msg-bubble {
+  background: #F5F0E8; border: 1px solid #E0D8CC;
+  border-top-left-radius: 4px; color: var(--black);
+}
+.ag-msg.user .ag-msg-bubble {
+  background: var(--black, #1A1200); color: #FFF;
+  border-top-right-radius: 4px;
+}
+.ag-msg-bubble ul { padding-left: 16px; margin-top: 4px; }
+.ag-msg-bubble li { margin-bottom: 3px; }
+.ag-msg-bubble strong { font-weight: 600; }
+
+/* Typing dots */
+.ag-typing-dots { display: inline-flex; align-items: center; gap: 3px; padding: 4px 2px; }
+.ag-typing-dots span {
+  width: 5px; height: 5px; background: #A89880;
+  border-radius: 50%; animation: agBounce 1.2s infinite;
+}
+.ag-typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.ag-typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes agBounce {
+  0%,60%,100% { transform: translateY(0); }
+  30% { transform: translateY(-5px); }
+}
+
+/* Chat input row */
+.ag-chat-input-row {
+  display: flex; gap: 8px; padding: 12px 18px;
+  border-top: 1px solid #F5F0E8;
+}
+.ag-chat-input {
+  flex: 1; padding: 9px 12px;
+  border: 1.5px solid #E0D8CC; border-radius: 100px;
+  font-size: 13px; font-family: var(--font-body, 'DM Sans', sans-serif); color: var(--black);
+  background: #F5F0E8; transition: all 0.18s;
+}
+.ag-chat-input:focus {
+  outline: none; border-color: #B8860B; background: var(--white);
+  box-shadow: 0 0 0 3px rgba(184,134,11,0.08);
+}
+.ag-chat-input::placeholder { color: #A89880; }
+.ag-btn-send {
+  padding: 9px 16px; background: var(--black, #1A1200); color: #FFF;
+  border: none; border-radius: 100px;
+  font-size: 13px; font-weight: 600; font-family: var(--font-body, 'DM Sans', sans-serif);
+  cursor: pointer; transition: all 0.15s; flex-shrink: 0;
+}
+.ag-btn-send:hover:not(:disabled) { background: #2C1E00; }
+.ag-btn-send:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Botão confirmar no chat */
+.ag-btn-confirm {
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-top: 10px; padding: 9px 18px;
+  background: linear-gradient(135deg, #B8860B, #C8A84B); color: #FFF;
+  border: none; border-radius: 100px;
+  font-size: 13px; font-weight: 600; font-family: var(--font-heading, 'Poppins', sans-serif);
+  cursor: pointer; transition: all 0.18s;
+}
+.ag-btn-confirm:hover { opacity: 0.9; transform: translateY(-1px); }
+
+/* Ações do painel agente */
+.ag-panel-actions {
+  display: flex; gap: 10px; margin-top: 16px; align-items: center;
+}
+.ag-btn-voltar {
+  padding: 10px 20px; border-radius: 100px;
+  background: var(--white); color: #5C4C38;
+  border: 1.5px solid #E0D8CC;
+  font-size: 13px; font-weight: 500; font-family: var(--font-body, 'DM Sans', sans-serif);
+  cursor: pointer; transition: all 0.15s;
+}
+.ag-btn-voltar:hover { border-color: #A89880; color: var(--black); }
+.ag-btn-pular {
+  padding: 10px 20px; border-radius: 100px;
+  background: transparent; color: #A89880;
+  border: 1.5px solid #E0D8CC;
+  font-size: 13px; font-weight: 500; font-family: var(--font-body, 'DM Sans', sans-serif);
+  cursor: pointer; transition: all 0.15s;
+}
+.ag-btn-pular:hover { color: #5C4C38; border-color: #A89880; }
 </style>
 </head>
 <body>
@@ -2637,11 +2867,82 @@ input[type=number] { -moz-appearance: textfield; }
       </div>
 
       <div class="step-actions">
-        <button class="btn btn-primary" id="btnProximo1" disabled onclick="nextStep(2)">
+        <button class="btn btn-primary" id="btnProximo1" disabled onclick="abrirPainelAgente()">
           Próximo →
         </button>
       </div>
     </div><!-- /panel-1 -->
+
+    <!-- ════════════════════════════════════════════
+         PAINEL AGENTE — assistente de cadastro AI
+    ════════════════════════════════════════════ -->
+    <div id="panel-agent" style="display:none">
+      <div id="panel-agent-inner">
+
+      <div class="agent-header">
+        <h2>✦ Assistente de Cadastro</h2>
+        <p>Descreva a oportunidade em texto livre, cole links de redes sociais ou envie um PDF. O agente vai extrair e organizar tudo automaticamente.</p>
+      </div>
+
+      <!-- Input card -->
+      <div class="ag-input-card">
+        <div class="ag-card-head">
+          <div class="ag-card-title">Informações da oportunidade</div>
+          <div class="ag-card-desc">Cole o texto, link ou envie um PDF — pode ser qualquer formato</div>
+        </div>
+        <div class="ag-input-section">
+
+          <!-- Drop zone PDF -->
+          <div class="ag-drop-zone" id="agDropZone"
+            ondragover="event.preventDefault();this.classList.add('drag-over')"
+            ondragleave="this.classList.remove('drag-over')"
+            ondrop="agHandleDrop(event)">
+            <div class="ag-drop-zone-icon">📄</div>
+            <div class="ag-drop-zone-text">Arraste um PDF aqui</div>
+            <div class="ag-drop-zone-sub">ou clique para selecionar</div>
+            <input type="file" accept="application/pdf" id="agPdfInput" onchange="agHandlePdfUpload(this)">
+          </div>
+
+          <!-- Link -->
+          <div class="ag-link-row">
+            <input type="url" id="agLinkInput" placeholder="https://instagram.com/... ou site da oportunidade" onkeydown="if(event.key==='Enter')agAddLink()">
+            <button class="ag-btn-sm" onclick="agAddLink()">+ Link</button>
+          </div>
+
+          <!-- Chips de attachments -->
+          <div class="ag-attachments-row" id="agAttachmentsRow"></div>
+
+          <!-- Texto livre -->
+          <textarea class="ag-desc-input" id="agDescInput" rows="4"
+            placeholder="Descreva a oportunidade: nome, tipo, canais, seguidores, cotas, incentivo fiscal, etc."
+            oninput="agCheckReady()"></textarea>
+
+          <div class="ag-error-msg" id="agErrorMsg"></div>
+
+          <button class="ag-btn-analisar" id="agBtnAnalisar" disabled onclick="agIniciarAnalise()">
+            ✦ Analisar e extrair dados
+          </button>
+        </div>
+      </div>
+
+      <!-- Chat thread card -->
+      <div class="ag-chat-card" id="agChatCard">
+        <div class="ag-chat-thread" id="agChatThread"></div>
+        <div class="ag-chat-input-row">
+          <input class="ag-chat-input" id="agChatInput" placeholder="Responda a pergunta ou adicione mais informações…"
+            onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();agEnviarResposta()}">
+          <button class="ag-btn-send" id="agBtnSend" disabled onclick="agEnviarResposta()">Enviar</button>
+        </div>
+      </div>
+
+      <!-- Ações -->
+      <div class="ag-panel-actions">
+        <button class="ag-btn-voltar" onclick="voltarParaTemplate()">← Voltar</button>
+        <button class="ag-btn-pular" onclick="agPular()">Pular e preencher manualmente →</button>
+      </div>
+
+      </div><!-- /panel-agent-inner -->
+    </div><!-- /panel-agent -->
 
 
     <!-- ════════════════════════════════════════════
@@ -3833,18 +4134,25 @@ function lpChangeCategory(key) {
 /* ══════════════════════════════════════════════
    EDITOR QUILL — descrição rica (campo oculto, mantido para collectOppData)
 ══════════════════════════════════════════════ */
-const quillObjetivos = new Quill('#opp-objetivos-editor', {
-  theme: 'snow',
-  placeholder: 'Descreva o projeto, os objetivos, entregas esperadas…',
-  modules: {
-    toolbar: [
-      [{ header: [2, 3, false] }],
-      ['bold', 'italic', 'underline'],
-      [{ list: 'ordered' }, { list: 'bullet' }],
-      ['image', 'video']
-    ]
+let quillObjetivos = null;
+try {
+  if (typeof Quill !== 'undefined') {
+    quillObjetivos = new Quill('#opp-objetivos-editor', {
+      theme: 'snow',
+      placeholder: 'Descreva o projeto, os objetivos, entregas esperadas…',
+      modules: {
+        toolbar: [
+          [{ header: [2, 3, false] }],
+          ['bold', 'italic', 'underline'],
+          [{ list: 'ordered' }, { list: 'bullet' }],
+          ['image', 'video']
+        ]
+      }
+    });
   }
-});
+} catch (e) {
+  console.warn('[Quill] Inicialização falhou, editor desativado:', e.message);
+}
 
 /* ══════════════════════════════════════════════
    SLUG — geração, sanitização e validação única
@@ -4496,6 +4804,15 @@ function nextStep(n) {
   const mkWrap = document.getElementById('s3MediaKitWrap');
   const s3Actions = document.getElementById('s3StepActions');
   const prev = currentStep;
+
+  // ─── CASO ESPECIAL: init/step 1 → 1 (mostrar panel-1 pela primeira vez) ───
+  if (n === 1 && prev === 1) {
+    const panels = document.querySelectorAll('[id^="panel-"]');
+    panels.forEach(p => p.style.display = 'none');
+    document.getElementById('panel-1').style.display = 'block';
+    _updateProgressDots(1);
+    return;
+  }
 
   // ─── CASO ESPECIAL: step 1 → 2 (ir para Detalhes, panel-5) ───
   if (n === 2 && prev === 1) {
@@ -8479,11 +8796,13 @@ async function doLogout() {
 /* ══════════════════════════════════════════════
    PRÉ-PREENCHIMENTO EM MODO EDIÇÃO
 ══════════════════════════════════════════════ */
-function maybePreFillEdit() {
+function maybePreFillEdit(forceRun = false) {
   const params = new URLSearchParams(window.location.search);
-  if (!params.has('edit')) return;
+  if (!params.has('edit') && !forceRun) return;
 
-  const raw = sessionStorage.getItem('edit_opp');
+  // Aceita tanto edit_opp (modo edição normal) quanto autofill_opp (agente de auto-preenchimento)
+  const raw = sessionStorage.getItem('autofill_opp') || sessionStorage.getItem('edit_opp');
+  if (raw && sessionStorage.getItem('autofill_opp')) sessionStorage.removeItem('autofill_opp');
   if (!raw) return;
 
   let opp;
@@ -8497,8 +8816,17 @@ function maybePreFillEdit() {
   const topbarTitle = document.querySelector('.topbar-title');
   if (topbarTitle) topbarTitle.textContent = 'Editar Oportunidade';
 
-  // Mapeamento: categoria → template key
+  // Mapeamento: categoria → template key (aceita maiúsculas e minúsculas)
   const CAT_TO_TPL = {
+    'esporte':    'evento',
+    'cultura':    'evento',
+    'arte':       'artista',
+    'mídia':      'midia',
+    'midia':      'midia',
+    'personalidade': 'personalidade',
+    'evento':     'evento',
+    'artista':    'artista',
+    // legado com maiúscula
     'Esporte':    'evento',
     'Cultura':    'evento',
     'Arte':       'artista',
@@ -8506,7 +8834,7 @@ function maybePreFillEdit() {
     'Personalidade': 'personalidade',
     'Evento':     'evento',
   };
-  const tplKey = CAT_TO_TPL[opp.categoria] || 'evento';
+  const tplKey = CAT_TO_TPL[opp.categoria] || CAT_TO_TPL[(opp.categoria || '').toLowerCase()] || 'evento';
 
   // --- Passo 1: selecionar template ---
   const tplCard = document.querySelector(`.template-card[data-template="${tplKey}"]`);
@@ -8517,18 +8845,33 @@ function maybePreFillEdit() {
 
   // --- Passo 3: informações básicas ---
   const nomeEl = document.getElementById('opp-nome');
-  if (nomeEl && opp.titulo) { nomeEl.value = opp.titulo; }
+  if (nomeEl && opp.titulo) {
+    nomeEl.value = opp.titulo;
+    nomeEl.dispatchEvent(new Event('input'));
+  }
 
   const descEl = document.getElementById('opp-desc');
   const descValue = opp.descricao || opp.descricao_curta || '';
   if (descEl && descValue) {
     descEl.value = descValue;
     updateChar(descEl, 'descCount', 300);
+    descEl.dispatchEvent(new Event('input'));
   }
 
-  // Carrega descrição completa no editor Quill (suporta HTML rico ou texto puro)
-  if (opp.descricao_completa && typeof quillObjetivos !== 'undefined') {
-    quillObjetivos.clipboard.dangerouslyPasteHTML(opp.descricao_completa);
+  // Carrega descrição completa no editor Quill + step3Data (para o editor visual do step 3)
+  if (opp.descricao_completa) {
+    const dcVal = opp.descricao_completa;
+    // Converte texto puro em HTML simples se não for HTML
+    const dcHtml = /<[a-z][\s\S]*>/i.test(dcVal)
+      ? dcVal
+      : dcVal.split('\n').map(l => `<p>${l || '<br>'}</p>`).join('');
+    // Preenche o step3Data para o s3AlwaysOnQuill usar ao entrar no step 3
+    step3Data.descCompleta = dcHtml;
+    step3Data.descCompletaText = opp.descricao_completa;
+    // Também preenche o quillObjetivos oculto (usado em collectOppData)
+    if (typeof quillObjetivos !== 'undefined') {
+      quillObjetivos.clipboard.dangerouslyPasteHTML(dcHtml);
+    }
   }
 
   // Carrega "O que buscamos" (campo separado em detalhes.busca_marca)
@@ -8954,11 +9297,11 @@ function loadMockData() {
    INIT
 ══════════════════════════════════════════════ */
 async function init() {
+  // Mostra painel inicial IMEDIATAMENTE — antes de qualquer await para evitar tela branca
+  requireAuth('rightsholder', 'login.html');
+  if (currentStep === 1) nextStep(1);
   await window.initLang?.();
   window.applyTranslations?.();
-  requireAuth('rightsholder', 'login.html');
-  // Mostra painel inicial imediatamente (sem esperar sessão) para evitar tela em branco
-  if (currentStep === 1) nextStep(1);
   await initSession();
   maybePreFillEdit();
   loadMockData();
@@ -8980,6 +9323,623 @@ async function init() {
   });
 }
 init();
+
+/* ══════════════════════════════════════════════
+   AGENTE DE CADASTRO — embedded em criar-oportunidade
+   Todas as funções prefixadas com ag* para não colidir
+════════════════════════════════════════════════ */
+
+// ── Estado do agente ────────────────────────────────────────────
+window._agState = {
+  attachments: [],   // { type: 'pdf'|'link', label, content, ready }
+  history: [],       // { role, content }
+  lastResult: null,
+  loading: false,
+};
+
+// ── System Prompt ───────────────────────────────────────────────
+const AG_SYSTEM_PROMPT = `Você é o agente de cadastro do Radar Relevantia, plataforma de patrocínio esportivo e cultural.
+
+Sua missão: extrair dados de oportunidades de patrocínio a partir de textos, PDFs e links fornecidos pelo usuário.
+
+## PESQUISA NA WEB — OBRIGATÓRIA
+Você tem acesso à ferramenta google_search e DEVE usá-la SEMPRE na primeira mensagem, independentemente do usuário fornecer links ou não.
+
+Pesquisas obrigatórias na primeira mensagem:
+1. Redes sociais da oportunidade: search "{nome} instagram", "{nome} youtube", "{nome} site oficial" para descobrir perfis reais, usernames e número de seguidores
+2. Se o usuário fornecer links adicionais, pesquise cada um para extrair dados reais
+
+NUNCA invente seguidores ou dados de audiência — use apenas o que encontrar nas pesquisas.
+
+## FLUXO
+
+1. Na primeira mensagem o usuário envia descrição/PDF/links
+2. SEMPRE pesquise na web: redes sociais, links fornecidos e contexto da oportunidade
+3. Você mostra o que entendeu (resumo + campos extraídos) E lista as dúvidas mais importantes
+4. O usuário responde as dúvidas em linguagem natural
+5. Você refina e atualiza os campos
+6. Repita até confiança alta em todos os campos críticos
+
+## CAMPOS A EXTRAIR
+
+tipo: enum personalidade|evento|artista|midia
+nome_oportunidade: string
+descricao_curta: string máx300chars voltada para marcas
+descricao_completa: string — detalhada, para a página de apresentação
+busca_marca: string máx500 — perfil ideal de patrocinador
+
+canais[]: array de canais com:
+  rede: instagram|youtube|tiktok|twitter|linkedin|spotify|twitch|facebook|site|kwai|threads
+  username: string sem @
+  seguidores: number (NUNCA invente — null se não informado)
+  seguidores_estimado: boolean
+  formatos_conteudo: array (infira pela rede se não informado)
+  genero_masculino_pct: number (NUNCA invente — null se não informado)
+  genero_feminino_pct: complemento automático
+  faixa_etaria: objeto com faixas 13-17, 18-24, 25-34, 35-44, 45+ em % (null se não informado)
+
+cotas[]: array de pacotes de patrocínio com:
+  nome: string (use Apoiador/Prata/Ouro/Diamante se não informado)
+  valor: number
+  moeda: BRL|USD|EUR
+  vagas: number (null=ilimitado)
+  descricao: string
+  beneficios: array de strings
+
+incentivo: objeto (somente se mencionado):
+  tem_incentivo: boolean
+  lei: rouanet|lie|paulo_gustavo|iss|icms|pronac|outras
+  categoria: cultura|esporte|educacao|saude|assistencia_social|meio_ambiente|outros
+  valor_aprovado: number
+  status_incentivo: aprovado|em_andamento
+
+segmentos[]: array máx5 de: esportes_fitness|moda_lifestyle|tecnologia_inovacao|
+  alimentacao_bebidas|financas_investimentos|saude_bem_estar|educacao|entretenimento|
+  automobilismo|games_esports|musica|familia_maternidade|negocios_empreendedorismo|
+  beleza_cuidados|turismo_viagens|sustentabilidade|cultura_arte|luxo_alto_padrao
+
+## REGRAS
+- NUNCA invente audiência, seguidores, gênero, faixa etária — null se não informado
+- Valores numéricos como number, nunca string
+- Gere descricao_completa e busca_marca mesmo que inferidos
+- origem: direto=texto literal · inferido=deduzido · default=padrão por ausência
+- confianca: alta|media|baixa por campo
+- duvidas: exatamente 1 pergunta por turno — a mais importante; nunca faça mais de uma
+
+## FORMATO DE RESPOSTA — SEMPRE JSON VÁLIDO, NENHUM TEXTO FORA
+CRÍTICO: Mesmo ao usar google_search para pesquisar links, sua resposta final DEVE ser apenas o JSON abaixo, sem texto adicional, sem markdown extra.
+
+{
+  "resumo": "1-2 frases do que entendeu",
+  "duvidas": ["uma única pergunta ou array vazio"],
+  "campos_nao_preenchidos": ["campo1", "campo2"],
+  "confianca_geral": 0-100,
+  "campos": {
+    "tipo":              {"valor": "...", "origem": "direto|inferido|default", "confianca": "alta|media|baixa"},
+    "nome_oportunidade": {"valor": "...", "origem": "...", "confianca": "..."},
+    "descricao_curta":   {"valor": "...", "origem": "...", "confianca": "..."},
+    "descricao_completa":{"valor": "...", "origem": "...", "confianca": "..."},
+    "busca_marca":       {"valor": "...", "origem": "...", "confianca": "..."},
+    "canais":    {"valor": [...], "origem": "...", "confianca": "..."},
+    "cotas":     {"valor": [...], "origem": "...", "confianca": "..."},
+    "incentivo": {"valor": {...}, "origem": "...", "confianca": "..."},
+    "segmentos": {"valor": [...], "origem": "...", "confianca": "..."}
+  }
+}`;
+
+// ── Mapa de segmentos ───────────────────────────────────────────
+const AG_SEGMENTO_MAP = {
+  esportes_fitness:            'Esportes e fitness',
+  moda_lifestyle:              'Moda e lifestyle',
+  tecnologia_inovacao:         'Tecnologia e inovação',
+  alimentacao_bebidas:         'Alimentação e bebidas',
+  financas_investimentos:      'Finanças e investimentos',
+  saude_bem_estar:             'Saúde e bem-estar',
+  educacao:                    'Educação',
+  entretenimento:              'Entretenimento',
+  automobilismo:               'Automobilismo',
+  games_esports:               'Games e eSports',
+  musica:                      'Música',
+  familia_maternidade:         'Família e maternidade',
+  negocios_empreendedorismo:   'Negócios e empreendedorismo',
+  beleza_cuidados:             'Beleza e cuidados',
+  turismo_viagens:             'Turismo e viagens',
+  sustentabilidade:            'Sustentabilidade',
+  cultura_arte:                'Cultura e arte',
+  luxo_alto_padrao:            'Luxo e alto padrão',
+};
+
+// ── Helpers ─────────────────────────────────────────────────────
+function agEsc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function agShowError(msg) {
+  const el = document.getElementById('agErrorMsg');
+  el.textContent = msg;
+  el.classList.toggle('visible', !!msg);
+}
+
+function agSetLoading(on) {
+  window._agState.loading = on;
+  const btnA = document.getElementById('agBtnAnalisar');
+  const btnS = document.getElementById('agBtnSend');
+  const inp  = document.getElementById('agChatInput');
+  if (btnA) btnA.disabled = on || !agIsReady();
+  if (btnS) btnS.disabled = on;
+  if (inp)  inp.disabled = on;
+}
+
+function agIsReady() {
+  const desc = (document.getElementById('agDescInput') || {}).value || '';
+  return desc.trim().length >= 10 || window._agState.attachments.length > 0;
+}
+
+window.agCheckReady = function() {
+  const btn = document.getElementById('agBtnAnalisar');
+  if (btn) btn.disabled = !agIsReady() || window._agState.loading;
+};
+
+// ── Navegação ───────────────────────────────────────────────────
+window.abrirPainelAgente = function() {
+  document.getElementById('panel-1').style.display = 'none';
+  document.getElementById('panel-agent').style.display = 'block';
+  const inner = document.getElementById('panel-agent-inner');
+  if (inner) inner.style.display = 'block';
+  // Pré-popula dica do tipo selecionado no prompt
+  const tipoSelecionado = formState && formState.selectedTemplate;
+  if (tipoSelecionado) {
+    const dica = document.getElementById('agDescInput');
+    if (dica && !dica.value) {
+      const tipoLabel = { personalidade: 'personalidade', evento: 'evento', artista: 'artista', midia: 'mídia' };
+      dica.placeholder = `Tipo detectado: ${tipoLabel[tipoSelecionado] || tipoSelecionado}. Descreva a oportunidade: nome, canais, seguidores, cotas…`;
+    }
+  }
+};
+
+window.voltarParaTemplate = function() {
+  document.getElementById('panel-agent').style.display = 'none';
+  document.getElementById('panel-1').style.display = 'block';
+};
+
+window.agPular = function() {
+  document.getElementById('panel-agent').style.display = 'none';
+  nextStep(2);
+};
+
+// ── PDF handling ─────────────────────────────────────────────────
+window.agHandleDrop = function(e) {
+  e.preventDefault();
+  document.getElementById('agDropZone').classList.remove('drag-over');
+  const files = Array.from(e.dataTransfer.files).filter(f => f.type === 'application/pdf');
+  files.forEach(agProcessPdf);
+};
+
+window.agHandlePdfUpload = function(input) {
+  Array.from(input.files).forEach(agProcessPdf);
+  input.value = '';
+};
+
+const _agDropZone = document.getElementById('agDropZone');
+if (_agDropZone) {
+  _agDropZone.addEventListener('click', function() {
+    document.getElementById('agPdfInput').click();
+  });
+}
+
+async function agProcessPdf(file) {
+  if (file.type !== 'application/pdf') return;
+  const label = file.name;
+
+  // Carrega pdf.js dinamicamente se ainda não estiver disponível
+  let pdfjsLib = window.pdfjsLib || window._pdfjsLib;
+  if (!pdfjsLib) {
+    await new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+      s.onload = () => {
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+          'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        resolve();
+      };
+      s.onerror = reject;
+      document.head.appendChild(s);
+    }).catch(() => null);
+    pdfjsLib = window.pdfjsLib;
+  }
+
+  if (!pdfjsLib) {
+    agShowError('PDF.js não carregado. Copie o texto do PDF manualmente.');
+    return;
+  }
+
+  agAddChip('pdf', label, null, true);
+
+  try {
+    const buf = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+    let text = '';
+    const maxP = Math.min(pdf.numPages, 15);
+    for (let i = 1; i <= maxP; i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      text += content.items.map(item => item.str).join(' ') + '\n';
+    }
+    text = text.trim().slice(0, 12000);
+
+    const idx = window._agState.attachments.findIndex(a => a.label === label && a.type === 'pdf');
+    if (idx >= 0) { window._agState.attachments[idx].content = text; window._agState.attachments[idx].ready = true; }
+    agRenderChips();
+    agCheckReady();
+  } catch (err) {
+    console.error('Erro PDF:', err);
+    window._agState.attachments = window._agState.attachments.filter(a => a.label !== label);
+    agRenderChips();
+    agShowError('Não foi possível ler o PDF. Copie o texto manualmente.');
+  }
+}
+
+function agAddChip(type, label, content, loading) {
+  window._agState.attachments.push({ type, label, content: content || null, ready: !loading });
+  agRenderChips();
+}
+
+window.agRemoveChip = function(label) {
+  window._agState.attachments = window._agState.attachments.filter(a => a.label !== label);
+  agRenderChips();
+  agCheckReady();
+};
+
+function agRenderChips() {
+  const row = document.getElementById('agAttachmentsRow');
+  if (!row) return;
+  row.innerHTML = window._agState.attachments.map(a => `
+    <div class="ag-attachment-chip ${a.type}">
+      ${a.type === 'pdf' ? '📄' : '🔗'}
+      ${agEsc(a.label.length > 32 ? a.label.slice(0,32)+'…' : a.label)}
+      ${!a.ready ? ' <span style="opacity:0.6">···</span>' : ''}
+      <span class="ag-rm" onclick="agRemoveChip('${agEsc(a.label)}')">✕</span>
+    </div>
+  `).join('');
+}
+
+// ── Link ─────────────────────────────────────────────────────────
+window.agAddLink = function() {
+  const input = document.getElementById('agLinkInput');
+  const url = input.value.trim();
+  if (!url) return;
+  if (!url.startsWith('http')) { agShowError('URL inválida — inclua https://'); return; }
+  agShowError('');
+  agAddChip('link', url, url, false);
+  window._agState.attachments[window._agState.attachments.length - 1].ready = true;
+  input.value = '';
+  agCheckReady();
+};
+
+// ── Montar primeira mensagem ─────────────────────────────────────
+function agBuildFirstMessage() {
+  const parts = [];
+
+  // Tipo pré-selecionado
+  const tipo = formState && formState.selectedTemplate;
+  if (tipo) {
+    parts.push(`[Tipo de oportunidade já selecionado pelo usuário: ${tipo}]`);
+  }
+
+  const pdfs = window._agState.attachments.filter(a => a.type === 'pdf' && a.content);
+  pdfs.forEach(p => parts.push(`[PDF: ${p.label}]\n${p.content}`));
+
+  const links = window._agState.attachments.filter(a => a.type === 'link');
+  if (links.length) {
+    parts.push(`[Links fornecidos — pesquise cada um]\n${links.map(l => l.label).join('\n')}`);
+  }
+
+  const desc = (document.getElementById('agDescInput') || {}).value || '';
+  if (desc.trim()) parts.push(`[Descrição do usuário]\n${desc.trim()}`);
+
+  return parts.join('\n\n---\n\n');
+}
+
+// ── Chat UI ──────────────────────────────────────────────────────
+function agAddMsg(role, html, isTyping = false) {
+  const thread = document.getElementById('agChatThread');
+  if (!thread) return;
+  const div = document.createElement('div');
+  div.className = `ag-msg ${role}`;
+  div.innerHTML = `
+    <div class="ag-msg-avatar">${role === 'agent' ? '✦' : '👤'}</div>
+    <div class="ag-msg-bubble">${isTyping ? '<div class="ag-typing-dots"><span></span><span></span><span></span></div>' : html}</div>
+  `;
+  if (isTyping) div.id = 'agTypingMsg';
+  thread.appendChild(div);
+  thread.scrollTop = thread.scrollHeight;
+  return div;
+}
+
+function agRemoveTyping() {
+  const el = document.getElementById('agTypingMsg');
+  if (el) el.remove();
+}
+
+function agMsgHtml(text) {
+  return agEsc(text)
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n/g, '<br>');
+}
+
+// ── Chamada ao proxy seguro /api/gemini-agent ────────────────────
+async function agCallGemini(messages, { useSearch = false } = {}) {
+  const response = await fetch('/api/gemini-agent', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      messages,
+      useSearch,
+      systemPrompt: AG_SYSTEM_PROMPT,
+    }),
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(data.error || `HTTP ${response.status}`);
+  }
+
+  if (!data.text?.trim()) {
+    throw new Error('A IA retornou uma resposta vazia. Tente novamente ou simplifique a entrada.');
+  }
+
+  return data.text;
+}
+
+function agParseResponse(raw) {
+  if (!raw || !raw.trim()) {
+    throw new Error('Resposta vazia da IA.');
+  }
+  // Remove markdown code fence if present
+  let clean = raw.replace(/^```json\s*/i, '').replace(/\s*```$/, '').trim();
+  // Extract the first JSON object found
+  const m = clean.match(/\{[\s\S]*\}/);
+  if (m) clean = m[0];
+  try {
+    return JSON.parse(clean);
+  } catch {
+    // If the JSON is truncated, provide a useful message
+    throw new Error('A IA retornou um formato inesperado. Tente novamente ou simplifique a entrada.');
+  }
+}
+
+// ── Iniciar análise ──────────────────────────────────────────────
+window.agIniciarAnalise = async function() {
+  if (!agIsReady() || window._agState.loading) return;
+  agShowError('');
+
+  const firstMsg = agBuildFirstMessage();
+  if (!firstMsg.trim()) { agShowError('Adicione uma descrição, PDF ou link.'); return; }
+
+  // Mostra chat card
+  const chatCard = document.getElementById('agChatCard');
+  if (chatCard) chatCard.classList.add('visible');
+
+  // Resumo da mensagem inicial no chat
+  const pdfs  = window._agState.attachments.filter(a => a.type === 'pdf');
+  const links = window._agState.attachments.filter(a => a.type === 'link');
+  const desc  = (document.getElementById('agDescInput') || {}).value || '';
+  const parts = [];
+  if (pdfs.length)  parts.push(`${pdfs.length} PDF(s)`);
+  if (links.length) parts.push(`${links.length} link(s)`);
+  if (desc.trim())  parts.push('descrição em texto');
+  agAddMsg('user', agMsgHtml(`Enviei: ${parts.join(', ')}.`));
+
+  window._agState.history = [{ role: 'user', content: firstMsg }];
+
+  agSetLoading(true);
+  agAddMsg('agent', '', true);
+
+  try {
+    // Sempre ativa google_search — o agente sempre pesquisa redes sociais da oportunidade
+    const raw = await agCallGemini(window._agState.history, { useSearch: true });
+    window._agState.history.push({ role: 'assistant', content: raw });
+
+    agRemoveTyping();
+    const parsed = agParseResponse(raw);
+    window._agState.lastResult = parsed;
+
+    agAddAgentMsgFromResult(parsed);
+  } catch (err) {
+    agRemoveTyping();
+    agShowError(`Erro: ${err.message}`);
+    agAddMsg('agent', `<span style="color:#DC2626">❌ Erro ao processar: ${agEsc(err.message)}</span>`);
+  } finally {
+    agSetLoading(false);
+  }
+};
+
+// ── Processar resposta do agente ─────────────────────────────────
+function agAddAgentMsgFromResult(parsed) {
+  let html = `<strong>Entendido:</strong> ${agEsc(parsed.resumo || '—')}<br><br>`;
+
+  if (parsed.duvidas?.length) {
+    html += `<strong>Preciso saber mais:</strong><ul>`;
+    parsed.duvidas.forEach(d => { html += `<li>${agEsc(d)}</li>`; });
+    html += `</ul>`;
+  } else {
+    html += agBuildConfirmationSummary(parsed);
+  }
+
+  const conf = parsed.confianca_geral || 0;
+  html += `<br><br><span style="font-size:11px;color:#A89880">Confiança geral: ${conf}%</span>`;
+
+  agAddMsg('agent', html);
+}
+
+function agBuildConfirmationSummary(parsed) {
+  const c = parsed.campos || {};
+  const v = (campo) => c[campo]?.valor ?? null;
+
+  const tipo    = v('tipo') || '—';
+  const nome    = v('nome_oportunidade') || '—';
+  const descCurta = v('descricao_curta');
+  const canais  = v('canais') || [];
+  const cotas   = v('cotas') || [];
+  const segmentos = v('segmentos') || [];
+  const incVal  = v('incentivo') || {};
+  const temIncentivo = incVal?.tem_incentivo?.valor ?? incVal?.tem_incentivo ?? false;
+  const tipoLabel = { personalidade: 'Personalidade', evento: 'Evento', artista: 'Artista', midia: 'Mídia' };
+  const getVal  = (obj, key) => obj?.[key]?.valor ?? obj?.[key] ?? null;
+
+  let html = `✅ <strong>Pronto para preencher! Aqui está o que vou cadastrar:</strong><br><br>`;
+  html += `<ul style="margin:0;padding-left:16px">`;
+  html += `<li><strong>Tipo:</strong> ${agEsc(tipoLabel[tipo] || tipo)}</li>`;
+  html += `<li><strong>Nome:</strong> ${agEsc(nome)}</li>`;
+  if (descCurta) html += `<li><strong>Desc. curta:</strong> ${agEsc(descCurta.substring(0,80))}${descCurta.length>80?'…':''}</li>`;
+  if (canais.length) {
+    const str = canais.map(ch => {
+      const rede = getVal(ch,'rede') || '';
+      const user = getVal(ch,'username');
+      const segs = getVal(ch,'seguidores');
+      return `${rede}${user?' @'+user:''}${segs?' ('+Number(segs).toLocaleString('pt-BR')+' seg.)':''}`;
+    }).join(', ');
+    html += `<li><strong>Canais:</strong> ${agEsc(str)}</li>`;
+  }
+  if (cotas.length) {
+    const str = cotas.map(ct => {
+      const n = getVal(ct,'nome') || '?';
+      const v = getVal(ct,'valor');
+      return `${n}${v?' R$'+Number(v).toLocaleString('pt-BR'):''}`;
+    }).join(', ');
+    html += `<li><strong>Cotas:</strong> ${agEsc(str)}</li>`;
+  }
+  if (segmentos.length) html += `<li><strong>Segmentos:</strong> ${agEsc(segmentos.join(', '))}</li>`;
+  if (temIncentivo) html += `<li><strong>Incentivo fiscal:</strong> sim</li>`;
+  html += `</ul>`;
+  html += `<br>Algo errado? Corrija aqui no chat. Quando tudo estiver certo:`;
+  html += `<br><button class="ag-btn-confirm" onclick="agPreencher()">→ Preencher formulário</button>`;
+  return html;
+}
+
+// ── Enviar resposta no chat ──────────────────────────────────────
+window.agEnviarResposta = async function() {
+  const input = document.getElementById('agChatInput');
+  const text  = (input || {}).value || '';
+  if (!text.trim() || window._agState.loading) return;
+
+  input.value = '';
+  agAddMsg('user', agMsgHtml(text.trim()));
+  window._agState.history.push({ role: 'user', content: text.trim() });
+
+  agSetLoading(true);
+  agAddMsg('agent', '', true);
+
+  try {
+    const hasLinks = window._agState.attachments.some(a => a.type === 'link');
+    const raw = await agCallGemini(window._agState.history, { useSearch: hasLinks });
+    window._agState.history.push({ role: 'assistant', content: raw });
+
+    agRemoveTyping();
+    const parsed = agParseResponse(raw);
+    window._agState.lastResult = parsed;
+
+    agAddAgentMsgFromResult(parsed);
+  } catch (err) {
+    agRemoveTyping();
+    agAddMsg('agent', `<span style="color:#DC2626">❌ ${agEsc(err.message)}</span>`);
+  } finally {
+    agSetLoading(false);
+    const thread = document.getElementById('agChatThread');
+    if (thread) thread.scrollTop = 999999;
+  }
+};
+
+// ── Converter resultado do agente → formato do formulário ────────
+function agToFormData(result) {
+  const c = result.campos || {};
+  const v = (campo) => c[campo]?.valor ?? null;
+
+  const TIPO_MAP = { personalidade: 'personalidade', evento: 'evento', artista: 'artista', midia: 'midia' };
+  const tipo = v('tipo');
+
+  const redesSociais = {};
+  const canais = v('canais') || [];
+  canais.forEach(canal => {
+    const rede = canal.rede?.valor ?? canal.rede;
+    const user = canal.username?.valor ?? canal.username;
+    if (!rede || !user) return;
+    if (!redesSociais[rede]) redesSociais[rede] = [];
+    redesSociais[rede].push(user);
+  });
+
+  const cotasRaw = v('cotas') || [];
+  const cotasHabilitadas = cotasRaw.length > 0;
+  const cotasData = cotasRaw.map(cota => ({
+    nome:       cota.nome?.valor      ?? cota.nome       ?? '',
+    valor:      cota.valor?.valor     ?? cota.valor      ?? null,
+    moeda:      cota.moeda?.valor     ?? cota.moeda      ?? 'BRL',
+    vagas:      cota.vagas?.valor     ?? cota.vagas      ?? null,
+    descricao:  cota.descricao?.valor ?? cota.descricao  ?? '',
+    beneficios: cota.beneficios?.valor ?? cota.beneficios ?? [],
+  }));
+
+  const incRaw = v('incentivo') || {};
+  const projetoIncentivado = (incRaw.tem_incentivo?.valor ?? incRaw.tem_incentivo) === true;
+  const incentivoData = projetoIncentivado ? {
+    lei:              incRaw.lei?.valor              ?? incRaw.lei              ?? '',
+    categoria:        incRaw.categoria?.valor        ?? incRaw.categoria        ?? '',
+    valor_aprovado:   incRaw.valor_aprovado?.valor   ?? incRaw.valor_aprovado   ?? null,
+    status_incentivo: incRaw.status_incentivo?.valor ?? incRaw.status_incentivo ?? '',
+  } : null;
+
+  const segmentosRaw = v('segmentos') || [];
+  const tags = segmentosRaw.map(s => AG_SEGMENTO_MAP[s] || s);
+
+  return {
+    categoria: TIPO_MAP[tipo] || (formState && formState.selectedTemplate) || 'evento',
+    titulo:    v('nome_oportunidade') || '',
+    descricao: (v('descricao_curta') || '').substring(0, 300),
+    descricao_completa: v('descricao_completa') || '',
+    detalhes: { busca_marca: (v('busca_marca') || '').substring(0, 500) },
+    redes_sociais: redesSociais,
+    cotas_habilitadas: cotasHabilitadas,
+    cotas_data: cotasData.length > 0 ? cotasData : null,
+    projeto_incentivado: projetoIncentivado,
+    incentivo_data: incentivoData,
+    tags,
+  };
+}
+
+// ── Preencher formulário e avançar ───────────────────────────────
+window.agPreencher = function() {
+  const result = window._agState.lastResult;
+  if (!result) return;
+
+  const formData = agToFormData(result);
+
+  // Salva no sessionStorage no formato que maybePreFillEdit() lê
+  sessionStorage.setItem('autofill_opp', JSON.stringify(formData));
+
+  // Esconde painel do agente
+  document.getElementById('panel-agent').style.display = 'none';
+
+  // Avança currentStep para 2 para que nextStep(3) dentro de maybePreFillEdit() funcione corretamente
+  currentStep = 2;
+
+  // Usa maybePreFillEdit que já existe na página — forceRun=true bypassa o guard de ?edit=
+  maybePreFillEdit(true);
+
+  // maybePreFillEdit salta o step 2 (panel-5/template fields), então os _pending* de cotas e detalhes
+  // nunca seriam aplicados via renderTemplateFields. Forçamos aqui: se já há campos renderizados,
+  // chamamos _applyPendingDetalhes diretamente; senão, limpamos o container e re-renderizamos.
+  if (formState.selectedTemplate) {
+    const tplContainer = document.getElementById('template-specific-fields');
+    if (tplContainer) {
+      if (tplContainer.children.length === 0) {
+        renderTemplateFields(formState.selectedTemplate);
+      } else {
+        _applyPendingDetalhes(formState.selectedTemplate);
+      }
+    }
+  }
+};
 </script>
 
 <!-- ── Modal de detalhe de cota (fixed, fora do fluxo) ── -->
