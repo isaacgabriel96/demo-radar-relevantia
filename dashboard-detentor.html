@@ -638,7 +638,6 @@ tbody tr:last-child td { border-bottom: none; }
 .neg-pills-count { font-size: 12px; color: var(--gray-400); margin-left: auto; }
 
 /* ─── VISIBILIDADE BADGE + DROPDOWN ─── */
-.vis-badge-wrap { position: relative; display: inline-flex; }
 .vis-badge {
   display: inline-flex; align-items: center; gap: 4px;
   padding: 3px 9px 3px 7px; border-radius: 100px;
@@ -651,14 +650,13 @@ tbody tr:last-child td { border-bottom: none; }
 .vis-badge.convidadas { background: rgba(124,58,237,0.18); border-color: rgba(124,58,237,0.5); color: #fff; }
 .vis-badge svg { width: 9px; height: 9px; flex-shrink: 0; }
 .vis-badge-chevron { width: 9px; height: 9px; opacity: 0.7; transition: transform 0.15s; }
-.vis-badge-wrap.open .vis-badge-chevron { transform: rotate(180deg); }
-.vis-dropdown {
-  display: none; position: absolute; top: calc(100% + 6px); left: 0; z-index: 200;
+#vis-global-dropdown {
+  display: none; position: fixed; z-index: 9999;
   background: var(--white); border: 1px solid var(--gray-2);
-  border-radius: 10px; box-shadow: 0 8px 24px rgba(26,18,0,0.13);
-  min-width: 170px; overflow: hidden;
+  border-radius: 10px; box-shadow: 0 8px 24px rgba(26,18,0,0.15);
+  min-width: 190px; overflow: hidden;
 }
-.vis-badge-wrap.open .vis-dropdown { display: block; }
+#vis-global-dropdown.open { display: block; }
 .vis-dropdown-item {
   display: flex; align-items: center; gap: 8px;
   padding: 9px 12px; font-size: 12px; font-weight: 500; color: var(--black);
@@ -2958,21 +2956,12 @@ function renderPublicadas() {
     }
 
     const visBadgeHtml = isPublicada ? `
-      <div class="vis-badge-wrap" id="viswrap-${o.id}">
-        <div class="vis-badge ${vis}" onclick="toggleVisBadge(${o.id}, event)">
-          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="6" cy="6" r="2.5"/><path d="M1 6c1.5-3 8.5-3 10 0M1 6c1.5 3 8.5 3 10 0" stroke-linecap="round"/>
-          </svg>
-          ${vCfg.label}
-          <svg class="vis-badge-chevron" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M2.5 4.5l3.5 3 3.5-3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        <div class="vis-dropdown">
-          ${Object.entries(visConfig).map(([k, v]) => `
-            <div class="vis-dropdown-item ${k === vis ? 'active' : ''}" onclick="setVisibilidade(${o.id}, '${k}', event)">
-              <span class="vis-dot" style="background:${v.dot}"></span>
-              <div><div>${v.label}</div><div class="vis-desc">${v.desc}</div></div>
-            </div>`).join('')}
-        </div>
+      <div class="vis-badge ${vis}" id="visbadge-${o.id}" data-opp-id="${o.id}" data-vis="${vis}" onclick="toggleVisBadge(${o.id}, event)">
+        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="6" cy="6" r="2.5"/><path d="M1 6c1.5-3 8.5-3 10 0M1 6c1.5 3 8.5 3 10 0" stroke-linecap="round"/>
+        </svg>
+        ${vCfg.label}
+        <svg class="vis-badge-chevron" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M2.5 4.5l3.5 3 3.5-3" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>` : '';
 
     const cardStyle = isFinalizada ? 'opacity:0.65;' : '';
@@ -3001,26 +2990,58 @@ function renderPublicadas() {
   }).join('');
 }
 
-// ─── VISIBILIDADE DROPDOWN ───
+// ─── VISIBILIDADE DROPDOWN (global, fora dos cards) ───
+const _visConfig = {
+  publica:    { label: 'Pública',       dot: '#2563EB', desc: 'Visível para todos' },
+  aprovacao:  { label: 'Por aprovação', dot: '#D97706', desc: 'Detentor aprova cada interesse' },
+  convidadas: { label: 'Convidadas',    dot: '#7C3AED', desc: 'Apenas por convite' }
+};
+let _visOpenOppId = null;
+
 function toggleVisBadge(oppId, e) {
   e.stopPropagation();
-  const wrap = document.getElementById('viswrap-' + oppId);
-  if (!wrap) return;
-  const isOpen = wrap.classList.contains('open');
-  // Fecha todos os outros
-  document.querySelectorAll('.vis-badge-wrap.open').forEach(w => w.classList.remove('open'));
-  if (!isOpen) wrap.classList.add('open');
+  const dropdown = document.getElementById('vis-global-dropdown');
+  const badge    = document.getElementById('visbadge-' + oppId);
+  if (!dropdown || !badge) return;
+
+  if (_visOpenOppId === oppId && dropdown.classList.contains('open')) {
+    dropdown.classList.remove('open');
+    _visOpenOppId = null;
+    return;
+  }
+
+  const opp = MINHAS_OPPS.find(o => o.id === oppId);
+  const vis = opp ? (opp.visibilidade || 'publica') : 'publica';
+
+  dropdown.innerHTML = Object.entries(_visConfig).map(([k, v]) => `
+    <div class="vis-dropdown-item ${k === vis ? 'active' : ''}" onclick="setVisibilidade(${oppId}, '${k}', event)">
+      <span class="vis-dot" style="background:${v.dot}"></span>
+      <div><div>${v.label}</div><div class="vis-desc">${v.desc}</div></div>
+    </div>`).join('');
+
+  const rect = badge.getBoundingClientRect();
+  dropdown.style.top  = (rect.bottom + 6) + 'px';
+  // Alinhar à direita do badge, sem sair da tela
+  const dw = 190;
+  const left = Math.min(rect.left, window.innerWidth - dw - 8);
+  dropdown.style.left = Math.max(8, left) + 'px';
+
+  dropdown.classList.add('open');
+  _visOpenOppId = oppId;
 }
 
 // Fecha dropdown ao clicar fora
 document.addEventListener('click', () => {
-  document.querySelectorAll('.vis-badge-wrap.open').forEach(w => w.classList.remove('open'));
+  const d = document.getElementById('vis-global-dropdown');
+  if (d) d.classList.remove('open');
+  _visOpenOppId = null;
 });
 
 async function setVisibilidade(oppId, novaVis, e) {
   e.stopPropagation();
-  const wrap = document.getElementById('viswrap-' + oppId);
-  if (wrap) wrap.classList.remove('open');
+  const dropdown = document.getElementById('vis-global-dropdown');
+  if (dropdown) dropdown.classList.remove('open');
+  _visOpenOppId = null;
 
   const opp = MINHAS_OPPS.find(o => o.id === oppId);
   if (!opp || opp.visibilidade === novaVis) return;
@@ -5202,6 +5223,9 @@ async function retirarAcessoSolicitacao(solId, oppId) {
   }
 }
 </script>
+
+<!-- Dropdown global de visibilidade — fora dos cards para não ser cortado pelo overflow:hidden -->
+<div id="vis-global-dropdown"></div>
 
 </body>
 </html>
