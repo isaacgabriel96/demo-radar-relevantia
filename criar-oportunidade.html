@@ -9529,51 +9529,45 @@ async function agProcessPdf(file) {
   if (file.type !== 'application/pdf') return;
   const label = file.name;
 
-  // Carrega pdf.js dinamicamente se ainda não estiver disponível
-  let pdfjsLib = window.pdfjsLib || window._pdfjsLib;
-  if (!pdfjsLib) {
-    await new Promise((resolve, reject) => {
-      const s = document.createElement('script');
-      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
-      s.onload = () => {
-        window.pdfjsLib.GlobalWorkerOptions.workerSrc =
-          'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-        resolve();
-      };
-      s.onerror = reject;
-      document.head.appendChild(s);
-    }).catch(() => null);
-    pdfjsLib = window.pdfjsLib;
-  }
-
-  if (!pdfjsLib) {
-    agShowError('PDF.js não carregado. Copie o texto do PDF manualmente.');
+  const MAX_MB = 100;
+  if (file.size > MAX_MB * 1024 * 1024) {
+    agShowError(`PDF muito grande (máx ${MAX_MB}MB).`);
     return;
   }
 
   agAddChip('pdf', label, null, true);
 
   try {
-    const buf = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
-    let text = '';
-    const maxP = Math.min(pdf.numPages, 15);
-    for (let i = 1; i <= maxP; i++) {
-      const page = await pdf.getPage(i);
-      const content = await page.getTextContent();
-      text += content.items.map(item => item.str).join(' ') + '\n';
+    // Faz upload do PDF para a Gemini Files API via proxy seguro
+    const res = await fetch('/api/gemini-upload', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/pdf',
+        'X-File-Name': encodeURIComponent(label),
+        'X-Mime-Type': 'application/pdf',
+      },
+      body: file,
+    });
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok || !data.fileUri) {
+      throw new Error(data.error || `Upload falhou (HTTP ${res.status})`);
     }
-    text = text.trim().slice(0, 12000);
 
     const idx = window._agState.attachments.findIndex(a => a.label === label && a.type === 'pdf');
-    if (idx >= 0) { window._agState.attachments[idx].content = text; window._agState.attachments[idx].ready = true; }
+    if (idx >= 0) {
+      window._agState.attachments[idx].fileUri  = data.fileUri;
+      window._agState.attachments[idx].mimeType = data.mimeType || 'application/pdf';
+      window._agState.attachments[idx].ready    = true;
+    }
     agRenderChips();
     agCheckReady();
   } catch (err) {
-    console.error('Erro PDF:', err);
+    console.error('Erro upload PDF:', err);
     window._agState.attachments = window._agState.attachments.filter(a => a.label !== label);
     agRenderChips();
-    agShowError('Não foi possível ler o PDF. Copie o texto manualmente.');
+    agShowError('Não foi possível enviar o PDF: ' + err.message);
   }
 }
 
@@ -9606,28 +9600,40 @@ function agRenderChips() {
 
 // ── Montar primeira mensagem ─────────────────────────────────────
 function agBuildFirstMessage() {
-  const parts = [];
+  const textParts = [];
 
   // Tipo pré-selecionado
   const tipo = formState && formState.selectedTemplate;
   if (tipo) {
-    parts.push(`[Tipo de oportunidade já selecionado pelo usuário: ${tipo}]`);
+    textParts.push(`[Tipo de oportunidade já selecionado pelo usuário: ${tipo}]`);
   }
-
-  const pdfs = window._agState.attachments.filter(a => a.type === 'pdf' && a.content);
-  pdfs.forEach(p => parts.push(`[PDF: ${p.label}]\n${p.content}`));
 
   const desc = window._agState._firstUserText || '';
   if (desc.trim()) {
     // Extrai URLs do texto para destacar ao Gemini que deve pesquisá-las
     const urls = [...desc.matchAll(/https?:\/\/\S+/g)].map(m => m[0]);
     if (urls.length) {
-      parts.push(`[Links fornecidos — pesquise cada um para extrair informações reais]\n${urls.join('\n')}`);
+      textParts.push(`[Links fornecidos — pesquise cada um para extrair informações reais]\n${urls.join('\n')}`);
     }
-    parts.push(`[Descrição do usuário]\n${desc.trim()}`);
+    textParts.push(`[Descrição do usuário]\n${desc.trim()}`);
   }
 
-  return parts.join('\n\n---\n\n');
+  // PDFs com fileUri são enviados como file parts (Gemini Files API)
+  // PDFs com content (fallback texto) são embutidos como texto
+  const fileParts = window._agState.attachments
+    .filter(a => a.type === 'pdf' && a.fileUri)
+    .map(a => ({ fileUri: a.fileUri, mimeType: a.mimeType || 'application/pdf', label: a.label }));
+
+  const textContent = textParts.join('\n\n---\n\n');
+
+  // Se não há nada, retorna string vazia
+  if (!textContent && fileParts.length === 0) return '';
+
+  // Retorna objeto estruturado quando há file parts; string quando só há texto
+  if (fileParts.length > 0) {
+    return { text: textContent, files: fileParts };
+  }
+  return textContent;
 }
 
 // ── Chat UI ──────────────────────────────────────────────────────
@@ -9802,7 +9808,8 @@ window.agEnviarResposta = async function() {
 
     // Monta payload completo para o Gemini
     const firstMsg = agBuildFirstMessage();
-    if (!firstMsg.trim()) { agShowError('Adicione uma descrição, PDF ou link.'); return; }
+    const firstMsgEmpty = !firstMsg || (typeof firstMsg === 'string' ? !firstMsg.trim() : !firstMsg.text && !firstMsg.files?.length);
+    if (firstMsgEmpty) { agShowError('Adicione uma descrição, PDF ou link.'); return; }
 
     window._agState.history = [{ role: 'user', content: firstMsg }];
     agSetLoading(true);

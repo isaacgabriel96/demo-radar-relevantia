@@ -66,12 +66,33 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Arquivo de configuração do agente não encontrado.' });
   }
 
+  /**
+   * Converte uma mensagem para o formato de parts do Gemini.
+   * content pode ser:
+   *   - string: mensagem simples de texto
+   *   - { text, files } onde files = [{ fileUri, mimeType, label }]
+   */
+  function buildParts(content) {
+    if (typeof content === 'string') {
+      return [{ text: content }];
+    }
+    const parts = [];
+    if (content.files?.length) {
+      for (const f of content.files) {
+        if (f.label) parts.push({ text: `[PDF: ${f.label}]` });
+        parts.push({ fileData: { mimeType: f.mimeType || 'application/pdf', fileUri: f.fileUri } });
+      }
+    }
+    if (content.text?.trim()) parts.push({ text: content.text });
+    return parts.length > 0 ? parts : [{ text: '' }];
+  }
+
   const body = {
     system_instruction: { parts: [{ text: systemPrompt }] },
     generationConfig: { max_output_tokens: 16384 },
     contents: messages.map(m => ({
       role: m.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: m.content }],
+      parts: buildParts(m.content),
     })),
   };
 
