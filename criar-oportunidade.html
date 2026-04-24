@@ -7401,9 +7401,15 @@ function _buildPlaceAutocomplete(input, opts) {
     maxHeight:'220px', overflowY:'auto'
   });
   wrap.appendChild(ul);
+  const chip = document.createElement('div');
+  Object.assign(chip.style, { display:'none', alignItems:'center', gap:'10px', padding:'0 14px', height:'48px', background:'#fff', borderRadius:'10px', border:'1.5px solid #E0D8CC', fontSize:'15px', color:'#1A1200', width:'100%', boxSizing:'border-box', fontFamily:'inherit' });
+  const chipText = document.createElement('span'); chipText.style.flex = '1';
+  const chipClear = document.createElement('button'); chipClear.type = 'button'; chipClear.textContent = '×';
+  Object.assign(chipClear.style, { background:'none', border:'none', cursor:'pointer', color:'#A89880', fontSize:'20px', padding:'0', lineHeight:'1', flexShrink:'0' });
+  chipClear.addEventListener('click', () => { chip.style.display = 'none'; input.style.display = ''; input.value = ''; input.focus(); });
+  chip.appendChild(chipText); chip.appendChild(chipClear); wrap.appendChild(chip);
   let token = new AutocompleteSessionToken(), timer;
   input.addEventListener('input', () => {
-    if (input.dataset.acConfirmed) { delete input.dataset.acConfirmed; input.style.borderColor = ''; input.style.boxShadow = ''; }
     clearTimeout(timer);
     timer = setTimeout(async () => {
       const q = input.value.trim();
@@ -7424,9 +7430,11 @@ function _buildPlaceAutocomplete(input, opts) {
           li.addEventListener('mousedown', async e => {
             e.preventDefault();
             const place = s.placePrediction.toPlace();
+            let selectedText = '';
             if (opts?.fullAddress) {
               await place.fetchFields({ fields: ['displayName', 'formattedAddress', 'location'] });
-              input.value = place.displayName || '';
+              selectedText = place.displayName || '';
+              input.value = selectedText;
               opts.onSelect?.({
                 name: place.displayName || '',
                 address: place.formattedAddress || '',
@@ -7438,11 +7446,12 @@ function _buildPlaceAutocomplete(input, opts) {
               const city = place.addressComponents?.find(c =>
                 c.types.includes('locality') || c.types.includes('administrative_area_level_2')
               );
-              input.value = city ? city.longText : (place.displayName || '');
+              selectedText = city ? city.longText : (place.displayName || '');
+              input.value = selectedText;
             }
-            input.dataset.acConfirmed = '1';
-            input.style.borderColor = '#B8860B';
-            input.style.boxShadow = '0 0 0 3px rgba(184,134,11,0.18)';
+            chipText.textContent = selectedText;
+            chip.style.display = 'flex';
+            input.style.display = 'none';
             ul.style.display = 'none';
             token = new AutocompleteSessionToken();
           });
