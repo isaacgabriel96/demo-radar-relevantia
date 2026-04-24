@@ -4701,42 +4701,63 @@ const TEMPLATES = {
     label: 'Mídia',
     fields: [
       {
-        id: 'tipo-veiculo', label: 'Tipo de veículo', type: 'select', required: true,
+        id: 'tipo-veiculo', label: 'Tipo de veículo', type: 'tag-select', fullWidth: true, required: true, max: 3,
         options: [
-          {v:'portal',        l:'Portal / Site'},
-          {v:'revista',       l:'Revista'},
-          {v:'jornal',        l:'Jornal'},
-          {v:'radio',         l:'Rádio'},
-          {v:'tv',            l:'TV / Canal Streaming'},
-          {v:'podcast',       l:'Podcast'},
-          {v:'newsletter',    l:'Newsletter'},
-          {v:'canal-youtube', l:'Canal YouTube'},
-          {v:'outro',         l:'Outro'}
+          'Portal / Site',
+          'Revista',
+          'Jornal',
+          'Rádio',
+          'TV / Canal Streaming',
+          'Podcast',
+          'Newsletter',
+          'Canal YouTube',
+          'Perfil / Creator',
+          'Comunidade (WhatsApp, Telegram, Discord)'
+        ]
+      },
+      {
+        id: 'nicho-midia', label: 'Nicho editorial', type: 'tag-select', fullWidth: true, required: true, max: 3,
+        options: [
+          'Tecnologia',
+          'Negócios / Empreendedorismo',
+          'Finanças / Investimentos',
+          'Esporte',
+          'Saúde / Bem-estar',
+          'Alimentação / Gastronomia',
+          'Moda / Beleza',
+          'Entretenimento',
+          'Cultura / Arte',
+          'Música',
+          'Games / Esports',
+          'Educação',
+          'Política / Jornalismo',
+          'Meio Ambiente / Sustentabilidade',
+          'Religião / Espiritualidade',
+          'Lifestyle',
+          'Viagem / Turismo',
+          'Agro / Rural',
+          'Jurídico',
+          'Saúde Mental'
         ]
       },
       {
         id: 'frequencia-midia', label: 'Frequência de publicação', type: 'select',
         options: [
-          {v:'diario',       l:'Diário'},
-          {v:'semanal',      l:'Semanal'},
-          {v:'quinzenal',    l:'Quinzenal'},
-          {v:'mensal',       l:'Mensal'},
-          {v:'sob-demanda',  l:'Sob demanda'}
+          {v:'diario',        l:'Diário'},
+          {v:'varios-semana', l:'Várias vezes por semana'},
+          {v:'semanal',       l:'Semanal'},
+          {v:'quinzenal',     l:'Quinzenal'},
+          {v:'mensal',        l:'Mensal'},
+          {v:'sob-demanda',   l:'Sob demanda'}
         ]
       },
       {
-        id: 'audiencia-midia', label: 'Audiência mensal / seguidores', type: 'select', required: true,
+        id: 'abrangencia-midia', label: 'Abrangência', type: 'select',
         options: [
-          {v:'ate10k',     l:'Até 10k'},
-          {v:'10k-100k',   l:'10k a 100k'},
-          {v:'100k-500k',  l:'100k a 500k'},
-          {v:'500k-1m',    l:'500k a 1M'},
-          {v:'1m+',        l:'Mais de 1M'}
+          {v:'regional',      l:'Regional'},
+          {v:'nacional',      l:'Nacional'},
+          {v:'internacional', l:'Internacional'}
         ]
-      },
-      {
-        id: 'formatos-comerciais', label: 'Formatos comerciais disponíveis', type: 'multiselect-pills',
-        options: ['Display / Banner','Branded Content','Podcast Spot','Newsletter Patrocinada','Live / Transmissão','Evento Próprio','Menção em editorial']
       }
     ]
   }
