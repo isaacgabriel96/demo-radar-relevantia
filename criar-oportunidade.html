@@ -1002,9 +1002,11 @@ input[type=number] { -moz-appearance: textfield; }
 .entry-summary-dates { font-size: 12px; color: var(--gray-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .btn-entry-edit { font-size: 11px; font-family: var(--font-body); font-weight: 500; padding: 4px 10px; border-radius: 20px; border: 1px solid var(--gray-2); background: #fff; color: var(--gray-3); cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: all .15s; }
 .btn-entry-edit:hover { border-color: var(--gray-3); color: var(--gray-4); }
-.entry-form-heading { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
-.entry-form-heading-label { font-size: 11px; font-weight: 700; color: var(--gray-3); text-transform: uppercase; letter-spacing: 0.06em; }
-.entry-form-heading-line { flex: 1; height: 1px; background: var(--gray-1); }
+.entry-fields-card { position: relative; background: var(--gray-1); border: 1px solid var(--gray-2); border-radius: var(--radius-md); padding: 14px 16px 14px; display: flex; flex-direction: column; gap: 12px; }
+.entry-remove-btn { position: absolute; top: 8px; right: 8px; background: none; border: none; cursor: pointer; color: var(--gray-3); font-size: 17px; padding: 4px 6px; line-height: 1; transition: color .15s; }
+.entry-remove-btn:hover { color: var(--gray-4); }
+.btn-entry-save { margin-top: 10px; font-size: 12px; font-family: var(--font-body); font-weight: 600; padding: 7px 18px; border-radius: var(--radius-pill); border: 1.5px solid var(--gray-3); background: transparent; color: var(--gray-4); cursor: pointer; transition: all .15s; }
+.btn-entry-save:hover { background: var(--gray-4); color: #fff; border-color: var(--gray-4); }
 .entry-ac-wrap { position: relative; }
 .mdp { border: 1px solid var(--gray-1); border-radius: var(--radius-base); overflow: hidden; }
 .mdp-trigger { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: transparent; border: none; cursor: pointer; font-family: var(--font-body); font-size: 13px; font-weight: 500; color: var(--gray-4); text-align: left; transition: background .15s; }
@@ -7906,29 +7908,24 @@ function addEventEntry(opts) {
 
   div.innerHTML = `
     <div class="entry-summary" style="display:none"></div>
-    <div class="entry-form" style="padding-bottom:12px;border-bottom:1px solid var(--gray-1)">
-      <div class="entry-form-heading">
-        <span class="entry-form-heading-label">Local ${entryNum}</span>
-        <div class="entry-form-heading-line"></div>
-      </div>
-      <div style="display:flex;gap:10px;align-items:flex-start">
-        <div style="flex:1;display:flex;flex-direction:column;gap:10px">
-          ${paisHtml}
-          <div>
-            <label class="entry-lbl">Cidade</label>
-            <div class="entry-ac-wrap"><input type="text" class="form-control event-cidade-input" placeholder="Buscar cidade..."></div>
-          </div>
-          <div>
-            <label class="entry-lbl">Local / Venue</label>
-            <div class="entry-ac-wrap"><input type="text" class="form-control event-venue-input" placeholder="Nome do local ou venue..."></div>
-          </div>
-          <div>
-            <label class="entry-lbl">Datas</label>
-            <div class="mdp-slot"></div>
-          </div>
+    <div class="entry-form" style="margin-bottom:4px">
+      <div class="entry-fields-card">
+        <button type="button" class="entry-remove-btn" onclick="this.closest('.event-entry').remove()" title="Remover">&#215;</button>
+        ${paisHtml}
+        <div>
+          <label class="entry-lbl">Cidade</label>
+          <div class="entry-ac-wrap"><input type="text" class="form-control event-cidade-input" placeholder="Buscar cidade..."></div>
         </div>
-        <button type="button" onclick="this.closest('.event-entry').remove()" style="background:none;border:none;cursor:pointer;color:var(--gray-3);font-size:18px;padding:8px;flex-shrink:0;line-height:1">&#215;</button>
+        <div>
+          <label class="entry-lbl">Local / Venue</label>
+          <div class="entry-ac-wrap"><input type="text" class="form-control event-venue-input" placeholder="Nome do local ou venue..."></div>
+        </div>
+        <div>
+          <label class="entry-lbl">Datas</label>
+          <div class="mdp-slot"></div>
+        </div>
       </div>
+      <button type="button" class="btn-entry-save" onclick="_collapseEntry(this.closest('.event-entry'))">Salvar local</button>
     </div>
   `;
   list.appendChild(div);
