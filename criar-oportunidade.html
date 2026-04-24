@@ -991,9 +991,8 @@ input[type=number] { -moz-appearance: textfield; }
 /* Multiselect pills (fields) */
 .pills-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 2px; }
 .pills-max-hint { font-size: 11px; color: var(--gray-3); margin-top: 6px; transition: color .2s, font-weight .2s; }
-.btn-event-intl { font-size: 11px; font-family: var(--font-body); font-weight: 500; padding: 4px 10px; border-radius: 20px; border: 1px solid var(--gray-2); background: transparent; color: var(--gray-3); cursor: pointer; white-space: nowrap; transition: all .15s; flex-shrink: 0; }
-.btn-event-intl:hover { border-color: var(--gray-3); color: var(--gray-4); }
-.btn-event-intl.active { background: var(--gold-gradient); border-color: transparent; color: #fff; font-weight: 600; }
+.btn-trocar-pais { font-size: 11px; font-family: var(--font-body); font-weight: 500; padding: 3px 9px; border-radius: 20px; border: 1px solid var(--gray-2); background: transparent; color: var(--gray-3); cursor: pointer; white-space: nowrap; transition: all .15s; }
+.btn-trocar-pais:hover { border-color: var(--gray-3); color: var(--gray-4); }
 .pills-group .pill-opt {
   padding: 6px 14px; border-radius: var(--radius-pill);
   border: 1.5px solid var(--gray-2); background: var(--white);
@@ -5498,29 +5497,10 @@ function _applyPendingDetalhes(tplKey) {
           const list = document.getElementById('event-entries-list');
           if (list && valArr.length > 0) {
             list.innerHTML = '';
-            valArr.forEach(entry => {
-              addEventEntry();
-              const entries = list.querySelectorAll('.event-entry');
-              const last = entries[entries.length - 1];
-              if (last) {
-                const dataInput = last.querySelector('.event-data-input');
-                const cidadeInput = last.querySelector('.event-cidade-input');
-                const venueInput = last.querySelector('.event-venue-input');
-                if (dataInput && entry.data) dataInput.value = entry.data;
-                if (cidadeInput && entry.cidade) cidadeInput.value = entry.cidade;
-                if (venueInput && entry.venue) venueInput.value = entry.venue;
-                if (entry.internacional) {
-                  const btn = last.querySelector('.btn-event-intl');
-                  const paisWrap = last.querySelector('.event-intl-pais');
-                  if (btn) btn.classList.add('active');
-                  if (paisWrap) paisWrap.style.display = 'block';
-                  if (entry.pais) {
-                    const sel = last.querySelector('.event-intl-pais select');
-                    if (sel) sel.value = entry.pais;
-                  }
-                }
-              }
-            });
+            valArr.forEach(entry => addEventEntry(entry));
+            // Sincroniza badges após restaurar
+            const firstSel = list.querySelector('.event-pais-select');
+            if (firstSel) syncEventPais(firstSel);
           }
         }
       });
@@ -5622,7 +5602,7 @@ function buildFieldHtml(f, fullWidth) {
     inner = `<div id="event-dates-container">
       <div id="event-entries-list"></div>
       <button type="button" class="btn btn-ghost" style="margin-top:8px;font-size:13px" onclick="addEventEntry()">
-        + Adicionar data / local
+        + Nova data
       </button>
     </div>
     <div style="margin-top:16px">
@@ -7562,43 +7542,149 @@ const _PAISES_INTL = [
   {v:'uy',l:'🇺🇾 Uruguai'},{v:'ve',l:'🇻🇪 Venezuela'}
 ];
 
-function addEventEntry() {
+function _getPaisOpts(selectedVal) {
+  return _PAISES_INTL.map(p =>
+    `<option value="${p.v}"${p.v === selectedVal ? ' selected' : ''}>${p.l}</option>`
+  ).join('');
+}
+
+function _getFirstEntryPaisVal() {
+  const first = document.querySelector('#event-entries-list .event-entry');
+  return first ? (first.querySelector('.event-pais-select')?.value || '') : '';
+}
+
+function _getFirstEntryPaisLabel() {
+  const first = document.querySelector('#event-entries-list .event-entry');
+  if (!first) return '';
+  const sel = first.querySelector('.event-pais-select');
+  return sel ? (sel.options[sel.selectedIndex]?.text || '') : '';
+}
+
+function syncEventPais(select) {
+  const label = select.options[select.selectedIndex]?.text || '';
+  const val = select.value;
+  document.querySelectorAll('#event-entries-list .event-entry').forEach((entry, i) => {
+    if (i === 0) return;
+    const badge = entry.querySelector('.event-pais-badge');
+    const overrideSel = entry.querySelector('.event-pais-override-select');
+    if (badge) badge.textContent = label;
+    // Se override não estiver ativo, sincroniza o select oculto também
+    const overrideWrap = entry.querySelector('.event-pais-override');
+    if (overrideWrap && overrideWrap.style.display === 'none' && overrideSel) {
+      overrideSel.value = val;
+    }
+  });
+}
+
+function trocarEventPais(btn) {
+  const row = btn.closest('.event-pais-row');
+  const overrideWrap = row.querySelector('.event-pais-override');
+  const badge = row.querySelector('.event-pais-badge');
+  const syncedVal = _getFirstEntryPaisVal();
+  if (overrideWrap) {
+    const sel = overrideWrap.querySelector('.event-pais-override-select');
+    if (sel && syncedVal) sel.value = syncedVal;
+    overrideWrap.style.display = '';
+  }
+  if (badge) badge.parentElement.style.display = 'none';
+}
+
+function addEventEntry(opts) {
   const list = document.getElementById('event-entries-list');
   if (!list) return;
+  const isFirst = list.children.length === 0;
   const div = document.createElement('div');
   div.className = 'event-entry';
   div.style.cssText = 'margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--gray-1)';
-  const paisOpts = _PAISES_INTL.map(p => `<option value="${p.v}">${p.l}</option>`).join('');
+
+  let paisHtml = '';
+  if (isFirst) {
+    paisHtml = `
+      <div class="event-pais-row" style="margin-top:2px">
+        <label style="font-size:12px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:4px">País</label>
+        <select class="form-control event-pais-select" onchange="syncEventPais(this)" required>
+          <option value="">Selecione o país</option>
+          ${_getPaisOpts(opts?.pais || '')}
+        </select>
+      </div>`;
+  } else {
+    const syncedLabel = _getFirstEntryPaisLabel();
+    const syncedVal = _getFirstEntryPaisVal();
+    paisHtml = `
+      <div class="event-pais-row" style="margin-top:2px">
+        <div class="event-pais-badge-row" style="display:flex;align-items:center;gap:8px">
+          <span class="event-pais-badge" style="font-size:12px;color:var(--gray-4);font-weight:500">${syncedLabel || 'País não selecionado'}</span>
+          <button type="button" class="btn-trocar-pais" onclick="trocarEventPais(this)">Trocar país</button>
+        </div>
+        <div class="event-pais-override" style="display:none;margin-top:6px">
+          <select class="form-control event-pais-override-select">
+            <option value="">Selecione o país</option>
+            ${_getPaisOpts(opts?.pais || syncedVal)}
+          </select>
+        </div>
+      </div>`;
+  }
+
   div.innerHTML = `
     <div style="display:flex;gap:10px;align-items:flex-start">
       <div style="flex:1;display:flex;flex-direction:column;gap:8px">
-        <div style="display:flex;gap:8px;align-items:center">
-          <input type="date" class="form-control event-data-input" style="flex:1" required>
-          <button type="button" class="btn-event-intl" onclick="toggleEventIntl(this)" title="Data internacional">Internacional</button>
+        <div style="display:flex;gap:8px">
+          <input type="date" class="form-control event-data-input" style="flex:2" required>
+          <div style="flex:1;display:flex;flex-direction:column;gap:2px">
+            <input type="time" class="form-control event-hora-inicio" title="Horário de início">
+            <input type="time" class="form-control event-hora-fim" title="Horário de término">
+          </div>
         </div>
-        <div class="event-intl-pais" style="display:none">
-          <select class="form-control">${paisOpts}</select>
-        </div>
-        <input type="text" class="form-control event-cidade-input" placeholder="Cidade (ex: São Paulo)" required>
+        <input type="text" class="form-control event-cidade-input" placeholder="Cidade (ex: São Paulo)">
         <input type="text" class="form-control event-venue-input" placeholder="Venue (ex: Estádio do Morumbi)">
+        ${paisHtml}
       </div>
       <button type="button" onclick="this.closest('.event-entry').remove()" style="background:none;border:none;cursor:pointer;color:var(--gray-3);font-size:18px;padding:8px;flex-shrink:0;line-height:1;margin-top:2px">✕</button>
     </div>
   `;
   list.appendChild(div);
+  if (opts) {
+    const d = div.querySelector('.event-data-input');
+    const hi = div.querySelector('.event-hora-inicio');
+    const hf = div.querySelector('.event-hora-fim');
+    const ci = div.querySelector('.event-cidade-input');
+    const ve = div.querySelector('.event-venue-input');
+    if (d && opts.data) d.value = opts.data;
+    if (hi && opts.horaInicio) hi.value = opts.horaInicio;
+    if (hf && opts.horaFim) hf.value = opts.horaFim;
+    if (ci && opts.cidade) ci.value = opts.cidade;
+    if (ve && opts.venue) ve.value = opts.venue;
+  }
   const venueInput = div.querySelector('.event-venue-input');
   if (venueInput) _loadMapsScript(() => _attachEventLocalAutocomplete(venueInput));
 }
 
-function toggleEventIntl(btn) {
-  const entry = btn.closest('.event-entry');
-  const paisWrap = entry.querySelector('.event-intl-pais');
-  const active = btn.classList.toggle('active');
-  if (paisWrap) paisWrap.style.display = active ? 'block' : 'none';
-}
-
 function _attachEventLocalAutocomplete(input) {
   _buildPlaceAutocomplete(input, { fullAddress: true });
+}
+
+function _collectEventEntries() {
+  const result = [];
+  document.querySelectorAll('#event-entries-list .event-entry').forEach((entry, i) => {
+    const d = entry.querySelector('.event-data-input')?.value || '';
+    const horaInicio = entry.querySelector('.event-hora-inicio')?.value || '';
+    const horaFim = entry.querySelector('.event-hora-fim')?.value || '';
+    const cidade = entry.querySelector('.event-cidade-input')?.value || '';
+    const venue = entry.querySelector('.event-venue-input')?.value || '';
+    let pais = '';
+    if (i === 0) {
+      pais = entry.querySelector('.event-pais-select')?.value || '';
+    } else {
+      const overrideWrap = entry.querySelector('.event-pais-override');
+      if (overrideWrap && overrideWrap.style.display !== 'none') {
+        pais = entry.querySelector('.event-pais-override-select')?.value || '';
+      } else {
+        pais = _getFirstEntryPaisVal();
+      }
+    }
+    if (d || cidade || venue) result.push({ data: d, horaInicio, horaFim, cidade, venue, pais });
+  });
+  return result;
 }
 
 function toggleRecorrencia(checked) {
@@ -8560,33 +8646,14 @@ function collectOppData() {
         const pills = document.querySelectorAll('#' + f.id + ' .pill-opt.selected');
         val = Array.from(pills).map(p => p.textContent.trim());
       } else if (f.type === 'event-dates') {
-        const entries = document.querySelectorAll('#event-entries-list .event-entry');
-        val = [];
-        entries.forEach(entry => {
-          const d = entry.querySelector('.event-data-input')?.value || '';
-          const cidade = entry.querySelector('.event-cidade-input')?.value || '';
-          const venue = entry.querySelector('.event-venue-input')?.value || '';
-          const intlBtn = entry.querySelector('.btn-event-intl');
-          const internacional = intlBtn?.classList.contains('active') || false;
-          const pais = internacional ? (entry.querySelector('.event-intl-pais select')?.value || '') : '';
-          if (d || cidade || venue) val.push({ data: d, cidade, venue, internacional, pais });
-        });
+        val = _collectEventEntries();
       }
       if (val && (typeof val === 'string' ? val.length > 0 : true)) detalhes[f.label] = val;
     });
   }
 
   // Datas do evento
-  const datasEvento = [];
-  document.querySelectorAll('#event-entries-list .event-entry').forEach(entry => {
-    const d = entry.querySelector('.event-data-input')?.value || '';
-    const cidade = entry.querySelector('.event-cidade-input')?.value || '';
-    const venue = entry.querySelector('.event-venue-input')?.value || '';
-    const intlBtn = entry.querySelector('.btn-event-intl');
-    const internacional = intlBtn?.classList.contains('active') || false;
-    const pais = internacional ? (entry.querySelector('.event-intl-pais select')?.value || '') : '';
-    if (d || cidade || venue) datasEvento.push({ data: d, cidade, venue, internacional, pais });
-  });
+  const datasEvento = _collectEventEntries();
 
   // Recorrência do evento (apenas template 'evento')
   const hasRecorrencia = document.getElementById('has-recorrencia')?.checked || false;
