@@ -9450,19 +9450,21 @@ async function agProcessPdf(file) {
   agAddChip('pdf', label, null, true);
 
   try {
-    // Fluxo em 2 etapas para bypasasr limite de body do Vercel (~4.5MB):
-    // Etapa 1 — POST JSON com metadados → recebe uploadUrl do Google
-    // Etapa 2 — PUT binário direto ao Google (bypassa Vercel completamente)
+    // Fluxo em 3 etapas — resolve o bloqueio de CORS do Google no browser:
+    //   Etapa 1 — POST JSON → nosso servidor → obtém uploadUrl do Google
+    //   Etapa 2 — PUT binário direto ao Google (bypassa Vercel)
+    //             O upload chega ao Google (HTTP 200), mas CORS bloqueia a
+    //             leitura da resposta no browser — ignoramos esse erro.
+    //   Etapa 3 — POST → nosso servidor → consulta Google server-to-server
+    //             (sem CORS) → retorna o fileUri que o browser não conseguiu ler
     const session = (await getSessionAsync('rightsholder')) || (await getSessionAsync('brand'));
     const token = session?.access_token;
+    const authHeader = token ? { 'Authorization': `Bearer ${token}` } : {};
 
-    // Etapa 1: obtém uploadUrl autenticado
+    // ── Etapa 1: inicia upload resumível → obtém uploadUrl ──────────────────
     const metaRes = await fetch('/api/gemini-upload', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
-      },
+      headers: { 'Content-Type': 'application/json', ...authHeader },
       body: JSON.stringify({
         fileName: encodeURIComponent(label.normalize('NFC')),
         fileSize: String(file.size),
@@ -9474,8 +9476,10 @@ async function agProcessPdf(file) {
       throw new Error(metaData.error || `Falha ao iniciar upload (HTTP ${metaRes.status})`);
     }
 
-    // Etapa 2: envia binário direto ao Google (sem passar pelo Vercel)
-    const googleRes = await fetch(metaData.uploadUrl, {
+    // ── Etapa 2: envia binário direto ao Google (fire-and-forget) ───────────
+    // O fetch é aguardado para garantir que o PUT foi enviado antes de seguir
+    // para a Etapa 3. O erro de CORS (resposta ilegível) é esperado e ignorado.
+    await fetch(metaData.uploadUrl, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/pdf',
@@ -9483,30 +9487,37 @@ async function agProcessPdf(file) {
         'X-Goog-Upload-Offset': '0',
       },
       body: file,
+    }).catch(() => {
+      // CORS bloqueia a leitura da resposta — comportamento esperado.
+      // O upload chegou ao Google (200 OK); seguimos para a Etapa 3.
     });
-    if (!googleRes.ok) {
-      const errText = await googleRes.text().catch(() => '');
-      throw new Error(`Upload para Google falhou (HTTP ${googleRes.status})`);
-    }
-    const googleData = await googleRes.json().catch(() => ({}));
-    const fileUri  = googleData.file?.uri;
-    const fileMime = googleData.file?.mimeType || 'application/pdf';
-    if (!fileUri) {
-      throw new Error('Google não retornou fileUri após upload.');
+
+    // ── Etapa 3: servidor busca o fileUri (server-to-server, sem CORS) ──────
+    const finalRes = await fetch('/api/gemini-finalize', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...authHeader },
+      body: JSON.stringify({ uploadUrl: metaData.uploadUrl }),
+    });
+    const finalData = await finalRes.json().catch(() => ({}));
+    if (!finalRes.ok || !finalData.fileUri) {
+      throw new Error(finalData.error || `Falha ao confirmar upload (HTTP ${finalRes.status})`);
     }
 
-    console.log('[agente] PDF enviado ao Google. fileUri:', fileUri);
+    const fileUri  = finalData.fileUri;
+    const fileMime = finalData.mimeType || 'application/pdf';
+
+    console.log('[agente] PDF confirmado. fileUri:', fileUri);
     const idx = window._agState.attachments.findIndex(a => a.label === label && a.type === 'pdf');
     if (idx >= 0) {
       window._agState.attachments[idx].fileUri  = fileUri;
       window._agState.attachments[idx].mimeType = fileMime;
       window._agState.attachments[idx].ready    = true;
+      window._agState.attachments[idx]._file    = null; // libera memória
     }
     agRenderChips();
     agCheckReady();
   } catch (err) {
     console.error('Erro upload PDF:', err);
-    // Mantém o chip com estado de erro para permitir retry
     const idx = window._agState.attachments.findIndex(a => a.label === label && a.type === 'pdf');
     if (idx >= 0) {
       window._agState.attachments[idx].error = true;
@@ -9514,10 +9525,7 @@ async function agProcessPdf(file) {
       window._agState.attachments[idx]._file = file;
     }
     agRenderChips();
-    const msg = err.message === 'Failed to fetch'
-      ? 'Não foi possível enviar o PDF. Verifique sua conexão e tente novamente.'
-      : 'Não foi possível enviar o PDF: ' + err.message;
-    agShowError(msg);
+    agShowError('Não foi possível enviar o PDF. Verifique sua conexão e tente novamente.');
   }
 }
 
