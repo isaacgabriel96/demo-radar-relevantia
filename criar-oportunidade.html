@@ -1005,14 +1005,15 @@ input[type=number] { -moz-appearance: textfield; }
 .entry-fields-card { position: relative; background: var(--gray-1); border: 1px solid var(--gray-2); border-radius: var(--radius-md); padding: 14px 16px 14px; display: flex; flex-direction: column; gap: 12px; }
 .entry-remove-btn { position: absolute; top: 8px; right: 8px; background: none; border: none; cursor: pointer; color: var(--gray-3); font-size: 17px; padding: 4px 6px; line-height: 1; transition: color .15s; }
 .entry-remove-btn:hover { color: var(--gray-4); }
-.btn-entry-save { margin-top: 10px; font-size: 12px; font-family: var(--font-body); font-weight: 600; padding: 7px 18px; border-radius: var(--radius-pill); border: 1.5px solid var(--gray-3); background: transparent; color: var(--gray-4); cursor: pointer; transition: all .15s; }
+.btn-entry-save { margin-top: 10px; display: block; margin-left: auto; font-size: 12px; font-family: var(--font-body); font-weight: 600; padding: 7px 18px; border-radius: var(--radius-pill); border: 1.5px solid var(--gray-3); background: transparent; color: var(--gray-4); cursor: pointer; transition: all .15s; }
 .btn-entry-save:hover { background: var(--gray-4); color: #fff; border-color: var(--gray-4); }
+.entry-save-error { font-size: 11px; color: #c0392b; margin: 5px 0 0; text-align: right; }
 .entry-ac-wrap { position: relative; }
-.mdp { border: 1px solid var(--gray-1); border-radius: var(--radius-base); overflow: hidden; }
-.mdp-trigger { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: transparent; border: none; cursor: pointer; font-family: var(--font-body); font-size: 13px; font-weight: 500; color: var(--gray-4); text-align: left; transition: background .15s; }
-.mdp-trigger:hover { background: var(--gray-1); }
+.mdp { position: relative; }
+.mdp-trigger { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: #fff; border: 1px solid var(--gray-2); border-radius: var(--radius-base); cursor: pointer; font-family: var(--font-body); font-size: 13px; font-weight: 500; color: var(--gray-4); text-align: left; transition: border-color .15s; }
+.mdp-trigger:hover { border-color: var(--gray-3); }
 .mdp-trigger-arr { font-size: 16px; color: var(--gray-3); transition: transform .2s; flex-shrink: 0; }
-.mdp-panel { padding: 12px; border-top: 1px solid var(--gray-1); }
+.mdp-panel { position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 120; background: #fff; border: 1px solid var(--gray-2); border-radius: var(--radius-md); box-shadow: 0 8px 24px rgba(30,22,0,0.12); padding: 12px; }
 .mdp-hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
 .mdp-nav { background: none; border: none; cursor: pointer; font-size: 18px; width: 28px; height: 28px; border-radius: 6px; color: var(--gray-4); display: flex; align-items: center; justify-content: center; transition: background .1s; }
 .mdp-nav:hover { background: var(--gray-1); }
@@ -7821,30 +7822,46 @@ function _collapseEntry(entry) {
   const summary = entry.querySelector('.entry-summary');
   if (!form || !summary) return;
 
-  const num = entry.dataset.entryNum || '';
-  const pais = _getEntryPaisLabel(entry);
+  // Validation — all 4 fields required
+  const paisIso = _getEntryPaisIso(entry);
   const cidadeInput = entry.querySelector('.event-cidade-input');
   const venueInput = entry.querySelector('.event-venue-input');
-  const cidade = cidadeInput?._acChip?.style.display !== 'none'
-    ? (cidadeInput._acChip?.querySelector('.ac-chip-label')?.textContent || cidadeInput.value || '')
-    : (cidadeInput.value || '');
-  const venue = venueInput?._acChip?.style.display !== 'none'
-    ? (venueInput._acChip?.querySelector('.ac-chip-label')?.textContent || venueInput.value || '')
-    : (venueInput.value || '');
-
+  const _readAc = inp => inp?._acChip?.style.display !== 'none'
+    ? (inp._acChip?.querySelector('.ac-chip-label')?.textContent?.trim() || inp?.value?.trim() || '')
+    : (inp?.value?.trim() || '');
+  const cidadeVal = _readAc(cidadeInput);
+  const venueVal = _readAc(venueInput);
   let datas = [];
   try { datas = JSON.parse(entry.querySelector('.event-datas-hidden')?.value || '[]'); } catch {}
-  const datasText = datas.length
-    ? datas.map(d => { const p = d.split('-'); return `${p[2]}/${p[1]}`; }).join(', ')
-    : 'Sem datas';
 
+  const missing = [];
+  if (!paisIso) missing.push('País');
+  if (!cidadeVal) missing.push('Cidade');
+  if (!venueVal) missing.push('Local/Venue');
+  if (!datas.length) missing.push('Datas');
+
+  let errEl = form.querySelector('.entry-save-error');
+  if (missing.length) {
+    if (!errEl) {
+      errEl = document.createElement('p');
+      errEl.className = 'entry-save-error';
+      form.appendChild(errEl);
+    }
+    errEl.textContent = `Preencha: ${missing.join(', ')}`;
+    return;
+  }
+  errEl?.remove();
+
+  const pais = _getEntryPaisLabel(entry);
+  const cidade = cidadeVal;
+  const venue = venueVal;
+  const datasText = datas.map(d => { const p = d.split('-'); return `${p[2]}/${p[1]}`; }).join(', ');
   const locParts = [pais, cidade, venue].filter(Boolean);
   const locText = locParts.length ? locParts.join(' · ') : 'Localização não informada';
 
   summary.innerHTML = `
     <div class="entry-summary-card" onclick="_expandEntry(this.closest('.event-entry'))">
       <div class="entry-summary-info">
-        ${num ? `<div class="entry-summary-num">Local ${num}</div>` : ''}
         <div class="entry-summary-loc">${locText}</div>
         <div class="entry-summary-dates">${datasText}</div>
       </div>
