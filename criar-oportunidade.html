@@ -4380,11 +4380,11 @@ const TEMPLATES = {
     label: 'Personalidade',
     fields: [
       {
-        id: 'tipo-personalidade', label: 'Tipo', type: 'multiselect-pills', required: true,
+        id: 'tipo-personalidade', label: 'Tipo', type: 'multiselect-pills', required: true, max: 3,
         options: [
-          'Influenciador Digital','Celebridade','Apresentador(a)',
+          'Creator','Celebridade','Apresentador(a)',
           'Especialista / Palestrante','Jornalista','Atleta',
-          'Ator / Atriz','Comediante','Creator / Streamer',
+          'Ator / Atriz','Comediante','Streamer',
           'Podcaster','Modelo'
         ]
       },
