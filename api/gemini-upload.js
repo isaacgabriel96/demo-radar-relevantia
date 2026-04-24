@@ -30,7 +30,7 @@ export default async function handler(req) {
 
   const corsHeaders = {
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, X-File-Name, X-File-Size, X-Mime-Type',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-File-Name, X-File-Size, X-Mime-Type',
   };
 
   // Em dev ou origins permitidas, reflete o origin
@@ -46,6 +46,16 @@ export default async function handler(req) {
   if (req.method !== 'POST') {
     return new Response(JSON.stringify({ error: 'Método não permitido' }), {
       status: 405,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
+  // Autenticação: exige Bearer token (Supabase JWT) emitido pelo próprio app
+  const authHeader = req.headers.get('authorization') || '';
+  const bearerToken = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : null;
+  if (!bearerToken || bearerToken.split('.').length !== 3) {
+    return new Response(JSON.stringify({ error: 'Não autenticado.' }), {
+      status: 401,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
@@ -66,6 +76,14 @@ export default async function handler(req) {
     if (!fileSize) {
       return new Response(JSON.stringify({ error: 'Header X-File-Size é obrigatório.' }), {
         status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const MAX_BYTES = 100 * 1024 * 1024; // 100 MB
+    if (parseInt(fileSize) > MAX_BYTES) {
+      return new Response(JSON.stringify({ error: 'Arquivo muito grande. O limite é 100 MB.' }), {
+        status: 413,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }

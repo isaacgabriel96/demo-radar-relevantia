@@ -44,10 +44,21 @@ export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', origin || '*');
   }
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Método não permitido' });
+
+  // Autenticação: exige Bearer token (Supabase JWT) emitido pelo próprio app
+  const authHeader = req.headers.authorization || '';
+  const bearerToken = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : null;
+  if (!bearerToken) {
+    return res.status(401).json({ error: 'Não autenticado.' });
+  }
+  // Validação básica: JWT tem 3 partes separadas por ponto
+  if (bearerToken.split('.').length !== 3) {
+    return res.status(401).json({ error: 'Token inválido.' });
+  }
 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
