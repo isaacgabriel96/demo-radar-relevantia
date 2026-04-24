@@ -10100,14 +10100,11 @@ window.agPreencher = function() {
   // Esconde painel do agente
   document.getElementById('panel-agent').style.display = 'none';
 
-  // Avança currentStep para 2 para que nextStep(3) dentro de maybePreFillEdit() funcione corretamente
+  // maybePreFillEdit espera currentStep=2 para que nextStep(3) interno funcione
   currentStep = 2;
-
-  // Usa maybePreFillEdit que já existe na página — forceRun=true bypassa o guard de ?edit=
   maybePreFillEdit(true);
 
-  // Garante que template-specific-fields e cotas estejam renderizados
-  // (maybePreFillEdit navega para panel-2/Informações e não renderiza o step 2/Detalhes)
+  // Garante que template-specific-fields (panel-5) estejam renderizados com os dados do agente
   if (formState.selectedTemplate) {
     const tplContainer = document.getElementById('template-specific-fields');
     if (tplContainer) {
@@ -10119,44 +10116,13 @@ window.agPreencher = function() {
     }
   }
 
-  // Após preencher todos os dados, avançar para panel-3 com TODAS as seções visíveis
-  // para que o usuário possa revisar canais e oportunidades preenchidos pelo agente.
+  // Volta para o Step 1 — template já selecionado, todos os campos pré-preenchidos no DOM.
+  // O usuário percorre o formulário do início (1 → 2 → 3 → …) e não pula nenhum campo.
   const panels = document.querySelectorAll('[id^="panel-"]');
   panels.forEach(p => p.style.display = 'none');
-  const p3 = document.getElementById('panel-3');
-  if (p3) p3.style.display = 'block';
-
-  // Inicializa o preview do step 3 (s3Enter faz scroll e monta o preview)
-  s3Enter();
-
-  // Revela todas as sub-seções do panel-3 de uma vez (não progressivo)
-  const mkWrap            = document.getElementById('s3MediaKitWrap');
-  const marcaWrap         = document.getElementById('s3MarcaWrap');
-  const canaisWrap        = document.getElementById('s3CanaisWrap');
-  const oportunidadesWrap = document.getElementById('s3OportunidadesWrap');
-  const segInlineWrap     = document.getElementById('s3SegmentosInlineWrap');
-  if (mkWrap)            mkWrap.style.display            = 'block';
-  if (marcaWrap)         marcaWrap.style.display         = 'block';
-  if (canaisWrap)        canaisWrap.style.display        = 'block';
-  if (oportunidadesWrap) oportunidadesWrap.style.display = 'block';
-  if (segInlineWrap)     segInlineWrap.style.display     = 'block';
-
-  // Ativa todas as abas do panel-3 (remove s3-tab-disabled)
-  document.querySelectorAll('.detail-tab-btn').forEach(t => {
-    t.classList.remove('s3-tab-disabled', 'active');
-    t.removeAttribute('disabled');
-  });
-
-  // Atualiza botões de navegação para contexto "step 7" (todos visíveis)
-  const s3Actions = document.getElementById('s3StepActions');
-  if (s3Actions) {
-    s3Actions.innerHTML =
-      '<button class="btn btn-ghost" onclick="nextStep(3)">← Voltar</button>' +
-      '<button class="btn btn-primary" onclick="nextStep(8)">Próximo →</button>';
-  }
-
-  _updateProgressDots(7);
-  currentStep = 7;
+  document.getElementById('panel-1').style.display = 'block';
+  currentStep = 1;
+  _updateProgressDots(1);
   window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
