@@ -993,6 +993,22 @@ input[type=number] { -moz-appearance: textfield; }
 .pills-max-hint { font-size: 11px; color: var(--gray-3); margin-top: 6px; transition: color .2s, font-weight .2s; }
 .btn-trocar-pais { font-size: 11px; font-family: var(--font-body); font-weight: 500; padding: 3px 9px; border-radius: 20px; border: 1px solid var(--gray-2); background: transparent; color: var(--gray-3); cursor: pointer; white-space: nowrap; transition: all .15s; }
 .btn-trocar-pais:hover { border-color: var(--gray-3); color: var(--gray-4); }
+.entry-lbl { font-size: 12px; font-weight: 600; color: var(--gray-3); display: block; margin-bottom: 4px; }
+.entry-ac-wrap { position: relative; }
+.mdp { border: 1px solid var(--gray-1); border-radius: var(--radius-base); padding: 12px; }
+.mdp-hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.mdp-nav { background: none; border: none; cursor: pointer; font-size: 18px; width: 28px; height: 28px; border-radius: 6px; color: var(--gray-4); display: flex; align-items: center; justify-content: center; transition: background .1s; }
+.mdp-nav:hover { background: var(--gray-1); }
+.mdp-lbl { font-size: 13px; font-weight: 600; color: var(--gray-4); }
+.mdp-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; margin-bottom: 10px; }
+.mdp-dow { text-align: center; font-size: 10px; font-weight: 700; color: var(--gray-3); padding: 3px 0; }
+.mdp-day { text-align: center; font-size: 12px; padding: 5px 2px; border-radius: 5px; cursor: pointer; color: var(--gray-4); line-height: 1.4; transition: background .1s; }
+.mdp-day:hover { background: var(--gray-1); }
+.mdp-day.mdp-on { background: var(--gold-gradient); color: #fff; font-weight: 700; }
+.mdp-chips { display: flex; flex-wrap: wrap; gap: 5px; min-height: 22px; }
+.mdp-chip { display: inline-flex; align-items: center; gap: 3px; font-size: 11px; background: var(--gray-1); border-radius: 20px; padding: 3px 6px 3px 10px; color: var(--gray-4); }
+.mdp-chip button { background: none; border: none; cursor: pointer; color: var(--gray-3); font-size: 14px; padding: 0; line-height: 1; }
+.mdp-hint { font-size: 11px; color: var(--gray-3); }
 .pills-group .pill-opt {
   padding: 6px 14px; border-radius: var(--radius-pill);
   border: 1.5px solid var(--gray-2); background: var(--white);
@@ -4454,7 +4470,7 @@ const TEMPLATES = {
     ],
     fields: [
       {
-        id: 'datas-evento', label: 'Datas do evento', type: 'event-dates', fullWidth: true
+        id: 'datas-evento', label: 'Detalhes do evento', type: 'event-dates', fullWidth: true
       },
       {
         id: 'publico-esperado', label: 'Público esperado', type: 'select',
@@ -7424,6 +7440,7 @@ function _buildPlaceAutocomplete(input, opts) {
         const req = { input: q, sessionToken: token };
         if (opts?.types) req.includedPrimaryTypes = opts.types;
         if (input._acCountryCodes) req.includedRegionCodes = input._acCountryCodes;
+        if (input._acLocationBias) req.locationBias = input._acLocationBias;
         const { suggestions } = await AutocompleteSuggestion.fetchAutocompleteSuggestions(req);
         ul.innerHTML = '';
         if (!suggestions?.length) { ul.style.display = 'none'; return; }
@@ -7448,12 +7465,17 @@ function _buildPlaceAutocomplete(input, opts) {
                 lng: place.location?.lng() || null
               });
             } else {
-              await place.fetchFields({ fields: ['displayName', 'addressComponents'] });
+              await place.fetchFields({ fields: ['displayName', 'addressComponents', 'location'] });
               const city = place.addressComponents?.find(c =>
                 c.types.includes('locality') || c.types.includes('administrative_area_level_2')
               );
               selectedText = city ? city.longText : (place.displayName || '');
               input.value = selectedText;
+              opts.onSelect?.({
+                name: selectedText,
+                lat: place.location?.lat() || null,
+                lng: place.location?.lng() || null
+              });
             }
             chipText.textContent = selectedText;
             chip.style.display = 'flex';
@@ -7560,33 +7582,174 @@ function _getFirstEntryPaisLabel() {
   return sel ? (sel.options[sel.selectedIndex]?.text || '') : '';
 }
 
+function _getEntryPaisIso(entry) {
+  const firstSel = entry.querySelector('.event-pais-select');
+  if (firstSel) return firstSel.value || null;
+  const overrideWrap = entry.querySelector('.event-pais-override');
+  if (overrideWrap && overrideWrap.style.display !== 'none') {
+    return entry.querySelector('.event-pais-override-select')?.value || null;
+  }
+  return _getFirstEntryPaisVal() || null;
+}
+
+function _clearAcField(input) {
+  if (!input) return;
+  if (input._acChip) input._acChip.style.display = 'none';
+  input.style.display = '';
+  input.value = '';
+  if ('_acLocationBias' in input) input._acLocationBias = null;
+}
+
 function syncEventPais(select) {
-  const label = select.options[select.selectedIndex]?.text || '';
   const val = select.value;
+  const label = select.options[select.selectedIndex]?.text || '';
   document.querySelectorAll('#event-entries-list .event-entry').forEach((entry, i) => {
-    if (i === 0) return;
-    const badge = entry.querySelector('.event-pais-badge');
-    const overrideSel = entry.querySelector('.event-pais-override-select');
-    if (badge) badge.textContent = label;
-    // Se override não estiver ativo, sincroniza o select oculto também
-    const overrideWrap = entry.querySelector('.event-pais-override');
-    if (overrideWrap && overrideWrap.style.display === 'none' && overrideSel) {
-      overrideSel.value = val;
+    if (i === 0) {
+      const ci = entry.querySelector('.event-cidade-input');
+      const ve = entry.querySelector('.event-venue-input');
+      if (ci) { ci._acCountryCodes = val ? [val] : null; _clearAcField(ci); }
+      if (ve) { ve._acCountryCodes = val ? [val] : null; _clearAcField(ve); }
+    } else {
+      const badge = entry.querySelector('.event-pais-badge');
+      if (badge) badge.textContent = label;
+      const overrideWrap = entry.querySelector('.event-pais-override');
+      const overrideSel = entry.querySelector('.event-pais-override-select');
+      if (overrideWrap && overrideWrap.style.display === 'none') {
+        if (overrideSel) overrideSel.value = val;
+        const ci = entry.querySelector('.event-cidade-input');
+        const ve = entry.querySelector('.event-venue-input');
+        if (ci) ci._acCountryCodes = val ? [val] : null;
+        if (ve) ve._acCountryCodes = val ? [val] : null;
+      }
     }
   });
 }
 
 function trocarEventPais(btn) {
   const row = btn.closest('.event-pais-row');
+  const entry = btn.closest('.event-entry');
   const overrideWrap = row.querySelector('.event-pais-override');
-  const badge = row.querySelector('.event-pais-badge');
-  const syncedVal = _getFirstEntryPaisVal();
+  const badgeRow = row.querySelector('.event-pais-badge-row');
   if (overrideWrap) {
     const sel = overrideWrap.querySelector('.event-pais-override-select');
+    if (sel && !sel._trocarListened) {
+      sel._trocarListened = true;
+      sel.addEventListener('change', () => {
+        const iso = sel.value;
+        const ci = entry.querySelector('.event-cidade-input');
+        const ve = entry.querySelector('.event-venue-input');
+        if (ci) { ci._acCountryCodes = iso ? [iso] : null; _clearAcField(ci); }
+        if (ve) { ve._acCountryCodes = iso ? [iso] : null; _clearAcField(ve); }
+      });
+    }
+    const syncedVal = _getFirstEntryPaisVal();
     if (sel && syncedVal) sel.value = syncedVal;
     overrideWrap.style.display = '';
   }
-  if (badge) badge.parentElement.style.display = 'none';
+  if (badgeRow) badgeRow.style.display = 'none';
+}
+
+// ── Multi-date picker ──────────────────────────────
+let _mdpC = 0;
+const _mdpS = {};
+const _MN = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+function _mdpNew(slot, savedDates) {
+  const id = ++_mdpC;
+  const now = new Date();
+  _mdpS[id] = { y: now.getFullYear(), m: now.getMonth(), d: new Set(Array.isArray(savedDates) ? savedDates : []) };
+  const wrap = document.createElement('div');
+  wrap.className = 'mdp';
+  wrap.dataset.mid = id;
+  wrap.innerHTML = `
+    <div class="mdp-hd">
+      <button type="button" class="mdp-nav" onclick="mdpGo(this,-1)">&#8249;</button>
+      <span class="mdp-lbl"></span>
+      <button type="button" class="mdp-nav" onclick="mdpGo(this,1)">&#8250;</button>
+    </div>
+    <div class="mdp-grid"></div>
+    <div class="mdp-chips"></div>
+    <input type="hidden" class="event-datas-hidden">
+  `;
+  slot.appendChild(wrap);
+  _mdpDraw(wrap);
+}
+
+function _mdpGet(el) { return el.closest('[data-mid]'); }
+
+function _mdpDraw(mdp) {
+  const s = _mdpS[mdp.dataset.mid];
+  if (!s) return;
+  mdp.querySelector('.mdp-lbl').textContent = `${_MN[s.m]} ${s.y}`;
+  const fd = new Date(s.y, s.m, 1).getDay();
+  const dim = new Date(s.y, s.m + 1, 0).getDate();
+  const dows = ['D','S','T','Q','Q','S','S'];
+  let g = dows.map(d => `<div class="mdp-dow">${d}</div>`).join('');
+  for (let i = 0; i < fd; i++) g += '<div></div>';
+  for (let d = 1; d <= dim; d++) {
+    const ds = `${s.y}-${String(s.m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    g += `<div class="mdp-day${s.d.has(ds)?' mdp-on':''}" data-ds="${ds}" onclick="mdpPick(this)">${d}</div>`;
+  }
+  mdp.querySelector('.mdp-grid').innerHTML = g;
+  const sorted = [...s.d].sort();
+  mdp.querySelector('.mdp-chips').innerHTML = sorted.length
+    ? sorted.map(ds => { const [y,mo,dy]=ds.split('-'); return `<span class="mdp-chip">${dy}/${mo}/${y}<button type="button" onclick="mdpRm(this,'${ds}')">&#215;</button></span>`; }).join('')
+    : '<span class="mdp-hint">Clique nas datas acima para selecionar</span>';
+  const hi = mdp.querySelector('.event-datas-hidden');
+  if (hi) hi.value = JSON.stringify(sorted);
+}
+
+function mdpGo(btn, dir) {
+  const mdp = _mdpGet(btn);
+  if (!mdp) return;
+  const s = _mdpS[mdp.dataset.mid];
+  if (!s) return;
+  s.m += dir;
+  if (s.m < 0) { s.m = 11; s.y--; }
+  if (s.m > 11) { s.m = 0; s.y++; }
+  _mdpDraw(mdp);
+}
+
+function mdpPick(cell) {
+  const mdp = _mdpGet(cell);
+  if (!mdp) return;
+  const s = _mdpS[mdp.dataset.mid];
+  if (!s) return;
+  const ds = cell.dataset.ds;
+  if (s.d.has(ds)) s.d.delete(ds); else s.d.add(ds);
+  _mdpDraw(mdp);
+}
+
+function mdpRm(btn, ds) {
+  const mdp = _mdpGet(btn);
+  if (!mdp) return;
+  const s = _mdpS[mdp.dataset.mid];
+  if (!s) return;
+  s.d.delete(ds);
+  _mdpDraw(mdp);
+}
+
+// ── Maps autocomplete por entrada ──────────────────
+function _attachEntryCidade(entry) {
+  const input = entry.querySelector('.event-cidade-input');
+  if (!input) return;
+  const paisIso = _getEntryPaisIso(entry);
+  if (paisIso) input._acCountryCodes = [paisIso];
+  _buildPlaceAutocomplete(input, {
+    types: ['locality', 'administrative_area_level_2'],
+    onSelect: p => {
+      const ve = entry.querySelector('.event-venue-input');
+      if (ve && p.lat && p.lng) ve._acLocationBias = { center: { lat: p.lat, lng: p.lng }, radius: 50000 };
+    }
+  });
+}
+
+function _attachEntryVenue(entry) {
+  const input = entry.querySelector('.event-venue-input');
+  if (!input) return;
+  const paisIso = _getEntryPaisIso(entry);
+  if (paisIso) input._acCountryCodes = [paisIso];
+  _buildPlaceAutocomplete(input, { fullAddress: true });
 }
 
 function addEventEntry(opts) {
@@ -7595,13 +7758,13 @@ function addEventEntry(opts) {
   const isFirst = list.children.length === 0;
   const div = document.createElement('div');
   div.className = 'event-entry';
-  div.style.cssText = 'margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--gray-1)';
+  div.style.cssText = 'margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--gray-1)';
 
   let paisHtml = '';
   if (isFirst) {
     paisHtml = `
-      <div class="event-pais-row" style="margin-top:2px">
-        <label style="font-size:12px;font-weight:600;color:var(--gray-3);display:block;margin-bottom:4px">País</label>
+      <div class="event-pais-row">
+        <label class="entry-lbl">País</label>
         <select class="form-control event-pais-select" onchange="syncEventPais(this)" required>
           <option value="">Selecione o país</option>
           ${_getPaisOpts(opts?.pais || '')}
@@ -7611,9 +7774,9 @@ function addEventEntry(opts) {
     const syncedLabel = _getFirstEntryPaisLabel();
     const syncedVal = _getFirstEntryPaisVal();
     paisHtml = `
-      <div class="event-pais-row" style="margin-top:2px">
+      <div class="event-pais-row">
         <div class="event-pais-badge-row" style="display:flex;align-items:center;gap:8px">
-          <span class="event-pais-badge" style="font-size:12px;color:var(--gray-4);font-weight:500">${syncedLabel || 'País não selecionado'}</span>
+          <span class="entry-lbl" style="margin:0;font-weight:500;color:var(--gray-4)">${syncedLabel || '—'}</span>
           <button type="button" class="btn-trocar-pais" onclick="trocarEventPais(this)">Trocar país</button>
         </div>
         <div class="event-pais-override" style="display:none;margin-top:6px">
@@ -7627,62 +7790,42 @@ function addEventEntry(opts) {
 
   div.innerHTML = `
     <div style="display:flex;gap:10px;align-items:flex-start">
-      <div style="flex:1;display:flex;flex-direction:column;gap:8px">
-        <div style="display:flex;gap:8px">
-          <input type="date" class="form-control event-data-input" style="flex:2" required>
-          <div style="flex:1;display:flex;flex-direction:column;gap:2px">
-            <input type="time" class="form-control event-hora-inicio" title="Horário de início">
-            <input type="time" class="form-control event-hora-fim" title="Horário de término">
-          </div>
-        </div>
-        <input type="text" class="form-control event-cidade-input" placeholder="Cidade (ex: São Paulo)">
-        <input type="text" class="form-control event-venue-input" placeholder="Venue (ex: Estádio do Morumbi)">
+      <div style="flex:1;display:flex;flex-direction:column;gap:10px">
         ${paisHtml}
+        <div>
+          <label class="entry-lbl">Cidade</label>
+          <div class="entry-ac-wrap"><input type="text" class="form-control event-cidade-input" placeholder="Buscar cidade..."></div>
+        </div>
+        <div>
+          <label class="entry-lbl">Local / Venue</label>
+          <div class="entry-ac-wrap"><input type="text" class="form-control event-venue-input" placeholder="Nome do local ou venue..."></div>
+        </div>
+        <div>
+          <label class="entry-lbl">Datas</label>
+          <div class="mdp-slot"></div>
+        </div>
       </div>
-      <button type="button" onclick="this.closest('.event-entry').remove()" style="background:none;border:none;cursor:pointer;color:var(--gray-3);font-size:18px;padding:8px;flex-shrink:0;line-height:1;margin-top:2px">✕</button>
+      <button type="button" onclick="this.closest('.event-entry').remove()" style="background:none;border:none;cursor:pointer;color:var(--gray-3);font-size:18px;padding:8px;flex-shrink:0;line-height:1">&#215;</button>
     </div>
   `;
   list.appendChild(div);
-  if (opts) {
-    const d = div.querySelector('.event-data-input');
-    const hi = div.querySelector('.event-hora-inicio');
-    const hf = div.querySelector('.event-hora-fim');
-    const ci = div.querySelector('.event-cidade-input');
-    const ve = div.querySelector('.event-venue-input');
-    if (d && opts.data) d.value = opts.data;
-    if (hi && opts.horaInicio) hi.value = opts.horaInicio;
-    if (hf && opts.horaFim) hf.value = opts.horaFim;
-    if (ci && opts.cidade) ci.value = opts.cidade;
-    if (ve && opts.venue) ve.value = opts.venue;
-  }
-  const venueInput = div.querySelector('.event-venue-input');
-  if (venueInput) _loadMapsScript(() => _attachEventLocalAutocomplete(venueInput));
-}
 
-function _attachEventLocalAutocomplete(input) {
-  _buildPlaceAutocomplete(input, { fullAddress: true });
+  if (opts?.cidade) div.querySelector('.event-cidade-input').value = opts.cidade;
+  if (opts?.venue) div.querySelector('.event-venue-input').value = opts.venue;
+
+  _mdpNew(div.querySelector('.mdp-slot'), opts?.datas || []);
+  _loadMapsScript(() => { _attachEntryCidade(div); _attachEntryVenue(div); });
 }
 
 function _collectEventEntries() {
   const result = [];
-  document.querySelectorAll('#event-entries-list .event-entry').forEach((entry, i) => {
-    const d = entry.querySelector('.event-data-input')?.value || '';
-    const horaInicio = entry.querySelector('.event-hora-inicio')?.value || '';
-    const horaFim = entry.querySelector('.event-hora-fim')?.value || '';
+  document.querySelectorAll('#event-entries-list .event-entry').forEach(entry => {
     const cidade = entry.querySelector('.event-cidade-input')?.value || '';
     const venue = entry.querySelector('.event-venue-input')?.value || '';
-    let pais = '';
-    if (i === 0) {
-      pais = entry.querySelector('.event-pais-select')?.value || '';
-    } else {
-      const overrideWrap = entry.querySelector('.event-pais-override');
-      if (overrideWrap && overrideWrap.style.display !== 'none') {
-        pais = entry.querySelector('.event-pais-override-select')?.value || '';
-      } else {
-        pais = _getFirstEntryPaisVal();
-      }
-    }
-    if (d || cidade || venue) result.push({ data: d, horaInicio, horaFim, cidade, venue, pais });
+    let datas = [];
+    try { datas = JSON.parse(entry.querySelector('.event-datas-hidden')?.value || '[]'); } catch {}
+    const pais = _getEntryPaisIso(entry) || '';
+    if (pais || cidade || venue || datas.length) result.push({ pais, cidade, venue, datas });
   });
   return result;
 }
