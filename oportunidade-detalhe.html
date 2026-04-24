@@ -1397,6 +1397,14 @@ a { text-decoration: none; color: inherit; }
           </div>
         </div>
 
+        <!-- Campanha (opcional) -->
+        <div class="form-group" id="modal-campanha-group" style="display:none">
+          <label class="form-label">Campanha <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--gray-300)">(opcional)</span></label>
+          <select class="form-select" id="modalCampanhaSelect">
+            <option value="">Sem campanha</option>
+          </select>
+        </div>
+
         <!-- Assunto -->
         <div>
           <span class="subject-label">Assunto</span>
@@ -1556,7 +1564,7 @@ async function fetchOppFromSupabase(idOrPerfilSlug, oppSlug) {
       // Template fields
       'Formato': '🎯', 'Transmissão prevista': '📡', 'Transmissão': '📡',
       'Plataformas': '💻', 'Capacidade': '👥', 'Público esperado': '👥',
-      'Local': '📍', 'Cidade': '📍', 'Modalidade': '🎫',
+      'Local': '📍', 'Cidade': '📍', 'Local do evento': '📍', 'Modalidade': '🎫',
       'Formatos comerciais disponíveis': '📢', 'Formatos comerciais': '📢',
       // Preview fields (chaves técnicas lowercase)
       'demografico': '📊', 'entregas': '🤝',
@@ -3323,8 +3331,40 @@ function openModal() {
   var btn = document.getElementById('btn-submit');
   if (btn) btn.disabled = true;
 
+  // carrega campanhas da marca logada
+  _loadCampanhasModal();
+
   document.getElementById('modal-overlay').classList.add('open');
   document.body.style.overflow = 'hidden';
+}
+
+async function _loadCampanhasModal() {
+  var campGrp = document.getElementById('modal-campanha-group');
+  var campSel = document.getElementById('modalCampanhaSelect');
+  if (!campGrp || !campSel) return;
+
+  var session = typeof getSessionAsync === 'function' ? await getSessionAsync('brand') : (typeof getSession === 'function' ? getSession('brand') : null);
+  var marcaId = session && session.user ? session.user.id : null;
+  if (!marcaId) { campGrp.style.display = 'none'; return; }
+
+  try {
+    var token = session.access_token;
+    var res = await fetch(SUPABASE_URL + '/rest/v1/campanhas?select=id,nome,status&marca_id=eq.' + marcaId + '&order=created_at.desc', {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + token }
+    });
+    var data = res.ok ? await res.json() : [];
+    campSel.innerHTML = '<option value="">Sem campanha</option>' +
+      (data.length ? data.map(function(c) {
+        return '<option value="' + c.id + '">' + c.nome + '</option>';
+      }).join('') : '') +
+      '<option value="__nova">+ Criar nova campanha</option>';
+    campGrp.style.display = '';
+    campSel.onchange = function() {
+      if (campSel.value === '__nova') { campSel.value = ''; openCriarCampanhaInline(); }
+    };
+  } catch(e) {
+    campGrp.style.display = 'none';
+  }
 }
 
 function closeModal() {
@@ -3380,6 +3420,9 @@ async function submitModal() {
     return;
   }
 
+  var campanhaSel = document.getElementById('modalCampanhaSelect');
+  var campanhaId = (campanhaSel && campanhaSel.value && campanhaSel.value !== '__nova') ? campanhaSel.value : null;
+
   // Build negociacao payload
   var neg = {
     oportunidade_id: _CURRENT_OPP.id,
@@ -3390,6 +3433,7 @@ async function submitModal() {
     incentivo_fiscal: incentivoFiscal,
     status: 'pendente'
   };
+  if (campanhaId) neg.campanha_id = campanhaId;
 
   console.log('[submitModal] Creating negociacao:', JSON.stringify(neg));
 
@@ -3431,6 +3475,115 @@ async function submitModal() {
     console.error('[submitModal] Failed:', err);
     if (btn) btn.disabled = false;
     if (typeof showToast === 'function') showToast('Erro ao enviar. Tente novamente.', 'error');
+  }
+}
+
+/* ─── CRIAR CAMPANHA INLINE (a partir do modal de interesse) ─── */
+function openCriarCampanhaInline() {
+  // Cria overlay simples sobre o modal principal
+  var existing = document.getElementById('mini-campanha-overlay');
+  if (existing) { existing.style.display = 'flex'; return; }
+
+  var overlay = document.createElement('div');
+  overlay.id = 'mini-campanha-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(30,22,0,0.55);backdrop-filter:blur(4px);z-index:600;display:flex;align-items:center;justify-content:center;padding:20px';
+  overlay.innerHTML = `
+    <div style="background:var(--white);border-radius:var(--radius-lg);width:100%;max-width:440px;box-shadow:0 24px 60px rgba(30,22,0,0.18);overflow:hidden">
+      <div style="padding:20px 24px 0;display:flex;align-items:center;justify-content:space-between">
+        <div style="font-family:var(--font-heading);font-size:16px;font-weight:600;color:var(--black)">Nova campanha</div>
+        <button onclick="document.getElementById('mini-campanha-overlay').style.display='none'" style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--gray-3);line-height:1">✕</button>
+      </div>
+      <div style="padding:20px 24px 24px;display:flex;flex-direction:column;gap:14px">
+        <div>
+          <label style="display:block;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--gray-4);margin-bottom:6px">Nome <span style="color:#e53e3e">*</span></label>
+          <input id="nc-nome" type="text" placeholder="Ex: Campanha Q2 2026" style="width:100%;border:1.5px solid var(--gray-2);border-radius:var(--radius-base);padding:10px 12px;font-size:14px;font-family:var(--font-body);color:var(--black);outline:none;box-sizing:border-box" oninput="document.getElementById('nc-btn').disabled=!this.value.trim()">
+        </div>
+        <div>
+          <label style="display:block;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--gray-4);margin-bottom:6px">Objetivo <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--gray-3)">(opcional)</span></label>
+          <input id="nc-descricao" type="text" placeholder="Ex: Brand awareness Q2" style="width:100%;border:1.5px solid var(--gray-2);border-radius:var(--radius-base);padding:10px 12px;font-size:14px;font-family:var(--font-body);color:var(--black);outline:none;box-sizing:border-box">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div>
+            <label style="display:block;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--gray-4);margin-bottom:6px">Budget total <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--gray-3)">(R$)</span></label>
+            <input id="nc-budget" type="number" min="0" placeholder="0" style="width:100%;border:1.5px solid var(--gray-2);border-radius:var(--radius-base);padding:10px 12px;font-size:14px;font-family:var(--font-body);color:var(--black);outline:none;box-sizing:border-box">
+          </div>
+          <div>
+            <label style="display:block;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--gray-4);margin-bottom:6px">Status</label>
+            <select id="nc-status" style="width:100%;border:1.5px solid var(--gray-2);border-radius:var(--radius-base);padding:10px 12px;font-size:14px;font-family:var(--font-body);color:var(--black);outline:none;box-sizing:border-box;background:var(--white)">
+              <option value="planejamento">Planejamento</option>
+              <option value="ativa">Ativa</option>
+              <option value="concluida">Concluída</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div>
+            <label style="display:block;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--gray-4);margin-bottom:6px">Início</label>
+            <input id="nc-inicio" type="date" style="width:100%;border:1.5px solid var(--gray-2);border-radius:var(--radius-base);padding:10px 12px;font-size:14px;font-family:var(--font-body);color:var(--black);outline:none;box-sizing:border-box">
+          </div>
+          <div>
+            <label style="display:block;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--gray-4);margin-bottom:6px">Fim</label>
+            <input id="nc-fim" type="date" style="width:100%;border:1.5px solid var(--gray-2);border-radius:var(--radius-base);padding:10px 12px;font-size:14px;font-family:var(--font-body);color:var(--black);outline:none;box-sizing:border-box">
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:4px">
+          <button onclick="document.getElementById('mini-campanha-overlay').style.display='none'" style="flex:1;padding:11px;border-radius:100px;border:1.5px solid var(--gray-2);background:none;font-size:14px;font-weight:500;font-family:var(--font-body);cursor:pointer;color:var(--gray-4)">Cancelar</button>
+          <button id="nc-btn" disabled onclick="_salvarNovaCampanha()" style="flex:2;padding:11px;border-radius:100px;border:none;background:var(--black);color:var(--white);font-size:14px;font-weight:600;font-family:var(--font-body);cursor:pointer;opacity:0.4;transition:opacity .2s" onmouseenter="if(!this.disabled)this.style.opacity='.85'" onmouseleave="this.style.opacity=this.disabled?'.4':'1'">Criar campanha</button>
+        </div>
+      </div>
+    </div>
+  `;
+  // habilita botão quando nome preenchido
+  overlay.querySelector('#nc-btn').style.opacity = '0.4';
+  document.body.appendChild(overlay);
+}
+
+async function _salvarNovaCampanha() {
+  var btn = document.getElementById('nc-btn');
+  if (btn) btn.disabled = true;
+
+  var session = typeof getSessionAsync === 'function' ? await getSessionAsync('brand') : (typeof getSession === 'function' ? getSession('brand') : null);
+  var marcaId = session && session.user ? session.user.id : null;
+  if (!marcaId) return;
+
+  var nome = (document.getElementById('nc-nome') || {}).value || '';
+  if (!nome.trim()) return;
+
+  var payload = {
+    marca_id: marcaId,
+    nome: nome.trim(),
+    descricao: (document.getElementById('nc-descricao') || {}).value || null,
+    budget_total: parseFloat((document.getElementById('nc-budget') || {}).value) || null,
+    status: (document.getElementById('nc-status') || {}).value || 'planejamento',
+    data_inicio: (document.getElementById('nc-inicio') || {}).value || null,
+    data_fim: (document.getElementById('nc-fim') || {}).value || null
+  };
+
+  try {
+    var res = await fetch(SUPABASE_URL + '/rest/v1/campanhas', {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + session.access_token, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
+      body: JSON.stringify(payload)
+    });
+    var data = res.ok ? await res.json() : null;
+    if (data && data[0]) {
+      // Fecha overlay e seleciona a nova campanha no select principal
+      document.getElementById('mini-campanha-overlay').style.display = 'none';
+      var sel = document.getElementById('modalCampanhaSelect');
+      if (sel) {
+        var opt = document.createElement('option');
+        opt.value = data[0].id;
+        opt.textContent = data[0].nome;
+        // Insere antes da opção "+ Criar nova campanha"
+        var novaOpt = sel.querySelector('option[value="__nova"]');
+        sel.insertBefore(opt, novaOpt);
+        sel.value = data[0].id;
+      }
+      if (typeof showToast === 'function') showToast('Campanha criada!', 'success');
+    }
+  } catch(e) {
+    if (typeof showToast === 'function') showToast('Erro ao criar campanha.', 'error');
+    if (btn) btn.disabled = false;
   }
 }
 

@@ -3566,7 +3566,35 @@ input[type=number] { -moz-appearance: textfield; }
         </div>
 
         <!-- Localização -->
-        <div class="grid-2">
+        <div class="form-group">
+          <label>País</label>
+          <select class="form-control" id="opp-pais" onchange="toggleOppLocBrasil()">
+            <option value="Brasil" selected>🇧🇷 Brasil</option>
+            <option value="Estados Unidos">🇺🇸 Estados Unidos</option>
+            <option value="Portugal">🇵🇹 Portugal</option>
+            <option value="Argentina">🇦🇷 Argentina</option>
+            <option value="Espanha">🇪🇸 Espanha</option>
+            <option value="Reino Unido">🇬🇧 Reino Unido</option>
+            <option value="França">🇫🇷 França</option>
+            <option value="Alemanha">🇩🇪 Alemanha</option>
+            <option value="Itália">🇮🇹 Itália</option>
+            <option value="México">🇲🇽 México</option>
+            <option value="Colômbia">🇨🇴 Colômbia</option>
+            <option value="Chile">🇨🇱 Chile</option>
+            <option value="Uruguai">🇺🇾 Uruguai</option>
+            <option value="Paraguai">🇵🇾 Paraguai</option>
+            <option value="Peru">🇵🇪 Peru</option>
+            <option value="Equador">🇪🇨 Equador</option>
+            <option value="Japão">🇯🇵 Japão</option>
+            <option value="China">🇨🇳 China</option>
+            <option value="Austrália">🇦🇺 Austrália</option>
+            <option value="Canadá">🇨🇦 Canadá</option>
+            <option value="África do Sul">🇿🇦 África do Sul</option>
+            <option value="Emirados Árabes">🇦🇪 Emirados Árabes</option>
+            <option value="Outro">Outro país</option>
+          </select>
+        </div>
+        <div class="grid-2" id="opp-estado-wrap">
           <div class="form-group">
             <label>Estado <span class="required">*</span></label>
             <select class="form-control" id="opp-estado" onchange="updateOppCidades(this.value)">
@@ -3606,6 +3634,10 @@ input[type=number] { -moz-appearance: textfield; }
               <option value="" disabled selected>Selecione o estado primeiro</option>
             </select>
           </div>
+        </div>
+        <div class="form-group" id="opp-cidade-intl-wrap" style="display:none">
+          <label>Cidade</label>
+          <input type="text" class="form-control" id="opp-cidade-intl" placeholder="Ex: Miami, Florida" autocomplete="off">
         </div>
 
         <div class="form-group">
@@ -4440,6 +4472,13 @@ const TEMPLATES = {
       },
       {
         id: 'datas-evento', label: 'Datas do evento', type: 'event-dates', fullWidth: true
+      },
+      {
+        id: 'local-evento', label: 'Local do evento', type: 'text', fullWidth: true,
+        placeholder: 'Ex: Estádio do Morumbi, São Paulo'
+      },
+      {
+        id: 'local-evento-place', label: '', type: 'hidden'
       },
       {
         id: 'publico-esperado', label: 'Público esperado', type: 'select',
@@ -5372,7 +5411,7 @@ function renderTemplateFields(key) {
     const nextF = fields[i + 1];
 
     // Tipos que são sempre full-width e renderizam seus próprios containers
-    const alwaysFullWidth = ['event-dates','section-heading','presential-audience-toggle','presential-age-ranges'];
+    const alwaysFullWidth = ['event-dates','section-heading','presential-audience-toggle','presential-age-ranges','hidden'];
     if (alwaysFullWidth.includes(f.type)) {
       html += buildFieldHtml(f, true);
       i++;
@@ -5409,6 +5448,8 @@ function renderTemplateFields(key) {
         });
       }
     }
+    // Google Maps Places Autocomplete para local do evento
+    _initLocalEventoMaps();
   }
 
   // Aplica detalhes e cotas pendentes (modo edição)
@@ -5588,6 +5629,8 @@ function buildFieldHtml(f, fullWidth) {
         </div>
       </div>
     </div>`;
+  } else if (f.type === 'hidden') {
+    return `<input type="hidden" id="${f.id}">`;
   } else if (f.type === 'section-heading') {
     // Separador visual entre seções no formulário do template
     return `<div class="form-group full-width" style="margin-top:8px;margin-bottom:-4px">
@@ -5732,12 +5775,22 @@ function collectFormData() {
   // Informações básicas
   data.nome = document.getElementById('opp-nome')?.value || '';
   data.desc = document.getElementById('opp-desc')?.value || '';
+  const paisEl = document.getElementById('opp-pais');
+  data.pais = paisEl?.value || 'Brasil';
+  const isBrasil = data.pais === 'Brasil';
   const estadoEl = document.getElementById('opp-estado');
   const cidadeEl = document.getElementById('opp-cidade');
-  data.estado = estadoEl?.options[estadoEl.selectedIndex]?.text || '';
-  data.cidade = cidadeEl?.value || '';
+  data.estado = isBrasil ? (estadoEl?.options[estadoEl.selectedIndex]?.text || '') : '';
   if (data.estado === 'Selecione o estado') data.estado = '';
-  data.location = [data.cidade, data.estado].filter(Boolean).join(' — ') || '';
+  data.cidade = isBrasil
+    ? (cidadeEl?.value || '')
+    : (document.getElementById('opp-cidade-intl')?.value.trim() || '');
+  data.local_evento = document.getElementById('local-evento')?.value || '';
+  try { data.local_evento_place = JSON.parse(document.getElementById('local-evento-place')?.value || ''); }
+  catch { data.local_evento_place = null; }
+  data.location = isBrasil
+    ? [data.cidade, data.estado].filter(Boolean).join(' — ')
+    : [data.cidade, data.pais].filter(Boolean).join(', ');
   const abrangenciaEl = document.getElementById('opp-abrangencia');
   data.abrangencia = abrangenciaEl?.options[abrangenciaEl.selectedIndex]?.text || '';
   if (data.abrangencia === 'Selecione…') data.abrangencia = '';
@@ -7316,6 +7369,52 @@ const CIDADES = {
   TO: ['Palmas','Araguaína','Gurupi','Porto Nacional','Paraíso do Tocantins','Outra cidade']
 };
 
+function toggleOppLocBrasil() {
+  const pais = document.getElementById('opp-pais')?.value;
+  const isBrasil = !pais || pais === 'Brasil';
+  const estadoWrap = document.getElementById('opp-estado-wrap');
+  const intlWrap   = document.getElementById('opp-cidade-intl-wrap');
+  if (estadoWrap) estadoWrap.style.display = isBrasil ? '' : 'none';
+  if (intlWrap)   intlWrap.style.display   = isBrasil ? 'none' : '';
+}
+
+function _initLocalEventoMaps() {
+  const input = document.getElementById('local-evento');
+  if (!input) return;
+  if (!window.google || !window.google.maps || !window.google.maps.places) {
+    // Carrega o script se ainda não foi carregado
+    if (!document.getElementById('gmaps-script')) {
+      const s = document.createElement('script');
+      s.id = 'gmaps-script';
+      s.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyAGS3ubOJYGLpwrG30J8tRWToG-vR4vWpM&libraries=places';
+      s.async = true;
+      s.defer = true;
+      s.onload = () => _attachLocalEventoAutocomplete();
+      document.head.appendChild(s);
+    }
+    return;
+  }
+  _attachLocalEventoAutocomplete();
+}
+
+function _attachLocalEventoAutocomplete() {
+  const input = document.getElementById('local-evento');
+  if (!input || !window.google) return;
+  const ac = new google.maps.places.Autocomplete(input, {
+    fields: ['name', 'formatted_address', 'geometry']
+  });
+  ac.addListener('place_changed', () => {
+    const p = ac.getPlace();
+    const hidden = document.getElementById('local-evento-place');
+    if (hidden) hidden.value = JSON.stringify({
+      name: p.name || '',
+      address: p.formatted_address || '',
+      lat: p.geometry?.location?.lat() || null,
+      lng: p.geometry?.location?.lng() || null
+    });
+  });
+}
+
 function updateOppCidades(uf) {
   const sel = document.getElementById('opp-cidade');
   if (!sel) return;
@@ -8162,13 +8261,17 @@ function collectOppData() {
   const desc = document.getElementById('opp-desc')?.value?.trim() || '';
   const objetivos = (quillObjetivos && quillObjetivos.root.innerHTML !== '<p><br></p>') ? quillObjetivos.root.innerHTML : '';
   const buscaMarca = document.getElementById('opp-busca-marca')?.value?.trim() || '';
+  const paisReview = document.getElementById('opp-pais')?.value || 'Brasil';
+  const isBrasilReview = paisReview === 'Brasil';
   const estadoEl = document.getElementById('opp-estado');
   const cidadeEl = document.getElementById('opp-cidade');
   const estadoVal = estadoEl?.options[estadoEl.selectedIndex]?.text || '';
-  const cidadeVal = cidadeEl?.value || '';
-  const localizacao = (cidadeVal && cidadeVal !== 'Selecione…')
-    ? cidadeVal + ', ' + (estadoEl?.value || '') + ' — Brasil'
-    : (estadoVal && estadoVal !== 'Selecione…') ? estadoVal + ' — Brasil' : '';
+  const cidadeVal = isBrasilReview
+    ? (cidadeEl?.value || '')
+    : (document.getElementById('opp-cidade-intl')?.value.trim() || '');
+  const localizacao = isBrasilReview
+    ? ((cidadeVal && cidadeVal !== 'Selecione…') ? cidadeVal + ', ' + (estadoEl?.value || '') + ' — Brasil' : (estadoVal && estadoVal !== 'Selecione…') ? estadoVal + ' — Brasil' : '')
+    : [cidadeVal, paisReview].filter(Boolean).join(', ');
   const abrangenciaEl = document.getElementById('opp-abrangencia');
   const alcance = abrangenciaEl?.options[abrangenciaEl.selectedIndex]?.text || '';
   if (alcance === 'Selecione…') alcance_clean = ''; else alcance_clean = alcance;
@@ -8287,7 +8390,7 @@ function collectOppData() {
   }
 
   // Detalhes específicos do template
-  const SKIP_TYPES = new Set(['section-heading','presential-audience-toggle','presential-age-ranges']);
+  const SKIP_TYPES = new Set(['section-heading','presential-audience-toggle','presential-age-ranges','hidden']);
   const detalhes = {};
   if (tpl && tpl.fields) {
     tpl.fields.forEach(f => {

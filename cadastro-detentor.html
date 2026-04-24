@@ -494,6 +494,38 @@ select:disabled { background: var(--gray-1); color: var(--gray-5); cursor: not-a
       </div>
 
       <div class="form-row">
+        <div class="form-group" style="flex:1 1 100%">
+          <label>País <span class="req">*</span></label>
+          <div class="select-wrap">
+            <select id="f-pais" onchange="toggleLocBrasil()">
+              <option value="Brasil" selected>🇧🇷 Brasil</option>
+              <option value="Estados Unidos">🇺🇸 Estados Unidos</option>
+              <option value="Portugal">🇵🇹 Portugal</option>
+              <option value="Argentina">🇦🇷 Argentina</option>
+              <option value="Espanha">🇪🇸 Espanha</option>
+              <option value="Reino Unido">🇬🇧 Reino Unido</option>
+              <option value="França">🇫🇷 França</option>
+              <option value="Alemanha">🇩🇪 Alemanha</option>
+              <option value="Itália">🇮🇹 Itália</option>
+              <option value="México">🇲🇽 México</option>
+              <option value="Colômbia">🇨🇴 Colômbia</option>
+              <option value="Chile">🇨🇱 Chile</option>
+              <option value="Uruguai">🇺🇾 Uruguai</option>
+              <option value="Paraguai">🇵🇾 Paraguai</option>
+              <option value="Peru">🇵🇪 Peru</option>
+              <option value="Equador">🇪🇨 Equador</option>
+              <option value="Japão">🇯🇵 Japão</option>
+              <option value="China">🇨🇳 China</option>
+              <option value="Austrália">🇦🇺 Austrália</option>
+              <option value="Canadá">🇨🇦 Canadá</option>
+              <option value="África do Sul">🇿🇦 África do Sul</option>
+              <option value="Emirados Árabes">🇦🇪 Emirados Árabes</option>
+              <option value="Outro">Outro país</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="form-row" id="f-estado-wrap">
         <div class="form-group">
           <label>Estado <span class="req">*</span></label>
           <div class="select-wrap">
@@ -523,6 +555,12 @@ select:disabled { background: var(--gray-1); color: var(--gray-5); cursor: not-a
               <option value="" disabled selected>Selecione o estado primeiro</option>
             </select>
           </div>
+        </div>
+      </div>
+      <div class="form-row" id="f-cidade-intl-wrap" style="display:none">
+        <div class="form-group" style="flex:1 1 100%">
+          <label>Cidade <span class="req">*</span></label>
+          <input type="text" id="f-cidade-intl" placeholder="Ex: Miami, Florida" autocomplete="off">
         </div>
       </div>
 
@@ -775,6 +813,15 @@ const CIDADES = {
   TO:['Palmas','Araguaína','Gurupi','Porto Nacional','Paraíso do Tocantins','Colinas do Tocantins','Guaraí','Tocantinópolis']
 };
 
+function toggleLocBrasil() {
+  const pais = document.getElementById('f-pais').value;
+  const isBrasil = pais === 'Brasil';
+  const estadoWrap = document.getElementById('f-estado-wrap');
+  const intlWrap   = document.getElementById('f-cidade-intl-wrap');
+  if (estadoWrap) estadoWrap.style.display = isBrasil ? '' : 'none';
+  if (intlWrap)   intlWrap.style.display   = isBrasil ? 'none' : '';
+}
+
 function updateCidades(uf) {
   const sel = document.getElementById('f-cidade');
   sel.innerHTML = '<option value="" disabled selected>Selecione a cidade</option>';
@@ -879,15 +926,20 @@ async function submitCadastro() {
   const tel      = telNum ? dialCode + ' ' + telNum : '';
   let   website  = document.getElementById('f-website').value.trim();
   if (website && !/^https?:\/\//i.test(website)) website = 'https://' + website;
-  const estado   = document.getElementById('f-estado').value;
-  const cidade   = document.getElementById('f-cidade').value;
+  const pais     = document.getElementById('f-pais').value;
+  const isBrasil = pais === 'Brasil';
+  const estado   = isBrasil ? document.getElementById('f-estado').value : '';
+  const cidade   = isBrasil
+    ? document.getElementById('f-cidade').value
+    : document.getElementById('f-cidade-intl').value.trim();
   const cargo    = document.getElementById('f-cargo').value;
   const termos   = document.getElementById('f-termos').checked;
   const indicacao = document.getElementById('f-indicacao').value.trim();
   const codigo    = document.getElementById('f-codigo').value.trim().toUpperCase();
   const btn       = document.getElementById('btnSubmit');
 
-  if (!nome || !email || !empresa || !segmento || !telNum || !estado || !cidade || !cargo) {
+  const locationOk = isBrasil ? (estado && cidade) : cidade;
+  if (!nome || !email || !empresa || !segmento || !telNum || !locationOk || !cargo) {
     btn.style.animation = 'none'; btn.offsetHeight;
     btn.style.animation = 'shake 0.35s ease';
     alert('Por favor preencha todos os campos obrigatórios.');
@@ -949,7 +1001,8 @@ async function submitCadastro() {
       segmento,
       telefone: tel,
       website: website || null,
-      estado,
+      pais,
+      estado: estado || null,
       cidade,
       cargo,
       indicacao,
