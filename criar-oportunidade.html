@@ -5664,7 +5664,7 @@ function buildFieldHtml(f, fullWidth) {
     </div>`;
   } else if (f.type === 'presential-audience-toggle') {
     // Toggle Estimativa / Dado real para público presencial
-    return `<div class="form-group full-width">
+    return `<div class="form-group full-width"${f.id ? ` id="${f.id}"` : ''}>
       <div class="est-toggle-row" style="margin-top:4px">
         <span style="font-size:13px;color:var(--gray-4)">Tipo de dado</span>
         <div style="display:flex;align-items:center;gap:8px">
@@ -5677,7 +5677,7 @@ function buildFieldHtml(f, fullWidth) {
     </div>`;
   } else if (f.type === 'presential-age-ranges') {
     // Barras de faixa etária para público presencial (mesmo padrão do social)
-    return `<div class="form-group full-width">
+    return `<div class="form-group full-width"${f.id ? ` id="${f.id}"` : ''}>
       <label style="font-size:13px;font-weight:600;color:var(--gray-4);display:block;margin-bottom:8px">Faixa etária do público</label>
       <div class="age-ranges-grid">
         <div class="age-range-row"><span class="age-range-label">13–17</span><div class="age-range-input-wrap"><input type="number" class="form-control" id="aud-presencial-age-1317" min="0" max="100" placeholder="0" oninput="updateAgeBars('presencial')"><span class="age-range-pct-suffix">%</span></div><div class="age-bar-preview"><div class="age-bar-preview-fill" id="agebar-presencial-1317" style="width:0%"></div></div></div>
