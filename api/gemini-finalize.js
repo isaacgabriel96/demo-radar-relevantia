@@ -110,6 +110,50 @@ export default async function handler(req, res) {
     });
   }
 
-  console.log('gemini-finalize: fileUri obtido com sucesso:', fileUri);
+  // ── Polling de state=ACTIVE ────────────────────────────────────────────
+  // Mesmo com uploadStatus=final, o Google fica alguns segundos com o arquivo
+  // em state=PROCESSING. Se o agente tentar usar o fileUri antes de ACTIVE,
+  // o Gemini retorna resposta vazia. Aguardamos até ACTIVE aqui.
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (apiKey) {
+    // Extrai o nome do arquivo do fileUri (ex: "files/abc123")
+    const fileNameMatch = fileUri.match(/\/files\/([^/?]+)/);
+    const fileName = fileNameMatch ? `files/${fileNameMatch[1]}` : null;
+
+    if (fileName) {
+      for (let attempt = 1; attempt <= 10; attempt++) {
+        try {
+          const stateRes = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/${fileName}?key=${apiKey}`,
+          );
+          if (!stateRes.ok) {
+            console.warn(`gemini-finalize: status check HTTP ${stateRes.status} (tentativa ${attempt})`);
+            await new Promise(r => setTimeout(r, 1000));
+            continue;
+          }
+          const stateData = await stateRes.json().catch(() => ({}));
+          const state = stateData.state;
+
+          if (state === 'ACTIVE') {
+            console.log(`gemini-finalize: arquivo ACTIVE após ${attempt} check(s).`);
+            break;
+          }
+          if (state === 'FAILED') {
+            console.error('gemini-finalize: Google retornou state=FAILED para', fileName);
+            return res.status(502).json({
+              error: 'Google não conseguiu processar o PDF. Tente com outro arquivo.',
+            });
+          }
+          // state === 'PROCESSING' → aguarda e tenta de novo
+          await new Promise(r => setTimeout(r, 1000));
+        } catch (err) {
+          console.warn(`gemini-finalize: erro no status check (tentativa ${attempt}):`, err.message);
+          await new Promise(r => setTimeout(r, 1000));
+        }
+      }
+    }
+  }
+
+  console.log('gemini-finalize: fileUri pronto para uso:', fileUri);
   return res.status(200).json({ fileUri, mimeType: fileMime });
 }
