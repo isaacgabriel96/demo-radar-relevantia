@@ -8037,7 +8037,7 @@ function _initEventoFormatoToggle() {
   if (!sel) return;
   const _apply = () => {
     const v = sel.value;
-    const showTransmissao = v === 'online';
+    const showTransmissao = v === 'presencial';
     const showPresencial = v === 'presencial';
     const txWrap = document.getElementById('transmissao-evento');
     if (txWrap) txWrap.style.display = showTransmissao ? '' : 'none';
