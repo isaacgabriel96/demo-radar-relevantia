@@ -142,21 +142,50 @@ export default async function handler(req, res) {
     return { text, finishReason, parts };
   }
 
-  try {
-    let result = await callGemini(body);
+  // Detecta se há PDFs anexados (influencia estratégia de fallback)
+  const hasPdfs = messages.some(m =>
+    typeof m.content === 'object' && Array.isArray(m.content.files) && m.content.files.length > 0
+  );
 
-    // Gemini 2.5 Flash com google_search às vezes retorna partes sem texto
-    // (finishReason OTHER ou STOP com 0 text parts). Retry sem search como fallback.
-    if (!result.text.trim() && useSearch) {
-      console.warn('Gemini: resposta vazia com google_search, tentando sem search. finishReason:', result.finishReason);
-      const bodyNoSearch = { ...body };
-      delete bodyNoSearch.tools;
-      result = await callGemini(bodyNoSearch);
+  // Tenta primeiro com a configuração pedida; se falhar com erro HTTP ou
+  // retornar resposta vazia E estivermos usando search + PDF, reexecuta sem
+  // search (google_search + PDF grande é o que mais quebra por timeout/limites).
+  async function callGeminiWithFallback(requestBody, allowRetry) {
+    try {
+      const r = await callGemini(requestBody);
+      if (r.text.trim()) return r;
+
+      // Resposta vazia → fallback sem search se aplicável
+      if (allowRetry && requestBody.tools) {
+        console.warn('Gemini: resposta vazia com google_search, tentando sem search. finishReason:', r.finishReason);
+        const noSearch = { ...requestBody };
+        delete noSearch.tools;
+        return await callGemini(noSearch);
+      }
+      return r;
+    } catch (err) {
+      // Erro HTTP do Gemini + search ativo + PDFs → retry sem search
+      // (ex: 413 payload too large, 504 timeout, 500 server error)
+      if (allowRetry && requestBody.tools && err.httpStatus && hasPdfs) {
+        console.warn(`Gemini HTTP ${err.httpStatus} com google_search+PDF, tentando sem search:`, err.message);
+        const noSearch = { ...requestBody };
+        delete noSearch.tools;
+        return await callGemini(noSearch);
+      }
+      throw err;
     }
+  }
+
+  try {
+    const result = await callGeminiWithFallback(body, /* allowRetry */ true);
 
     if (!result.text.trim()) {
-      console.error('Gemini: resposta vazia mesmo sem search. finishReason:', result.finishReason);
-      return res.status(502).json({ error: 'A IA retornou uma resposta vazia. Tente novamente.' });
+      console.error('Gemini: resposta vazia mesmo após fallback. finishReason:', result.finishReason);
+      return res.status(502).json({
+        error: hasPdfs
+          ? 'A IA não conseguiu processar o PDF. Tente uma versão mais enxuta ou cole os dados importantes no chat.'
+          : 'A IA retornou uma resposta vazia. Tente novamente.',
+      });
     }
 
     return res.status(200).json({ text: result.text });
@@ -166,7 +195,10 @@ export default async function handler(req, res) {
     }
     if (err.httpStatus) {
       console.error('Erro Gemini HTTP:', err.detail);
-      return res.status(502).json({ error: 'Erro ao processar com a IA.', detail: err.message });
+      const msg = hasPdfs
+        ? 'A IA não conseguiu processar o PDF (arquivo muito pesado ou complexo). Tente uma versão mais enxuta ou envie sem o PDF.'
+        : 'Erro ao processar com a IA.';
+      return res.status(502).json({ error: msg, detail: err.message });
     }
     console.error('Erro interno:', err);
     return res.status(500).json({ error: 'Erro interno do servidor.' });
