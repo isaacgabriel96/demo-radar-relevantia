@@ -4632,28 +4632,30 @@ const TEMPLATES = {
     label: 'Artista Musical',
     fields: [
       {
-        id: 'genero-musical', label: 'Gênero musical', type: 'select', required: true,
+        id: 'genero-musical', label: 'Estilo musical', type: 'tag-select', fullWidth: true, required: true, max: 3,
         options: [
-          {v:'pop',       l:'Pop'},
-          {v:'sertanejo', l:'Sertanejo'},
-          {v:'funk',      l:'Funk'},
-          {v:'rock',      l:'Rock'},
-          {v:'pagode',    l:'Pagode / Samba'},
-          {v:'axe-forro', l:'Axé / Forró'},
-          {v:'hip-hop',   l:'Hip-Hop / Rap'},
-          {v:'eletronica',l:'Eletrônica'},
-          {v:'mpb',       l:'MPB'},
-          {v:'gospel',    l:'Gospel'},
-          {v:'outro',     l:'Outro'}
-        ]
-      },
-      {
-        id: 'seguidores-artista', label: 'Faixa de seguidores', type: 'select', required: true,
-        options: [
-          {v:'ate100k',    l:'Até 100k'},
-          {v:'100k-500k',  l:'100k a 500k'},
-          {v:'500k-2m',    l:'500k a 2M'},
-          {v:'2m+',        l:'Mais de 2M'}
+          'Sertanejo',
+          'Funk / Funk Carioca',
+          'Pagode / Samba',
+          'Axé',
+          'Forró',
+          'Piseiro / Brega Funk',
+          'MPB',
+          'Bossa Nova',
+          'Gospel',
+          'Pop',
+          'Rock',
+          'Metal / Hard Rock',
+          'Indie / Alternativo',
+          'Hip-Hop',
+          'Rap',
+          'Trap',
+          'R&B / Soul',
+          'Eletrônica / EDM',
+          'Reggae / Reggaeton',
+          'Jazz / Blues',
+          'Country / Americana',
+          'K-Pop'
         ]
       },
       {
@@ -4664,10 +4666,6 @@ const TEMPLATES = {
           {v:'5k-20k',  l:'5.000 a 20.000'},
           {v:'20k+',    l:'Mais de 20.000'}
         ]
-      },
-      {
-        id: 'plataformas-artista', label: 'Plataformas de streaming com presença', type: 'multiselect-pills',
-        options: ['Spotify','Apple Music','YouTube Music','Deezer','Amazon Music','Tidal']
       }
     ]
   },
