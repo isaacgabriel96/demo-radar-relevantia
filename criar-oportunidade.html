@@ -990,6 +990,7 @@ input[type=number] { -moz-appearance: textfield; }
 
 /* Multiselect pills (fields) */
 .pills-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 2px; }
+.pills-max-hint { font-size: 11px; color: var(--gray-3); margin-top: 6px; transition: color .2s, font-weight .2s; }
 .pills-group .pill-opt {
   padding: 6px 14px; border-radius: var(--radius-pill);
   border: 1.5px solid var(--gray-2); background: var(--white);
@@ -3640,17 +3641,6 @@ input[type=number] { -moz-appearance: textfield; }
           <input type="text" class="form-control" id="opp-cidade-intl" placeholder="Ex: Miami, Florida" autocomplete="off">
         </div>
 
-        <div class="form-group">
-          <label>Abrangência</label>
-          <select class="form-control" id="opp-abrangencia">
-            <option value="">Selecione…</option>
-            <option value="local">Local</option>
-            <option value="regional">Regional</option>
-            <option value="nacional">Nacional</option>
-            <option value="internacional">Internacional</option>
-          </select>
-        </div>
-
         <hr class="section-divider">
 
         <div id="template-specific-fields">
@@ -4390,63 +4380,43 @@ const TEMPLATES = {
     label: 'Personalidade',
     fields: [
       {
-        id: 'tipo-personalidade', label: 'Tipo', type: 'select', required: true,
+        id: 'tipo-personalidade', label: 'Tipo', type: 'multiselect-pills', required: true,
         options: [
-          {v:'influenciador', l:'Influenciador Digital'},
-          {v:'celebridade',   l:'Celebridade'},
-          {v:'apresentador',  l:'Apresentador(a)'},
-          {v:'especialista',  l:'Especialista / Palestrante'},
-          {v:'jornalista',    l:'Jornalista'},
-          {v:'atleta',        l:'Atleta'},
-          {v:'musico',        l:'Músico / Artista'},
-          {v:'ator',          l:'Ator / Atriz'},
-          {v:'comediante',    l:'Comediante'},
-          {v:'creator',       l:'Creator / Streamer'},
-          {v:'podcaster',     l:'Podcaster'},
-          {v:'modelo',        l:'Modelo'},
-          {v:'dj',            l:'DJ'}
+          'Influenciador Digital','Celebridade','Apresentador(a)',
+          'Especialista / Palestrante','Jornalista','Atleta',
+          'Ator / Atriz','Comediante','Creator / Streamer',
+          'Podcaster','Modelo'
         ]
       },
       {
-        id: 'nicho', label: 'Nicho principal', type: 'select', required: true,
+        id: 'nicho', label: 'Nicho principal', type: 'multiselect-pills', required: true, max: 3,
         options: [
-          {v:'esporte',        l:'Esporte'},
-          {v:'moda',           l:'Moda & Beleza'},
-          {v:'gastronomia',    l:'Gastronomia'},
-          {v:'tech',           l:'Tecnologia'},
-          {v:'financas',       l:'Finanças'},
-          {v:'humor',          l:'Humor & Entretenimento'},
-          {v:'lifestyle',      l:'Lifestyle'},
-          {v:'fitness',        l:'Fitness & Saúde'},
-          {v:'musica',         l:'Música'},
-          {v:'games',          l:'Games & eSports'},
-          {v:'educacao',       l:'Educação'},
-          {v:'viagens',        l:'Viagens'},
-          {v:'automotivo',     l:'Automotivo'},
-          {v:'pets',           l:'Pets'},
-          {v:'familia',        l:'Maternidade & Família'},
-          {v:'sustentabilidade', l:'Sustentabilidade'},
-          {v:'arte',           l:'Arte & Design'},
-          {v:'negocios',       l:'Negócios & Empreendedorismo'},
-          {v:'hiphop',         l:'Hip-hop / Rap'},
-          {v:'sertanejo',      l:'Sertanejo'},
-          {v:'funk',           l:'Funk'},
-          {v:'pop',            l:'Pop'},
-          {v:'rock',           l:'Rock'},
-          {v:'outro',          l:'Outro'}
+          'Esporte','Moda & Beleza','Gastronomia','Tecnologia','Finanças',
+          'Humor & Entretenimento','Lifestyle','Fitness & Saúde','Música',
+          'Games & eSports','Educação','Viagens','Automotivo','Pets',
+          'Maternidade & Família','Sustentabilidade','Arte & Design',
+          'Negócios & Empreendedorismo','Hip-hop / Rap','Sertanejo',
+          'Funk','Pop','Rock','Outro'
         ]
       },
       {
-        id: 'faixa-seguidores', label: 'Faixa de seguidores (maior rede)', type: 'select', required: true,
+        id: 'idioma-conteudo', label: 'Idioma do conteúdo', type: 'select',
         options: [
-          {v:'nano',  l:'Até 10k (Nano)'},
-          {v:'micro', l:'10k – 100k (Micro)'},
-          {v:'mid',   l:'100k – 500k (Mid-tier)'},
-          {v:'macro', l:'500k – 2M (Macro)'},
-          {v:'mega',  l:'Mais de 2M (Mega)'}
+          {v:'pt', l:'Português'},
+          {v:'en', l:'Inglês'},
+          {v:'es', l:'Espanhol'},
+          {v:'fr', l:'Francês'},
+          {v:'de', l:'Alemão'},
+          {v:'it', l:'Italiano'},
+          {v:'ja', l:'Japonês'},
+          {v:'zh', l:'Mandarim / Chinês'},
+          {v:'ar', l:'Árabe'},
+          {v:'ru', l:'Russo'},
+          {v:'ko', l:'Coreano'},
+          {v:'hi', l:'Hindi'},
+          {v:'multi', l:'Multilíngue'}
         ]
       },
-      // Nota: campo 'redes' (Redes sociais com presença) removido — redundante com canal-cards
     ]
   },
   'evento': {
@@ -5597,9 +5567,11 @@ function buildFieldHtml(f, fullWidth) {
   } else if (f.type === 'text') {
     inner = `<input type="text" class="form-control" id="${f.id}" placeholder="${f.placeholder || ''}">`;
   } else if (f.type === 'multiselect-pills') {
-    inner = `<div class="pills-group" id="${f.id}">
+    const maxAttr = f.max ? ` data-max="${f.max}"` : '';
+    const hint = f.max ? `<div class="pills-max-hint">Escolha até ${f.max}</div>` : '';
+    inner = `<div class="pills-group" id="${f.id}"${maxAttr}>
       ${f.options.map(o => `<div class="pill-opt" onclick="togglePillOpt(this)">${o}</div>`).join('')}
-    </div>`;
+    </div>${hint}`;
   } else if (f.type === 'event-dates') {
     inner = `<div id="event-dates-container">
       <div id="event-entries-list"></div>
@@ -5675,6 +5647,20 @@ function buildFieldHtml(f, fullWidth) {
 }
 
 function togglePillOpt(el) {
+  const group = el.closest('.pills-group');
+  const max = group ? parseInt(group.dataset.max || '0') : 0;
+  if (!el.classList.contains('selected') && max > 0) {
+    const selected = group.querySelectorAll('.pill-opt.selected').length;
+    if (selected >= max) {
+      const hint = group.nextElementSibling;
+      if (hint && hint.classList.contains('pills-max-hint')) {
+        hint.style.color = 'var(--gold)';
+        hint.style.fontWeight = '600';
+        setTimeout(() => { hint.style.color = ''; hint.style.fontWeight = ''; }, 1200);
+      }
+      return;
+    }
+  }
   el.classList.toggle('selected');
 }
 
