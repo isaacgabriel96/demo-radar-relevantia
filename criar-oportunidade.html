@@ -7369,6 +7369,20 @@ const CIDADES = {
   TO: ['Palmas','Araguaína','Gurupi','Porto Nacional','Paraíso do Tocantins','Outra cidade']
 };
 
+// Carrega o script do Google Maps uma única vez; enfileira callbacks
+function _loadMapsScript(cb) {
+  if (window.google && window.google.maps && window.google.maps.places) { cb(); return; }
+  window._gmapsCbs = window._gmapsCbs || [];
+  window._gmapsCbs.push(cb);
+  if (document.getElementById('gmaps-script')) return;
+  const s = document.createElement('script');
+  s.id = 'gmaps-script';
+  s.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyAGS3ubOJYGLpwrG30J8tRWToG-vR4vWpM&libraries=places';
+  s.async = true; s.defer = true;
+  s.onload = () => { (window._gmapsCbs || []).forEach(fn => fn()); window._gmapsCbs = []; };
+  document.head.appendChild(s);
+}
+
 function toggleOppLocBrasil() {
   const pais = document.getElementById('opp-pais')?.value;
   const isBrasil = !pais || pais === 'Brasil';
@@ -7376,33 +7390,39 @@ function toggleOppLocBrasil() {
   const intlWrap   = document.getElementById('opp-cidade-intl-wrap');
   if (estadoWrap) estadoWrap.style.display = isBrasil ? '' : 'none';
   if (intlWrap)   intlWrap.style.display   = isBrasil ? 'none' : '';
+  if (!isBrasil) _loadMapsScript(_attachOppCidadeIntlAutocomplete);
+}
+
+function _attachOppCidadeIntlAutocomplete() {
+  const input = document.getElementById('opp-cidade-intl');
+  if (!input || !window.google || input._acAttached) return;
+  input._acAttached = true;
+  const ac = new google.maps.places.Autocomplete(input, {
+    types: ['(cities)'],
+    fields: ['address_components', 'name']
+  });
+  ac.addListener('place_changed', () => {
+    const p = ac.getPlace();
+    if (!p.address_components) return;
+    const city = p.address_components.find(c =>
+      c.types.includes('locality') || c.types.includes('administrative_area_level_2')
+    );
+    input.value = city ? city.long_name : (p.name || '');
+  });
 }
 
 function _initLocalEventoMaps() {
-  const input = document.getElementById('local-evento');
-  if (!input) return;
-  if (!window.google || !window.google.maps || !window.google.maps.places) {
-    // Carrega o script se ainda não foi carregado
-    if (!document.getElementById('gmaps-script')) {
-      const s = document.createElement('script');
-      s.id = 'gmaps-script';
-      s.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyAGS3ubOJYGLpwrG30J8tRWToG-vR4vWpM&libraries=places';
-      s.async = true;
-      s.defer = true;
-      s.onload = () => _attachLocalEventoAutocomplete();
-      document.head.appendChild(s);
-    }
-    return;
-  }
-  _attachLocalEventoAutocomplete();
+  if (document.getElementById('local-evento')) _loadMapsScript(_attachLocalEventoAutocomplete);
 }
 
 function _attachLocalEventoAutocomplete() {
   const input = document.getElementById('local-evento');
   if (!input || !window.google) return;
+  if (input._acAttached) { input._acAttached = false; } // re-attach após re-render
   const ac = new google.maps.places.Autocomplete(input, {
     fields: ['name', 'formatted_address', 'geometry']
   });
+  input._acAttached = true;
   ac.addListener('place_changed', () => {
     const p = ac.getPlace();
     const hidden = document.getElementById('local-evento-place');

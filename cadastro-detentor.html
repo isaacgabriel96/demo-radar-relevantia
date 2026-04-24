@@ -813,6 +813,37 @@ const CIDADES = {
   TO:['Palmas','Araguaína','Gurupi','Porto Nacional','Paraíso do Tocantins','Colinas do Tocantins','Guaraí','Tocantinópolis']
 };
 
+function _loadMapsScript(cb) {
+  if (window.google && window.google.maps && window.google.maps.places) { cb(); return; }
+  window._gmapsCbs = window._gmapsCbs || [];
+  window._gmapsCbs.push(cb);
+  if (document.getElementById('gmaps-script')) return;
+  const s = document.createElement('script');
+  s.id = 'gmaps-script';
+  s.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyAGS3ubOJYGLpwrG30J8tRWToG-vR4vWpM&libraries=places';
+  s.async = true; s.defer = true;
+  s.onload = () => { (window._gmapsCbs || []).forEach(fn => fn()); window._gmapsCbs = []; };
+  document.head.appendChild(s);
+}
+
+function _attachDetentorCidadeAutocomplete() {
+  const input = document.getElementById('f-cidade-intl');
+  if (!input || !window.google || input._acAttached) return;
+  input._acAttached = true;
+  const ac = new google.maps.places.Autocomplete(input, {
+    types: ['(cities)'],
+    fields: ['address_components', 'name']
+  });
+  ac.addListener('place_changed', () => {
+    const p = ac.getPlace();
+    if (!p.address_components) return;
+    const city = p.address_components.find(c =>
+      c.types.includes('locality') || c.types.includes('administrative_area_level_2')
+    );
+    input.value = city ? city.long_name : (p.name || '');
+  });
+}
+
 function toggleLocBrasil() {
   const pais = document.getElementById('f-pais').value;
   const isBrasil = pais === 'Brasil';
@@ -820,6 +851,7 @@ function toggleLocBrasil() {
   const intlWrap   = document.getElementById('f-cidade-intl-wrap');
   if (estadoWrap) estadoWrap.style.display = isBrasil ? '' : 'none';
   if (intlWrap)   intlWrap.style.display   = isBrasil ? 'none' : '';
+  if (!isBrasil) _loadMapsScript(_attachDetentorCidadeAutocomplete);
 }
 
 function updateCidades(uf) {
