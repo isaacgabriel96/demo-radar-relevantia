@@ -3655,7 +3655,10 @@ input[type=number] { -moz-appearance: textfield; }
 
       <div class="form-card">
         <div class="card-header">
-          <div id="template-badge-2" class="card-badge" style="display:none"></div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <div id="template-badge-2" class="card-badge" style="display:none"></div>
+            <button type="button" id="btn-trocar-tipo" onclick="nextStep(1)" style="display:none;font-size:11px;font-family:var(--font-body);font-weight:500;padding:2px 10px;border-radius:var(--radius-pill);border:1px solid var(--gray-2);background:transparent;color:var(--gray-3);cursor:pointer;transition:all .15s" onmouseover="this.style.borderColor='var(--gray-3)';this.style.color='var(--gray-4)'" onmouseout="this.style.borderColor='var(--gray-2)';this.style.color='var(--gray-3)'">Trocar tipo</button>
+          </div>
           <div class="card-title">Detalhes Específicos</div>
           <div class="card-desc">Informações que ajudam as marcas a entender o alcance e o perfil da sua oportunidade.</div>
         </div>
@@ -4725,26 +4728,32 @@ const TEMPLATES = {
       {
         id: 'nicho-midia', label: 'Nicho editorial', type: 'tag-select', fullWidth: true, required: true, max: 3,
         options: [
-          'Tecnologia',
-          'Negócios / Empreendedorismo',
-          'Finanças / Investimentos',
           'Esporte',
-          'Saúde / Bem-estar',
-          'Alimentação / Gastronomia',
-          'Moda / Beleza',
-          'Entretenimento',
-          'Cultura / Arte',
-          'Música',
-          'Games / Esports',
-          'Educação',
-          'Política / Jornalismo',
-          'Meio Ambiente / Sustentabilidade',
-          'Religião / Espiritualidade',
+          'Moda',
+          'Beleza',
+          'Gastronomia',
+          'Tecnologia',
+          'Finanças',
+          'Humor',
+          'Cinema & Séries',
           'Lifestyle',
-          'Viagem / Turismo',
-          'Agro / Rural',
+          'Fitness & Saúde',
+          'Música',
+          'Games & eSports',
+          'Educação',
+          'Viagens',
+          'Automotivo',
+          'Pets',
+          'Família',
+          'Sustentabilidade',
+          'Negócios & Empreendedorismo',
+          'Casa & Decoração',
+          'Saúde Mental & Bem-estar',
+          'Luxo',
+          'Política & Jornalismo',
+          'Agro & Rural',
           'Jurídico',
-          'Saúde Mental'
+          'Religião & Espiritualidade'
         ]
       },
       {
@@ -5519,6 +5528,8 @@ function selectTemplate(card) {
   const badge3 = document.getElementById('template-badge-2');
   if (badge2) { badge2.textContent = label; badge2.style.display = 'inline-flex'; }
   if (badge3) { badge3.textContent = label; badge3.style.display = 'inline-flex'; }
+  const btnTrocar = document.getElementById('btn-trocar-tipo');
+  if (btnTrocar) btnTrocar.style.display = 'inline-flex';
 }
 
 /* ══════════════════════════════════════════════
