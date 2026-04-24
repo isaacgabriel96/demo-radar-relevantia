@@ -7690,10 +7690,18 @@ function _mdpGet(el) { return el.closest('[data-mid]'); }
 function _mdpDraw(mdp) {
   const s = _mdpS[mdp.dataset.mid];
   if (!s) return;
-  // Update trigger label
-  const cnt = s.d.size;
+  // Update trigger label — mostra datas ou convite
+  const sorted0 = [...s.d].sort();
   const triggerLbl = mdp.querySelector('.mdp-trigger-lbl');
-  if (triggerLbl) triggerLbl.textContent = cnt > 0 ? `${cnt} data${cnt !== 1 ? 's' : ''} selecionada${cnt !== 1 ? 's' : ''}` : 'Selecionar datas';
+  if (triggerLbl) {
+    if (sorted0.length === 0) {
+      triggerLbl.textContent = 'Selecionar datas';
+    } else {
+      const fmt = ds => { const [,mo,dy] = ds.split('-'); return `${dy}/${mo}`; };
+      const visible = sorted0.slice(0, 5).map(fmt).join(', ');
+      triggerLbl.textContent = sorted0.length > 5 ? `${visible} +${sorted0.length - 5}` : visible;
+    }
+  }
   // Render calendar
   mdp.querySelector('.mdp-lbl').textContent = `${_MN[s.m]} ${s.y}`;
   const fd = new Date(s.y, s.m, 1).getDay();
