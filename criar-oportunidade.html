@@ -1013,6 +1013,7 @@ input[type=number] { -moz-appearance: textfield; }
 .mdp-chip { display: inline-flex; align-items: center; gap: 3px; font-size: 11px; background: var(--gray-1); border-radius: 20px; padding: 3px 6px 3px 10px; color: var(--gray-4); }
 .mdp-chip button { background: none; border: none; cursor: pointer; color: var(--gray-3); font-size: 14px; padding: 0; line-height: 1; }
 .mdp-hint { font-size: 11px; color: var(--gray-3); }
+.transmissao-hint { font-size: 12px; color: var(--gray-3); margin: 0 0 10px; }
 .pills-group .pill-opt {
   padding: 6px 14px; border-radius: var(--radius-pill);
   border: 1.5px solid var(--gray-2); background: var(--white);
@@ -4479,7 +4480,8 @@ const TEMPLATES = {
       {
         id: 'publico-esperado', label: 'Público esperado', type: 'select',
         options: [
-          {v:'ate500',  l:'Até 500 pessoas'},
+          {v:'ate100',  l:'Até 100 pessoas'},
+          {v:'100-500', l:'100 a 500 pessoas'},
           {v:'500-2k',  l:'500 a 2.000'},
           {v:'2k-10k',  l:'2.000 a 10.000'},
           {v:'10k-50k', l:'10.000 a 50.000'},
@@ -4495,8 +4497,8 @@ const TEMPLATES = {
         ]
       },
       {
-        id: 'transmissao-evento', label: 'Transmissão prevista', type: 'multiselect-pills',
-        options: ['TV Aberta','TV Fechada','Streaming','YouTube','Sem transmissão']
+        id: 'transmissao-evento', label: 'Plataformas de transmissão', type: 'multiselect-pills',
+        options: ['YouTube','Twitch','Instagram Live','TikTok Live','TV Aberta','TV Fechada','Streaming próprio (app/site)','Pay-per-view']
       },
       {
         id: 'publico-presencial-section', label: '', type: 'section-heading',
@@ -5457,18 +5459,8 @@ function renderTemplateFields(key) {
   // Inicializa event-dates se for template evento
   if (key === 'evento') {
     const eventDatesContainer = document.getElementById('event-dates-container');
-    if (eventDatesContainer) {
-      addEventEntry();
-      // Listener para tipo de recorrência
-      const tipoRec = document.getElementById('tipo-recorrencia');
-      if (tipoRec) {
-        tipoRec.addEventListener('change', function() {
-          const panel = document.getElementById('datas-personalizadas');
-          if (panel) panel.style.display = this.value === 'personalizado' ? 'block' : 'none';
-        });
-      }
-    }
-    // Google Maps Places Autocomplete para local do evento
+    if (eventDatesContainer) addEventEntry();
+    _initEventoFormatoToggle();
     _initLocalEventoMaps();
   }
 
@@ -5631,19 +5623,21 @@ function buildFieldHtml(f, fullWidth) {
         Este evento tem recorrência
       </label>
       <div id="recorrencia-panel" style="display:none;margin-top:12px">
-        <select class="form-control" id="tipo-recorrencia">
-          <option value="">Selecione o tipo de recorrência</option>
+        <select class="form-control" id="tipo-recorrencia" onchange="onTipoRecorrenciaChange(this)">
+          <option value="">Selecione a frequência</option>
           <option value="semanal">Semanal</option>
           <option value="quinzenal">Quinzenal</option>
           <option value="mensal">Mensal</option>
+          <option value="trimestral">Trimestral (a cada 3 meses)</option>
+          <option value="semestral">Semestral (2 vezes ao ano)</option>
           <option value="anual">Anual</option>
-          <option value="personalizado">Datas específicas (personalizado)</option>
+          <option value="bienal">Bienal (a cada 2 anos)</option>
+          <option value="trienal">Trienal (a cada 3 anos)</option>
+          <option value="personalizado">Em datas específicas</option>
         </select>
         <div id="datas-personalizadas" style="display:none;margin-top:10px">
-          <div id="datas-extras-list"></div>
-          <button type="button" class="btn btn-ghost" style="margin-top:6px;font-size:13px" onclick="addDataExtra()">
-            + Adicionar data
-          </button>
+          <p style="font-size:12px;color:var(--gray-3);margin:0 0 8px">Selecione as datas das próximas edições:</p>
+          <div id="recorrencia-mdp-slot"></div>
         </div>
       </div>
     </div>`;
@@ -7870,6 +7864,45 @@ function toggleRecorrencia(checked) {
   if (panel) panel.style.display = checked ? 'block' : 'none';
 }
 
+function onTipoRecorrenciaChange(sel) {
+  const panel = document.getElementById('datas-personalizadas');
+  if (!panel) return;
+  if (sel.value === 'personalizado') {
+    panel.style.display = 'block';
+    const slot = document.getElementById('recorrencia-mdp-slot');
+    if (slot && !slot.querySelector('.mdp')) _mdpNew(slot, []);
+  } else {
+    panel.style.display = 'none';
+  }
+}
+
+function _initEventoFormatoToggle() {
+  const sel = document.getElementById('formato-evento');
+  if (!sel) return;
+  const _apply = () => {
+    const showTransmissao = sel.value === 'online' || sel.value === 'hibrido';
+    const wrap = document.getElementById('transmissao-evento')?.closest('.form-group');
+    if (wrap) {
+      wrap.style.display = showTransmissao ? '' : 'none';
+      if (showTransmissao) {
+        wrap.style.marginTop = '8px';
+        if (!wrap._bannerAdded) {
+          wrap._bannerAdded = true;
+          const banner = document.createElement('p');
+          banner.className = 'transmissao-hint';
+          banner.textContent = 'Selecione as plataformas onde haverá transmissão ao vivo ou gravada:';
+          wrap.insertBefore(banner, wrap.firstChild);
+        }
+      }
+    }
+  };
+  if (!sel._formatoToggleAttached) {
+    sel._formatoToggleAttached = true;
+    sel.addEventListener('change', _apply);
+  }
+  _apply();
+}
+
 function addDataExtra() {
   const list = document.getElementById('datas-extras-list');
   if (!list) return;
@@ -8839,12 +8872,12 @@ function collectOppData() {
     const tipoRecEl = document.getElementById('tipo-recorrencia');
     const tipoRec = tipoRecEl ? (tipoRecEl.options[tipoRecEl.selectedIndex]?.value || '') : '';
     if (tipoRec === 'personalizado') {
-      const datasExtras = Array.from(
-        document.querySelectorAll('#datas-extras-list input')
-      ).map(el => el.value.trim()).filter(Boolean);
-      detalhes['recorrencia'] = 'Personalizado' + (datasExtras.length > 0 ? ': ' + datasExtras.join(', ') : '');
+      const slot = document.getElementById('recorrencia-mdp-slot');
+      let recDates = [];
+      try { recDates = JSON.parse(slot?.querySelector('.event-datas-hidden')?.value || '[]'); } catch {}
+      detalhes['recorrencia'] = 'Datas específicas' + (recDates.length > 0 ? ': ' + recDates.map(d => { const [y,m,dy] = d.split('-'); return `${dy}/${m}/${y}`; }).join(', ') : '');
     } else if (tipoRec) {
-      const labels = { semanal: 'Semanal', quinzenal: 'Quinzenal', mensal: 'Mensal', anual: 'Anual' };
+      const labels = { semanal:'Semanal', quinzenal:'Quinzenal', mensal:'Mensal', trimestral:'Trimestral', semestral:'Semestral', anual:'Anual', bienal:'Bienal (a cada 2 anos)', trienal:'Trienal (a cada 3 anos)' };
       detalhes['recorrencia'] = labels[tipoRec] || tipoRec;
     }
   }
