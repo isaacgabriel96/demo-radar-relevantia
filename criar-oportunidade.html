@@ -1010,6 +1010,8 @@ input[type=number] { -moz-appearance: textfield; }
 .pub-period-toggle { display: flex; gap: 4px; margin-top: 8px; }
 .pub-period-btn { font-size: 12px; font-family: var(--font-body); font-weight: 500; padding: 5px 14px; border-radius: var(--radius-pill); border: 1px solid var(--gray-2); background: transparent; color: var(--gray-3); cursor: pointer; transition: all .15s; }
 .pub-period-btn.active { background: var(--gray-4); color: #fff; border-color: var(--gray-4); }
+.section-card { border: 1px solid var(--gray-2); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 16px; background: #fff; }
+.section-card-label { font-family: var(--font-heading); font-size: 11px; font-weight: 700; color: var(--gray-3); text-transform: uppercase; letter-spacing: 0.07em; margin: 0 0 18px; }
 .presencial-section-wrapper { border: 1px solid var(--gray-2); border-radius: var(--radius-md); padding: 20px; margin-top: 8px; background: var(--white-warm); }
 .presencial-section-wrapper .form-group { margin-bottom: 16px; }
 .presencial-section-wrapper .form-group:last-child { margin-bottom: 0; }
@@ -4506,9 +4508,12 @@ const TEMPLATES = {
       },
     ],
     fields: [
+      { type: 'section-card-start', id: 'card-datas', label: 'Datas e locais' },
       {
-        id: 'datas-evento', label: 'Detalhes do evento', type: 'event-dates', fullWidth: true
+        id: 'datas-evento', type: 'event-dates', fullWidth: true
       },
+      { type: 'section-card-end' },
+      { type: 'section-card-start', id: 'card-sobre', label: 'Sobre o evento' },
       {
         id: 'publico-esperado', label: 'Público esperado', type: 'publico-group', fullWidth: true,
         options: [
@@ -4567,6 +4572,7 @@ const TEMPLATES = {
         ]
       },
       { type: 'container-end' },
+      { type: 'section-card-end' },
     ]
   },
   'artista': {
@@ -5428,7 +5434,7 @@ function renderTemplateFields(key) {
       while (hi < hFields.length) {
         const hf = hFields[hi];
         const hn = hFields[hi + 1];
-        const alwaysFull = ['event-dates','section-heading','presential-audience-toggle','presential-age-ranges','hidden','container-start','container-end','publico-group','transmissao-section','genero-pair'];
+        const alwaysFull = ['event-dates','section-heading','presential-audience-toggle','presential-age-ranges','hidden','container-start','container-end','section-card-start','section-card-end','publico-group','transmissao-section','genero-pair'];
         if (alwaysFull.includes(hf.type) || hf.fullWidth || hf.type === 'multiselect-pills' || !hn || alwaysFull.includes(hn?.type || '')) {
           hHtml += buildFieldHtml(hf, true);
           hi++;
@@ -5460,7 +5466,7 @@ function renderTemplateFields(key) {
     const nextF = fields[i + 1];
 
     // Tipos que são sempre full-width e renderizam seus próprios containers
-    const alwaysFullWidth = ['event-dates','section-heading','presential-audience-toggle','presential-age-ranges','hidden','container-start','container-end','publico-group','transmissao-section','genero-pair'];
+    const alwaysFullWidth = ['event-dates','section-heading','presential-audience-toggle','presential-age-ranges','hidden','container-start','container-end','section-card-start','section-card-end','publico-group','transmissao-section','genero-pair'];
     if (alwaysFullWidth.includes(f.type)) {
       html += buildFieldHtml(f, true);
       i++;
@@ -5696,6 +5702,11 @@ function buildFieldHtml(f, fullWidth) {
         <div class="pills-group">${pillsHtml}</div>
       </div>
     </div>`;
+  } else if (f.type === 'section-card-start') {
+    const labelHtml = f.label ? `<p class="section-card-label">${f.label}</p>` : '';
+    return `<div class="section-card"${f.id ? ` id="${f.id}"` : ''}>${labelHtml}`;
+  } else if (f.type === 'section-card-end') {
+    return `</div>`;
   } else if (f.type === 'container-start') {
     return `<div class="presencial-section-wrapper"${f.id ? ` id="${f.id}"` : ''}>`;
   } else if (f.type === 'container-end') {
