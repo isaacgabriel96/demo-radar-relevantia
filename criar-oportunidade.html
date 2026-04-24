@@ -4423,30 +4423,29 @@ const TEMPLATES = {
       {
         id: 'tipo-evento', label: 'Tipo de evento', type: 'select', required: true,
         options: [
+          {v:'festival',     l:'Festival'},
+          {v:'show',         l:'Show / Espetáculo'},
+          {v:'standup',      l:'Stand-up / Show de Humor'},
           {v:'torneio',      l:'Torneio Esportivo'},
           {v:'corrida',      l:'Corrida / Atletismo'},
-          {v:'festival',     l:'Festival'},
+          {v:'campeonato',   l:'Campeonato'},
           {v:'conferencia',  l:'Conferência / Congresso'},
+          {v:'workshop',     l:'Workshop / Capacitação'},
+          {v:'hackathon',    l:'Hackathon'},
           {v:'feira',        l:'Feira'},
-          {v:'show',         l:'Show / Espetáculo'},
           {v:'exposicao',    l:'Exposição'},
-          {v:'corporativo',  l:'Evento Corporativo'},
-          {v:'outro',        l:'Outro'}
+          {v:'desfile',      l:'Desfile de Moda'},
+          {v:'premiacao',    l:'Premiação / Award'},
+          {v:'formatura',    l:'Formatura'},
+          {v:'corporativo',  l:'Evento Corporativo'}
         ]
       },
       {
-        id: 'edicao-evento', label: 'Edição / Ano', type: 'text',
-        placeholder: 'Ex: 5ª Edição — 2025'
+        id: 'edicao-evento', label: 'Edição ou Ano', type: 'year-input',
+        placeholder: 'Ex: 2025 ou 5'
       },
       {
         id: 'datas-evento', label: 'Datas do evento', type: 'event-dates', fullWidth: true
-      },
-      {
-        id: 'local-evento', label: 'Local do evento', type: 'text', fullWidth: true,
-        placeholder: 'Ex: Estádio do Morumbi, São Paulo'
-      },
-      {
-        id: 'local-evento-place', label: '', type: 'hidden'
       },
       {
         id: 'publico-esperado', label: 'Público esperado', type: 'select',
@@ -4510,10 +4509,6 @@ const TEMPLATES = {
           {v:'estimativa', l:'Estimativa'}
         ]
       },
-      {
-        id: 'presencial-contexto', label: 'Contexto adicional do público', type: 'textarea', fullWidth: true,
-        placeholder: 'Ex: Público majoritariamente local (raio de 50 km), família com crianças, faixa etária jovem adulto...'
-      }
     ]
   },
   'artista': {
@@ -5466,7 +5461,8 @@ function _applyPendingDetalhes(tplKey) {
               if (last) {
                 const inputs = last.querySelectorAll('input');
                 if (inputs[0] && entry.data) inputs[0].value = entry.data;
-                if (inputs[1] && entry.local) inputs[1].value = entry.local;
+                if (inputs[1] && entry.cidade) inputs[1].value = entry.cidade;
+                if (inputs[2] && entry.venue) inputs[2].value = entry.venue;
               }
             });
           }
@@ -5558,6 +5554,8 @@ function buildFieldHtml(f, fullWidth) {
     </select>`;
   } else if (f.type === 'text') {
     inner = `<input type="text" class="form-control" id="${f.id}" placeholder="${f.placeholder || ''}">`;
+  } else if (f.type === 'year-input') {
+    inner = `<input type="text" class="form-control" id="${f.id}" placeholder="${f.placeholder || ''}" inputmode="numeric" maxlength="4" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4)">`;
   } else if (f.type === 'multiselect-pills') {
     const maxAttr = f.max ? ` data-max="${f.max}"` : '';
     const hint = f.max ? `<div class="pills-max-hint">Escolha até ${f.max}</div>` : '';
@@ -7494,18 +7492,20 @@ function addEventEntry() {
   if (!list) return;
   const div = document.createElement('div');
   div.className = 'event-entry';
-  div.style.cssText = 'display:flex;gap:10px;align-items:flex-start;margin-bottom:10px';
+  div.style.cssText = 'margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--gray-1)';
   div.innerHTML = `
-    <div style="flex:1">
-      <input type="text" class="form-control" placeholder="Data (ex: 14 a 16 de junho de 2025)" style="margin-bottom:8px">
-      <input type="text" class="form-control event-local-input" placeholder="Local (ex: Parque Ibirapuera, SP)">
+    <div style="display:flex;gap:10px;align-items:flex-start">
+      <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+        <input type="date" class="form-control" required>
+        <input type="text" class="form-control event-cidade-input" placeholder="Cidade (ex: São Paulo)" required>
+        <input type="text" class="form-control event-venue-input" placeholder="Venue (ex: Estádio do Morumbi)" required>
+      </div>
+      <button type="button" onclick="this.closest('.event-entry').remove()" style="background:none;border:none;cursor:pointer;color:var(--gray-3);font-size:18px;padding:8px;flex-shrink:0;line-height:1;margin-top:2px">✕</button>
     </div>
-    <button type="button" onclick="this.parentElement.remove()" style="background:none;border:none;cursor:pointer;color:var(--gray-3);font-size:18px;padding:8px;flex-shrink:0;line-height:1;margin-top:2px">✕</button>
   `;
   list.appendChild(div);
-  // Attach Maps autocomplete ao campo Local desta entrada
-  const localInput = div.querySelector('.event-local-input');
-  if (localInput) _loadMapsScript(() => _attachEventLocalAutocomplete(localInput));
+  const venueInput = div.querySelector('.event-venue-input');
+  if (venueInput) _loadMapsScript(() => _attachEventLocalAutocomplete(venueInput));
 }
 
 function _attachEventLocalAutocomplete(input) {
@@ -8475,8 +8475,9 @@ function collectOppData() {
         entries.forEach(entry => {
           const inputs = entry.querySelectorAll('input');
           const d = inputs[0]?.value || '';
-          const l = inputs[1]?.value || '';
-          if (d || l) val.push({ data: d, local: l });
+          const cidade = inputs[1]?.value || '';
+          const venue = inputs[2]?.value || '';
+          if (d || cidade || venue) val.push({ data: d, cidade, venue });
         });
       }
       if (val && (typeof val === 'string' ? val.length > 0 : true)) detalhes[f.label] = val;
@@ -8488,8 +8489,9 @@ function collectOppData() {
   document.querySelectorAll('#event-entries-list .event-entry').forEach(entry => {
     const inputs = entry.querySelectorAll('input');
     const d = inputs[0]?.value || '';
-    const l = inputs[1]?.value || '';
-    if (d || l) datasEvento.push({ data: d, local: l });
+    const cidade = inputs[1]?.value || '';
+    const venue = inputs[2]?.value || '';
+    if (d || cidade || venue) datasEvento.push({ data: d, cidade, venue });
   });
 
   // Recorrência do evento (apenas template 'evento')
@@ -9373,14 +9375,15 @@ function loadMockData() {
 
       // Edição
       const edicao = document.getElementById('edicao-evento');
-      if (edicao) edicao.value = '3ª Edição — 2026';
+      if (edicao) edicao.value = '2026';
 
       // Datas do evento
       const eventEntry = document.querySelector('#event-entries-list .event-entry');
       if (eventEntry) {
         const inputs = eventEntry.querySelectorAll('input');
         if (inputs[0]) inputs[0].value = '2026-07-18';
-        if (inputs[1]) inputs[1].value = 'Praia de Maresias, São Sebastião - SP';
+        if (inputs[1]) inputs[1].value = 'São Sebastião';
+        if (inputs[2]) inputs[2].value = 'Praia de Maresias';
       }
 
       // Público esperado
