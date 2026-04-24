@@ -854,6 +854,7 @@ function _buildPlaceAutocomplete(input, opts) {
       try {
         const req = { input: q, sessionToken: token };
         if (opts?.types) req.includedPrimaryTypes = opts.types;
+        if (opts?.countryCodes) req.includedRegionCodes = opts.countryCodes;
         const { suggestions } = await AutocompleteSuggestion.fetchAutocompleteSuggestions(req);
         ul.innerHTML = '';
         if (!suggestions?.length) { ul.style.display = 'none'; return; }
@@ -884,10 +885,13 @@ function _buildPlaceAutocomplete(input, opts) {
   document.addEventListener('click', e => { if (!wrap.contains(e.target)) ul.style.display = 'none'; });
 }
 
+const _PAIS_ISO = {'Estados Unidos':'us','Portugal':'pt','Argentina':'ar','Espanha':'es','Reino Unido':'gb','França':'fr','Alemanha':'de','Itália':'it','México':'mx','Colômbia':'co','Chile':'cl','Uruguai':'uy','Paraguai':'py','Peru':'pe','Equador':'ec','Bolívia':'bo','Venezuela':'ve','Japão':'jp','China':'cn','Austrália':'au','Canadá':'ca','África do Sul':'za','Dubai/EAU':'ae'};
 function _attachDetentorCidadeAutocomplete() {
   const input = document.getElementById('f-cidade-intl');
   if (!input) return;
-  _buildPlaceAutocomplete(input, { types: ['locality', 'administrative_area_level_2'] });
+  const pais = document.getElementById('f-pais')?.value;
+  const iso = _PAIS_ISO[pais];
+  _buildPlaceAutocomplete(input, { types: ['locality', 'administrative_area_level_2'], countryCodes: iso ? [iso] : undefined });
 }
 
 function toggleLocBrasil() {
