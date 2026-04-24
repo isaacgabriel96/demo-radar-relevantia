@@ -4503,16 +4503,22 @@ const TEMPLATES = {
         ]
       },
       {
-        id: 'formato-evento', label: 'Formato', type: 'select',
+        id: 'publico-contagem', label: 'Este número é', type: 'select',
         options: [
-          {v:'presencial', l:'Presencial'},
-          {v:'online',     l:'Online'},
-          {v:'hibrido',    l:'Híbrido'}
+          {v:'',         l:'Selecione...'},
+          {v:'por-dia',  l:'Por dia'},
+          {v:'total',    l:'Total do evento'}
         ]
       },
       {
-        id: 'transmissao-evento', label: 'Plataformas de transmissão', type: 'multiselect-pills',
-        options: ['YouTube','Twitch','TV Aberta','TV Fechada','Pay-per-view']
+        id: 'formato-evento', label: 'Formato', type: 'select',
+        options: [
+          {v:'presencial', l:'Presencial'},
+          {v:'online',     l:'Online'}
+        ]
+      },
+      {
+        id: 'transmissao-evento', label: '', type: 'transmissao-section', fullWidth: true
       },
       {
         id: 'publico-presencial-section', label: '', type: 'section-heading',
@@ -5663,6 +5669,24 @@ function buildFieldHtml(f, fullWidth) {
       <div style="display:flex;align-items:center;gap:10px;padding:10px 0 6px">
         <span style="font-family:var(--font-heading);font-size:13px;font-weight:700;color:var(--gray-4);text-transform:uppercase;letter-spacing:.06em">${f.heading}</span>
         <div style="flex:1;height:1px;background:var(--gray-2)"></div>
+      </div>
+    </div>`;
+  } else if (f.type === 'transmissao-section') {
+    const platforms = ['YouTube','Twitch','TV Aberta','TV Fechada','Pay-per-view'];
+    const pillsHtml = platforms.map(p => `<button type="button" class="pill-opt" onclick="togglePillOpt(this)">${p}</button>`).join('');
+    return `<div class="form-group full-width"${f.id ? ` id="${f.id}"` : ''}>
+      <div class="est-toggle-row" style="margin-top:0">
+        <span style="font-size:13px;font-weight:600;color:var(--gray-4)">Haverá transmissão ao vivo?</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="est-badge" id="transmissao-badge">Não</span>
+          <div class="est-toggle-switch" id="est-toggle-transmissao" onclick="onTransmissaoToggle(this)">
+            <div class="est-toggle-knob"></div>
+          </div>
+        </div>
+      </div>
+      <div id="transmissao-platforms" style="display:none;margin-top:12px">
+        <p class="transmissao-hint">Selecione as plataformas:</p>
+        <div class="pills-group">${pillsHtml}</div>
       </div>
     </div>`;
   } else if (f.type === 'presential-audience-toggle') {
@@ -8001,14 +8025,22 @@ function _getPresencialContainers() {
   return result;
 }
 
+function onTransmissaoToggle(btn) {
+  const active = btn.classList.toggle('is-real');
+  const badge = document.getElementById('transmissao-badge');
+  const platforms = document.getElementById('transmissao-platforms');
+  if (badge) badge.textContent = active ? 'Sim' : 'Não';
+  if (platforms) platforms.style.display = active ? '' : 'none';
+}
+
 function _initEventoFormatoToggle() {
   const sel = document.getElementById('formato-evento');
   if (!sel) return;
   const _apply = () => {
     const v = sel.value;
-    const showTransmissao = v === 'online' || v === 'hibrido';
-    const showPresencial = v === 'presencial' || v === 'hibrido';
-    const txWrap = document.getElementById('transmissao-evento')?.closest('.form-group');
+    const showTransmissao = v === 'online';
+    const showPresencial = v === 'presencial';
+    const txWrap = document.getElementById('transmissao-evento');
     if (txWrap) txWrap.style.display = showTransmissao ? '' : 'none';
     _getPresencialContainers().forEach(c => { c.style.display = showPresencial ? '' : 'none'; });
   };
