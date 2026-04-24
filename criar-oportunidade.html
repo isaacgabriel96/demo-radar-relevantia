@@ -9495,6 +9495,7 @@ async function agProcessPdf(file) {
       throw new Error('Google não retornou fileUri após upload.');
     }
 
+    console.log('[agente] PDF enviado ao Google. fileUri:', fileUri);
     const idx = window._agState.attachments.findIndex(a => a.label === label && a.type === 'pdf');
     if (idx >= 0) {
       window._agState.attachments[idx].fileUri  = fileUri;
@@ -9539,7 +9540,7 @@ function agRenderChips() {
     const icon = a.type === 'pdf' ? '📄' : '🔗';
     const statusIndicator = a.error
       ? ` <span style="color:#DC2626;font-size:11px;cursor:pointer" title="Clique para tentar novamente" onclick="agRetryPdfUpload('${agEsc(a.label)}')">⚠ retry</span>`
-      : (!a.ready ? ' <span style="opacity:0.6">···</span>' : '');
+      : (!a.ready ? ' <span style="opacity:0.6;font-size:11px">enviando…</span>' : '');
     return `<div class="ag-attachment-chip ${a.type}${a.error ? ' error' : ''}">
       ${icon} ${shortLabel}${statusIndicator}
       <span class="ag-rm" onclick="agRemoveChip('${agEsc(a.label)}')">✕</span>
@@ -9767,7 +9768,12 @@ window.agEnviarResposta = async function() {
 
   // Na primeira mensagem, exige texto OU anexos
   if (isFirstMessage) {
-    const hasAttachments = window._agState.attachments.some(a => a.ready !== false);
+    const loadingPdfs = window._agState.attachments.some(a => !a.error && a.ready === false);
+    if (loadingPdfs) {
+      agShowError('Aguardando o PDF ser enviado… clique em Enviar novamente em instantes.');
+      return;
+    }
+    const hasAttachments = window._agState.attachments.some(a => a.ready === true);
     if (!text.trim() && !hasAttachments) {
       agShowError('Descreva a oportunidade, adicione um link ou envie um PDF.');
       return;
