@@ -7371,16 +7371,87 @@ const CIDADES = {
 
 // Carrega o script do Google Maps uma única vez; enfileira callbacks
 function _loadMapsScript(cb) {
-  if (window.google && window.google.maps && window.google.maps.places) { cb(); return; }
+  if (window._mapsPlacesReady) { cb(); return; }
   window._gmapsCbs = window._gmapsCbs || [];
   window._gmapsCbs.push(cb);
   if (document.getElementById('gmaps-script')) return;
   const s = document.createElement('script');
   s.id = 'gmaps-script';
-  s.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyAGS3ubOJYGLpwrG30J8tRWToG-vR4vWpM&libraries=places&loading=async';
+  s.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyAGS3ubOJYGLpwrG30J8tRWToG-vR4vWpM&loading=async';
   s.async = true; s.defer = true;
-  s.onload = () => { (window._gmapsCbs || []).forEach(fn => fn()); window._gmapsCbs = []; };
+  s.onload = async () => {
+    await google.maps.importLibrary('places');
+    window._mapsPlacesReady = true;
+    (window._gmapsCbs || []).forEach(fn => fn());
+    window._gmapsCbs = [];
+  };
   document.head.appendChild(s);
+}
+
+// Autocomplete customizado usando a nova Places API (New)
+function _buildPlaceAutocomplete(input, opts) {
+  if (!input || input._acAttached) return;
+  input._acAttached = true;
+  const { AutocompleteSessionToken, AutocompleteSuggestion } = google.maps.places;
+  const wrap = input.parentElement;
+  wrap.style.position = 'relative';
+  const ul = document.createElement('ul');
+  Object.assign(ul.style, {
+    position:'absolute', top:'100%', left:0, right:0, zIndex:9999,
+    background:'#fff', border:'1px solid #E0D8CC', borderRadius:'10px',
+    listStyle:'none', padding:'4px 0', margin:'4px 0 0',
+    boxShadow:'0 4px 16px rgba(30,22,0,.12)', display:'none',
+    maxHeight:'220px', overflowY:'auto'
+  });
+  wrap.appendChild(ul);
+  let token = new AutocompleteSessionToken(), timer;
+  input.addEventListener('input', () => {
+    clearTimeout(timer);
+    timer = setTimeout(async () => {
+      const q = input.value.trim();
+      if (q.length < 2) { ul.style.display = 'none'; return; }
+      try {
+        const req = { input: q, sessionToken: token };
+        if (opts?.types) req.includedPrimaryTypes = opts.types;
+        const { suggestions } = await AutocompleteSuggestion.fetchAutocompleteSuggestions(req);
+        ul.innerHTML = '';
+        if (!suggestions?.length) { ul.style.display = 'none'; return; }
+        suggestions.forEach(s => {
+          const li = document.createElement('li');
+          li.textContent = s.placePrediction.text.toString();
+          Object.assign(li.style, { padding:'10px 14px', cursor:'pointer', fontSize:'13px', color:'#1A1200', borderBottom:'1px solid #F5F0E8' });
+          li.addEventListener('mouseenter', () => li.style.background = '#F5F0E8');
+          li.addEventListener('mouseleave', () => li.style.background = '');
+          li.addEventListener('mousedown', async e => {
+            e.preventDefault();
+            const place = s.placePrediction.toPlace();
+            if (opts?.fullAddress) {
+              await place.fetchFields({ fields: ['displayName', 'formattedAddress', 'location'] });
+              input.value = place.displayName || '';
+              opts.onSelect?.({
+                name: place.displayName || '',
+                address: place.formattedAddress || '',
+                lat: place.location?.lat() || null,
+                lng: place.location?.lng() || null
+              });
+            } else {
+              await place.fetchFields({ fields: ['displayName', 'addressComponents'] });
+              const city = place.addressComponents?.find(c =>
+                c.types.includes('locality') || c.types.includes('administrative_area_level_2')
+              );
+              input.value = city ? city.longText : (place.displayName || '');
+            }
+            ul.style.display = 'none';
+            token = new AutocompleteSessionToken();
+          });
+          ul.appendChild(li);
+        });
+        ul.style.display = 'block';
+      } catch { ul.style.display = 'none'; }
+    }, 250);
+  });
+  input.addEventListener('blur', () => setTimeout(() => ul.style.display = 'none', 200));
+  document.addEventListener('click', e => { if (!wrap.contains(e.target)) ul.style.display = 'none'; });
 }
 
 function toggleOppLocBrasil() {
@@ -7394,20 +7465,8 @@ function toggleOppLocBrasil() {
 }
 
 function _attachOppCidadeIntlAutocomplete() {
-  const input = document.getElementById('opp-cidade-intl');
-  if (!input || !window.google || input._acAttached) return;
-  input._acAttached = true;
-  const ac = new google.maps.places.Autocomplete(input, {
-    types: ['(cities)'],
-    fields: ['address_components', 'name']
-  });
-  ac.addListener('place_changed', () => {
-    const p = ac.getPlace();
-    if (!p.address_components) return;
-    const city = p.address_components.find(c =>
-      c.types.includes('locality') || c.types.includes('administrative_area_level_2')
-    );
-    input.value = city ? city.long_name : (p.name || '');
+  _buildPlaceAutocomplete(document.getElementById('opp-cidade-intl'), {
+    types: ['locality', 'administrative_area_level_2']
   });
 }
 
@@ -7417,21 +7476,12 @@ function _initLocalEventoMaps() {
 
 function _attachLocalEventoAutocomplete() {
   const input = document.getElementById('local-evento');
-  if (!input || !window.google) return;
-  if (input._acAttached) { input._acAttached = false; } // re-attach após re-render
-  const ac = new google.maps.places.Autocomplete(input, {
-    fields: ['name', 'formatted_address', 'geometry']
-  });
-  input._acAttached = true;
-  ac.addListener('place_changed', () => {
-    const p = ac.getPlace();
-    const hidden = document.getElementById('local-evento-place');
-    if (hidden) hidden.value = JSON.stringify({
-      name: p.name || '',
-      address: p.formatted_address || '',
-      lat: p.geometry?.location?.lat() || null,
-      lng: p.geometry?.location?.lng() || null
-    });
+  if (!input) return;
+  input._acAttached = false; // permite re-attach após re-render do template
+  const hidden = document.getElementById('local-evento-place');
+  _buildPlaceAutocomplete(input, {
+    fullAddress: true,
+    onSelect: p => { if (hidden) hidden.value = JSON.stringify(p); }
   });
 }
 
@@ -7470,14 +7520,7 @@ function addEventEntry() {
 }
 
 function _attachEventLocalAutocomplete(input) {
-  if (!input || !window.google || input._acAttached) return;
-  input._acAttached = true;
-  new google.maps.places.Autocomplete(input, {
-    fields: ['name', 'formatted_address']
-  }).addListener('place_changed', function() {
-    const p = this.getPlace();
-    if (p.name) input.value = p.name + (p.formatted_address ? ', ' + p.formatted_address.split(',').slice(-2).join(',').trim() : '');
-  });
+  _buildPlaceAutocomplete(input, { fullAddress: true });
 }
 
 function toggleRecorrencia(checked) {
