@@ -994,13 +994,17 @@ input[type=number] { -moz-appearance: textfield; }
 .btn-trocar-pais { font-size: 11px; font-family: var(--font-body); font-weight: 500; padding: 3px 9px; border-radius: 20px; border: 1px solid var(--gray-2); background: transparent; color: var(--gray-3); cursor: pointer; white-space: nowrap; transition: all .15s; }
 .btn-trocar-pais:hover { border-color: var(--gray-3); color: var(--gray-4); }
 .entry-lbl { font-size: 12px; font-weight: 600; color: var(--gray-3); display: block; margin-bottom: 4px; }
-.entry-summary-card { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; background: var(--gray-1); border-radius: var(--radius-base); cursor: pointer; }
+.entry-summary-card { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px; background: var(--gray-1); border-radius: var(--radius-base); cursor: pointer; }
 .entry-summary-card:hover { background: var(--gray-2); }
-.entry-summary-info { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
+.entry-summary-info { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0; }
+.entry-summary-num { font-size: 10px; font-weight: 700; color: var(--gray-3); text-transform: uppercase; letter-spacing: 0.06em; }
 .entry-summary-loc { font-size: 13px; font-weight: 600; color: var(--gray-4); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .entry-summary-dates { font-size: 12px; color: var(--gray-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .btn-entry-edit { font-size: 11px; font-family: var(--font-body); font-weight: 500; padding: 4px 10px; border-radius: 20px; border: 1px solid var(--gray-2); background: #fff; color: var(--gray-3); cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: all .15s; }
 .btn-entry-edit:hover { border-color: var(--gray-3); color: var(--gray-4); }
+.entry-form-heading { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.entry-form-heading-label { font-size: 11px; font-weight: 700; color: var(--gray-3); text-transform: uppercase; letter-spacing: 0.06em; }
+.entry-form-heading-line { flex: 1; height: 1px; background: var(--gray-1); }
 .entry-ac-wrap { position: relative; }
 .mdp { border: 1px solid var(--gray-1); border-radius: var(--radius-base); overflow: hidden; }
 .mdp-trigger { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: transparent; border: none; cursor: pointer; font-family: var(--font-body); font-size: 13px; font-weight: 500; color: var(--gray-4); text-align: left; transition: background .15s; }
@@ -7733,6 +7737,17 @@ function mdpOpen(btn) {
   const arr = mdp.querySelector('.mdp-trigger-arr');
   if (panel) panel.style.display = s.open ? '' : 'none';
   if (arr) arr.style.transform = s.open ? 'rotate(90deg)' : '';
+  if (s.open) {
+    const closeHandler = (e) => {
+      if (!mdp.contains(e.target)) {
+        s.open = false;
+        if (panel) panel.style.display = 'none';
+        if (arr) arr.style.transform = '';
+        document.removeEventListener('click', closeHandler, true);
+      }
+    };
+    setTimeout(() => document.addEventListener('click', closeHandler, true), 0);
+  }
 }
 
 function mdpGo(btn, dir) {
@@ -7804,6 +7819,7 @@ function _collapseEntry(entry) {
   const summary = entry.querySelector('.entry-summary');
   if (!form || !summary) return;
 
+  const num = entry.dataset.entryNum || '';
   const pais = _getEntryPaisLabel(entry);
   const cidadeInput = entry.querySelector('.event-cidade-input');
   const venueInput = entry.querySelector('.event-venue-input');
@@ -7826,6 +7842,7 @@ function _collapseEntry(entry) {
   summary.innerHTML = `
     <div class="entry-summary-card" onclick="_expandEntry(this.closest('.event-entry'))">
       <div class="entry-summary-info">
+        ${num ? `<div class="entry-summary-num">Local ${num}</div>` : ''}
         <div class="entry-summary-loc">${locText}</div>
         <div class="entry-summary-dates">${datasText}</div>
       </div>
@@ -7853,9 +7870,11 @@ function addEventEntry(opts) {
     list.querySelectorAll('.event-entry').forEach(e => _collapseEntry(e));
   }
 
+  const entryNum = list.children.length + 1;
   const div = document.createElement('div');
   div.className = 'event-entry';
   div.style.cssText = 'margin-bottom:12px';
+  div.dataset.entryNum = entryNum;
 
   let paisHtml = '';
   if (isFirst) {
@@ -7888,6 +7907,10 @@ function addEventEntry(opts) {
   div.innerHTML = `
     <div class="entry-summary" style="display:none"></div>
     <div class="entry-form" style="padding-bottom:12px;border-bottom:1px solid var(--gray-1)">
+      <div class="entry-form-heading">
+        <span class="entry-form-heading-label">Local ${entryNum}</span>
+        <div class="entry-form-heading-line"></div>
+      </div>
       <div style="display:flex;gap:10px;align-items:flex-start">
         <div style="flex:1;display:flex;flex-direction:column;gap:10px">
           ${paisHtml}
@@ -7970,7 +7993,7 @@ function _initEventoFormatoToggle() {
   const _apply = () => {
     const v = sel.value;
     const showTransmissao = v === 'online' || v === 'hibrido';
-    const showPresencial = v !== 'online';
+    const showPresencial = v === 'presencial' || v === 'hibrido';
     const txWrap = document.getElementById('transmissao-evento')?.closest('.form-group');
     if (txWrap) txWrap.style.display = showTransmissao ? '' : 'none';
     _getPresencialContainers().forEach(c => { c.style.display = showPresencial ? '' : 'none'; });
