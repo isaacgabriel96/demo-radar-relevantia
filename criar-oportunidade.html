@@ -4661,6 +4661,18 @@ const TEMPLATES = {
           'K-Pop'
         ]
       },
+      { id: 'artista-show-toggle', type: 'artista-show-toggle', fullWidth: true },
+      { type: 'container-start', id: 'artista-show-wrapper' },
+      {
+        id: 'shows-por-mes', label: 'Média de shows por mês', type: 'select',
+        options: [
+          {v:'esporadico', l:'Esporádico (menos de 1 por mês)'},
+          {v:'1-2',        l:'1 a 2 shows por mês'},
+          {v:'3-5',        l:'3 a 5 shows por mês'},
+          {v:'6-10',       l:'6 a 10 shows por mês'},
+          {v:'10+',        l:'Mais de 10 shows por mês'}
+        ]
+      },
       {
         id: 'publico-show', label: 'Média de público por show', type: 'select',
         options: [
@@ -4669,7 +4681,16 @@ const TEMPLATES = {
           {v:'5k-20k',  l:'5.000 a 20.000'},
           {v:'20k+',    l:'Mais de 20.000'}
         ]
-      }
+      },
+      {
+        id: 'abrangencia-shows', label: 'Abrangência dos shows', type: 'select',
+        options: [
+          {v:'regional',      l:'Regional'},
+          {v:'nacional',      l:'Nacional'},
+          {v:'internacional', l:'Internacional'}
+        ]
+      },
+      { type: 'container-end' }
     ]
   },
   'midia': {
@@ -5488,7 +5509,7 @@ function renderTemplateFields(key) {
       while (hi < hFields.length) {
         const hf = hFields[hi];
         const hn = hFields[hi + 1];
-        const alwaysFull = ['event-dates','section-heading','presential-audience-toggle','presential-age-ranges','hidden','container-start','container-end','section-card-start','section-card-end','publico-group','transmissao-section','genero-pair','tag-select'];
+        const alwaysFull = ['event-dates','section-heading','presential-audience-toggle','presential-age-ranges','hidden','container-start','container-end','section-card-start','section-card-end','publico-group','transmissao-section','genero-pair','tag-select','artista-show-toggle'];
         if (alwaysFull.includes(hf.type) || hf.fullWidth || hf.type === 'multiselect-pills' || !hn || alwaysFull.includes(hn?.type || '')) {
           hHtml += buildFieldHtml(hf, true);
           hi++;
@@ -5549,6 +5570,9 @@ function renderTemplateFields(key) {
     if (eventDatesContainer) addEventEntry();
     _initEventoFormatoToggle();
     _initLocalEventoMaps();
+  }
+  if (key === 'artista') {
+    _initArtistaShowToggle();
   }
 
   // Aplica detalhes e cotas pendentes (modo edição)
@@ -5697,6 +5721,18 @@ function buildFieldHtml(f, fullWidth) {
     inner = `<div class="pills-group" id="${f.id}"${maxAttr}>
       ${f.options.map(o => `<div class="pill-opt" onclick="togglePillOpt(this)">${o}</div>`).join('')}
     </div>${hint}`;
+  } else if (f.type === 'artista-show-toggle') {
+    return `<div class="form-group full-width" id="${f.id}">
+      <div class="est-toggle-row" style="margin-top:0">
+        <span style="font-size:13px;font-weight:600;color:var(--gray-4)">O artista faz shows ao vivo?</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="est-badge" id="artista-show-badge">Não</span>
+          <div class="est-toggle-switch" id="est-toggle-artista-show" onclick="_onArtistaShowToggle(this)">
+            <div class="est-toggle-knob"></div>
+          </div>
+        </div>
+      </div>
+    </div>`;
   } else if (f.type === 'tag-select') {
     const maxAttr = f.max ? ` data-max="${f.max}"` : '';
     const placeholder = f.max ? `Selecione até ${f.max}` : 'Selecione';
@@ -8411,6 +8447,19 @@ function onTransmissaoToggle(btn) {
   const platforms = document.getElementById('transmissao-platforms');
   if (badge) badge.textContent = active ? 'Sim' : 'Não';
   if (platforms) platforms.style.display = active ? '' : 'none';
+}
+
+function _onArtistaShowToggle(btn) {
+  const active = btn.classList.toggle('active');
+  const badge = document.getElementById('artista-show-badge');
+  const wrapper = document.getElementById('artista-show-wrapper');
+  if (badge) { badge.textContent = active ? 'Sim' : 'Não'; }
+  if (wrapper) wrapper.style.display = active ? '' : 'none';
+}
+
+function _initArtistaShowToggle() {
+  const wrapper = document.getElementById('artista-show-wrapper');
+  if (wrapper) wrapper.style.display = 'none';
 }
 
 function _initEventoFormatoToggle() {
