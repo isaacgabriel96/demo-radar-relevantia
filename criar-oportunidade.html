@@ -1007,6 +1007,18 @@ input[type=number] { -moz-appearance: textfield; }
 .entry-remove-btn:hover { color: var(--gray-4); }
 .btn-entry-save { margin-top: 10px; display: block; margin-left: auto; font-size: 12px; font-family: var(--font-body); font-weight: 600; padding: 7px 18px; border-radius: var(--radius-pill); border: 1.5px solid var(--gray-3); background: transparent; color: var(--gray-4); cursor: pointer; transition: all .15s; }
 .btn-entry-save:hover { background: var(--gray-4); color: #fff; border-color: var(--gray-4); }
+.pub-period-toggle { display: flex; gap: 4px; margin-top: 8px; }
+.pub-period-btn { font-size: 12px; font-family: var(--font-body); font-weight: 500; padding: 5px 14px; border-radius: var(--radius-pill); border: 1px solid var(--gray-2); background: transparent; color: var(--gray-3); cursor: pointer; transition: all .15s; }
+.pub-period-btn.active { background: var(--gray-4); color: #fff; border-color: var(--gray-4); }
+.presencial-section-wrapper { border: 1px solid var(--gray-2); border-radius: var(--radius-md); padding: 20px; margin-top: 8px; background: var(--white-warm); }
+.presencial-section-wrapper .form-group { margin-bottom: 16px; }
+.presencial-section-wrapper .form-group:last-child { margin-bottom: 0; }
+.presencial-section-heading { font-family: var(--font-heading); font-size: 14px; font-weight: 700; color: var(--gray-4); text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 20px; }
+.presencial-section-heading-wrap { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+.presencial-section-heading-line { flex: 1; height: 1px; background: var(--gray-2); }
+.presencial-section-wrapper #publico-presencial-section { margin-top: 0 !important; margin-bottom: 16px !important; }
+.presencial-section-wrapper #publico-presencial-section > div { padding-top: 0; }
+.presencial-section-wrapper .grid-2 { margin-bottom: 0; }
 .entry-save-error { font-size: 11px; color: #c0392b; margin: 5px 0 0; text-align: right; }
 .entry-ac-wrap { position: relative; }
 .mdp { position: relative; }
@@ -4492,7 +4504,7 @@ const TEMPLATES = {
         id: 'datas-evento', label: 'Detalhes do evento', type: 'event-dates', fullWidth: true
       },
       {
-        id: 'publico-esperado', label: 'Público esperado', type: 'select',
+        id: 'publico-esperado', label: 'Público esperado', type: 'publico-group', fullWidth: true,
         options: [
           {v:'ate100',  l:'Até 100 pessoas'},
           {v:'100-500', l:'100 a 500 pessoas'},
@@ -4500,13 +4512,6 @@ const TEMPLATES = {
           {v:'2k-10k',  l:'2.000 a 10.000'},
           {v:'10k-50k', l:'10.000 a 50.000'},
           {v:'50k+',    l:'Mais de 50.000'}
-        ]
-      },
-      {
-        id: 'publico-contagem', label: 'Este número é', type: 'select',
-        options: [
-          {v:'por-dia',  l:'Por dia'},
-          {v:'total',    l:'Total do evento'}
         ]
       },
       {
@@ -4519,13 +4524,14 @@ const TEMPLATES = {
       {
         id: 'transmissao-evento', label: '', type: 'transmissao-section', fullWidth: true
       },
+      { type: 'container-start', id: 'presencial-section-wrapper' },
       {
         id: 'publico-presencial-section', label: '', type: 'section-heading',
         heading: 'Perfil do público presencial', fullWidth: true
       },
       {
-        id: 'historico-publico', label: 'Público na última edição', type: 'text',
-        placeholder: 'Ex: 12.000 pessoas na edição 2024'
+        id: 'historico-publico', label: 'Público na última edição', type: 'number-formatted',
+        placeholder: 'Ex: 12.000'
       },
       {
         id: 'perfil-socioeconomico', label: 'Perfil socioeconômico dominante', type: 'select',
@@ -4559,6 +4565,7 @@ const TEMPLATES = {
           {v:'estimativa', l:'Estimativa'}
         ]
       },
+      { type: 'container-end' },
     ]
   },
   'artista': {
@@ -5420,7 +5427,7 @@ function renderTemplateFields(key) {
       while (hi < hFields.length) {
         const hf = hFields[hi];
         const hn = hFields[hi + 1];
-        const alwaysFull = ['event-dates','section-heading','presential-audience-toggle','presential-age-ranges','hidden'];
+        const alwaysFull = ['event-dates','section-heading','presential-audience-toggle','presential-age-ranges','hidden','container-start','container-end','publico-group','transmissao-section'];
         if (alwaysFull.includes(hf.type) || hf.fullWidth || hf.type === 'multiselect-pills' || !hn || alwaysFull.includes(hn?.type || '')) {
           hHtml += buildFieldHtml(hf, true);
           hi++;
@@ -5452,7 +5459,7 @@ function renderTemplateFields(key) {
     const nextF = fields[i + 1];
 
     // Tipos que são sempre full-width e renderizam seus próprios containers
-    const alwaysFullWidth = ['event-dates','section-heading','presential-audience-toggle','presential-age-ranges','hidden'];
+    const alwaysFullWidth = ['event-dates','section-heading','presential-audience-toggle','presential-age-ranges','hidden','container-start','container-end','publico-group','transmissao-section'];
     if (alwaysFullWidth.includes(f.type)) {
       html += buildFieldHtml(f, true);
       i++;
@@ -5687,6 +5694,31 @@ function buildFieldHtml(f, fullWidth) {
         <p class="transmissao-hint">Selecione as plataformas:</p>
         <div class="pills-group">${pillsHtml}</div>
       </div>
+    </div>`;
+  } else if (f.type === 'container-start') {
+    return `<div class="presencial-section-wrapper"${f.id ? ` id="${f.id}"` : ''}>`;
+  } else if (f.type === 'container-end') {
+    return `</div>`;
+  } else if (f.type === 'publico-group') {
+    const opts = (f.options || []).map(o => `<option value="${o.v}">${o.l}</option>`).join('');
+    return `<div class="form-group full-width">
+      <label>${f.label}</label>
+      <select class="form-control" id="${f.id}">
+        <option value="">Selecione...</option>
+        ${opts}
+      </select>
+      <div class="pub-period-toggle">
+        <button type="button" class="pub-period-btn active" data-val="por-dia" onclick="setPublicoPeriodo(this)">Por dia</button>
+        <button type="button" class="pub-period-btn" data-val="total" onclick="setPublicoPeriodo(this)">Total do evento</button>
+      </div>
+      <input type="hidden" id="publico-contagem" value="por-dia">
+    </div>`;
+  } else if (f.type === 'number-formatted') {
+    const wrapClass = fullWidth ? 'form-group full-width' : 'form-group';
+    return `<div class="${wrapClass}">
+      <label>${f.label}${f.required ? ' <span class="required">*</span>' : ''}</label>
+      <input type="text" class="form-control" id="${f.id}" placeholder="${f.placeholder || ''}"
+        inputmode="numeric" autocomplete="off" oninput="maskNumberFormatted(this)">
     </div>`;
   } else if (f.type === 'presential-audience-toggle') {
     // Toggle Estimativa / Dado real para público presencial
@@ -8008,20 +8040,23 @@ function onTipoRecorrenciaChange(sel) {
 }
 
 function _getPresencialContainers() {
-  const ids = ['publico-presencial-section','historico-publico','perfil-socioeconomico',
-                'presencial-est-toggle','presencial-genero-f','presencial-genero-m',
-                'presencial-faixas-etarias','presencial-periodo'];
-  const seen = new Set();
-  const result = [];
-  ids.forEach(id => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    const fg = el.closest('.form-group');
-    if (!fg) return;
-    const container = fg.parentElement?.classList.contains('grid-2') ? fg.parentElement : fg;
-    if (!seen.has(container)) { seen.add(container); result.push(container); }
-  });
-  return result;
+  const wrapper = document.getElementById('presencial-section-wrapper');
+  return wrapper ? [wrapper] : [];
+}
+
+function setPublicoPeriodo(btn) {
+  const group = btn.closest('.pub-period-toggle');
+  if (!group) return;
+  group.querySelectorAll('.pub-period-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const hidden = group.parentElement?.querySelector('#publico-contagem');
+  if (hidden) hidden.value = btn.dataset.val || '';
+}
+
+function maskNumberFormatted(input) {
+  const raw = input.value.replace(/\D/g, '');
+  if (!raw) { input.value = ''; return; }
+  input.value = parseInt(raw, 10).toLocaleString('pt-BR').replace(/,/g, '.');
 }
 
 function onTransmissaoToggle(btn) {
