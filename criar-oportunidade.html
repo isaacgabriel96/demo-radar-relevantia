@@ -10116,14 +10116,10 @@ window.agPreencher = function() {
     }
   }
 
-  // Volta para o Step 1 — template já selecionado, todos os campos pré-preenchidos no DOM.
-  // O usuário percorre o formulário do início (1 → 2 → 3 → …) e não pula nenhum campo.
-  const panels = document.querySelectorAll('[id^="panel-"]');
-  panels.forEach(p => p.style.display = 'none');
-  document.getElementById('panel-1').style.display = 'block';
+  // Vai direto para Detalhes Específicos (panel-5 / step 2) — template já selecionado,
+  // campos pré-preenchidos no DOM. O usuário revisa a partir do primeiro campo do form.
   currentStep = 1;
-  _updateProgressDots(1);
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  nextStep(2); // nextStep(2) com prev=1 → mostra panel-5 corretamente
 };
 
 /* ══════════════════════════════════════════════
