@@ -9538,27 +9538,43 @@ async function agProcessPdf(file) {
   agAddChip('pdf', label, null, true);
 
   try {
-    // Faz upload do PDF para a Gemini Files API via proxy seguro
-    const res = await fetch('/api/gemini-upload', {
+    // Etapa 1: pede ao backend uma uploadUrl temporária (body pequeno, sem limite 413)
+    const initRes = await fetch('/api/gemini-upload', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fileName: label, mimeType: 'application/pdf', fileSize: file.size }),
+    });
+    const initData = await initRes.json().catch(() => ({}));
+    if (!initRes.ok || !initData.uploadUrl) {
+      throw new Error(initData.error || `Falha ao iniciar upload (HTTP ${initRes.status})`);
+    }
+
+    // Etapa 2: envia o binário diretamente ao Google (sem passar pelo Vercel)
+    const uploadRes = await fetch(initData.uploadUrl, {
+      method: 'PUT',
       headers: {
         'Content-Type': 'application/pdf',
-        'X-File-Name': encodeURIComponent(label),
-        'X-Mime-Type': 'application/pdf',
+        'X-Goog-Upload-Command': 'upload, finalize',
+        'X-Goog-Upload-Offset': '0',
       },
       body: file,
     });
 
-    const data = await res.json().catch(() => ({}));
+    if (!uploadRes.ok) {
+      const errText = await uploadRes.text().catch(() => '');
+      throw new Error(`Upload falhou (HTTP ${uploadRes.status}): ${errText.slice(0, 200)}`);
+    }
 
-    if (!res.ok || !data.fileUri) {
-      throw new Error(data.error || `Upload falhou (HTTP ${res.status})`);
+    const uploadData = await uploadRes.json().catch(() => ({}));
+    const fileUri = uploadData.file?.uri;
+    if (!fileUri) {
+      throw new Error('Google não retornou fileUri após upload.');
     }
 
     const idx = window._agState.attachments.findIndex(a => a.label === label && a.type === 'pdf');
     if (idx >= 0) {
-      window._agState.attachments[idx].fileUri  = data.fileUri;
-      window._agState.attachments[idx].mimeType = data.mimeType || 'application/pdf';
+      window._agState.attachments[idx].fileUri  = fileUri;
+      window._agState.attachments[idx].mimeType = uploadData.file?.mimeType || 'application/pdf';
       window._agState.attachments[idx].ready    = true;
     }
     agRenderChips();

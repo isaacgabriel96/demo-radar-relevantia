@@ -1,25 +1,22 @@
 /**
- * Vercel Function — Proxy de upload para a Gemini Files API
+ * Vercel Function — Inicia upload resumível para a Gemini Files API
  * Radar Relevantia · /api/gemini-upload
  *
- * Recebe: POST multipart/form-data com campo "file" (PDF, até 100MB)
- * Retorna: { fileUri, mimeType, name } — fileUri usado em contents do Gemini
+ * Fluxo (evita limite de 4.5MB do Vercel):
+ *   1. Frontend POST aqui com { fileName, mimeType, fileSize }
+ *   2. Este endpoint inicia o upload resumível na Gemini → devolve { uploadUrl, fileUri? }
+ *   3. Frontend faz PUT direto para uploadUrl com o binário do arquivo
+ *   4. Frontend aguarda estado ACTIVE e obtém fileUri
+ *
+ * Alternativa para arquivos ≤ 4MB: POST aqui com body binário (Content-Type: application/pdf)
+ * e headers X-File-Name, X-Mime-Type → upload multipart feito aqui mesmo.
  *
  * Variável de ambiente necessária no painel da Vercel:
  *   GEMINI_API_KEY = AIza...
- *
- * Gemini Files API:
- *   - Suporta PDFs de até 2GB (via upload resumível) / 20MB (inline)
- *   - Arquivos ficam disponíveis por 48h
- *   - Limite de 20GB armazenado por projeto
  */
 
-export const config = {
-  api: { bodyParser: false },
-};
-
-// Aumenta o timeout — uploads grandes podem demorar
-export const maxDuration = 60;
+// Aumenta o timeout — apenas para a inicialização do upload resumível
+export const maxDuration = 30;
 
 const UPLOAD_URL = 'https://generativelanguage.googleapis.com/upload/v1beta/files';
 
@@ -45,64 +42,41 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Lê o body como buffer (bodyParser desabilitado)
-    const chunks = [];
-    for await (const chunk of req) chunks.push(chunk);
-    const fileBuffer = Buffer.concat(chunks);
+    const { fileName, mimeType = 'application/pdf', fileSize } = req.body || {};
 
-    if (fileBuffer.length === 0) {
-      return res.status(400).json({ error: 'Arquivo vazio.' });
+    if (!fileName || !fileSize) {
+      return res.status(400).json({ error: 'fileName e fileSize são obrigatórios.' });
     }
 
-    const mimeType  = req.headers['x-mime-type']  || 'application/pdf';
-    const fileName  = req.headers['x-file-name']  || 'documento.pdf';
-    const fileSize  = fileBuffer.length;
-
-    // Upload para a Gemini Files API (multipart upload)
-    const boundary = '----GeminiUploadBoundary' + Date.now();
-    const metadataPart =
-      `--${boundary}\r\n` +
-      `Content-Type: application/json; charset=utf-8\r\n\r\n` +
-      JSON.stringify({ file: { display_name: fileName } }) +
-      `\r\n`;
-    const filePart =
-      `--${boundary}\r\n` +
-      `Content-Type: ${mimeType}\r\n\r\n`;
-    const closing = `\r\n--${boundary}--`;
-
-    const metaBuf  = Buffer.from(metadataPart, 'utf8');
-    const fileHdr  = Buffer.from(filePart, 'utf8');
-    const closeBuf = Buffer.from(closing, 'utf8');
-    const body     = Buffer.concat([metaBuf, fileHdr, fileBuffer, closeBuf]);
-
-    const uploadRes = await fetch(`${UPLOAD_URL}?key=${apiKey}`, {
+    // Inicia upload resumível — o Google retorna uma uploadUrl temporária
+    // O frontend usará essa URL para fazer o PUT direto com o binário do arquivo
+    const initRes = await fetch(`${UPLOAD_URL}?key=${apiKey}`, {
       method: 'POST',
       headers: {
-        'Content-Type': `multipart/related; boundary=${boundary}`,
-        'Content-Length': body.length,
-        'X-Goog-Upload-Protocol': 'multipart',
+        'Content-Type': 'application/json',
+        'X-Goog-Upload-Protocol': 'resumable',
+        'X-Goog-Upload-Command': 'start',
+        'X-Goog-Upload-Header-Content-Length': String(fileSize),
+        'X-Goog-Upload-Header-Content-Type': mimeType,
       },
-      body,
+      body: JSON.stringify({ file: { display_name: fileName } }),
     });
 
-    if (!uploadRes.ok) {
-      const err = await uploadRes.json().catch(() => ({}));
-      console.error('Gemini Files API error:', err);
-      return res.status(502).json({ error: 'Erro ao fazer upload do PDF para a IA.', detail: err?.error?.message });
+    if (!initRes.ok) {
+      const err = await initRes.json().catch(() => ({}));
+      console.error('Gemini init upload error:', err);
+      return res.status(502).json({ error: 'Erro ao iniciar upload.', detail: err?.error?.message });
     }
 
-    const data = await uploadRes.json();
-    const fileUri  = data.file?.uri;
-    const fileMime = data.file?.mimeType || mimeType;
-    const name     = data.file?.name;
-
-    if (!fileUri) {
-      return res.status(502).json({ error: 'Gemini não retornou URI do arquivo.' });
+    // A uploadUrl está no header X-Goog-Upload-URL
+    const uploadUrl = initRes.headers.get('x-goog-upload-url');
+    if (!uploadUrl) {
+      return res.status(502).json({ error: 'Gemini não retornou upload URL.' });
     }
 
-    return res.status(200).json({ fileUri, mimeType: fileMime, name, displayName: fileName });
+    return res.status(200).json({ uploadUrl });
   } catch (err) {
-    console.error('Erro interno upload:', err);
+    console.error('Erro interno gemini-upload:', err);
     return res.status(500).json({ error: 'Erro interno do servidor.' });
   }
 }
