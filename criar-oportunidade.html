@@ -9821,44 +9821,72 @@ function agBuildConfirmationSummary(parsed) {
   const c = parsed.campos || {};
   const v = (campo) => c[campo]?.valor ?? null;
 
-  const tipo    = v('tipo') || '—';
-  const nome    = v('nome_oportunidade') || '—';
-  const descCurta = v('descricao_curta');
-  const canais  = v('canais') || [];
-  const cotas   = v('cotas') || [];
-  const segmentos = v('segmentos') || [];
-  const incVal  = v('incentivo') || {};
+  const tipo        = v('tipo') || '—';
+  const nome        = v('nome_oportunidade') || '—';
+  const descCurta   = v('descricao_curta');
+  const descCompleta = v('descricao_completa');
+  const buscaMarca  = v('busca_marca');
+  const segmentos   = v('segmentos') || [];
+  const incVal      = v('incentivo') || {};
   const temIncentivo = incVal?.tem_incentivo?.valor ?? incVal?.tem_incentivo ?? false;
   const tipoLabel = { personalidade: 'Personalidade', evento: 'Evento', artista: 'Artista', midia: 'Mídia' };
-  const getVal  = (obj, key) => obj?.[key]?.valor ?? obj?.[key] ?? null;
 
-  let html = `✅ <strong>Pronto para preencher! Aqui está o que vou cadastrar:</strong><br><br>`;
-  html += `<ul style="margin:0;padding-left:16px">`;
-  html += `<li><strong>Tipo:</strong> ${agEsc(tipoLabel[tipo] || tipo)}</li>`;
-  html += `<li><strong>Nome:</strong> ${agEsc(nome)}</li>`;
-  if (descCurta) html += `<li><strong>Desc. curta:</strong> ${agEsc(descCurta.substring(0,80))}${descCurta.length>80?'…':''}</li>`;
-  if (canais.length) {
-    const str = canais.map(ch => {
-      const rede = getVal(ch,'rede') || '';
-      const user = getVal(ch,'username');
-      const segs = getVal(ch,'seguidores');
-      return `${rede}${user?' @'+user:''}${segs?' ('+Number(segs).toLocaleString('pt-BR')+' seg.)':''}`;
-    }).join(', ');
-    html += `<li><strong>Canais:</strong> ${agEsc(str)}</li>`;
+  // Formata segmentos para exibição (snake_case → Título legível)
+  const segmentosLabel = segmentos.map(s =>
+    String(s).split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+  );
+
+  let html = `✅ <strong>Pronto para preencher! Aqui está o que vou cadastrar:</strong>`;
+
+  // Cabeçalho com tipo e nome
+  html += `<div style="margin-top:10px;padding:10px 12px;background:rgba(184,134,11,0.06);border:1px solid rgba(184,134,11,0.2);border-radius:8px">`;
+  html += `<div style="font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:#7A5C1E;margin-bottom:2px">${agEsc(tipoLabel[tipo] || tipo)}</div>`;
+  html += `<div style="font-size:15px;font-weight:600;color:#1A1200">${agEsc(nome)}</div>`;
+  html += `</div>`;
+
+  // Descrição curta (pitch) — sem truncar
+  if (descCurta) {
+    html += `<div style="margin-top:12px">`;
+    html += `<div style="font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:#5C4C38;margin-bottom:4px">Descrição curta <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#A89880">(pitch para marcas)</span></div>`;
+    html += `<div style="line-height:1.55">${agEsc(descCurta)}</div>`;
+    html += `</div>`;
   }
-  if (cotas.length) {
-    const str = cotas.map(ct => {
-      const n = getVal(ct,'nome') || '?';
-      const v = getVal(ct,'valor');
-      return `${n}${v?' R$'+Number(v).toLocaleString('pt-BR'):''}`;
-    }).join(', ');
-    html += `<li><strong>Cotas:</strong> ${agEsc(str)}</li>`;
+
+  // Descrição completa — o campo mais importante, em destaque
+  if (descCompleta) {
+    html += `<div style="margin-top:14px">`;
+    html += `<div style="font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:#5C4C38;margin-bottom:4px">Descrição completa <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#A89880">(página de apresentação)</span></div>`;
+    html += `<div style="line-height:1.55;white-space:pre-line">${agMsgHtml(descCompleta)}</div>`;
+    html += `</div>`;
   }
-  if (segmentos.length) html += `<li><strong>Segmentos:</strong> ${agEsc(segmentos.join(', '))}</li>`;
-  if (temIncentivo) html += `<li><strong>Incentivo fiscal:</strong> sim</li>`;
-  html += `</ul>`;
-  html += `<br>Algo errado? Corrija aqui no chat. Quando tudo estiver certo:`;
-  html += `<br><button class="ag-btn-confirm" onclick="agPreencher()">→ Preencher formulário</button>`;
+
+  // Busca de marca ideal
+  if (buscaMarca) {
+    html += `<div style="margin-top:14px">`;
+    html += `<div style="font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:#5C4C38;margin-bottom:4px">Perfil de marca ideal</div>`;
+    html += `<div style="line-height:1.55;white-space:pre-line">${agMsgHtml(buscaMarca)}</div>`;
+    html += `</div>`;
+  }
+
+  // Segmentos (chips)
+  if (segmentosLabel.length) {
+    html += `<div style="margin-top:14px">`;
+    html += `<div style="font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:#5C4C38;margin-bottom:6px">Segmentos de marca</div>`;
+    html += `<div style="display:flex;flex-wrap:wrap;gap:6px">`;
+    segmentosLabel.forEach(s => {
+      html += `<span style="display:inline-block;padding:3px 10px;background:#F5F0E8;border:1px solid #E0D8CC;border-radius:100px;font-size:11.5px;color:#5C4C38">${agEsc(s)}</span>`;
+    });
+    html += `</div></div>`;
+  }
+
+  // Incentivo fiscal
+  if (temIncentivo) {
+    html += `<div style="margin-top:14px;font-size:12px;color:#5C4C38">✓ Projeto com incentivo fiscal</div>`;
+  }
+
+  html += `<div style="margin-top:18px;color:#5C4C38">Algo errado? Corrija aqui no chat. Quando tudo estiver certo:</div>`;
+  html += `<button class="ag-btn-confirm" onclick="agPreencher()" style="margin-top:10px">→ Preencher formulário</button>`;
+
   return html;
 }
 
