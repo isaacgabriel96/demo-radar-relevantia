@@ -9884,8 +9884,18 @@ function agBuildConfirmationSummary(parsed) {
     html += `<div style="margin-top:14px;font-size:12px;color:#5C4C38">✓ Projeto com incentivo fiscal</div>`;
   }
 
-  html += `<div style="margin-top:18px;color:#5C4C38">Algo errado? Corrija aqui no chat. Quando tudo estiver certo:</div>`;
-  html += `<button class="ag-btn-confirm" onclick="agPreencher()" style="margin-top:10px">→ Preencher formulário</button>`;
+  // Pergunta explícita convidando revisão antes de avançar
+  html += `<div style="margin-top:20px;padding:12px 14px;background:#F5F0E8;border-radius:8px;line-height:1.6">`;
+  html += `<strong>A leitura que fiz está correta?</strong><br>`;
+  html += `<span style="color:#5C4C38">Me diga se:</span>`;
+  html += `<ul style="margin:6px 0 0;padding-left:18px;color:#5C4C38">`;
+  html += `<li>tem algo errado ou impreciso</li>`;
+  html += `<li>quer ajustar o tom ou a linguagem das descrições</li>`;
+  html += `<li>quer adicionar alguma informação que não contemplei</li>`;
+  html += `</ul>`;
+  html += `<div style="margin-top:8px;color:#5C4C38">Posso refinar aqui mesmo no chat antes de preencher o formulário.</div>`;
+  html += `</div>`;
+  html += `<button class="ag-btn-confirm" onclick="agPreencher()" style="margin-top:12px">→ Está tudo certo, preencher formulário</button>`;
 
   return html;
 }
