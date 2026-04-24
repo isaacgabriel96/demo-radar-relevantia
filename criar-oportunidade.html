@@ -3595,7 +3595,7 @@ input[type=number] { -moz-appearance: textfield; }
             <option value="Outro">Outro país</option>
           </select>
         </div>
-        <div class="grid-2" id="opp-estado-wrap">
+        <div class="grid-2" id="opp-estado-wrap" style="display:none">
           <div class="form-group">
             <label>Estado <span class="required">*</span></label>
             <select class="form-control" id="opp-estado" onchange="updateOppCidades(this.value)">
@@ -3636,9 +3636,9 @@ input[type=number] { -moz-appearance: textfield; }
             </select>
           </div>
         </div>
-        <div class="form-group" id="opp-cidade-intl-wrap" style="display:none">
+        <div class="form-group" id="opp-cidade-intl-wrap">
           <label>Cidade</label>
-          <input type="text" class="form-control" id="opp-cidade-intl" placeholder="Ex: Miami, Florida" autocomplete="off">
+          <input type="text" class="form-control" id="opp-cidade-intl" placeholder="Digite a cidade" autocomplete="off">
         </div>
 
         <hr class="section-divider">
@@ -5761,19 +5761,13 @@ function collectFormData() {
   data.desc = document.getElementById('opp-desc')?.value || '';
   const paisEl = document.getElementById('opp-pais');
   data.pais = paisEl?.value || 'Brasil';
-  const isBrasil = data.pais === 'Brasil';
-  const estadoEl = document.getElementById('opp-estado');
-  const cidadeEl = document.getElementById('opp-cidade');
-  data.estado = isBrasil ? (estadoEl?.options[estadoEl.selectedIndex]?.text || '') : '';
-  if (data.estado === 'Selecione o estado') data.estado = '';
-  data.cidade = isBrasil
-    ? (cidadeEl?.value || '')
-    : (document.getElementById('opp-cidade-intl')?.value.trim() || '');
+  data.estado = '';
+  data.cidade = document.getElementById('opp-cidade-intl')?.value.trim() || '';
   data.local_evento = document.getElementById('local-evento')?.value || '';
   try { data.local_evento_place = JSON.parse(document.getElementById('local-evento-place')?.value || ''); }
   catch { data.local_evento_place = null; }
-  data.location = isBrasil
-    ? [data.cidade, data.estado].filter(Boolean).join(' — ')
+  data.location = data.pais === 'Brasil'
+    ? [data.cidade, 'Brasil'].filter(Boolean).join(' — ')
     : [data.cidade, data.pais].filter(Boolean).join(', ');
   const abrangenciaEl = document.getElementById('opp-abrangencia');
   data.abrangencia = abrangenciaEl?.options[abrangenciaEl.selectedIndex]?.text || '';
@@ -7391,7 +7385,7 @@ function _buildPlaceAutocomplete(input, opts) {
   const chipClear = document.createElement('button'); chipClear.type = 'button'; chipClear.textContent = '×';
   Object.assign(chipClear.style, { background:'none', border:'none', cursor:'pointer', color:'#A89880', fontSize:'20px', padding:'0', lineHeight:'1', flexShrink:'0' });
   chipClear.addEventListener('click', () => { chip.style.display = 'none'; input.style.display = ''; input.value = ''; input.focus(); });
-  chip.appendChild(chipText); chip.appendChild(chipClear); wrap.appendChild(chip);
+  chip.appendChild(chipText); chip.appendChild(chipClear); wrap.appendChild(chip); input._acChip = chip;
   let token = new AutocompleteSessionToken(), timer;
   input.addEventListener('input', () => {
     clearTimeout(timer);
@@ -7451,12 +7445,13 @@ function _buildPlaceAutocomplete(input, opts) {
 
 function toggleOppLocBrasil() {
   const pais = document.getElementById('opp-pais')?.value;
-  const isBrasil = !pais || pais === 'Brasil';
-  const estadoWrap = document.getElementById('opp-estado-wrap');
-  const intlWrap   = document.getElementById('opp-cidade-intl-wrap');
-  if (estadoWrap) estadoWrap.style.display = isBrasil ? '' : 'none';
-  if (intlWrap)   intlWrap.style.display   = isBrasil ? 'none' : '';
-  if (!isBrasil) _loadMapsScript(_attachOppCidadeIntlAutocomplete);
+  const input = document.getElementById('opp-cidade-intl');
+  if (input) {
+    input._acCountryCodes = _PAIS_ISO[pais] ? [_PAIS_ISO[pais]] : null;
+    input.value = '';
+    if (input._acChip) { input._acChip.style.display = 'none'; input.style.display = ''; }
+  }
+  _loadMapsScript(_attachOppCidadeIntlAutocomplete);
 }
 
 const _PAIS_ISO = {'Brasil':'br','Estados Unidos':'us','Portugal':'pt','Argentina':'ar','Espanha':'es','Reino Unido':'gb','França':'fr','Alemanha':'de','Itália':'it','México':'mx','Colômbia':'co','Chile':'cl','Uruguai':'uy','Paraguai':'py','Peru':'pe','Equador':'ec','Bolívia':'bo','Venezuela':'ve','Japão':'jp','China':'cn','Austrália':'au','Canadá':'ca','África do Sul':'za','Emirados Árabes':'ae'};
@@ -8244,6 +8239,8 @@ document.addEventListener('fullscreenchange', function() {
   }
 });
 
+document.addEventListener('DOMContentLoaded', () => _loadMapsScript(_attachOppCidadeIntlAutocomplete));
+
 document.addEventListener('DOMContentLoaded', function() {
   const prevBtn = document.getElementById('mkPrevBtn');
   const nextBtn = document.getElementById('mkNextBtn');
@@ -8339,15 +8336,9 @@ function collectOppData() {
   const objetivos = (quillObjetivos && quillObjetivos.root.innerHTML !== '<p><br></p>') ? quillObjetivos.root.innerHTML : '';
   const buscaMarca = document.getElementById('opp-busca-marca')?.value?.trim() || '';
   const paisReview = document.getElementById('opp-pais')?.value || 'Brasil';
-  const isBrasilReview = paisReview === 'Brasil';
-  const estadoEl = document.getElementById('opp-estado');
-  const cidadeEl = document.getElementById('opp-cidade');
-  const estadoVal = estadoEl?.options[estadoEl.selectedIndex]?.text || '';
-  const cidadeVal = isBrasilReview
-    ? (cidadeEl?.value || '')
-    : (document.getElementById('opp-cidade-intl')?.value.trim() || '');
-  const localizacao = isBrasilReview
-    ? ((cidadeVal && cidadeVal !== 'Selecione…') ? cidadeVal + ', ' + (estadoEl?.value || '') + ' — Brasil' : (estadoVal && estadoVal !== 'Selecione…') ? estadoVal + ' — Brasil' : '')
+  const cidadeVal = document.getElementById('opp-cidade-intl')?.value.trim() || '';
+  const localizacao = paisReview === 'Brasil'
+    ? [cidadeVal, 'Brasil'].filter(Boolean).join(' — ')
     : [cidadeVal, paisReview].filter(Boolean).join(', ');
   const abrangenciaEl = document.getElementById('opp-abrangencia');
   const alcance = abrangenciaEl?.options[abrangenciaEl.selectedIndex]?.text || '';
@@ -9129,31 +9120,14 @@ function maybePreFillEdit(forceRun = false) {
     updateChar(buscaEl, 'buscaCount', 500);
   }
 
-  // Cidade: tenta extrair estado e cidade de "Cidade, UF — Brasil" ou "Cidade, UF"
+  // Cidade: extrai o nome da cidade da string de localização
   const locStr = opp.localizacao || opp.cidade || '';
   if (locStr) {
-    // Formato: "Cidade, UF — Brasil" ou "Cidade, UF"
-    const locClean = locStr.replace(/\s*—\s*Brasil/i, '').trim();
-    const parts = locClean.split(',').map(s => s.trim());
-    const cidadeNome = parts[0] || '';
-    const uf = parts[1] || '';
-    const estadoEl = document.getElementById('opp-estado');
-    if (estadoEl && uf) {
-      estadoEl.value = uf;
-      // Dispara o populate de cidades
-      updateOppCidades(uf);
-      // Aguarda renderização das opções e tenta setar a cidade
-      setTimeout(() => {
-        const cidadeEl = document.getElementById('opp-cidade');
-        if (cidadeEl && cidadeNome) {
-          // Procura opção que contenha o texto da cidade
-          const opt = Array.from(cidadeEl.options).find(o =>
-            o.text.toLowerCase().includes(cidadeNome.toLowerCase()) ||
-            o.value.toLowerCase().includes(cidadeNome.toLowerCase())
-          );
-          if (opt) cidadeEl.value = opt.value;
-        }
-      }, 50);
+    const cidadeNome = locStr.replace(/\s*—\s*Brasil/i, '').split(',')[0].trim();
+    const intlInput = document.getElementById('opp-cidade-intl');
+    if (intlInput && cidadeNome) {
+      intlInput.value = cidadeNome;
+      if (intlInput._acChip) { intlInput._acChip.querySelector('span').textContent = cidadeNome; intlInput._acChip.style.display = 'flex'; intlInput.style.display = 'none'; }
     }
   }
 
@@ -9355,19 +9329,11 @@ function loadMockData() {
     updateChar(descEl, 'descCount', 300);
   }
 
-  // Estado e cidade
-  const estadoEl = document.getElementById('opp-estado');
-  if (estadoEl) {
-    estadoEl.value = 'SP';
-    if (typeof updateOppCidades === 'function') updateOppCidades('SP');
-    setTimeout(() => {
-      const cidadeEl = document.getElementById('opp-cidade');
-      if (cidadeEl) {
-        const opt = Array.from(cidadeEl.options).find(o => o.text.includes('São Sebastião'));
-        if (opt) cidadeEl.value = opt.value;
-        else cidadeEl.value = cidadeEl.options[5]?.value || '';
-      }
-    }, 100);
+  // Cidade
+  const intlInputTest = document.getElementById('opp-cidade-intl');
+  if (intlInputTest) {
+    intlInputTest.value = 'São Sebastião';
+    if (intlInputTest._acChip) { intlInputTest._acChip.querySelector('span').textContent = 'São Sebastião'; intlInputTest._acChip.style.display = 'flex'; intlInputTest.style.display = 'none'; }
   }
 
   // Abrangência
