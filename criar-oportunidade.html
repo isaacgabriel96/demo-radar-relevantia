@@ -7410,7 +7410,7 @@ function _buildPlaceAutocomplete(input, opts) {
       try {
         const req = { input: q, sessionToken: token };
         if (opts?.types) req.includedPrimaryTypes = opts.types;
-        if (opts?.countryCodes) req.includedRegionCodes = opts.countryCodes;
+        if (input._acCountryCodes) req.includedRegionCodes = input._acCountryCodes;
         const { suggestions } = await AutocompleteSuggestion.fetchAutocompleteSuggestions(req);
         ul.innerHTML = '';
         if (!suggestions?.length) { ul.style.display = 'none'; return; }
@@ -7464,11 +7464,12 @@ function toggleOppLocBrasil() {
 
 const _PAIS_ISO = {'Estados Unidos':'us','Portugal':'pt','Argentina':'ar','Espanha':'es','Reino Unido':'gb','França':'fr','Alemanha':'de','Itália':'it','México':'mx','Colômbia':'co','Chile':'cl','Uruguai':'uy','Paraguai':'py','Peru':'pe','Equador':'ec','Bolívia':'bo','Venezuela':'ve','Japão':'jp','China':'cn','Austrália':'au','Canadá':'ca','África do Sul':'za','Dubai/EAU':'ae'};
 function _attachOppCidadeIntlAutocomplete() {
+  const input = document.getElementById('opp-cidade-intl');
+  if (!input) return;
   const pais = document.getElementById('opp-pais')?.value;
-  const iso = _PAIS_ISO[pais];
-  _buildPlaceAutocomplete(document.getElementById('opp-cidade-intl'), {
-    types: ['locality', 'administrative_area_level_2'],
-    countryCodes: iso ? [iso] : undefined
+  input._acCountryCodes = _PAIS_ISO[pais] ? [_PAIS_ISO[pais]] : null;
+  _buildPlaceAutocomplete(input, {
+    types: ['locality', 'administrative_area_level_2']
   });
 }
 
