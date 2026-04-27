@@ -2887,10 +2887,10 @@ br.mobile-only { display: none; }
     align-items: stretch;
     height: 100%;
   }
-  /* Cards: largura ~80% do viewport para deixar o próximo card aparecer pelo lado
-     (sensação de "vindo da direita"). Altura preenche o rail-wrap. */
+  /* Cards: largura conservadora — cabe 100% no viewport com peek do próximo card.
+     16px rail padding-left + ~card-width + ~14px gap + peek do próximo. */
   .feature-card {
-    width: calc(100vw - 80px);   /* mais estreito = peek do próximo card */
+    width: calc(100vw - 120px);  /* ~70% do viewport, garantia de não transbordar */
     height: 100%;
     max-height: none;
     min-height: 0;
