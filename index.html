@@ -2925,14 +2925,8 @@ br.mobile-only { display: none; }
     min-height: 0;
     overflow: hidden;
   }
-  /* Card inteiro com gradiente bege (mesmo padrão do .feature-ui) — sem split branco/bege */
-  .feature-card {
-    background: linear-gradient(180deg, var(--gray-1) 0%, #f1ece1 100%) !important;
-  }
-  .feature-card .feature-ui {
-    background: transparent !important;
-    border-top: none !important;
-  }
+  /* Mantém padrão do desktop: card com topo branco + .feature-ui bege com border-top.
+     Sem overrides aqui — herda os estilos base. */
   /* Chat body: remove máscara */
   .fui-chat-body {
     justify-content: flex-end;
