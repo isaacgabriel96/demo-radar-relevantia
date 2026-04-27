@@ -2847,19 +2847,19 @@ br.mobile-only { display: none; }
     padding: 14px 16px;
   }
 
-  /* ── FEATURES RAIL — scroll nativo no mobile (sem JS animation) ── */
-  /* O pin sticky é desligado; o rail vira um scroll horizontal com snap nativo do iOS */
+  /* ── FEATURES RAIL — sticky pin com altura dinâmica (dvh) no mobile ── */
   .features-pin {
-    position: static;   /* sem sticky no mobile */
-    height: auto;
-    top: 0;
-    padding: clamp(14px, 4vw, 24px) 0 clamp(20px, 5vw, 32px);
-    overflow: visible;
+    /* dvh = dynamic viewport height: ajusta automaticamente quando barra do Safari recolhe.
+       Não usamos top:56px aqui; o pin cobre o nav (que é semi-transparente/scroll-aware). */
+    height: 100dvh;
+    padding: 12px 0 16px;
+    overflow: hidden;
   }
   .features .section-head {
-    padding: 0 16px;
+    padding: 56px 16px 0; /* 56px = altura do nav, evita conteúdo atrás dele */
     text-align: left;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
+    flex-shrink: 0;
   }
   .features .section-head h2 {
     font-size: clamp(22px, 6.4vw, 26px);
@@ -2869,45 +2869,39 @@ br.mobile-only { display: none; }
     font-size: clamp(14px, 3.8vw, 16px);
     margin-top: 4px;
   }
-  /* Rail-wrap vira o container de scroll horizontal */
+  /* Rail-wrap: ocupa o restante e clipa overflow */
   .features-rail-wrap {
-    overflow-x: auto;
-    overflow-y: visible;
-    -webkit-overflow-scrolling: touch;
-    scroll-snap-type: x mandatory;
-    align-items: flex-start;
-    /* esconde scrollbar mas mantém funcional */
-    scrollbar-width: none;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    align-items: stretch;
   }
-  .features-rail-wrap::-webkit-scrollbar { display: none; }
-  /* Rail: sem transform JS, sem overflow oculto */
   .features-rail {
-    transform: none !important;
-    overflow: visible;
-    padding: 4px 16px 16px;
-    gap: 12px;
+    padding: 4px 16px;
+    gap: 14px;
+    align-items: stretch;
+    height: 100%;
   }
-  /* Cards: largura mostra ~90% + peek do próximo, altura automática */
+  /* Cards: ocupam quase toda largura, altura preenche o rail-wrap */
   .feature-card {
-    width: calc(100vw - 56px);
-    height: auto;
-    min-height: 420px;
+    width: calc(100vw - 48px);
+    height: 100%;
     max-height: none;
-    scroll-snap-align: start;
+    min-height: 0;
     flex-shrink: 0;
   }
-  /* Último card: margem direita para não grudar na borda */
-  .feature-card:last-child { margin-right: 16px; }
-  /* Libera a altura travada da descrição para não cortar o texto */
+  /* Libera altura travada da descrição para não cortar texto */
   .feature-card > p {
     height: auto;
     overflow: visible;
     -webkit-line-clamp: unset;
+    flex-shrink: 0;
   }
   .feature-card > p + .feature-ui {
     margin-top: 12px;
     flex: 1;
     min-height: 0;
+    overflow: hidden;
   }
   /* Chat body: remove máscara */
   .fui-chat-body {
@@ -4478,7 +4472,7 @@ if (window.gsap && window.ScrollTrigger) {
   let railTravel = 0;    // actual horizontal pixels the rail needs to move
   let scrollDistance = 0; // vertical scroll consumed (= railTravel × speed multiplier)
   let viewportW = window.innerWidth;
-  const isMobile = () => window.innerWidth <= 600; // mobile usa scroll nativo (CSS snap)
+  const isMobile = () => false; // sticky horizontal scroll igual ao desktop em todos os breakpoints
 
   function measure() {
     viewportW = window.innerWidth;
@@ -4540,6 +4534,10 @@ if (window.gsap && window.ScrollTrigger) {
 
   applyMode();
   window.addEventListener('resize', () => { applyMode(); }, { passive: true });
+  // iOS Safari: remeasure when address bar shows/hides (changes viewport height)
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', () => { applyMode(); }, { passive: true });
+  }
   // Use Lenis scroll event if available (avoids jitter from double-firing on iOS)
   if (window.lenis) {
     window.lenis.on('scroll', () => { if (!isMobile()) update(); });
