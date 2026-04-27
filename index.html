@@ -2852,11 +2852,11 @@ br.mobile-only { display: none; }
     padding: 14px 16px;
   }
 
-  /* ── FEATURES RAIL — sticky pin com altura dinâmica (dvh) no mobile ── */
+  /* ── FEATURES RAIL — sticky pin com altura ESTÁVEL (svh) no mobile ──
+     svh = small viewport height: o MENOR viewport possível, NÃO muda quando barra
+     do Safari recolhe. Garante que cards não mudam de tamanho ao scrollar. */
   .features-pin {
-    /* dvh = dynamic viewport height: ajusta automaticamente quando barra do Safari recolhe.
-       Não usamos top:56px aqui; o pin cobre o nav (que é semi-transparente/scroll-aware). */
-    height: 100dvh;
+    height: 100svh;
     padding: 12px 0 16px;
     overflow: hidden;
   }
@@ -2887,28 +2887,27 @@ br.mobile-only { display: none; }
     align-items: stretch;
     height: 100%;
   }
-  /* Cards: largura normal. O conteúdo interno é escalado proporcionalmente
-     via .feature-card-inner (wrapper) para caber na altura do mobile sem
-     mudar nada visualmente — fica igualzinho ao desktop, só menor. */
+  /* Cards: largura ~80% do viewport para deixar o próximo card aparecer pelo lado
+     (sensação de "vindo da direita"). Altura preenche o rail-wrap. */
   .feature-card {
-    width: calc(100vw - 48px);
+    width: calc(100vw - 80px);   /* mais estreito = peek do próximo card */
     height: 100%;
     max-height: none;
     min-height: 0;
     flex-shrink: 0;
     overflow: hidden;
-    padding: 0; /* o padding agora vive no inner para escalar junto */
+    padding: 0;
   }
-  /* Mobile: wrapper vira flex com scale 0.78. Largura/altura compensadas
-     para que a versão visualmente escalada ocupe 100% do card. */
+  /* Mobile: wrapper vira flex com scale dinâmico via --card-scale (calculado em JS).
+     Fallback 0.7 para casos onde JS não rodou ainda. */
   .feature-card-inner {
-    display: flex !important;          /* override do display:contents do desktop */
+    display: flex !important;
     flex-direction: column;
-    transform: scale(0.78);
+    transform: scale(var(--card-scale, 0.7));
     transform-origin: top left;
-    width: calc(100% / 0.78);
-    height: calc(100% / 0.78);
-    padding: 22px 26px 0;              /* mesmo padding original do card no desktop */
+    width: calc(100% / var(--card-scale, 0.7));
+    height: calc(100% / var(--card-scale, 0.7));
+    padding: 22px 26px 0;
   }
   /* Mantém comportamento da descrição e feature-ui dentro do wrapper */
   .feature-card-inner > p {
@@ -2922,6 +2921,14 @@ br.mobile-only { display: none; }
     flex: 1;
     min-height: 0;
     overflow: hidden;
+  }
+  /* Mobile: card inteiro com o mesmo gradiente bege do .feature-ui (sem split branco/bege) */
+  .feature-card {
+    background: linear-gradient(180deg, var(--gray-1) 0%, #f1ece1 100%) !important;
+  }
+  .feature-card .feature-ui {
+    background: transparent !important;
+    border-top: none !important;
   }
   /* Chat body: remove máscara */
   .fui-chat-body {
@@ -4504,8 +4511,47 @@ if (window.gsap && window.ScrollTrigger) {
   let viewportW = window.innerWidth;
   const isMobile = () => false; // sticky horizontal scroll igual ao desktop em todos os breakpoints
 
+  /* Calcula scale dinâmico para mobile baseado na altura disponível do card.
+     Usa primeiro card como referência (mede sua altura natural sem scale). */
+  function calcMobileScale() {
+    if (viewportW > 600) {
+      document.documentElement.style.removeProperty('--card-scale');
+      return;
+    }
+    const firstCard = rail.querySelector('.feature-card');
+    const inner = firstCard && firstCard.querySelector(':scope > .feature-card-inner');
+    if (!inner || !firstCard) return;
+
+    // Mede altura disponível real do card (rail-wrap height)
+    const wrap = rail.parentElement; // .features-rail-wrap
+    const availH = wrap.clientHeight;
+    if (availH <= 0) return;
+
+    // Mede altura natural do conteúdo SEM scale: temporariamente força scale 1
+    const prevTransform = inner.style.transform;
+    const prevWidth = inner.style.width;
+    const prevHeight = inner.style.height;
+    inner.style.transform = 'none';
+    inner.style.width = '100%';
+    inner.style.height = 'auto';
+    const naturalH = inner.scrollHeight;
+    // Restaura
+    inner.style.transform = prevTransform;
+    inner.style.width = prevWidth;
+    inner.style.height = prevHeight;
+
+    if (naturalH <= 0) return;
+
+    // Margem de segurança: 95% do espaço disponível
+    let scale = (availH * 0.95) / naturalH;
+    // Limita entre 0.55 e 0.92
+    scale = Math.max(0.55, Math.min(0.92, scale));
+    document.documentElement.style.setProperty('--card-scale', scale.toFixed(3));
+  }
+
   function measure() {
     viewportW = window.innerWidth;
+    calcMobileScale();
     railWidth = rail.scrollWidth;
     // Travel until the LAST card is aligned to the left padding of the rail.
     const lastCard = rail.lastElementChild;
