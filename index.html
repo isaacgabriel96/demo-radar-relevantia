@@ -930,6 +930,11 @@ h3 { font-size: clamp(22px, 2.5vw, 28px); }
 }
 .feature-card:hover { box-shadow: var(--shadow-md); border-color: var(--gold-light); }
 
+/* Desktop: o wrapper é transparente (scale 1) — só age no mobile */
+.feature-card-inner {
+  display: contents; /* desktop: como se o wrapper não existisse */
+}
+
 @media (max-width: 900px) {
   .feature-card {
     width: 78vw;
@@ -2882,23 +2887,38 @@ br.mobile-only { display: none; }
     align-items: stretch;
     height: 100%;
   }
-  /* Cards: ocupam quase toda largura, altura preenche o rail-wrap */
+  /* Cards: largura normal. O conteúdo interno é escalado proporcionalmente
+     via .feature-card-inner (wrapper) para caber na altura do mobile sem
+     mudar nada visualmente — fica igualzinho ao desktop, só menor. */
   .feature-card {
     width: calc(100vw - 48px);
     height: 100%;
     max-height: none;
     min-height: 0;
     flex-shrink: 0;
+    overflow: hidden;
+    padding: 0; /* o padding agora vive no inner para escalar junto */
   }
-  /* Libera altura travada da descrição para não cortar texto */
-  .feature-card > p {
+  /* Mobile: wrapper vira flex com scale 0.78. Largura/altura compensadas
+     para que a versão visualmente escalada ocupe 100% do card. */
+  .feature-card-inner {
+    display: flex !important;          /* override do display:contents do desktop */
+    flex-direction: column;
+    transform: scale(0.78);
+    transform-origin: top left;
+    width: calc(100% / 0.78);
+    height: calc(100% / 0.78);
+    padding: 22px 26px 0;              /* mesmo padding original do card no desktop */
+  }
+  /* Mantém comportamento da descrição e feature-ui dentro do wrapper */
+  .feature-card-inner > p {
     height: auto;
     overflow: visible;
     -webkit-line-clamp: unset;
     flex-shrink: 0;
   }
-  .feature-card > p + .feature-ui {
-    margin-top: 12px;
+  .feature-card-inner > p + .feature-ui {
+    margin-top: 18px;
     flex: 1;
     min-height: 0;
     overflow: hidden;
@@ -4467,6 +4487,16 @@ if (window.gsap && window.ScrollTrigger) {
   const rail = document.getElementById('featuresRail');
   const fill = document.getElementById('featuresProgressFill');
   if (!section || !rail) return;
+
+  /* Mobile only: envolve o conteúdo de cada .feature-card em um .feature-card-inner
+     para podermos escalar tudo proporcionalmente sem mexer no HTML. */
+  rail.querySelectorAll('.feature-card').forEach(card => {
+    if (card.querySelector(':scope > .feature-card-inner')) return; // já envolvido
+    const inner = document.createElement('div');
+    inner.className = 'feature-card-inner';
+    while (card.firstChild) inner.appendChild(card.firstChild);
+    card.appendChild(inner);
+  });
 
   let railWidth = 0;
   let railTravel = 0;    // actual horizontal pixels the rail needs to move
