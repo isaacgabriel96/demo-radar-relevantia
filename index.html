@@ -4508,6 +4508,7 @@ if (window.gsap && window.ScrollTrigger) {
   let railWidth = 0;
   let railTravel = 0;    // actual horizontal pixels the rail needs to move
   let scrollDistance = 0; // vertical scroll consumed (= railTravel × speed multiplier)
+  let startOffset = 0;   // initial right-shift on mobile (centers first card)
   let viewportW = window.innerWidth;
   const isMobile = () => false; // sticky horizontal scroll igual ao desktop em todos os breakpoints
 
@@ -4565,9 +4566,20 @@ if (window.gsap && window.ScrollTrigger) {
     }
     railTravel = Math.max(0, travel);
 
+    // Mobile: calcula offset inicial para CENTRALIZAR o primeiro card no viewport
+    // Card_left ideal = (viewport - card_width) / 2; offset = ideal - rail padding
+    if (viewportW <= 600) {
+      const firstCard = rail.querySelector('.feature-card');
+      const cardW = firstCard ? firstCard.offsetWidth : 0;
+      startOffset = Math.max(0, (viewportW - cardW) / 2 - padLeft);
+    } else {
+      startOffset = 0;
+    }
+
     // Slow multiplier on mobile: user scrolls more per card so each card stays longer
     const slowMultiplier = viewportW <= 768 ? 2 : 1;
-    scrollDistance = railTravel * slowMultiplier;
+    // scrollDistance precisa cobrir o offset inicial + travel total
+    scrollDistance = (railTravel + startOffset) * slowMultiplier;
     const vh = window.innerHeight;
     section.style.height = (vh + scrollDistance) + 'px';
   }
@@ -4588,7 +4600,9 @@ if (window.gsap && window.ScrollTrigger) {
       progress = -rect.top / scrollDistance;
     }
     progress = Math.max(0, Math.min(1, progress));
-    const tx = -progress * railTravel;
+    // Em progress=0: tx = +startOffset (primeiro card centralizado)
+    // Em progress=1: tx = -railTravel (último card visível à esquerda)
+    const tx = startOffset - progress * (railTravel + startOffset);
     rail.style.transform = `translate3d(${tx}px, 0, 0)`;
     if (fill) fill.style.width = (progress * 100) + '%';
   }
