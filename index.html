@@ -2849,12 +2849,14 @@ br.mobile-only { display: none; }
 
   /* ── FEATURES RAIL — sticky horizontal igual ao desktop ── */
   .features-pin {
-    padding: clamp(20px, 3vh, 36px) 0 clamp(24px, 3.5vh, 44px);
+    /* svh = small viewport height: desconta barra do Safari/iOS, card não fica cortado */
+    height: 100svh;
+    padding: clamp(16px, 2.5svh, 28px) 0 clamp(16px, 2.5svh, 28px);
   }
   .features .section-head {
     padding: 0 12px;
     text-align: left;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
   }
   .features .section-head h2 {
     font-size: clamp(22px, 6.4vw, 26px);
@@ -2864,10 +2866,11 @@ br.mobile-only { display: none; }
     font-size: clamp(14px, 3.8vw, 16px);
     margin-top: 4px;
   }
-  /* Cards: altura maior para mostrar botão */
+  /* Cards: altura calculada com svh para caber dentro da área visível real */
   .feature-card {
     width: 82vw;
-    max-height: 620px;
+    height: calc(100svh - clamp(140px, 22svh, 180px));
+    max-height: none;
   }
   /* Rail-wrap: alinhar ao topo, sem espaço extra acima dos cards */
   .features-rail-wrap {
@@ -4050,7 +4053,7 @@ br.mobile-only { display: none; }
           <span class="profile-toggle-icon">🎤</span>
           <div>
             <div class="profile-toggle-label" data-i18n="modal.ps.holderLabel">Detentor de Direitos</div>
-            <div class="profile-toggle-desc" data-i18n="modal.ps.holderDesc">Influenciador, evento, podcast, atleta…</div>
+            <div class="profile-toggle-desc" data-i18n="modal.ps.holderDesc">Personalidade, evento, músico e mídia</div>
           </div>
         </button>
       </div>
@@ -4317,7 +4320,7 @@ const I18N = {
 
     "modal.ps.title": "Solicitar acesso", "modal.ps.sub": "Escolha seu perfil para começar",
     "modal.ps.brandLabel": "Marca", "modal.ps.brandDesc": "Quero patrocinar ativos",
-    "modal.ps.holderLabel": "Detentor de Direitos", "modal.ps.holderDesc": "Influenciador, evento, podcast, atleta…",
+    "modal.ps.holderLabel": "Detentor de Direitos", "modal.ps.holderDesc": "Personalidade, evento, músico e mídia",
     "modal.ps.brandFoot": "Menos burocracia. Mais efetividade.",
     "modal.ps.holderFoot": "O ponto de encontro entre marcas e ativos.",
     "modal.firstName": "Nome", "modal.lastName": "Sobrenome", "modal.fullName": "Seu nome", "modal.email": "E-mail",
@@ -4480,7 +4483,9 @@ if (window.gsap && window.ScrollTrigger) {
     // Slow multiplier: more vertical scroll needed per card on mobile (less rushed)
     const slowMultiplier = viewportW <= 768 ? 1.6 : 1;
     scrollDistance = totalTravel * slowMultiplier;
-    section.style.height = (window.innerHeight + scrollDistance) + 'px';
+    // Use visualViewport height when available (accounts for iOS Safari chrome)
+    const vh = (window.visualViewport ? window.visualViewport.height : window.innerHeight);
+    section.style.height = (vh + scrollDistance) + 'px';
   }
 
   function update() {
