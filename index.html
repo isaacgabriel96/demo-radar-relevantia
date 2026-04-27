@@ -2924,14 +2924,9 @@ br.mobile-only { display: none; }
     min-height: 0;
     overflow: hidden;
   }
-  /* Mobile: card inteiro com o mesmo gradiente bege do .feature-ui (sem split branco/bege) */
-  .feature-card {
-    background: linear-gradient(180deg, var(--gray-1) 0%, #f1ece1 100%) !important;
-  }
-  .feature-card .feature-ui {
-    background: transparent !important;
-    border-top: none !important;
-  }
+  /* Cabeçalho do card branco (igual desktop), .feature-ui mantém o gradiente bege */
+  /* Sem override aqui — o background padrão do .feature-card (var(--white)) e o
+     gradiente bege do .feature-ui (definidos em CSS base) ficam intactos. */
   /* Chat body: remove máscara */
   .fui-chat-body {
     justify-content: flex-end;
