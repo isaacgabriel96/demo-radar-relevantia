@@ -2925,8 +2925,14 @@ br.mobile-only { display: none; }
     min-height: 0;
     overflow: hidden;
   }
-  /* Mantém padrão do desktop: card com topo branco + .feature-ui bege com border-top.
-     Sem overrides aqui — herda os estilos base. */
+  /* Mobile: força topo do card branco (igual desktop), .feature-ui bege embaixo */
+  .feature-card {
+    background: var(--white) !important;
+  }
+  .feature-card .feature-ui {
+    background: linear-gradient(180deg, var(--gray-1) 0%, #f1ece1 100%) !important;
+    border-top: 1px solid var(--gray-2) !important;
+  }
   /* Chat body: remove máscara */
   .fui-chat-body {
     justify-content: flex-end;
