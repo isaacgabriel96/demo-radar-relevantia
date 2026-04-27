@@ -2925,13 +2925,22 @@ br.mobile-only { display: none; }
     min-height: 0;
     overflow: hidden;
   }
-  /* Mobile: força topo do card branco (igual desktop), .feature-ui bege embaixo */
+  /* SOLUÇÃO DEFINITIVA:
+     - Card todo BEGE (gradient) — garantia que NÃO vai sobrar branco em lugar nenhum
+     - .feature-card-header (icon+title+desc) com fundo BRANCO = topo branco como desktop
+     - .feature-ui transparente — mostra o bege do card por baixo */
   .feature-card {
-    background: var(--white) !important;
+    background: linear-gradient(180deg, var(--gray-1) 0%, #f1ece1 100%) !important;
+  }
+  .feature-card-header {
+    background: var(--white);
+    margin: -22px -26px 0 -26px;  /* extende às bordas do .feature-card-inner */
+    padding: 22px 26px 18px;
+    border-bottom: 1px solid var(--gray-2);
   }
   .feature-card .feature-ui {
-    background: linear-gradient(180deg, var(--gray-1) 0%, #f1ece1 100%) !important;
-    border-top: 1px solid var(--gray-2) !important;
+    background: transparent !important;
+    border-top: none !important;
   }
   /* Chat body: remove máscara */
   .fui-chat-body {
@@ -4498,13 +4507,24 @@ if (window.gsap && window.ScrollTrigger) {
   if (!section || !rail) return;
 
   /* Mobile only: envolve o conteúdo de cada .feature-card em um .feature-card-inner
-     para podermos escalar tudo proporcionalmente sem mexer no HTML. */
+     para escalar proporcionalmente. Também envolve a parte de texto (icon+h3+p)
+     em .feature-card-header para podermos pintar branco só nessa parte e deixar
+     o resto do card com bege uniforme. */
   rail.querySelectorAll('.feature-card').forEach(card => {
     if (card.querySelector(':scope > .feature-card-inner')) return; // já envolvido
     const inner = document.createElement('div');
     inner.className = 'feature-card-inner';
     while (card.firstChild) inner.appendChild(card.firstChild);
     card.appendChild(inner);
+
+    // Envolve icon + h3 + p (até antes do .feature-ui) em um header
+    const header = document.createElement('div');
+    header.className = 'feature-card-header';
+    const featureUi = inner.querySelector(':scope > .feature-ui');
+    while (inner.firstChild && inner.firstChild !== featureUi) {
+      header.appendChild(inner.firstChild);
+    }
+    inner.insertBefore(header, featureUi);
   });
 
   let railWidth = 0;
